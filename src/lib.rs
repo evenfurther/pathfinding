@@ -1,3 +1,7 @@
+#![warn(missing_docs)]
+
+//! This crate implements functions to search in a graph.
+
 extern crate num;
 
 mod astar;
