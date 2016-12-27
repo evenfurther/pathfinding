@@ -4,7 +4,9 @@ description = "Pathfinding search library"
 repository = "https://github.com/samueltardieu/pathfinding"
 keywords = ["path-finding", "search", "shortest-path", "astar", "dijkstra"]
 license = "Apache-2.0/MIT"
-version = "0.1.0"
+homepage = "https://www.rfc1149.net/devel/pathfinding.html"
+documentation = "https://docs.rs/pathfinding/"
+version = "0.1.1"
 authors = ["Samuel Tardieu <sam@rfc1149.net>"]
 
 [dependencies]
