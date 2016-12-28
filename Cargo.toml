@@ -11,3 +11,6 @@ authors = ["Samuel Tardieu <sam@rfc1149.net>"]
 
 [dependencies]
 num = "0.1"
+
+[dev-dependencies]
+lazy_static = "0.1"
