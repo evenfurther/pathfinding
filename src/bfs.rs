@@ -1,5 +1,7 @@
-use dijkstra::dijkstra;
+use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;
+
+use super::reverse_path;
 
 /// Compute a shortest path using the [breadth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
@@ -62,8 +64,19 @@ pub fn bfs<N, FN, IN, FS>(start: &N, neighbours: FN, success: FS) -> Option<Vec<
           IN: IntoIterator<Item = N>,
           FS: Fn(&N) -> bool
 {
-    dijkstra(start,
-             |n| neighbours(n).into_iter().map(|n| (n, 1)),
-             success)
-        .map(|(path, _)| path)
+    let mut to_see = VecDeque::new();
+    to_see.push_back(start.clone());
+    let mut parents: HashMap<N, N> = HashMap::new();
+    while let Some(node) = to_see.pop_front() {
+        if success(&node) {
+            return Some(reverse_path(parents, node));
+        }
+        for neighbour in neighbours(&node) {
+            if neighbour != *start && !parents.contains_key(&neighbour) {
+                parents.insert(neighbour.clone(), node.clone());
+                to_see.push_back(neighbour);
+            }
+        }
+    }
+    None
 }
