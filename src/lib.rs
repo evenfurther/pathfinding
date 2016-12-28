@@ -6,11 +6,13 @@ extern crate num;
 
 mod astar;
 mod bfs;
+mod dfs;
 mod dijkstra;
 mod fringe;
 
 pub use astar::*;
 pub use bfs::*;
+pub use dfs::*;
 pub use dijkstra::*;
 pub use fringe::*;
 
