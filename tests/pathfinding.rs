@@ -56,7 +56,7 @@ mod ex1 {
     #[test]
     fn dfs_ok() {
         for target in 0..9 {
-            match bfs(&1,
+            match dfs(1,
                       |n| neighbours(n).into_iter().map(|(v, _)| v),
                       |&node| node == target) {
                 None => assert_eq!(expected(target), None, "path not found"),
@@ -75,7 +75,7 @@ mod ex1 {
 
     #[test]
     fn dfs_loop_ok() {
-        assert_eq!(dfs(&1, |_| vec![1], |&n| n == 2), None);
+        assert_eq!(dfs(1, |_| vec![1], |&n| n == 2), None);
     }
 }
 
@@ -182,7 +182,7 @@ mod ex2 {
     #[test]
     fn dfs_path_ok() {
         const GOAL: (usize, usize) = (6, 3);
-        let path = dfs(&(2, 3),
+        let path = dfs((2, 3),
                        |n| neighbours(n).into_iter().map(|(n, _)| n),
                        |n| n == &GOAL)
             .expect("path not found");
@@ -222,7 +222,7 @@ mod ex2 {
     #[test]
     fn dfs_no_path() {
         const GOAL: (usize, usize) = (1, 1);
-        assert_eq!(dfs(&(2, 3),
+        assert_eq!(dfs((2, 3),
                        |n| neighbours(n).into_iter().map(|(n, _)| n),
                        |n| n == &GOAL),
                    None);
