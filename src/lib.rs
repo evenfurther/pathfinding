@@ -17,6 +17,8 @@ pub use dijkstra::*;
 pub use fringe::*;
 
 use std::cmp::Ordering;
+use std::collections::HashMap;
+use std::hash::Hash;
 
 struct InvCmpHolder<K, P> {
     key: K,
@@ -41,4 +43,12 @@ impl<K: Ord, P> Ord for InvCmpHolder<K, P> {
     fn cmp(&self, other: &InvCmpHolder<K, P>) -> Ordering {
         other.key.cmp(&self.key)
     }
+}
+
+fn reverse_path<N: Eq + Hash>(mut parents: HashMap<N, N>, start: N) -> Vec<N> {
+    let mut path = vec![start];
+    while let Some(parent) = parents.remove(path.last().unwrap()) {
+        path.push(parent);
+    }
+    path.into_iter().rev().collect()
 }

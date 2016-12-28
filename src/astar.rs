@@ -1,9 +1,8 @@
 use num::Zero;
-use std::collections::{BinaryHeap, HashSet};
-use std::iter::once;
+use std::collections::{BinaryHeap, HashMap};
 use std::hash::Hash;
 
-use super::InvCmpHolder;
+use super::{InvCmpHolder, reverse_path};
 
 /// Compute a shortest path using the [A* search
 /// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
@@ -87,24 +86,21 @@ pub fn astar<N, C, FN, IN, FH, FS>(start: &N,
     let mut to_see = BinaryHeap::new();
     to_see.push(InvCmpHolder {
         key: heuristic(start),
-        payload: (Zero::zero(), vec![start.clone()]),
+        payload: (Zero::zero(), start.clone()),
     });
-    let mut considered = HashSet::new();
-    considered.insert(start.clone());
-    while let Some(InvCmpHolder { payload: (cost, path), .. }) = to_see.pop() {
-        let node = path.last().unwrap();
-        if success(node) {
-            return Some((path.clone(), cost));
+    let mut parents: HashMap<N, N> = HashMap::new();
+    while let Some(InvCmpHolder { payload: (cost, node), .. }) = to_see.pop() {
+        if success(&node) {
+            return Some((reverse_path(parents, node), cost));
         }
-        for (neighbour, move_cost) in neighbours(node) {
-            if !considered.contains(&neighbour) {
-                considered.insert(neighbour.clone());
+        for (neighbour, move_cost) in neighbours(&node) {
+            if neighbour != *start && !parents.contains_key(&neighbour) {
+                parents.insert(neighbour.clone(), node.clone());
                 let new_cost = cost + move_cost;
                 let new_predicted_cost = new_cost + heuristic(&neighbour);
-                let new_path = path.iter().cloned().chain(once(neighbour)).collect();
                 to_see.push(InvCmpHolder {
                     key: new_predicted_cost,
-                    payload: (new_cost, new_path),
+                    payload: (new_cost, neighbour),
                 });
             }
         }
