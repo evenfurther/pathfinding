@@ -91,7 +91,7 @@ pub fn astar<N, C, FN, IN, FH, FS>(start: &N,
     });
     let mut considered = HashSet::new();
     considered.insert(start.clone());
-    while let Some(InvCmpHolder { key: _, payload: (cost, path) }) = to_see.pop() {
+    while let Some(InvCmpHolder { payload: (cost, path), .. }) = to_see.pop() {
         let node = path.last().unwrap();
         if success(node) {
             return Some((path.clone(), cost));
