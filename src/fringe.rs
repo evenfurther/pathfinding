@@ -6,7 +6,7 @@ use std::mem;
 use super::reverse_path;
 
 fn remove<T: Eq>(v: &mut VecDeque<T>, e: &T) -> bool {
-    if let Some((index, _)) = v.iter().enumerate().find(|&(_, x)| x == e) {
+    if let Some(index) = v.iter().position(|x| x == e) {
         v.remove(index);
         true
     } else {
@@ -125,7 +125,7 @@ pub fn fringe<N, C, FN, IN, FH, FS>(start: &N,
                         continue;
                     }
                 }
-                remove(&mut later, &neighbour) || remove(&mut now, &neighbour);
+                if !remove(&mut later, &neighbour) { remove(&mut now, &neighbour); }
                 now.push_front(neighbour.clone());
                 costs.insert(neighbour.clone(), g_neighbour);
                 parents.insert(neighbour, node.clone());
