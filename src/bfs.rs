@@ -1,7 +1,7 @@
 use dijkstra::dijkstra;
 use std::hash::Hash;
 
-/// Compute a shortest path using the [BFS search
+/// Compute a shortest path using the [breadth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
 ///
 /// The shortest path starting from `start` up to a node for which `success` returns `true` is

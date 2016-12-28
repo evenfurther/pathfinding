@@ -12,7 +12,8 @@ fn remove<T: Eq>(v: &mut VecDeque<T>, e: &T) -> bool {
     }
 }
 
-/// Compute a shortest path using the [Fringe search algorithm](https://en.wikipedia.org/wiki/Fringe_search).
+/// Compute a shortest path using the [Fringe search
+/// algorithm](https://en.wikipedia.org/wiki/Fringe_search).
 ///
 /// The shortest path starting from `start` up to a node for which `success` returns `true` is
 /// computed and returned along with its total cost, in a `Some`. If no path can be found, `None`
