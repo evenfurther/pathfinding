@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/samueltardieu/pathfinding.svg?branch=master)](https://travis-ci.org/samueltardieu/pathfinding)
 [![Current Version](https://img.shields.io/crates/v/pathfinding.svg)](https://crates.io/crates/pathfinding)
-[![License: Apache-2.0/MIT](https://img.shields.io/crates/l/pathfinding.svg)](#License)
+[![License: Apache-2.0/MIT](https://img.shields.io/crates/l/pathfinding.svg)](#license)
 
 This crate implements several pathfinding algorithms in [Rust]():
 
@@ -71,6 +71,10 @@ let result = bfs(&(1, 1),
                  |&p| p == GOAL);
 assert_eq!(result.expect("no path found").len(), 5);
 ```
+
+## License
+
+This code is released under a dual Apache 2.0 / MIT free software license.
 
 [A*]: https://en.wikipedia.org/wiki/A*_search_algorithm
 [BFS]: https://en.wikipedia.org/wiki/Breadth-first_search
