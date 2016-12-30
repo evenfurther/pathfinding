@@ -8,7 +8,9 @@ matrix:
     - rust: nightly
       env: CHECK_CLIPPY=y
   allow_failures:
-    rust: nightly
+    - rust: nightly
+      env: CHECK_CLIPPY=y
+  fast_finish: true
 
 cache:
   cargo: true
