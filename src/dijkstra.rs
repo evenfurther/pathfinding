@@ -1,5 +1,5 @@
 use astar::astar;
-use num::Zero;
+use num_traits::Zero;
 use std::hash::Hash;
 
 /// Compute a shortest path using the [Dijsktra search

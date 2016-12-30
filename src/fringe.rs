@@ -1,4 +1,4 @@
-use num::{Bounded, Zero};
+use num_traits::{Bounded, Zero};
 use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;
 use std::mem;

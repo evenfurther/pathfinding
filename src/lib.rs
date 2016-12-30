@@ -2,7 +2,7 @@
 
 //! This crate implements functions to search in a graph.
 
-extern crate num;
+extern crate num_traits;
 
 mod astar;
 mod bfs;
