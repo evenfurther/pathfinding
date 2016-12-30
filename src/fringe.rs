@@ -125,7 +125,9 @@ pub fn fringe<N, C, FN, IN, FH, FS>(start: &N,
                         continue;
                     }
                 }
-                if !remove(&mut later, &neighbour) { remove(&mut now, &neighbour); }
+                if !remove(&mut later, &neighbour) {
+                    remove(&mut now, &neighbour);
+                }
                 now.push_front(neighbour.clone());
                 costs.insert(neighbour.clone(), g_neighbour);
                 parents.insert(neighbour, node.clone());
