@@ -61,7 +61,7 @@ assert_eq!(result.expect("no path found").len(), 5);
 The second version does not declare a `Pos` type, makes use of more closures,
 and is thus shorter.
 
-```
+``` rust
 use pathfinding::bfs;
 
 static GOAL: (i32, i32) = (4, 6);
