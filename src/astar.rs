@@ -88,15 +88,17 @@ pub fn astar<N, C, FN, IN, FH, FS>(start: &N,
         key: heuristic(start),
         payload: (Zero::zero(), start.clone()),
     });
-    let mut parents: HashMap<N, N> = HashMap::new();
+    let mut parents: HashMap<N, (N, C)> = HashMap::new();
     while let Some(InvCmpHolder { payload: (cost, node), .. }) = to_see.pop() {
         if success(&node) {
+            let parents = parents.into_iter().map(|(n, (p, _))| (n, p)).collect();
             return Some((reverse_path(parents, node), cost));
         }
         for (neighbour, move_cost) in neighbours(&node) {
-            if neighbour != *start && !parents.contains_key(&neighbour) {
-                parents.insert(neighbour.clone(), node.clone());
-                let new_cost = cost + move_cost;
+            let old_cost = parents.get(&neighbour).map(|&(_, c)| c);
+            let new_cost = cost + move_cost;
+            if neighbour != *start && (old_cost.is_none() || old_cost.unwrap() > new_cost) {
+                parents.insert(neighbour.clone(), (node.clone(), new_cost));
                 let new_predicted_cost = new_cost + heuristic(&neighbour);
                 to_see.push(InvCmpHolder {
                     key: new_predicted_cost,
