@@ -94,6 +94,14 @@ pub fn astar<N, C, FN, IN, FH, FS>(start: &N,
             let parents = parents.into_iter().map(|(n, (p, _))| (n, p)).collect();
             return Some((reverse_path(parents, node), cost));
         }
+        // We may have inserted a node several time into the binary heap if we found
+        // a better way to access it. Ensure that we are currently dealing with the
+        // best path and discard the others.
+        if let Some(&(_, c)) = parents.get(&node) {
+            if cost > c {
+                continue;
+            }
+        }
         for (neighbour, move_cost) in neighbours(&node) {
             let old_cost = parents.get(&neighbour).map(|&(_, c)| c);
             let new_cost = cost + move_cost;
