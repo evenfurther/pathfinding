@@ -97,7 +97,7 @@ pub fn astar<N, C, FN, IN, FH, FS>(start: &N,
         for (neighbour, move_cost) in neighbours(&node) {
             let old_cost = parents.get(&neighbour).map(|&(_, c)| c);
             let new_cost = cost + move_cost;
-            if neighbour != *start && (old_cost.is_none() || old_cost.unwrap() > new_cost) {
+            if neighbour != *start && old_cost.map_or(true, |c| new_cost < c) {
                 parents.insert(neighbour.clone(), (node.clone(), new_cost));
                 let new_predicted_cost = new_cost + heuristic(&neighbour);
                 to_see.push(InvCmpHolder {
