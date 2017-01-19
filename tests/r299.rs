@@ -17,15 +17,17 @@ fn add_neighbour(n: &mut HashMap<Point, Vec<(Point, usize)>>,
                  from: &Point,
                  to: &Point,
                  cost: usize) {
-    let mut entry = n.entry(from.clone()).or_insert(Vec::new());
+    let mut entry = n.entry(from.clone()).or_insert_with(Vec::new);
     entry.push((to.clone(), cost));
 }
 
-fn parse(input: &str) -> (Vec<Point>, HashMap<Point, Vec<(Point, usize)>>) {
+type NeighbourInfo = Vec<(Point, usize)>;
+
+fn parse(input: &str) -> (Vec<Point>, HashMap<Point, NeighbourInfo>) {
     let mut nodes = Vec::new();
     let mut neighbours = HashMap::new();
     for words in input.lines()
-        .map(|l| l.split(" ").map(|s| s.parse::<usize>().unwrap_or(0)).collect::<Vec<_>>()) {
+        .map(|l| l.split(' ').map(|s| s.parse::<usize>().unwrap_or(0)).collect::<Vec<_>>()) {
         let src = Point {
             row: words[0],
             col: words[1],
