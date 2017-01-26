@@ -7,7 +7,7 @@ use super::reverse_path;
 /// algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
 ///
 /// The shortest path starting from `start` up to a node for which `success` returns `true` is
-/// computed and returned along with its total cost, in a `Some`. If no path can be found, `None`
+/// computed and returned in a `Some`. If no path can be found, `None`
 /// is returned instead.
 ///
 /// - `start` is the starting node.
