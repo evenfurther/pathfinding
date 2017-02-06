@@ -17,7 +17,7 @@ cache:
 
 install:
   - if [ ! -z "$CHECK_FMT" ]; then (cargo install rustfmt | true); fi
-  - if [ ! -z "$CHECK_CLIPPY" ]; then (cargo install clippy | true); fi
+  - if [ ! -z "$CHECK_CLIPPY" ]; then (cargo install --force clippy | true); fi
 
 before_script:
   - if [ ! -z "$CHECK_FMT" ]; then PATH=$PATH:~/.cargo/bin cargo fmt -- --write-mode=diff; fi
