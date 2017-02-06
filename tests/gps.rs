@@ -48,13 +48,13 @@ fn neighbour_distances(coords: &HashMap<&str, Coords>)
                 .collect();
             neighbours.insert(from, ns);
         };
-        insert_neighbour("Paris", &vec!["Lyon", "Bordeaux", "Reims"]);
-        insert_neighbour("Lyon", &vec!["Paris", "Marseille"]);
-        insert_neighbour("Marseille", &vec!["Lyon", "Cannes", "Toulouse"]);
-        insert_neighbour("Bordeaux", &vec!["Toulouse", "Paris"]);
-        insert_neighbour("Cannes", &vec!["Marseille"]);
-        insert_neighbour("Toulouse", &vec!["Marseille", "Bordeaux"]);
-        insert_neighbour("Reims", &vec!["Paris"]);
+        insert_neighbour("Paris", &["Lyon", "Bordeaux", "Reims"]);
+        insert_neighbour("Lyon", &["Paris", "Marseille"]);
+        insert_neighbour("Marseille", &["Lyon", "Cannes", "Toulouse"]);
+        insert_neighbour("Bordeaux", &["Toulouse", "Paris"]);
+        insert_neighbour("Cannes", &["Marseille"]);
+        insert_neighbour("Toulouse", &["Marseille", "Bordeaux"]);
+        insert_neighbour("Reims", &["Paris"]);
     }
     neighbours
 }
