@@ -84,4 +84,14 @@ fn test_gps() {
     assert_eq!(cost_astar,
                cost_fringe,
                "costs for astar and fringe are different");
+
+    let r = dijkstra(&start,
+                     |city| neighbour_distances[city].clone(),
+                     |city| city == &goal);
+    let (path, cost_dijkstra) = r.expect("no path found with dijkstra");
+    assert_eq!(path, expected_path, "bad path found with dijkstra");
+
+    assert_eq!(cost_astar,
+               cost_dijkstra,
+               "costs for astar and dijkstra are different");
 }
