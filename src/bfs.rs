@@ -1,4 +1,5 @@
 use std::collections::{HashMap, VecDeque};
+use std::collections::hash_map::Entry::Vacant;
 use std::hash::Hash;
 
 use super::reverse_path;
@@ -72,9 +73,11 @@ pub fn bfs<N, FN, IN, FS>(start: &N, neighbours: FN, success: FS) -> Option<Vec<
             return Some(reverse_path(parents, node));
         }
         for neighbour in neighbours(&node) {
-            if neighbour != *start && !parents.contains_key(&neighbour) {
-                parents.insert(neighbour.clone(), node.clone());
-                to_see.push_back(neighbour);
+            if neighbour != *start {
+                if let Vacant(e) = parents.entry(neighbour.clone()) {
+                    e.insert(node.clone());
+                    to_see.push_back(neighbour);
+                }
             }
         }
     }
