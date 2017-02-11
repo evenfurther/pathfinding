@@ -1,5 +1,6 @@
 use num_traits::Zero;
 use std::collections::{BinaryHeap, HashMap};
+use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::hash::Hash;
 
 use super::{InvCmpHolder, reverse_path};
@@ -103,15 +104,28 @@ pub fn astar<N, C, FN, IN, FH, FS>(start: &N,
             }
         }
         for (neighbour, move_cost) in neighbours(&node) {
-            let old_cost = parents.get(&neighbour).map(|&(_, c)| c);
             let new_cost = cost + move_cost;
-            if neighbour != *start && old_cost.map_or(true, |c| new_cost < c) {
-                parents.insert(neighbour.clone(), (node.clone(), new_cost));
-                let new_predicted_cost = new_cost + heuristic(&neighbour);
-                to_see.push(InvCmpHolder {
-                    key: new_predicted_cost,
-                    payload: (new_cost, neighbour),
-                });
+            if neighbour != *start {
+                let mut inserted = true;
+                match parents.entry(neighbour.clone()) {
+                    Vacant(e) => {
+                        e.insert((node.clone(), new_cost));
+                    }
+                    Occupied(mut e) => {
+                        if e.get().1 > new_cost {
+                            e.insert((node.clone(), new_cost));
+                        } else {
+                            inserted = false;
+                        }
+                    }
+                };
+                if inserted {
+                    let new_predicted_cost = new_cost + heuristic(&neighbour);
+                    to_see.push(InvCmpHolder {
+                        key: new_predicted_cost,
+                        payload: (new_cost, neighbour),
+                    });
+                }
             }
         }
     }
