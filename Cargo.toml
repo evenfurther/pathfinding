@@ -15,4 +15,4 @@ readme = "README.md"
 num-traits = "0.1"
 
 [dev-dependencies]
-lazy_static = "0.1"
+lazy_static = "0.2"
