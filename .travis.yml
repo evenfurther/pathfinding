@@ -6,6 +6,7 @@ matrix:
       env: CHECK_FMT=y
     - rust: beta
     - rust: nightly
+    - rust: nightly
       env: CHECK_CLIPPY=y
   allow_failures:
     - rust: nightly
