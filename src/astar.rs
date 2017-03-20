@@ -86,9 +86,9 @@ pub fn astar<N, C, FN, IN, FH, FS>(start: &N,
 {
     let mut to_see = BinaryHeap::new();
     to_see.push(InvCmpHolder {
-        key: heuristic(start),
-        payload: (Zero::zero(), start.clone()),
-    });
+                    key: heuristic(start),
+                    payload: (Zero::zero(), start.clone()),
+                });
     let mut parents: HashMap<N, (N, C)> = HashMap::new();
     while let Some(InvCmpHolder { payload: (cost, node), .. }) = to_see.pop() {
         if success(&node) {
@@ -122,9 +122,9 @@ pub fn astar<N, C, FN, IN, FH, FS>(start: &N,
                 if inserted {
                     let new_predicted_cost = new_cost + heuristic(&neighbour);
                     to_see.push(InvCmpHolder {
-                        key: new_predicted_cost,
-                        payload: (new_cost, neighbour),
-                    });
+                                    key: new_predicted_cost,
+                                    payload: (new_cost, neighbour),
+                                });
                 }
             }
         }

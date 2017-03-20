@@ -104,10 +104,10 @@ mod ex2 {
         vec![(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
             .into_iter()
             .filter_map(|(nx, ny)| if OPEN[ny][nx] {
-                Some(((nx, ny), 1))
-            } else {
-                None
-            })
+                            Some(((nx, ny), 1))
+                        } else {
+                            None
+                        })
             .collect()
     }
 
@@ -129,7 +129,7 @@ mod ex2 {
                                  neighbours_counter,
                                  |n| distance(n, &GOAL),
                                  |n| n == &GOAL)
-            .expect("path not found");
+                .expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(*counter.borrow(), 14);
@@ -147,7 +147,7 @@ mod ex2 {
                                   neighbours_counter,
                                   |n| distance(n, &GOAL),
                                   |n| n == &GOAL)
-            .expect("path not found");
+                .expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(*counter.borrow(), 14);
@@ -161,8 +161,8 @@ mod ex2 {
             *counter.borrow_mut() += 1;
             neighbours(n)
         };
-        let (path, cost) = dijkstra(&(2, 3), neighbours_counter, |n| n == &GOAL)
-            .expect("path not found");
+        let (path, cost) =
+            dijkstra(&(2, 3), neighbours_counter, |n| n == &GOAL).expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(*counter.borrow(), 20);
@@ -174,7 +174,7 @@ mod ex2 {
         let path = bfs(&(2, 3),
                        |n| neighbours(n).into_iter().map(|(n, _)| n),
                        |n| n == &GOAL)
-            .expect("path not found");
+                .expect("path not found");
         assert_eq!(path.len(), 9);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
     }
@@ -185,7 +185,7 @@ mod ex2 {
         let path = dfs((2, 3),
                        |n| neighbours(n).into_iter().map(|(n, _)| n),
                        |n| n == &GOAL)
-            .expect("path not found");
+                .expect("path not found");
         assert!(path.len() >= 9);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
     }

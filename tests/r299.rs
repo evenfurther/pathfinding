@@ -26,8 +26,11 @@ type NeighbourInfo = Vec<(Point, usize)>;
 fn parse(input: &str) -> (Vec<Point>, HashMap<Point, NeighbourInfo>) {
     let mut nodes = Vec::new();
     let mut neighbours = HashMap::new();
-    for words in input.lines()
-        .map(|l| l.split(' ').map(|s| s.parse::<usize>().unwrap_or(0)).collect::<Vec<_>>()) {
+    for words in input.lines().map(|l| {
+                                       l.split(' ')
+                                           .map(|s| s.parse::<usize>().unwrap_or(0))
+                                           .collect::<Vec<_>>()
+                                   }) {
         let src = Point {
             row: words[0],
             col: words[1],
@@ -72,19 +75,17 @@ fn main() {
                              |n| graph[n].iter().cloned(),
                              |n| distance(n, target),
                              |n| n == target)
-                           .unwrap()
-                           .1,
+                               .unwrap()
+                               .1,
                        expected);
-            assert_eq!(dijkstra(start, |n| graph[n].iter().cloned(), |n| n == target)
-                           .unwrap()
-                           .1,
+            assert_eq!(dijkstra(start, |n| graph[n].iter().cloned(), |n| n == target).unwrap().1,
                        expected);
             assert_eq!(fringe(start,
                               |n| graph[n].iter().cloned(),
                               |n| distance(n, target),
                               |n| n == target)
-                           .unwrap()
-                           .1,
+                               .unwrap()
+                               .1,
                        expected);
         }
     }
