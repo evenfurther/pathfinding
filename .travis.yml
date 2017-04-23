@@ -3,9 +3,9 @@ language: rust
 matrix:
   include:
     - rust: stable
-      env: CHECK_FMT=y
     - rust: beta
     - rust: nightly
+      env: CHECK_FMT=y
     - rust: nightly
       env: CHECK_CLIPPY=y
   allow_failures:
@@ -17,7 +17,7 @@ cache:
   cargo: true
 
 install:
-  - if [ ! -z "$CHECK_FMT" ]; then (cargo install rustfmt | true); fi
+  - if [ ! -z "$CHECK_FMT" ]; then (cargo install --force rustfmt | true); fi
   - if [ ! -z "$CHECK_CLIPPY" ]; then (cargo install --force clippy | true); fi
 
 before_script:
