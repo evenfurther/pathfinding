@@ -5,19 +5,18 @@ matrix:
     - rust: stable
     - rust: beta
     - rust: nightly
-      env: CHECK_FMT=y
     - rust: nightly
-      env: CHECK_CLIPPY=y
+      env: CHECK_CLIPPY=y CHECK_FMT=y
   allow_failures:
     - rust: nightly
-      env: CHECK_CLIPPY=y
+      env: CHECK_CLIPPY=y CHECK_FMT=y
   fast_finish: true
 
 cache:
   cargo: true
 
 install:
-  - if [ ! -z "$CHECK_FMT" ]; then (cargo install --force rustfmt | true); fi
+  - if [ ! -z "$CHECK_FMT" ]; then (cargo install rustfmt | true); fi
   - if [ ! -z "$CHECK_CLIPPY" ]; then (cargo install --force clippy | true); fi
 
 before_script:
