@@ -61,10 +61,8 @@ mod ex1 {
                       |&node| node == target) {
                 None => assert_eq!(expected(target), None, "path not found"),
                 Some(path) => {
-                    assert!(expected(target)
-                                .expect("non-existant path found")
-                                .0
-                                .len() <= path.len())
+                    assert!(expected(target).expect("non-existant path found").0.len() <=
+                            path.len())
                 }
             }
         }
@@ -163,8 +161,8 @@ mod ex2 {
             *counter.borrow_mut() += 1;
             neighbours(n)
         };
-        let (path, cost) =
-            dijkstra(&(2, 3), neighbours_counter, |n| n == &GOAL).expect("path not found");
+        let (path, cost) = dijkstra(&(2, 3), neighbours_counter, |n| n == &GOAL)
+            .expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(*counter.borrow(), 20);
