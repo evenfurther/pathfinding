@@ -7,7 +7,7 @@ platform:
 
 environment:
   matrix:
-    - RUST_VERSION: 1.17.0
+    - RUST_VERSION: 1.18.0
     - RUST_VERSION: beta
     - RUST_VERSION: nightly
 
