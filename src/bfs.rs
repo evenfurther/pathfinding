@@ -60,10 +60,11 @@ use super::reverse_path;
 /// assert_eq!(result.expect("no path found").len(), 5);
 /// ```
 pub fn bfs<N, FN, IN, FS>(start: &N, neighbours: FN, success: FS) -> Option<Vec<N>>
-    where N: Eq + Hash + Clone,
-          FN: Fn(&N) -> IN,
-          IN: IntoIterator<Item = N>,
-          FS: Fn(&N) -> bool
+where
+    N: Eq + Hash + Clone,
+    FN: Fn(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+    FS: Fn(&N) -> bool,
 {
     let mut to_see = VecDeque::new();
     to_see.push_back(start.clone());

@@ -13,10 +13,12 @@ struct Point {
     col: usize,
 }
 
-fn add_neighbour(n: &mut HashMap<Point, Vec<(Point, usize)>>,
-                 from: &Point,
-                 to: &Point,
-                 cost: usize) {
+fn add_neighbour(
+    n: &mut HashMap<Point, Vec<(Point, usize)>>,
+    from: &Point,
+    to: &Point,
+    cost: usize,
+) {
     let mut entry = n.entry(from.clone()).or_insert_with(Vec::new);
     entry.push((to.clone(), cost));
 }
@@ -26,13 +28,12 @@ type NeighbourInfo = Vec<(Point, usize)>;
 fn parse(input: &str) -> (Vec<Point>, HashMap<Point, NeighbourInfo>) {
     let mut nodes = Vec::new();
     let mut neighbours = HashMap::new();
-    for words in input
-            .lines()
-            .map(|l| {
-                     l.split(' ')
-                         .map(|s| s.parse::<usize>().unwrap_or(0))
-                         .collect::<Vec<_>>()
-                 }) {
+    for words in input.lines().map(|l| {
+        l.split(' ')
+            .map(|s| s.parse::<usize>().unwrap_or(0))
+            .collect::<Vec<_>>()
+    })
+    {
         let src = Point {
             row: words[0],
             col: words[1],
@@ -62,35 +63,45 @@ fn distance(a: &Point, b: &Point) -> usize {
 
 #[test]
 fn main() {
-    let expectations = vec![vec![28, 44, 220, 184, 144, 208, 76],
-                            vec![60, 212, 176, 136, 200, 92],
-                            vec![252, 216, 176, 240, 36],
-                            vec![48, 84, 64, 276],
-                            vec![48, 40, 240],
-                            vec![72, 200],
-                            vec![264]];
+    let expectations = vec![
+        vec![28, 44, 220, 184, 144, 208, 76],
+        vec![60, 212, 176, 136, 200, 92],
+        vec![252, 216, 176, 240, 36],
+        vec![48, 84, 64, 276],
+        vec![48, 40, 240],
+        vec![72, 200],
+        vec![264],
+    ];
     let (nodes, graph) = parse(include_str!("r299.data"));
     for (i, start) in nodes[..7].iter().enumerate() {
         for (j, target) in nodes[i + 1..8].iter().enumerate() {
             let expected = expectations[i][j];
-            assert_eq!(astar(start,
-                             |n| graph[n].iter().cloned(),
-                             |n| distance(n, target),
-                             |n| n == target)
-                               .unwrap()
-                               .1,
-                       expected);
-            assert_eq!(dijkstra(start, |n| graph[n].iter().cloned(), |n| n == target)
-                           .unwrap()
-                           .1,
-                       expected);
-            assert_eq!(fringe(start,
-                              |n| graph[n].iter().cloned(),
-                              |n| distance(n, target),
-                              |n| n == target)
-                               .unwrap()
-                               .1,
-                       expected);
+            assert_eq!(
+                astar(
+                    start,
+                    |n| graph[n].iter().cloned(),
+                    |n| distance(n, target),
+                    |n| n == target,
+                ).unwrap()
+                    .1,
+                expected
+            );
+            assert_eq!(
+                dijkstra(start, |n| graph[n].iter().cloned(), |n| n == target)
+                    .unwrap()
+                    .1,
+                expected
+            );
+            assert_eq!(
+                fringe(
+                    start,
+                    |n| graph[n].iter().cloned(),
+                    |n| distance(n, target),
+                    |n| n == target,
+                ).unwrap()
+                    .1,
+                expected
+            );
         }
     }
 }

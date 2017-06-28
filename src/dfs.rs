@@ -1,8 +1,9 @@
 fn step<N, FN, IN, FS>(path: &mut Vec<N>, neighbours: &FN, success: &FS) -> bool
-    where N: Eq,
-          FN: Fn(&N) -> IN,
-          IN: IntoIterator<Item = N>,
-          FS: Fn(&N) -> bool
+where
+    N: Eq,
+    FN: Fn(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+    FS: Fn(&N) -> bool,
 {
     if success(path.last().unwrap()) {
         true
@@ -61,10 +62,11 @@ fn step<N, FN, IN, FS>(path: &mut Vec<N>, neighbours: &FN, success: &FS) -> bool
 ///            Some(vec![1, 2, 4, 16, 17]));
 /// ```
 pub fn dfs<N, FN, IN, FS>(start: N, neighbours: FN, success: FS) -> Option<Vec<N>>
-    where N: Eq,
-          FN: Fn(&N) -> IN,
-          IN: IntoIterator<Item = N>,
-          FS: Fn(&N) -> bool
+where
+    N: Eq,
+    FN: Fn(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+    FS: Fn(&N) -> bool,
 {
     let mut path = vec![start];
     if step(&mut path, &neighbours, &success) {

@@ -80,17 +80,19 @@ fn remove<T: Eq>(v: &mut VecDeque<T>, e: &T) -> bool {
 ///                     |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
-pub fn fringe<N, C, FN, IN, FH, FS>(start: &N,
-                                    neighbours: FN,
-                                    heuristic: FH,
-                                    success: FS)
-                                    -> Option<(Vec<N>, C)>
-    where N: Eq + Hash + Clone,
-          C: Bounded + Zero + Ord + Copy,
-          FN: Fn(&N) -> IN,
-          IN: IntoIterator<Item = (N, C)>,
-          FH: Fn(&N) -> C,
-          FS: Fn(&N) -> bool
+pub fn fringe<N, C, FN, IN, FH, FS>(
+    start: &N,
+    neighbours: FN,
+    heuristic: FH,
+    success: FS,
+) -> Option<(Vec<N>, C)>
+where
+    N: Eq + Hash + Clone,
+    C: Bounded + Zero + Ord + Copy,
+    FN: Fn(&N) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+    FH: Fn(&N) -> C,
+    FS: Fn(&N) -> bool,
 {
     let mut now = VecDeque::new();
     let mut later = VecDeque::new();

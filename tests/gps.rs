@@ -19,32 +19,39 @@ impl Coords {
 
     fn distance_in_meters(&self, other: &Coords) -> u64 {
         let x = (other.lon_rad() - self.lon_rad()) *
-                ((other.lat_rad() + self.lat_rad()) / 2.0).cos();
+            ((other.lat_rad() + self.lat_rad()) / 2.0).cos();
         let y = other.lat_rad() - self.lat_rad();
         (x.hypot(y) * 6_371_000.0).round() as u64
     }
 }
 
 fn coords() -> HashMap<&'static str, Coords> {
-    vec![("Paris", Coords(48.8567, 2.3508)),
-         ("Lyon", Coords(45.76, 4.84)),
-         ("Marseille", Coords(43.2964, 5.37)),
-         ("Bordeaux", Coords(44.84, -0.58)),
-         ("Cannes", Coords(43.5513, 7.0128)),
-         ("Toulouse", Coords(43.6045, 1.444)),
-         ("Reims", Coords(49.2628, 4.0347))]
-            .into_iter()
-            .collect()
+    vec![
+        ("Paris", Coords(48.8567, 2.3508)),
+        ("Lyon", Coords(45.76, 4.84)),
+        ("Marseille", Coords(43.2964, 5.37)),
+        ("Bordeaux", Coords(44.84, -0.58)),
+        ("Cannes", Coords(43.5513, 7.0128)),
+        ("Toulouse", Coords(43.6045, 1.444)),
+        ("Reims", Coords(49.2628, 4.0347)),
+    ].into_iter()
+        .collect()
 }
 
-fn neighbour_distances(coords: &HashMap<&str, Coords>)
-                       -> HashMap<&'static str, Vec<(&'static str, u64)>> {
+fn neighbour_distances(
+    coords: &HashMap<&str, Coords>,
+) -> HashMap<&'static str, Vec<(&'static str, u64)>> {
     let mut neighbours = HashMap::new();
     {
         let mut insert_neighbour = |from: &'static str, to: &'static str| {
             let from_coords = &coords[from];
             let ns = to.split(',')
-                .map(|neighbour| (neighbour, from_coords.distance_in_meters(&coords[neighbour])))
+                .map(|neighbour| {
+                    (
+                        neighbour,
+                        from_coords.distance_in_meters(&coords[neighbour]),
+                    )
+                })
                 .collect();
             neighbours.insert(from, ns);
         };
@@ -81,17 +88,21 @@ fn test_gps() {
     let (path, cost_fringe) = r.expect("no path found with fringe");
     assert_eq!(path, expected_path, "bad path found with fringe");
 
-    assert_eq!(cost_astar,
-               cost_fringe,
-               "costs for astar and fringe are different");
+    assert_eq!(
+        cost_astar,
+        cost_fringe,
+        "costs for astar and fringe are different"
+    );
 
-    let r = dijkstra(&start,
-                     |city| neighbour_distances[city].clone(),
-                     |city| city == &goal);
+    let r = dijkstra(&start, |city| neighbour_distances[city].clone(), |city| {
+        city == &goal
+    });
     let (path, cost_dijkstra) = r.expect("no path found with dijkstra");
     assert_eq!(path, expected_path, "bad path found with dijkstra");
 
-    assert_eq!(cost_astar,
-               cost_dijkstra,
-               "costs for astar and dijkstra are different");
+    assert_eq!(
+        cost_astar,
+        cost_dijkstra,
+        "costs for astar and dijkstra are different"
+    );
 }

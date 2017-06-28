@@ -42,15 +42,21 @@ fn neighbours(pt: &Pt) -> Vec<Pt> {
 
 #[bench]
 fn no_path_bfs(b: &mut Bencher) {
-    b.iter(|| assert_eq!(bfs(&Pt::new(2, 3), |n| neighbours(n), |_| false), None));
+    b.iter(|| {
+        assert_eq!(bfs(&Pt::new(2, 3), |n| neighbours(n), |_| false), None)
+    });
 }
 
 #[bench]
 fn no_path_dijkstra(b: &mut Bencher) {
     b.iter(|| {
-               assert_eq!(dijkstra(&Pt::new(2, 3),
-                                   |n| neighbours(n).into_iter().map(|n| (n, 1)),
-                                   |_| false),
-                          None)
-           });
+        assert_eq!(
+            dijkstra(
+                &Pt::new(2, 3),
+                |n| neighbours(n).into_iter().map(|n| (n, 1)),
+                |_| false,
+            ),
+            None
+        )
+    });
 }
