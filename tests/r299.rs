@@ -47,7 +47,6 @@ fn parse(input: &str) -> (Vec<Point>, HashMap<Point, NeighbourInfo>) {
             let cost = n[2];
             assert!(cost >= distance(&src, &dst));
             add_neighbour(&mut neighbours, &src, &dst, cost);
-            add_neighbour(&mut neighbours, &dst, &src, cost);
         }
     }
     (nodes, neighbours)
