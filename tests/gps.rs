@@ -105,4 +105,17 @@ fn test_gps() {
         cost_dijkstra,
         "costs for astar and dijkstra are different"
     );
+
+    let r = idastar(&start,
+                  |city| neighbour_distances[city].clone(),
+                  |city| goal_coords.distance_in_meters(&coords[city]),
+                  |city| city == &goal);
+    let (path, cost_idastar) = r.expect("no path found with idastar");
+    assert_eq!(path, expected_path, "bad path found with idastar");
+
+    assert_eq!(
+        cost_astar,
+        cost_idastar,
+        "costs for astar and idastar are different"
+    );
 }

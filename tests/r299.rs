@@ -101,6 +101,19 @@ fn main() {
                     .1,
                 expected
             );
+            if expected < 150 {
+                // Longer paths will take too long to run with IDA*.
+                assert_eq!(
+                    idastar(
+                        start,
+                        |n| graph[n].iter().cloned(),
+                        |n| distance(n, target),
+                        |n| n == target,
+                    ).unwrap()
+                        .1,
+                    expected
+                );
+            }
         }
     }
 }

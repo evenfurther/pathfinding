@@ -139,6 +139,22 @@ mod ex2 {
     }
 
     #[test]
+    fn idastar_path_ok() {
+        const GOAL: (usize, usize) = (6, 3);
+        let counter = RefCell::new(0);
+        let neighbours_counter = |n: &(usize, usize)| {
+            *counter.borrow_mut() += 1;
+            neighbours(n)
+        };
+        let (path, cost) = idastar(&(2, 3), neighbours_counter, |n| distance(n, &GOAL), |n| {
+            n == &GOAL
+        }).expect("path not found");
+        assert_eq!(cost, 8);
+        assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
+        assert_eq!(*counter.borrow(), 18);
+    }
+
+    #[test]
     fn fringe_path_ok() {
         const GOAL: (usize, usize) = (6, 3);
         let counter = RefCell::new(0);
@@ -196,6 +212,15 @@ mod ex2 {
         const GOAL: (usize, usize) = (1, 1);
         assert_eq!(
             astar(&(2, 3), neighbours, |n| distance(n, &GOAL), |n| n == &GOAL),
+            None
+        );
+    }
+
+    #[test]
+    fn idastar_no_path() {
+        const GOAL: (usize, usize) = (1, 1);
+        assert_eq!(
+            idastar(&(2, 3), neighbours, |n| distance(n, &GOAL), |n| n == &GOAL),
             None
         );
     }

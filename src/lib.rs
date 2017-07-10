@@ -9,12 +9,14 @@ mod bfs;
 mod dfs;
 mod dijkstra;
 mod fringe;
+mod idastar;
 
 pub use astar::*;
 pub use bfs::*;
 pub use dfs::*;
 pub use dijkstra::*;
 pub use fringe::*;
+pub use idastar::*;
 
 use std::cmp::Ordering;
 use std::collections::HashMap;
