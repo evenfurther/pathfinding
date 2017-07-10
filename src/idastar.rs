@@ -100,7 +100,7 @@ where
                 }
                 bound = min;
             }
-            Path::NoPath => return None,
+            Path::Impossible => return None,
         }
     }
 }
@@ -108,7 +108,7 @@ where
 enum Path<N, C> {
     Found(Vec<N>, C),
     Minimum(C),
-    NoPath,
+    Impossible,
 }
 
 
@@ -161,12 +161,12 @@ where
                     Some(_) => (),
                 }
             }
-            Path::NoPath => (),
+            Path::Impossible => (),
         }
         path.pop();
     }
     match min {
         Some(m) => Path::Minimum(m),
-        None => Path::NoPath,
+        None => Path::Impossible,
     }
 }
