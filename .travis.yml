@@ -16,7 +16,7 @@ cache:
   cargo: true
 
 install:
-  - if [ ! -z "$CHECK_FMT" ]; then (cargo install rustfmt | true); fi
+  - if [ ! -z "$CHECK_FMT" ]; then (cargo install --force rustfmt | true); fi
   - if [ ! -z "$CHECK_CLIPPY" ]; then (cargo install --force clippy | true); fi
 
 before_script:
