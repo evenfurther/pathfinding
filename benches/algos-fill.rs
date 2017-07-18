@@ -26,7 +26,7 @@ impl Pt {
     }
 
     #[inline]
-    fn to_goal(p: &Pt) -> usize {
+    fn heuristic(p: &Pt) -> usize {
         (128 - p.x - p.y) as usize
     }
 }
@@ -56,7 +56,7 @@ fn corner_to_corner_astar(b: &mut Bencher) {
             astar(
                 &Pt::new(0, 0),
                 |n| neighbours(n).into_iter().map(|n| (n, 1)),
-                Pt::to_goal,
+                Pt::heuristic,
                 |n| n.x == 64 && n.y == 64,
             ),
             None
@@ -109,7 +109,7 @@ fn corner_to_corner_fringe(b: &mut Bencher) {
             fringe(
                 &Pt::new(0, 0),
                 |n| neighbours(n).into_iter().map(|n| (n, 1)),
-                Pt::to_goal,
+                Pt::heuristic,
                 |n| n.x == 64 && n.y == 64,
             ),
             None
@@ -124,7 +124,7 @@ fn corner_to_corner_idastar(b: &mut Bencher) {
             idastar(
                 &Pt::new(0, 0),
                 |n| neighbours(n).into_iter().map(|n| (n, 1)),
-                Pt::to_goal,
+                Pt::heuristic,
                 |n| n.x == 64 && n.y == 64,
             ),
             None
