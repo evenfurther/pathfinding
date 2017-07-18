@@ -12,6 +12,7 @@ struct Pt {
     y: u16,
     _fill: [u64; 32],
 }
+
 impl Pt {
     fn new(x: u16, y: u16) -> Pt {
         Pt {
@@ -20,11 +21,16 @@ impl Pt {
             _fill: [0u64; 32],
         }
     }
+
+    #[inline]
+    fn to_goal(p: &Pt) -> usize {
+        (128 - p.x - p.y) as usize
+    }
 }
 
 #[inline]
 fn neighbours(pt: &Pt) -> Vec<Pt> {
-    let mut ret = vec![];
+    let mut ret = Vec::with_capacity(4);
     if 0 < pt.x {
         ret.push(Pt::new(pt.x - 1, pt.y))
     }
@@ -47,7 +53,7 @@ fn corner_to_corner_astar(b: &mut Bencher) {
             astar(
                 &Pt::new(0, 0),
                 |n| neighbours(n).into_iter().map(|n| (n, 1)),
-                |n| (64.0 - n.x as f32).hypot(64.0 - n.y as f32) as usize,
+                Pt::to_goal,
                 |n| n.x == 64 && n.y == 64,
             ),
             None
@@ -104,7 +110,7 @@ fn corner_to_corner_fringe(b: &mut Bencher) {
             fringe(
                 &Pt::new(0, 0),
                 |n| neighbours(n).into_iter().map(|n| (n, 1)),
-                |n| (64.0 - n.x as f32).hypot(64.0 - n.y as f32) as usize,
+                Pt::to_goal,
                 |n| n.x == 64 && n.y == 64,
             ),
             None
