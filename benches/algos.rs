@@ -3,7 +3,7 @@
 extern crate pathfinding;
 extern crate test;
 
-use pathfinding::{astar, bfs, dfs, dijkstra, fringe};
+use pathfinding::{astar, bfs, dfs, dijkstra, fringe, idastar};
 use test::Bencher;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -108,6 +108,21 @@ fn corner_to_corner_fringe(b: &mut Bencher) {
     b.iter(|| {
         assert_ne!(
             fringe(
+                &Pt::new(0, 0),
+                |n| neighbours(n).into_iter().map(|n| (n, 1)),
+                Pt::to_goal,
+                |n| n.x == 64 && n.y == 64,
+            ),
+            None
+        )
+    })
+}
+
+#[bench]
+fn corner_to_corner_idastar(b: &mut Bencher) {
+    b.iter(|| {
+        assert_ne!(
+            idastar(
                 &Pt::new(0, 0),
                 |n| neighbours(n).into_iter().map(|n| (n, 1)),
                 Pt::to_goal,
