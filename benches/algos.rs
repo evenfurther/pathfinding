@@ -14,10 +14,7 @@ struct Pt {
 
 impl Pt {
     fn new(x: u16, y: u16) -> Pt {
-        Pt {
-            x: x,
-            y: y,
-        }
+        Pt { x: x, y: y }
     }
 
     #[inline]
@@ -77,11 +74,7 @@ fn corner_to_corner_bfs(b: &mut Bencher) {
 fn corner_to_corner_dfs(b: &mut Bencher) {
     b.iter(|| {
         assert_ne!(
-            dfs(
-                Pt::new(0, 0),
-                |n| neighbours(n),
-                |n| n.x == 64 && n.y == 64,
-            ),
+            dfs(Pt::new(0, 0), |n| neighbours(n), |n| n.x == 64 && n.y == 64),
             None
         )
     })
@@ -149,14 +142,7 @@ fn no_path_astar(b: &mut Bencher) {
 #[bench]
 fn no_path_bfs(b: &mut Bencher) {
     b.iter(|| {
-        assert_eq!(
-            bfs(
-                &Pt::new(2, 3),
-                |n| neighbours(n),
-                |_| false,
-            ),
-            None
-        )
+        assert_eq!(bfs(&Pt::new(2, 3), |n| neighbours(n), |_| false), None)
     });
 }
 
