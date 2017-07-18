@@ -1,5 +1,8 @@
 #![feature(test)]
 
+// This version uses a filler in the Pt structure to increase
+// the cost of cloning a node.
+
 extern crate pathfinding;
 extern crate test;
 
@@ -10,6 +13,7 @@ use test::Bencher;
 struct Pt {
     x: u16,
     y: u16,
+    _fill: [u64; 32],
 }
 
 impl Pt {
@@ -17,6 +21,7 @@ impl Pt {
         Pt {
             x: x,
             y: y,
+            _fill: [0u64; 32],
         }
     }
 
