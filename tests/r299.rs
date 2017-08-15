@@ -19,7 +19,7 @@ fn add_neighbour(
     to: &Point,
     cost: usize,
 ) {
-    let mut entry = n.entry(from.clone()).or_insert_with(Vec::new);
+    let entry = n.entry(from.clone()).or_insert_with(Vec::new);
     entry.push((to.clone(), cost));
 }
 
