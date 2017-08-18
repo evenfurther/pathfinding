@@ -2,12 +2,14 @@
 
 //! This crate implements functions to search in a graph.
 
+pub extern crate ndarray;
 pub extern crate num_traits;
 
 mod astar;
 mod bfs;
 mod dfs;
 mod dijkstra;
+mod edmondskarp;
 mod fringe;
 mod idastar;
 
@@ -15,6 +17,7 @@ pub use astar::*;
 pub use bfs::*;
 pub use dfs::*;
 pub use dijkstra::*;
+pub use edmondskarp::*;
 pub use fringe::*;
 pub use idastar::*;
 
