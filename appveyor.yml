@@ -1,3 +1,8 @@
+branches:
+  only:
+    - staging
+    - trying
+
 install:
   - ps: Start-FileDownload "https://raw.githubusercontent.com/carllerche/travis-rust-matrix/master/install.ps1"; . .\install.ps1
 
