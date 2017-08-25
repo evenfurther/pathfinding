@@ -6,12 +6,13 @@
 [![Documentation](https://docs.rs/pathfinding/badge.svg)](https://docs.rs/pathfinding)
 [![License: Apache-2.0/MIT](https://img.shields.io/crates/l/pathfinding.svg)](#license)
 
-This crate implements several pathfinding algorithms in [Rust]():
+This crate implements several pathfinding and flow algorithms in [Rust]():
 
 - [A*](): find the shortest path in a weighted graph using an heuristic to guide the process.
 - [breadth-first search (BFS)](): explore nearest neighbours first, then widen the search.
 - [depth-first search (DFS)](): explore a graph by going as far as possible, then backtrack.
 - [Dijkstra](): find the shortest path in a weighted graph.
+- [Edmonds Karp](): find the maximum flow in a directed graph.
 - [Fringe](): find the shortest path in a weighted graph using an heuristic to guide the process.
 - [IDA*](): explore longer and longer paths in a weighted graph at the cost of multiple similar examinations.
 
@@ -83,6 +84,7 @@ This code is released under a dual Apache 2.0 / MIT free software license.
 [BFS]: https://en.wikipedia.org/wiki/Breadth-first_search
 [DFS]: https://en.wikipedia.org/wiki/Depth-first_search
 [Dijkstra]: https://en.wikipedia.org/wiki/Dijkstra's_algorithm
+[Edmonds Karp]: https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm
 [Fringe]: https://en.wikipedia.org/wiki/Fringe_search
 [IDA*]: https://en.wikipedia.org/wiki/Iterative_deepening_A*
 [Rust]: https://rust-lang.org/
