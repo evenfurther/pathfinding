@@ -12,6 +12,7 @@ categories = ["algorithms"]
 readme = "README.md"
 
 [dependencies]
+ndarray = "0.10"
 num-traits = "0.1"
 
 [dev-dependencies]
