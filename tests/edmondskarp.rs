@@ -38,3 +38,14 @@ fn wikipedia_example() {
     assert_eq!(caps[&('F', 'G')], 4);
     assert_eq!(total, 5);
 }
+
+#[test]
+fn disconnected() {
+    let (caps, total) = edmondskarp(
+        &vec!['A', 'B'],
+        &'A',
+        &'B',
+        std::iter::empty::<((char, char), isize)>());
+    assert_eq!(caps.len(), 0);
+    assert_eq!(total, 0);
+}
