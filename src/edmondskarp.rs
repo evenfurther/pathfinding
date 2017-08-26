@@ -1,8 +1,7 @@
 use ndarray::{Array1, Array2, indices_of};
-use num_traits::{Bounded, Zero};
+use num_traits::{Bounded, Signed, Zero};
 use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;
-use std::ops::Sub;
 
 type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 
@@ -17,11 +16,14 @@ type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 /// - `sink` is the sink node (the target of the flow).
 /// - `caps` is an iterator-like object describing the positive capacities between the
 ///   nodes.
+///
+/// Note that the capacity type C must be signed as the algorithm has to deal with
+/// negative residual capacities.
 
 pub fn edmondskarp<N, C, IC>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
 where
     N: Eq + Hash + Clone,
-    C: Sub<Output = C> + Zero + Bounded + PartialOrd + Copy,
+    C: Zero + Bounded + Signed + PartialOrd + Copy,
     IC: IntoIterator<Item = ((N, N), C)>,
 {
     // Build a correspondance between N and 0..vertices.len() so that we can
@@ -59,6 +61,9 @@ where
 /// - `capacities` is a matrix describing the capacities. `capacities[i][j]`
 ///   represents the non-negative capacity from `i` to `j`.
 ///
+/// Note that the capacity type C must be signed as the algorithm has to deal with
+/// negative residual capacities.
+///
 /// # Panics
 ///
 /// This function will panic if the `capacities` matrix is not a square matrix.
@@ -69,7 +74,7 @@ pub fn edmondskarp_matrix<C>(
     capacities: &Array2<C>,
 ) -> EKFlows<usize, C>
 where
-    C: Sub<Output = C> + Zero + Bounded + PartialOrd + Copy,
+    C: Zero + Signed + Bounded + PartialOrd + Copy,
 {
     let size = capacities.shape()[0];
     assert_eq!(capacities.shape()[0], capacities.shape()[1]);
