@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array2, Axis, Zip, indices_of};
+use ndarray::{Array1, Array2, indices_of};
 use num_traits::{Bounded, Zero};
 use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;
@@ -78,6 +78,7 @@ where
     }
     // Permanent evoluting data structures.
     let mut flows = Array2::<C>::zeros((size, size));
+    let mut residuals = capacities.clone();
     let mut total_capacity = Zero::zero();
     let mut to_see = VecDeque::new();
 
@@ -85,7 +86,6 @@ where
     // is allocated once.
     let mut parents = Array1::from_elem(size, None);
     let mut capacity = Array1::from_elem(size, C::max_value());
-    let mut residuals = Array1::from_elem(size, Zero::zero());
 
     // Repeatidly look for an augmenting path.
     'augment: loop {
@@ -93,19 +93,15 @@ where
         to_see.push_back(source);
         while let Some(node) = to_see.pop_front() {
             let capacity_so_far = capacity[node];
-            Zip::from(&mut residuals)
-                .and(capacities.subview(Axis(0), node))
-                .and(flows.subview(Axis(0), node))
-                .apply(|r, &c, &f| *r = c - f);
             for neighbour in 0..size {
-                if residuals[neighbour] <= Zero::zero() || parents[neighbour].is_some() {
+                if residuals[[node, neighbour]] <= Zero::zero() || parents[neighbour].is_some() {
                     continue;
                 }
                 parents[neighbour] = Some(node);
-                let cap = if capacity_so_far < residuals[neighbour] {
+                let cap = if capacity_so_far < residuals[[node, neighbour]] {
                     capacity_so_far
                 } else {
-                    residuals[neighbour]
+                    residuals[[node, neighbour]]
                 };
                 if neighbour == sink {
                     let mut n = neighbour;
@@ -113,6 +109,8 @@ where
                         let p = parents[n].unwrap();
                         flows[[p, n]] = flows[[p, n]] + cap;
                         flows[[n, p]] = flows[[n, p]] - cap;
+                        residuals[[p, n]] = residuals[[p, n]] - cap;
+                        residuals[[n, p]] = residuals[[n, p]] + cap;
                         n = p;
                     }
                     total_capacity = total_capacity + cap;
