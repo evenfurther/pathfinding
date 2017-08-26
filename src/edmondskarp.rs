@@ -83,47 +83,44 @@ where
     }
     // Permanent evoluting data structures.
     let mut flows = Array2::<C>::zeros((size, size));
-    let mut residuals = capacities.clone();
     let mut total_capacity = Zero::zero();
     let mut to_see = VecDeque::new();
 
     // Data which will be cleared for every path but
     // is allocated once.
     let mut parents = Array1::from_elem(size, None);
-    let mut capacity = Array1::from_elem(size, C::max_value());
+    let mut path_capacity = Array1::from_elem(size, C::max_value());
 
     // Repeatidly look for an augmenting path.
     'augment: loop {
         to_see.clear();
         to_see.push_back(source);
         while let Some(node) = to_see.pop_front() {
-            let capacity_so_far = capacity[node];
+            let capacity_so_far = path_capacity[node];
             for neighbour in 0..size {
-                if residuals[[node, neighbour]] <= Zero::zero() || parents[neighbour].is_some() {
+                let residual = capacities[[node, neighbour]] - flows[[node, neighbour]];
+                if neighbour == source || residual <= Zero::zero() || parents[neighbour].is_some() {
                     continue;
                 }
                 parents[neighbour] = Some(node);
-                let cap = if capacity_so_far < residuals[[node, neighbour]] {
+                path_capacity[neighbour] = if capacity_so_far < residual {
                     capacity_so_far
                 } else {
-                    residuals[[node, neighbour]]
+                    residual
                 };
                 if neighbour == sink {
-                    let mut n = neighbour;
+                    let mut n = sink;
                     while n != source {
                         let p = parents[n].unwrap();
-                        flows[[p, n]] = flows[[p, n]] + cap;
-                        flows[[n, p]] = flows[[n, p]] - cap;
-                        residuals[[p, n]] = residuals[[p, n]] - cap;
-                        residuals[[n, p]] = residuals[[n, p]] + cap;
+                        flows[[p, n]] = flows[[p, n]] + path_capacity[sink];
+                        flows[[n, p]] = flows[[n, p]] - path_capacity[sink];
                         n = p;
                     }
-                    total_capacity = total_capacity + cap;
+                    total_capacity = total_capacity + path_capacity[sink];
                     parents.fill(None);
-                    capacity.fill(C::max_value());
+                    path_capacity.fill(C::max_value());
                     continue 'augment;
                 }
-                capacity[neighbour] = cap;
                 to_see.push_back(neighbour);
             }
         }
