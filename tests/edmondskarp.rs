@@ -45,7 +45,8 @@ fn disconnected() {
         &vec!['A', 'B'],
         &'A',
         &'B',
-        std::iter::empty::<((char, char), isize)>());
+        std::iter::empty::<((char, char), isize)>(),
+    );
     assert_eq!(caps.len(), 0);
     assert_eq!(total, 0);
 }
