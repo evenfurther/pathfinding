@@ -42,7 +42,7 @@ fn wikipedia_example() {
 #[test]
 fn disconnected() {
     let (caps, total) = edmondskarp(
-        &vec!['A', 'B'],
+        &['A', 'B'],
         &'A',
         &'B',
         std::iter::empty::<((char, char), isize)>(),
