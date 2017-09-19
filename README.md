@@ -27,6 +27,14 @@ In your `Cargo.toml`, put:
 pathfinding = "0.1"
 ```
 
+Or if you don't need the Edmonds-Karp algorithm you can specify this by removing default features:
+
+``` ini
+[dependencies]
+# you will compile ndarray only if you need it
+pathfinding = { version = "0.1", default-features = false }
+```
+
 You can then pull your preferred algorithm (BFS in this example) using:
 
 ``` rust
@@ -39,8 +47,6 @@ use pathfinding::bfs;
 
 We will search the shortest path on a chess board to go from (1, 1) to (4, 6) doing only knight
 moves.
-
-The first version uses an explicit type `Pos` on which the required traits are derived.
 
 ``` rust
 use pathfinding::bfs;
@@ -58,21 +64,7 @@ impl Pos {
 
 static GOAL: Pos = Pos(4, 6);
 let result = bfs(&Pos(1, 1), |p| p.neighbours(), |p| *p == GOAL);
-assert_eq!(result.expect("no path found").1, 4);
-```
-
-The second version does not declare a `Pos` type, makes use of more closures,
-and is thus shorter.
-
-``` rust
-use pathfinding::bfs;
-
-static GOAL: (i32, i32) = (4, 6);
-let result = bfs(&(1, 1),
-                 |&(x, y)| vec![(x+1,y+2), (x+1,y-2), (x-1,y+2), (x-1,y-2),
-                                (x+2,y+1), (x+2,y-1), (x-2,y+1), (x-2,y-1)],
-                 |&p| p == GOAL);
-assert_eq!(result.expect("no path found").1, 4);
+assert_eq!(result.expect("no path found").len(), 5);
 ```
 
 ## License
