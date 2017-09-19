@@ -27,10 +27,11 @@ In your `Cargo.toml`, put:
 pathfinding = "0.1"
 ```
 
-Or if you need the edmondskarp algorithm you'll need to specify this by adding a specific feature:
+Or if you need the edmondskarp algorithm you'll need to specify this by adding the corresponding feature:
 
 ``` ini
 [dependencies]
+# you will compile ndarray only if you need it
 pathfinding = { version = "0.1", features = ["edmondskarp"] }
 ```
 
@@ -65,21 +66,8 @@ impl Pos {
 
 static GOAL: Pos = Pos(4, 6);
 let result = bfs(&Pos(1, 1), |p| p.neighbours(), |p| *p == GOAL);
-assert_eq!(result.expect("no path found").1, 4);
-```
 
-The second version does not declare a `Pos` type, makes use of more closures,
-and is thus shorter.
-
-``` rust
-use pathfinding::bfs;
-
-static GOAL: (i32, i32) = (4, 6);
-let result = bfs(&(1, 1),
-                 |&(x, y)| vec![(x+1,y+2), (x+1,y-2), (x-1,y+2), (x-1,y-2),
-                                (x+2,y+1), (x+2,y-1), (x-2,y+1), (x-2,y-1)],
-                 |&p| p == GOAL);
-assert_eq!(result.expect("no path found").1, 4);
+assert_eq!(result.expect("no path found"), 5);
 ```
 
 ## License
