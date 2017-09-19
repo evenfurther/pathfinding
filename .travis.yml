@@ -8,6 +8,8 @@ branches:
 matrix:
   include:
     - rust: stable
+    - rust: stable
+      env: FEATURES=--no-default-features
     - rust: beta
     - rust: nightly
     - rust: nightly
@@ -27,3 +29,7 @@ install:
 before_script:
   - if [ ! -z "$CHECK_FMT" ]; then PATH=$PATH:~/.cargo/bin cargo fmt -- --write-mode=diff; fi
   - if [ ! -z "$CHECK_CLIPPY" ]; then PATH=$PATH:~/.cargo/bin cargo clippy -- -D clippy; fi
+
+script:
+  - cargo build --verbose --all $FEATURES
+  - cargo test --verbose --all $FEATURES

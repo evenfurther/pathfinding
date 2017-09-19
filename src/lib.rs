@@ -1,6 +1,11 @@
 #![warn(missing_docs)]
 
 //! This crate implements functions to search in a graph.
+//!
+//! It supports the following Cargo features:
+//!
+//! - `edmondskarp`: include the Edmonds-Karp algorithm variants
+//!   (default: true)
 
 #[cfg(feature = "edmondskarp")]
 pub extern crate ndarray;
