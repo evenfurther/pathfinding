@@ -12,8 +12,15 @@ categories = ["algorithms"]
 readme = "README.md"
 
 [dependencies]
-ndarray = "0.10"
+ndarray = { version = "0.10", optional = true }
 num-traits = "0.1"
 
 [dev-dependencies]
 lazy_static = "0.2"
+
+[features]
+default = []
+edmondskarp = ["ndarray"]
+
+[package.metadata.docs.rs]
+all-features = true

@@ -27,6 +27,13 @@ In your `Cargo.toml`, put:
 pathfinding = "0.1"
 ```
 
+Or if you need the edmondskarp algorithm you'll need to specify this by adding a specific feature:
+
+``` ini
+[dependencies]
+pathfinding = { version = "0.1", features = ["edmondskarp"] }
+```
+
 You can then pull your preferred algorithm (BFS in this example) using:
 
 ``` rust
