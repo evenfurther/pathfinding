@@ -64,7 +64,6 @@ impl Pos {
 
 static GOAL: Pos = Pos(4, 6);
 let result = bfs(&Pos(1, 1), |p| p.neighbours(), |p| *p == GOAL);
-
 assert_eq!(result.expect("no path found").len(), 5);
 ```
 
