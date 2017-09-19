@@ -27,7 +27,7 @@ In your `Cargo.toml`, put:
 pathfinding = "0.1"
 ```
 
-Or if you need the edmondskarp algorithm you'll need to specify this by adding the corresponding feature:
+Or if you need the Edmonds-Karp algorithm you'll need to specify this by adding the corresponding feature:
 
 ``` ini
 [dependencies]
