@@ -27,12 +27,12 @@ In your `Cargo.toml`, put:
 pathfinding = "0.1"
 ```
 
-Or if you need the Edmonds-Karp algorithm you'll need to specify this by adding the corresponding feature:
+Or if you don't need the Edmonds-Karp algorithm you can specify this by removing default features:
 
 ``` ini
 [dependencies]
 # you will compile ndarray only if you need it
-pathfinding = { version = "0.1", features = ["edmondskarp"] }
+pathfinding = { version = "0.1", default-features = false }
 ```
 
 You can then pull your preferred algorithm (BFS in this example) using:

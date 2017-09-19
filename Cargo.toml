@@ -19,7 +19,7 @@ num-traits = "0.1"
 lazy_static = "0.2"
 
 [features]
-default = []
+default = ["edmondskarp"]
 edmondskarp = ["ndarray"]
 
 [package.metadata.docs.rs]
