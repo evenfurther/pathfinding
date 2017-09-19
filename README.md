@@ -6,15 +6,15 @@
 [![Documentation](https://docs.rs/pathfinding/badge.svg)](https://docs.rs/pathfinding)
 [![License: Apache-2.0/MIT](https://img.shields.io/crates/l/pathfinding.svg)](#license)
 
-This crate implements several pathfinding and flow algorithms in [Rust]():
+This crate implements several pathfinding and flow algorithms in [Rust][Rust]
 
-- [A*](): find the shortest path in a weighted graph using an heuristic to guide the process.
-- [breadth-first search (BFS)](): explore nearest neighbours first, then widen the search.
-- [depth-first search (DFS)](): explore a graph by going as far as possible, then backtrack.
-- [Dijkstra](): find the shortest path in a weighted graph.
-- [Edmonds Karp](): find the maximum flow in a directed graph.
-- [Fringe](): find the shortest path in a weighted graph using an heuristic to guide the process.
-- [IDA*](): explore longer and longer paths in a weighted graph at the cost of multiple similar examinations.
+- [A*][A*]: find the shortest path in a weighted graph using an heuristic to guide the process.
+- [breadth-first search (BFS)][BFS]: explore nearest neighbours first, then widen the search.
+- [depth-first search (DFS)][DFS]: explore a graph by going as far as possible, then backtrack.
+- [Dijkstra][Dijkstra]: find the shortest path in a weighted graph.
+- [Edmonds Karp][Edmonds Karp]: find the maximum flow in a directed graph.
+- [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
+- [IDA*][IDA*]: explore longer and longer paths in a weighted graph at the cost of multiple similar examinations.
 
 Those algorithms are generic over their arguments.
 
@@ -32,11 +32,10 @@ You can then pull your preferred algorithm (BFS in this example) using:
 ``` rust
 extern crate pathfinding;
 
-use pathfinding::bfs;;
+use pathfinding::bfs;
 ```
 
 ## Example
-
 
 We will search the shortest path on a chess board to go from (1, 1) to (4, 6) doing only knight
 moves.
@@ -59,7 +58,7 @@ impl Pos {
 
 static GOAL: Pos = Pos(4, 6);
 let result = bfs(&Pos(1, 1), |p| p.neighbours(), |p| *p == GOAL);
-assert_eq!(result.expect("no path found").len(), 5);
+assert_eq!(result.expect("no path found").1, 4);
 ```
 
 The second version does not declare a `Pos` type, makes use of more closures,
@@ -73,7 +72,7 @@ let result = bfs(&(1, 1),
                  |&(x, y)| vec![(x+1,y+2), (x+1,y-2), (x-1,y+2), (x-1,y-2),
                                 (x+2,y+1), (x+2,y-1), (x-2,y+1), (x-2,y-1)],
                  |&p| p == GOAL);
-assert_eq!(result.expect("no path found").len(), 5);
+assert_eq!(result.expect("no path found").1, 4);
 ```
 
 ## License
