@@ -1,3 +1,4 @@
+#![cfg(feature = "edmondskarp")]
 extern crate pathfinding;
 
 use pathfinding::*;
