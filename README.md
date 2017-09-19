@@ -48,8 +48,6 @@ use pathfinding::bfs;
 We will search the shortest path on a chess board to go from (1, 1) to (4, 6) doing only knight
 moves.
 
-The first version uses an explicit type `Pos` on which the required traits are derived.
-
 ``` rust
 use pathfinding::bfs;
 
