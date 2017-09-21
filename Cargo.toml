@@ -1,8 +1,8 @@
 [package]
 name = "pathfinding"
-description = "Pathfinding search library"
+description = "Pathfinding, flow, and graph algorithms"
 repository = "https://github.com/samueltardieu/pathfinding"
-keywords = ["path-finding", "search", "shortest-path", "astar", "dijkstra"]
+keywords = ["path-finding", "search", "shortest-path", "astar", "dijkstra", "edmonds karp", "kuhn munkres", "hungarian", "flow", "graph"]
 license = "Apache-2.0/MIT"
 homepage = "https://rfc1149.net/devel/pathfinding.html"
 documentation = "https://docs.rs/pathfinding/"
