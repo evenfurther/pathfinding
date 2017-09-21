@@ -6,8 +6,9 @@
 //!
 //! - `edmondskarp`: include the Edmonds-Karp algorithm variants
 //!   (default: true)
+//! - `kuhnmunkres`: include the Kuhn-Munkres algorithm (default: true)
 
-#[cfg(feature = "edmondskarp")]
+#[cfg(any(feature = "edmondskarp", feature = "kuhnmunkres"))]
 pub extern crate ndarray;
 pub extern crate num_traits;
 
@@ -19,6 +20,8 @@ mod dijkstra;
 mod edmondskarp;
 mod fringe;
 mod idastar;
+#[cfg(feature = "kuhnmunkres")]
+mod kuhn_munkres;
 
 pub use astar::*;
 pub use bfs::*;
@@ -28,6 +31,8 @@ pub use dijkstra::*;
 pub use edmondskarp::*;
 pub use fringe::*;
 pub use idastar::*;
+#[cfg(feature = "kuhnmunkres")]
+pub use kuhn_munkres::*;
 
 use std::cmp::Ordering;
 use std::collections::HashMap;
