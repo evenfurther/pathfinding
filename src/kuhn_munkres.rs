@@ -131,8 +131,8 @@ where
 /// This function will panic if the `weights` matrix is not a square matrix.
 
 pub fn kuhn_munkres_min<C>(weights: &Array2<C>) -> (C, Vec<usize>)
-    where
-        C: Sum<C> + Zero + Signed + Ord + Copy,
+where
+    C: Sum<C> + Zero + Signed + Ord + Copy,
 {
     let (total, assignments) = kuhn_munkres(&-weights.clone());
     (-total, assignments)
