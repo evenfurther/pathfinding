@@ -6,7 +6,7 @@
 [![Documentation](https://docs.rs/pathfinding/badge.svg)](https://docs.rs/pathfinding)
 [![License: Apache-2.0/MIT](https://img.shields.io/crates/l/pathfinding.svg)](#license)
 
-This crate implements several pathfinding and flow algorithms in [Rust][Rust]
+This crate implements several pathfinding, flow, and graph algorithms in [Rust][Rust]
 
 - [A*][A*]: find the shortest path in a weighted graph using an heuristic to guide the process.
 - [breadth-first search (BFS)][BFS]: explore nearest neighbours first, then widen the search.
@@ -15,6 +15,7 @@ This crate implements several pathfinding and flow algorithms in [Rust][Rust]
 - [Edmonds Karp][Edmonds Karp]: find the maximum flow in a directed graph.
 - [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
 - [IDA*][IDA*]: explore longer and longer paths in a weighted graph at the cost of multiple similar examinations.
+- [Kuhn-Munkres][Kuhn-Munkres]: find the maximum (or minimum) matching in a weighted bipartite graph.
 
 Those algorithms are generic over their arguments.
 
@@ -27,11 +28,11 @@ In your `Cargo.toml`, put:
 pathfinding = "0.1"
 ```
 
-Or if you don't need the Edmonds-Karp algorithm you can specify this by removing default features:
+Or if you don't need the Edmonds-Karp or the Kuhn-Munkres algorithms you can specify this by disabling the default
+features. This prevents dragging in the `ndarray` dependency which takes a long time to compile.
 
 ``` ini
 [dependencies]
-# you will compile ndarray only if you need it
 pathfinding = { version = "0.1", default-features = false }
 ```
 
@@ -78,4 +79,5 @@ This code is released under a dual Apache 2.0 / MIT free software license.
 [Edmonds Karp]: https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm
 [Fringe]: https://en.wikipedia.org/wiki/Fringe_search
 [IDA*]: https://en.wikipedia.org/wiki/Iterative_deepening_A*
+[Kuhn-Munkres]: https://en.wikipedia.org/wiki/Hungarian_algorithm
 [Rust]: https://rust-lang.org/
