@@ -100,10 +100,10 @@ where
         };
         // Inverse edges along the augmenting path.
         while y.is_some() {
-            let u = augmenting[y.unwrap()].unwrap();
-            let prec = xy[u];
-            yx[y.unwrap()] = Some(u);
-            xy[u] = y;
+            let x = augmenting[y.unwrap()].unwrap();
+            let prec = xy[x];
+            yx[y.unwrap()] = Some(x);
+            xy[x] = y;
             y = prec;
         }
     }
