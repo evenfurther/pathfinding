@@ -1,5 +1,6 @@
 use ndarray::Array2;
 use num_traits::{Signed, Zero};
+use fixedbitset::FixedBitSet;
 use std::iter::Sum;
 
 /// Compute the maximum matching between two disjoints sets of vertices
@@ -40,7 +41,7 @@ where
     let mut ly: Vec<C> = vec![Zero::zero(); n];
     // s, augmenting, and slack will be reset every time they are reused. augmenting
     // contains Some(prev) when the corresponding node belongs to the augmenting path.
-    let mut s = Vec::with_capacity(n);
+    let mut s = FixedBitSet::with_capacity(n);
     let mut augmenting = Vec::with_capacity(n);
     let mut slack = vec![(Zero::zero(), 0); n];
     for root in 0..n {
@@ -50,8 +51,7 @@ where
         // loop below. Above the loop is some code to initialize the search.
         let mut y = {
             s.clear();
-            s.resize(n, false);
-            s[root] = true;
+            s.insert(root);
             for y in 0..n {
                 slack[y] = (lx[root] + ly[y] - weights[[root, y]], root);
             }
@@ -61,10 +61,10 @@ where
                     .map(|y| (slack[y], y))
                     .min()
                     .unwrap();
-                debug_assert!(s[x]);
+                debug_assert!(s.contains(x));
                 if delta > Zero::zero() {
                     for x in 0..n {
-                        if s[x] {
+                        if s.contains(x) {
                             lx[x] = lx[x] - delta;
                         }
                     }
@@ -85,8 +85,8 @@ where
                 }
                 // Add x to the set s.
                 let x = yx[y].unwrap();
-                debug_assert!(!s[x]);
-                s[x] = true;
+                debug_assert!(!s.contains(x));
+                s.insert(x);
                 // Update slack because of the added vertex in s.
                 for y in 0..n {
                     if augmenting[y].is_none() {

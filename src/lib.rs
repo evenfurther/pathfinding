@@ -8,6 +8,8 @@
 //!   (default: true)
 //! - `kuhnmunkres`: include the Kuhn-Munkres algorithm (default: true)
 
+#[cfg(feature = "kuhnmunkres")]
+extern crate fixedbitset;
 #[cfg(any(feature = "edmondskarp", feature = "kuhnmunkres"))]
 pub extern crate ndarray;
 pub extern crate num_traits;
