@@ -104,7 +104,7 @@ where
                 for y in 0..n {
                     if alternating[y].is_none() {
                         let alternate_slack = (lx[x] + ly[y] - weights[[x, y]], x);
-                        if slack[y] > alternate_slack {
+                        if slack[y].0 > alternate_slack.0 {
                             slack[y] = alternate_slack;
                         }
                     }

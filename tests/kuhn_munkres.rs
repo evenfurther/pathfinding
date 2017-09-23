@@ -10,7 +10,7 @@ use pathfinding::*;
 fn tryalgo_examples() {
     // Some tests from https://github.com/jilljenn/tryalgo/blob/master/tests/test_tryalgo.py
     assert_eq!(kuhn_munkres(&array![[1]]), (1, vec![0]));
-    assert_eq!(kuhn_munkres(&array![[1, 1], [1, 1]]), (2, vec![1, 0]));
+    assert_eq!(kuhn_munkres(&array![[1, 1], [1, 1]]).0, 2);
     assert_eq!(kuhn_munkres(&array![[1, 2], [1, 1]]), (3, vec![1, 0]));
     assert_eq!(kuhn_munkres(&array![[1, 1], [2, 1]]), (3, vec![1, 0]));
     assert_eq!(kuhn_munkres(&array![[2, 1], [1, 1]]), (3, vec![0, 1]));
