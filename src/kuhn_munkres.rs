@@ -30,14 +30,20 @@ where
     // xy represents matchings for x, yz matchings for y
     let mut xy: Vec<Option<usize>> = vec![None; n];
     let mut yx: Vec<Option<usize>> = vec![None; n];
-    // lx is the labelling for x nodes, ly the labelling for y nodes. We start
-    // with an acceptable labelling with the maximum possible values for lx
-    // and 0 for ly.
-    let mut lx: Vec<C> = weights
-        .outer_iter()
-        .map(|row| row.into_iter().max().unwrap())
-        .cloned()
-        .collect::<Vec<_>>();
+    // Start with an initial assignment for every x node satisfying its maximum
+    // labelling. Also, count the assigned nodes. Once it reaches n, we have our
+    // solution. Labelling for y nodes will start at 0.
+    let mut lx: Vec<C> = vec![Zero::zero(); n];
+    let mut assigned = 0;
+    for (x, row) in weights.outer_iter().enumerate() {
+        let (y, l) = row.into_iter().enumerate().max_by_key(|&v| v.1).unwrap();
+        lx[x] = *l;
+        if yx[y].is_none() {
+            yx[y] = Some(x);
+            xy[x] = Some(y);
+            assigned += 1;
+        }
+    }
     let mut ly: Vec<C> = vec![Zero::zero(); n];
     // s, augmenting, and slack will be reset every time they are reused. augmenting
     // contains Some(prev) when the corresponding node belongs to the augmenting path.
@@ -45,6 +51,12 @@ where
     let mut alternating = Vec::with_capacity(n);
     let mut slack = vec![(Zero::zero(), 0); n];
     for root in 0..n {
+        if assigned == n {
+            break;
+        }
+        if xy[root].is_some() {
+            continue;
+        }
         alternating.clear();
         alternating.resize(n, None);
         // Find y such that the path is augmented. This will be set when breaking for the
@@ -120,6 +132,7 @@ where
             xy[x] = y;
             y = prec;
         }
+        assigned += 1;
     }
     (
         lx.into_iter().sum::<C>() + ly.into_iter().sum(),
