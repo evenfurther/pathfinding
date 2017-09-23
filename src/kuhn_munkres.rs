@@ -1,5 +1,5 @@
 use ndarray::Array2;
-use num_traits::{Signed, Zero};
+use num_traits::{Bounded, Signed, Zero};
 use fixedbitset::FixedBitSet;
 use std::iter::Sum;
 
@@ -22,7 +22,7 @@ use std::iter::Sum;
 
 pub fn kuhn_munkres<C>(weights: &Array2<C>) -> (C, Vec<usize>)
 where
-    C: Sum<C> + Zero + Signed + Ord + Copy,
+    C: Bounded + Sum<C> + Zero + Signed + Ord + Copy,
 {
     // We call x the rows and y the columns. n is the size of the matrix.
     let n = weights.shape()[0];
@@ -43,7 +43,8 @@ where
     // contains Some(prev) when the corresponding node belongs to the augmenting path.
     let mut s = FixedBitSet::with_capacity(n);
     let mut alternating = Vec::with_capacity(n);
-    let mut slack = vec![(Zero::zero(), 0); n];
+    let mut slack = vec![Zero::zero(); n];
+    let mut slackx = Vec::with_capacity(n);
     for root in 0..n {
         alternating.clear();
         alternating.resize(n, None);
@@ -57,16 +58,23 @@ where
             // As we add x nodes to the alternating path, we update the slack to
             // represent the smallest margin between one of the x nodes and y.
             for y in 0..n {
-                slack[y] = (lx[root] + ly[y] - weights[[root, y]], root);
+                slack[y] = lx[root] + ly[y] - weights[[root, y]];
             }
+            slackx.clear();
+            slackx.resize(n, root);
             Some(loop {
+                let mut delta = Bounded::max_value();
+                let mut x = 0;
+                let mut y = 0;
                 // Select one of the smallest slack delta and its edge (x, y)
                 // for y not in the alternating path already.
-                let ((delta, x), y) = (0..n)
-                    .filter(|&y| alternating[y].is_none())
-                    .map(|y| (slack[y], y))
-                    .min()
-                    .unwrap();
+                for yy in 0..n {
+                    if alternating[yy].is_none() && slack[yy] < delta {
+                        delta = slack[yy];
+                        x = slackx[yy];
+                        y = yy;
+                    }
+                }
                 debug_assert!(s.contains(x));
                 // If some slack has been found, remove it from x nodes in the
                 // alternating path, and add it to y nodes in the alternating path.
@@ -82,7 +90,7 @@ where
                         if alternating[y].is_some() {
                             ly[y] = ly[y] + delta;
                         } else {
-                            slack[y].0 = slack[y].0 - delta;
+                            slack[y] = slack[y] - delta;
                         }
                     }
                 }
@@ -103,9 +111,10 @@ where
                 // path.
                 for y in 0..n {
                     if alternating[y].is_none() {
-                        let alternate_slack = (lx[x] + ly[y] - weights[[x, y]], x);
-                        if slack[y].0 > alternate_slack.0 {
+                        let alternate_slack = lx[x] + ly[y] - weights[[x, y]];
+                        if slack[y] > alternate_slack {
                             slack[y] = alternate_slack;
+                            slackx[y] = x;
                         }
                     }
                 }
@@ -145,7 +154,7 @@ where
 
 pub fn kuhn_munkres_min<C>(weights: &Array2<C>) -> (C, Vec<usize>)
 where
-    C: Sum<C> + Zero + Signed + Ord + Copy,
+    C: Bounded + Sum<C> + Zero + Signed + Ord + Copy,
 {
     let (total, assignments) = kuhn_munkres(&-weights.clone());
     (-total, assignments)
