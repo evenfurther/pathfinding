@@ -81,10 +81,8 @@ where
                 // The slack of y nodes outside the alternating path will be reduced
                 // by this minimal slack as well.
                 if delta > Zero::zero() {
-                    for x in 0..n {
-                        if s.contains(x) {
-                            lx[x] = lx[x] - delta;
-                        }
+                    for x in s.ones() {
+                        lx[x] = lx[x] - delta;
                     }
                     for y in 0..n {
                         if alternating[y].is_some() {
