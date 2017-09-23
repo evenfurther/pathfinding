@@ -82,8 +82,7 @@ where
                         if alternating[y].is_some() {
                             ly[y] = ly[y] + delta;
                         } else {
-                            let (val, arg) = slack[y];
-                            slack[y] = (val - delta, arg);
+                            slack[y].0 = slack[y].0 - delta;
                         }
                     }
                 }
