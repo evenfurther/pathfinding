@@ -42,26 +42,36 @@ where
     // s, augmenting, and slack will be reset every time they are reused. augmenting
     // contains Some(prev) when the corresponding node belongs to the augmenting path.
     let mut s = FixedBitSet::with_capacity(n);
-    let mut augmenting = Vec::with_capacity(n);
+    let mut alternating = Vec::with_capacity(n);
     let mut slack = vec![(Zero::zero(), 0); n];
     for root in 0..n {
-        augmenting.clear();
-        augmenting.resize(n, None);
+        alternating.clear();
+        alternating.resize(n, None);
         // Find y such that the path is augmented. This will be set when breaking for the
         // loop below. Above the loop is some code to initialize the search.
         let mut y = {
             s.clear();
             s.insert(root);
+            // Slack for a vertex y is, initially, the margin between the
+            // sum of the labels of root and y, and the weight between root and y.
+            // As we add x nodes to the alternating path, we update the slack to
+            // represent the smallest margin between one of the x nodes and y.
             for y in 0..n {
                 slack[y] = (lx[root] + ly[y] - weights[[root, y]], root);
             }
             Some(loop {
+                // Select one of the smallest slack delta and its edge (x, y)
+                // for y not in the alternating path already.
                 let ((delta, x), y) = (0..n)
-                    .filter(|&y| augmenting[y].is_none())
+                    .filter(|&y| alternating[y].is_none())
                     .map(|y| (slack[y], y))
                     .min()
                     .unwrap();
                 debug_assert!(s.contains(x));
+                // If some slack has been found, remove it from x nodes in the
+                // alternating path, and add it to y nodes in the alternating path.
+                // The slack of y nodes outside the alternating path will be reduced
+                // by this minimal slack as well.
                 if delta > Zero::zero() {
                     for x in 0..n {
                         if s.contains(x) {
@@ -69,7 +79,7 @@ where
                         }
                     }
                     for y in 0..n {
-                        if augmenting[y].is_some() {
+                        if alternating[y].is_some() {
                             ly[y] = ly[y] + delta;
                         } else {
                             let (val, arg) = slack[y];
@@ -78,18 +88,22 @@ where
                     }
                 }
                 debug_assert!(lx[x] + ly[y] == weights[[x, y]]);
-                augmenting[y] = Some(x);
+                // Add (x, y) to the alternating path.
+                alternating[y] = Some(x);
                 if yx[y].is_none() {
                     // We have found an augmenting path.
                     break y;
                 }
-                // Add x to the set s.
+                // This y node had a predecessor, add it to the set of x nodes
+                // in the augmenting path.
                 let x = yx[y].unwrap();
                 debug_assert!(!s.contains(x));
                 s.insert(x);
-                // Update slack because of the added vertex in s.
+                // Update slack because of the added vertex in s might contain a
+                // greater slack than with previously inserted x nodes in the augmenting
+                // path.
                 for y in 0..n {
-                    if augmenting[y].is_none() {
+                    if alternating[y].is_none() {
                         let alternate_slack = (lx[x] + ly[y] - weights[[x, y]], x);
                         if slack[y] > alternate_slack {
                             slack[y] = alternate_slack;
@@ -100,7 +114,7 @@ where
         };
         // Inverse edges along the augmenting path.
         while y.is_some() {
-            let x = augmenting[y.unwrap()].unwrap();
+            let x = alternating[y.unwrap()].unwrap();
             let prec = xy[x];
             yx[y.unwrap()] = Some(x);
             xy[x] = y;
