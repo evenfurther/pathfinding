@@ -1,4 +1,4 @@
-#![cfg(feature = "kuhnmunkres")]
+#![cfg(feature = "kuhn_munkres")]
 
 #[macro_use]
 extern crate ndarray;

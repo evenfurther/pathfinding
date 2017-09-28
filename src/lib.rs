@@ -4,13 +4,13 @@
 //!
 //! It supports the following Cargo features:
 //!
-//! - `edmondskarp`: include the Edmonds-Karp algorithm variants
+//! - `edmonds_karp`: include the Edmonds-Karp algorithm variants
 //!   (default: true)
-//! - `kuhnmunkres`: include the Kuhn-Munkres algorithm (default: true)
+//! - `kuhn_munkres`: include the Kuhn-Munkres algorithm (default: true)
 
-#[cfg(feature = "kuhnmunkres")]
+#[cfg(feature = "kuhn_munkres")]
 extern crate fixedbitset;
-#[cfg(any(feature = "edmondskarp", feature = "kuhnmunkres"))]
+#[cfg(any(feature = "edmonds_karp", feature = "kuhn_munkres"))]
 pub extern crate ndarray;
 pub extern crate num_traits;
 
@@ -18,22 +18,22 @@ mod astar;
 mod bfs;
 mod dfs;
 mod dijkstra;
-#[cfg(feature = "edmondskarp")]
-mod edmondskarp;
+#[cfg(feature = "edmonds_karp")]
+mod edmonds_karp;
 mod fringe;
 mod idastar;
-#[cfg(feature = "kuhnmunkres")]
+#[cfg(feature = "kuhn_munkres")]
 mod kuhn_munkres;
 
 pub use astar::*;
 pub use bfs::*;
 pub use dfs::*;
 pub use dijkstra::*;
-#[cfg(feature = "edmondskarp")]
-pub use edmondskarp::*;
+#[cfg(feature = "edmonds_karp")]
+pub use edmonds_karp::*;
 pub use fringe::*;
 pub use idastar::*;
-#[cfg(feature = "kuhnmunkres")]
+#[cfg(feature = "kuhn_munkres")]
 pub use kuhn_munkres::*;
 
 use std::cmp::Ordering;

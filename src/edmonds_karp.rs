@@ -20,7 +20,7 @@ type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 /// Note that the capacity type C must be signed as the algorithm has to deal with
 /// negative residual capacities.
 
-pub fn edmondskarp<N, C, IC>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
+pub fn edmonds_karp<N, C, IC>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
 where
     N: Eq + Hash + Clone,
     C: Zero + Bounded + Signed + PartialOrd + Copy,
@@ -37,7 +37,7 @@ where
     for ((from, to), capacity) in caps {
         capacities[[reverse[&from], reverse[&to]]] = capacity;
     }
-    let (paths, max) = edmondskarp_matrix(reverse[source], reverse[sink], &capacities);
+    let (paths, max) = edmonds_karp_matrix(reverse[source], reverse[sink], &capacities);
     (
         paths
             .into_iter()
@@ -68,7 +68,7 @@ where
 ///
 /// This function will panic if the `capacities` matrix is not a square matrix.
 
-pub fn edmondskarp_matrix<C>(
+pub fn edmonds_karp_matrix<C>(
     source: usize,
     sink: usize,
     capacities: &Array2<C>,
