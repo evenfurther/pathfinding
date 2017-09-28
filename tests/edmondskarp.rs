@@ -1,4 +1,4 @@
-#![cfg(feature = "edmondskarp")]
+#![cfg(feature = "edmonds_karp")]
 extern crate pathfinding;
 
 use pathfinding::*;
@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 #[test]
 fn wikipedia_example() {
-    let (caps, total) = edmondskarp(
+    let (caps, total) = edmonds_karp(
         &"ABCDEFGH".chars().collect::<Vec<_>>(),
         &'A',
         &'G',
@@ -42,7 +42,7 @@ fn wikipedia_example() {
 
 #[test]
 fn disconnected() {
-    let (caps, total) = edmondskarp(
+    let (caps, total) = edmonds_karp(
         &['A', 'B'],
         &'A',
         &'B',
