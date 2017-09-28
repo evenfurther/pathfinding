@@ -15,7 +15,8 @@ fn tryalgo_examples() {
     assert_eq!(kuhn_munkres(&array![[1, 1], [2, 1]]), (3, vec![1, 0]));
     assert_eq!(kuhn_munkres(&array![[2, 1], [1, 1]]), (3, vec![0, 1]));
     assert_eq!(kuhn_munkres(&array![[1, 1], [1, 2]]), (3, vec![0, 1]));
-    assert_eq!(kuhn_munkres(&array![[-1, -2, -3], [-6, -5, -4], [-1, -1, -1]]), (-6, vec![0, 2, 1]));
+    assert_eq!(kuhn_munkres(&array![ [-1, -2, -3], [-6, -5, -4], [-1, -1, -1] ]),
+               (-6, vec![0, 2, 1]));
     assert_eq!(kuhn_munkres(&array![[1, 2, 3], [6, 5, 4], [1, 1, 1]]), (
         10,
         vec![
@@ -39,7 +40,8 @@ fn tryalgo_examples() {
 #[test]
 fn cranes() {
     // Test from https://s-mat-pcs.oulu.fi/~mpa/matreng/eem1_2-1.htm.
-    let distances = array![
+    let distances =
+        array![
         [90, 75, 75, 80],
         [35, 85, 55, 65],
         [125, 95, 90, 105],
