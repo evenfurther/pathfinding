@@ -25,7 +25,7 @@ In your `Cargo.toml`, put:
 
 ``` ini
 [dependencies]
-pathfinding = "0.1"
+pathfinding = "0.2"
 ```
 
 Or if you don't need the Edmonds-Karp or the Kuhn-Munkres algorithms you can specify this by disabling the default
@@ -33,7 +33,7 @@ features. This prevents dragging in the `ndarray` dependency which takes a long 
 
 ``` ini
 [dependencies]
-pathfinding = { version = "0.1", default-features = false }
+pathfinding = { version = "0.2", default-features = false }
 ```
 
 You can then pull your preferred algorithm (BFS in this example) using:
