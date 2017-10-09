@@ -13,7 +13,7 @@ readme = "README.md"
 
 [dependencies]
 fixedbitset = { version = "0.1", optional = true }
-ndarray = { version = "0.10", optional = true }
+ndarray = { version = "^0.10.7", optional = true }
 num-traits = "0.1"
 
 [dev-dependencies]
