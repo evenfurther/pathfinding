@@ -133,3 +133,75 @@ where
     }
     None
 }
+
+pub fn all_astar<N, C, FN, IN, FH, FS>(
+    start: &N,
+    neighbours: FN,
+    heuristic: FH,
+    success: FS,
+) -> Vec<(Vec<N>, C)>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: Fn(&N) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+    FH: Fn(&N) -> C,
+    FS: Fn(&N) -> bool,
+{
+    let mut out = Vec::new();
+    let mut to_see = BinaryHeap::new();
+    to_see.push(InvCmpHolder {
+        key: heuristic(start),
+        payload: (Zero::zero(), start.clone()),
+    });
+    let mut parents: HashMap<N, (N, C)> = HashMap::new();
+    let mut min_cost = None;
+    while let Some(InvCmpHolder { payload: (cost, node), .. }) = to_see.pop() {
+        if min_cost.is_some() && min_cost.unwrap() < cost {
+            continue;
+        }
+        if success(&node) {
+            let n_parents = parents.iter().map(|(n, &(ref p, _))| (n.clone(), p.clone())).collect();
+            out.push((reverse_path(n_parents, node.clone()), cost));
+            min_cost = Some(cost);
+            continue;
+        }
+        // We may have inserted a node several time into the binary heap if we found
+        // a better way to access it. Ensure that we are currently dealing with the
+        // best path and discard the others.
+        if let Some(&(_, c)) = parents.get(&node) {
+            if cost > c {
+                continue;
+            }
+        }
+        for (neighbour, move_cost) in neighbours(&node) {
+            let new_cost = cost + move_cost;
+            if neighbour != *start {
+                let mut inserted = true;
+                match parents.entry(neighbour.clone()) {
+                    Vacant(e) => {
+                        e.insert((node.clone(), new_cost));
+                    }
+                    Occupied(mut e) => {
+                        if e.get().1 > new_cost {
+                            e.insert((node.clone(), new_cost));
+                        } else {
+                            inserted = false;
+                        }
+                    }
+                };
+                if inserted {
+                    let new_predicted_cost = new_cost + heuristic(&neighbour);
+                    if min_cost.is_some() && min_cost.unwrap() < new_predicted_cost {
+                        continue;
+                    }
+                    to_see.push(InvCmpHolder {
+                        key: new_predicted_cost,
+                        payload: (new_cost, neighbour),
+                    });
+                }
+            }
+        }
+    }
+    out
+}
