@@ -86,22 +86,56 @@ where
     FH: Fn(&N) -> C,
     FS: Fn(&N) -> bool,
 {
+    let (mut paths, cost) = astar_stop(start, neighbours, heuristic, success, true);
+    paths.pop().map(|p| (p, cost))
+}
+
+fn astar_stop<N, C, FN, IN, FH, FS>(
+    start: &N,
+    neighbours: FN,
+    heuristic: FH,
+    success: FS,
+    early_stop: bool,
+) -> (Vec<Vec<N>>, C)
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: Fn(&N) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+    FH: Fn(&N) -> C,
+    FS: Fn(&N) -> bool,
+{
+    let mut out = Vec::new();
     let mut to_see = BinaryHeap::new();
     to_see.push(InvCmpHolder {
         key: heuristic(start),
         payload: (Zero::zero(), start.clone()),
     });
     let mut parents: HashMap<N, (N, C)> = HashMap::new();
+    let mut min_cost = None;
     while let Some(InvCmpHolder {
+        key: estimated_cost,
         payload: (cost, node),
-        ..
     }) = to_see.pop()
     {
-        if success(&node) {
-            let parents = parents.into_iter().map(|(n, (p, _))| (n, p)).collect();
-            return Some((reverse_path(&parents, node), cost));
+        if let Some(mc) = min_cost {
+            if estimated_cost > mc {
+                break;
+            }
         }
-        // We may have inserted a node several time into the binary heap if we found
+        if success(&node) {
+            let parents: HashMap<N, N> = parents
+                .iter()
+                .map(|(n, &(ref p, _))| (n.clone(), p.clone()))
+                .collect();
+            out.push(reverse_path(&parents, node));
+            min_cost = Some(cost);
+            if early_stop {
+                break;
+            }
+            continue;
+        }
+        // We may have inserted a node several times into the binary heap if we found
         // a better way to access it. Ensure that we are currently dealing with the
         // best path and discard the others.
         if let Some(&(_, c)) = parents.get(&node) {
@@ -133,5 +167,5 @@ where
             }
         }
     }
-    None
+    (out, min_cost.unwrap_or_else(Zero::zero))
 }
