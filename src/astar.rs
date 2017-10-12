@@ -3,7 +3,7 @@ use std::collections::{BinaryHeap, HashMap};
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::hash::Hash;
 
-use super::{InvCmpHolder, reverse_path};
+use super::{reverse_path, InvCmpHolder};
 
 /// Compute a shortest path using the [A* search
 /// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
@@ -92,7 +92,11 @@ where
         payload: (Zero::zero(), start.clone()),
     });
     let mut parents: HashMap<N, (N, C)> = HashMap::new();
-    while let Some(InvCmpHolder { payload: (cost, node), .. }) = to_see.pop() {
+    while let Some(InvCmpHolder {
+        payload: (cost, node),
+        ..
+    }) = to_see.pop()
+    {
         if success(&node) {
             let parents = parents.into_iter().map(|(n, (p, _))| (n, p)).collect();
             return Some((reverse_path(parents, node), cost));
@@ -113,13 +117,11 @@ where
                     Vacant(e) => {
                         e.insert((node.clone(), new_cost));
                     }
-                    Occupied(mut e) => {
-                        if e.get().1 > new_cost {
-                            e.insert((node.clone(), new_cost));
-                        } else {
-                            inserted = false;
-                        }
-                    }
+                    Occupied(mut e) => if e.get().1 > new_cost {
+                        e.insert((node.clone(), new_cost));
+                    } else {
+                        inserted = false;
+                    },
                 };
                 if inserted {
                     let new_predicted_cost = new_cost + heuristic(&neighbour);

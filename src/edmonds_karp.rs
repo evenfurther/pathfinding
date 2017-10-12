@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array2, indices_of};
+use ndarray::{indices_of, Array1, Array2};
 use num_traits::{Bounded, Signed, Zero};
 use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;

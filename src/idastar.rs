@@ -154,13 +154,11 @@ where
         path.push(node);
         match search(path, cost + extra, bound, neighbours, heuristic, success) {
             found @ Path::Found(_, _) => return found,
-            Path::Minimum(m) => {
-                match min {
-                    None => min = Some(m),
-                    Some(n) if m < n => min = Some(m),
-                    Some(_) => (),
-                }
-            }
+            Path::Minimum(m) => match min {
+                None => min = Some(m),
+                Some(n) if m < n => min = Some(m),
+                Some(_) => (),
+            },
             Path::Impossible => (),
         }
         path.pop();
