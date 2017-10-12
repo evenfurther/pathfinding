@@ -60,15 +60,15 @@ mod ex1 {
     #[test]
     fn dfs_ok() {
         for target in 0..9 {
-            match dfs(1, |n| neighbours(n).into_iter().map(|(v, _)| v), |&node| {
-                node == target
-            }) {
+            match dfs(
+                1,
+                |n| neighbours(n).into_iter().map(|(v, _)| v),
+                |&node| node == target,
+            ) {
                 None => assert_eq!(expected(target), None, "path not found"),
-                Some(path) => {
-                    assert!(
-                        expected(target).expect("non-existant path found").0.len() <= path.len()
-                    )
-                }
+                Some(path) => assert!(
+                    expected(target).expect("non-existant path found").0.len() <= path.len()
+                ),
             }
         }
     }
@@ -130,9 +130,12 @@ mod ex2 {
             *counter.borrow_mut() += 1;
             neighbours(n)
         };
-        let (path, cost) = astar(&(2, 3), neighbours_counter, |n| distance(n, &GOAL), |n| {
-            n == &GOAL
-        }).expect("path not found");
+        let (path, cost) = astar(
+            &(2, 3),
+            neighbours_counter,
+            |n| distance(n, &GOAL),
+            |n| n == &GOAL,
+        ).expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(*counter.borrow(), 14);
@@ -146,9 +149,12 @@ mod ex2 {
             *counter.borrow_mut() += 1;
             neighbours(n)
         };
-        let (path, cost) = idastar(&(2, 3), neighbours_counter, |n| distance(n, &GOAL), |n| {
-            n == &GOAL
-        }).expect("path not found");
+        let (path, cost) = idastar(
+            &(2, 3),
+            neighbours_counter,
+            |n| distance(n, &GOAL),
+            |n| n == &GOAL,
+        ).expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(*counter.borrow(), 18);
@@ -162,9 +168,12 @@ mod ex2 {
             *counter.borrow_mut() += 1;
             neighbours(n)
         };
-        let (path, cost) = fringe(&(2, 3), neighbours_counter, |n| distance(n, &GOAL), |n| {
-            n == &GOAL
-        }).expect("path not found");
+        let (path, cost) = fringe(
+            &(2, 3),
+            neighbours_counter,
+            |n| distance(n, &GOAL),
+            |n| n == &GOAL,
+        ).expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(*counter.borrow(), 14);
@@ -178,8 +187,8 @@ mod ex2 {
             *counter.borrow_mut() += 1;
             neighbours(n)
         };
-        let (path, cost) = dijkstra(&(2, 3), neighbours_counter, |n| n == &GOAL)
-            .expect("path not found");
+        let (path, cost) =
+            dijkstra(&(2, 3), neighbours_counter, |n| n == &GOAL).expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(*counter.borrow(), 20);
@@ -200,9 +209,11 @@ mod ex2 {
     #[test]
     fn dfs_path_ok() {
         const GOAL: (usize, usize) = (6, 3);
-        let path = dfs((2, 3), |n| neighbours(n).into_iter().map(|(n, _)| n), |n| {
-            n == &GOAL
-        }).expect("path not found");
+        let path = dfs(
+            (2, 3),
+            |n| neighbours(n).into_iter().map(|(n, _)| n),
+            |n| n == &GOAL,
+        ).expect("path not found");
         assert!(path.len() >= 9);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
     }
@@ -257,9 +268,11 @@ mod ex2 {
     fn dfs_no_path() {
         const GOAL: (usize, usize) = (1, 1);
         assert_eq!(
-            dfs((2, 3), |n| neighbours(n).into_iter().map(|(n, _)| n), |n| {
-                n == &GOAL
-            }),
+            dfs(
+                (2, 3),
+                |n| neighbours(n).into_iter().map(|(n, _)| n),
+                |n| { n == &GOAL }
+            ),
             None
         );
     }

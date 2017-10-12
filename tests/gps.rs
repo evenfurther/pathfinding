@@ -18,8 +18,8 @@ impl Coords {
     }
 
     fn distance_in_meters(&self, other: &Coords) -> u64 {
-        let x = (other.lon_rad() - self.lon_rad()) *
-            ((other.lat_rad() + self.lat_rad()) / 2.0).cos();
+        let x =
+            (other.lon_rad() - self.lon_rad()) * ((other.lat_rad() + self.lat_rad()) / 2.0).cos();
         let y = other.lat_rad() - self.lat_rad();
         (x.hypot(y) * 6_371_000.0).round() as u64
     }
@@ -74,17 +74,21 @@ fn test_gps() {
     let goal_coords = &coords[goal];
     let expected_path = vec!["Paris", "Lyon", "Marseille", "Cannes"];
 
-    let r = astar(&start,
-                  |city| neighbour_distances[city].clone(),
-                  |city| goal_coords.distance_in_meters(&coords[city]),
-                  |city| city == &goal);
+    let r = astar(
+        &start,
+        |city| neighbour_distances[city].clone(),
+        |city| goal_coords.distance_in_meters(&coords[city]),
+        |city| city == &goal,
+    );
     let (path, cost_astar) = r.expect("no path found with astar");
     assert_eq!(path, expected_path, "bad path found with astar");
 
-    let r = fringe(&start,
-                   |city| neighbour_distances[city].clone(),
-                   |city| goal_coords.distance_in_meters(&coords[city]),
-                   |city| city == &goal);
+    let r = fringe(
+        &start,
+        |city| neighbour_distances[city].clone(),
+        |city| goal_coords.distance_in_meters(&coords[city]),
+        |city| city == &goal,
+    );
     let (path, cost_fringe) = r.expect("no path found with fringe");
     assert_eq!(path, expected_path, "bad path found with fringe");
 
@@ -94,9 +98,11 @@ fn test_gps() {
         "costs for astar and fringe are different"
     );
 
-    let r = dijkstra(&start, |city| neighbour_distances[city].clone(), |city| {
-        city == &goal
-    });
+    let r = dijkstra(
+        &start,
+        |city| neighbour_distances[city].clone(),
+        |city| city == &goal,
+    );
     let (path, cost_dijkstra) = r.expect("no path found with dijkstra");
     assert_eq!(path, expected_path, "bad path found with dijkstra");
 
@@ -106,10 +112,12 @@ fn test_gps() {
         "costs for astar and dijkstra are different"
     );
 
-    let r = idastar(&start,
-                  |city| neighbour_distances[city].clone(),
-                  |city| goal_coords.distance_in_meters(&coords[city]),
-                  |city| city == &goal);
+    let r = idastar(
+        &start,
+        |city| neighbour_distances[city].clone(),
+        |city| goal_coords.distance_in_meters(&coords[city]),
+        |city| city == &goal,
+    );
     let (path, cost_idastar) = r.expect("no path found with idastar");
     assert_eq!(path, expected_path, "bad path found with idastar");
 
