@@ -28,27 +28,29 @@ type NeighbourInfo = Vec<(Point, usize)>;
 fn parse(input: &str) -> (Vec<Point>, HashMap<Point, NeighbourInfo>) {
     let mut nodes = Vec::new();
     let mut neighbours = HashMap::new();
-    for words in input.lines().map(|l| {
-        l.split(' ')
-            .map(|s| s.parse::<usize>().unwrap_or(0))
-            .collect::<Vec<_>>()
-    })
-    {
-        let src = Point {
-            row: words[0],
-            col: words[1],
-        };
-        nodes.push(src.clone());
-        for n in words[3..].chunks(3) {
-            let dst = Point {
-                row: n[0],
-                col: n[1],
+    input
+        .lines()
+        .map(|l| {
+            l.split(' ')
+                .map(|s| s.parse::<usize>().unwrap_or(0))
+                .collect::<Vec<_>>()
+        })
+        .for_each(|words| {
+            let src = Point {
+                row: words[0],
+                col: words[1],
             };
-            let cost = n[2];
-            assert!(cost >= distance(&src, &dst));
-            add_neighbour(&mut neighbours, &src, &dst, cost);
-        }
-    }
+            nodes.push(src.clone());
+            for n in words[3..].chunks(3) {
+                let dst = Point {
+                    row: n[0],
+                    col: n[1],
+                };
+                let cost = n[2];
+                assert!(cost >= distance(&src, &dst));
+                add_neighbour(&mut neighbours, &src, &dst, cost);
+            }
+        });
     (nodes, neighbours)
 }
 
