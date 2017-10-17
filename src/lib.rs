@@ -65,9 +65,9 @@ impl<K: Ord, P> Ord for InvCmpHolder<K, P> {
     }
 }
 
-fn reverse_path<N: Eq + Hash>(mut parents: HashMap<N, N>, start: N) -> Vec<N> {
+fn reverse_path<N: Eq + Hash + Clone>(parents: &HashMap<N, N>, start: N) -> Vec<N> {
     let mut path = vec![start];
-    while let Some(parent) = parents.remove(path.last().unwrap()) {
+    while let Some(parent) = parents.get(path.last().unwrap()).cloned() {
         path.push(parent);
     }
     path.into_iter().rev().collect()

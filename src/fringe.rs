@@ -118,7 +118,7 @@ where
                 continue;
             }
             if success(&node) {
-                return Some((reverse_path(parents, node), g));
+                return Some((reverse_path(&parents, node), g));
             }
             for (neighbour, cost) in neighbours(&node) {
                 let g_neighbour = g + cost;

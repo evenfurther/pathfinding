@@ -71,7 +71,7 @@ where
     let mut parents: HashMap<N, N> = HashMap::new();
     while let Some(node) = to_see.pop_front() {
         if success(&node) {
-            return Some(reverse_path(parents, node));
+            return Some(reverse_path(&parents, node));
         }
         for neighbour in neighbours(&node) {
             if neighbour != *start {

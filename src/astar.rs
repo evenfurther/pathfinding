@@ -99,7 +99,7 @@ where
     {
         if success(&node) {
             let parents = parents.into_iter().map(|(n, (p, _))| (n, p)).collect();
-            return Some((reverse_path(parents, node), cost));
+            return Some((reverse_path(&parents, node), cost));
         }
         // We may have inserted a node several time into the binary heap if we found
         // a better way to access it. Ensure that we are currently dealing with the
