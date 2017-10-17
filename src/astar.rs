@@ -90,6 +90,23 @@ where
     paths.pop().map(|p| (p, cost))
 }
 
+pub fn astar_bag<N, C, FN, IN, FH, FS>(
+    start: &N,
+    neighbours: FN,
+    heuristic: FH,
+    success: FS,
+) -> (Vec<Vec<N>>, C)
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: Fn(&N) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+    FH: Fn(&N) -> C,
+    FS: Fn(&N) -> bool,
+{
+    astar_stop(start, neighbours, heuristic, success, false)
+}
+
 fn astar_stop<N, C, FN, IN, FH, FS>(
     start: &N,
     neighbours: FN,
