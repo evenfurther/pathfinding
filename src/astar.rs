@@ -90,6 +90,24 @@ where
     paths.pop().map(|p| (p, cost))
 }
 
+/// Compute all shortests path using the [A* search
+/// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
+///
+/// Compute the shortest paths from the `start` node up to nodes for which `success` return
+/// `true`. All returned paths will share the same minimal length.
+///
+/// - `start` is the starting node.
+/// - `neighbours` returns a list of neighbours for a given node, along with the cost for moving
+/// from the node to the neighbour.
+/// - `heuristic` returns an approximation of the cost from a given node to the goal. The
+/// approximation must not be greater than the real cost, or a wrong shortest path may be returned.
+/// - `success` checks whether the goal has been reached. It is not a node as some problems require
+/// a dynamic solution instead of a fixed node.
+///
+/// A node will never be included twice in the path as determined by the `Eq` relationship.
+///
+/// The returned paths comprises both the start and end node.
+
 pub fn astar_bag<N, C, FN, IN, FH, FS>(
     start: &N,
     neighbours: FN,
