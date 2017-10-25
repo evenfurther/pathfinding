@@ -142,6 +142,46 @@ mod ex2 {
     }
 
     #[test]
+    fn astar_bag_path_single_ok() {
+        const GOAL: (usize, usize) = (6, 3);
+        let counter = RefCell::new(0);
+        let neighbours_counter = |n: &(usize, usize)| {
+            *counter.borrow_mut() += 1;
+            neighbours(n)
+        };
+        let (paths, cost) = astar_bag(
+            &(2, 3),
+            neighbours_counter,
+            |n| distance(n, &GOAL),
+            |n| n == &GOAL,
+        );
+        assert_eq!(cost, 8);
+        assert_eq!(paths.len(), 1);
+        assert!(paths.iter().all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx])));
+        assert_eq!(*counter.borrow(), 14);
+    }
+
+    #[test]
+    fn astar_bag_path_multiple_ok() {
+        const GOAL: (usize, usize) = (7, 3);
+        let counter = RefCell::new(0);
+        let neighbours_counter = |n: &(usize, usize)| {
+            *counter.borrow_mut() += 1;
+            neighbours(n)
+        };
+        let (paths, cost) = astar_bag(
+            &(2, 3),
+            neighbours_counter,
+            |n| distance(n, &GOAL),
+            |n| n == &GOAL,
+        );
+        assert_eq!(cost, 9);
+        assert_eq!(paths.len(), 3);
+        assert!(paths.iter().all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx])));
+        assert_eq!(*counter.borrow(), 16);
+    }
+
+    #[test]
     fn idastar_path_ok() {
         const GOAL: (usize, usize) = (6, 3);
         let counter = RefCell::new(0);
