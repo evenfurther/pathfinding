@@ -138,7 +138,7 @@ mod ex2 {
         ).expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
-        assert_eq!(*counter.borrow(), 14);
+        assert_eq!(*counter.borrow(), 11);
     }
 
     #[test]
