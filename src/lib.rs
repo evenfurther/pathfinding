@@ -36,34 +36,8 @@ pub use idastar::*;
 #[cfg(feature = "kuhn_munkres")]
 pub use kuhn_munkres::*;
 
-use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::hash::Hash;
-
-struct InvCmpHolder<K, P> {
-    key: K,
-    payload: P,
-}
-
-impl<K: PartialEq, P> PartialEq for InvCmpHolder<K, P> {
-    fn eq(&self, other: &InvCmpHolder<K, P>) -> bool {
-        self.key.eq(&other.key)
-    }
-}
-
-impl<K: PartialEq, P> Eq for InvCmpHolder<K, P> {}
-
-impl<K: PartialOrd, P> PartialOrd for InvCmpHolder<K, P> {
-    fn partial_cmp(&self, other: &InvCmpHolder<K, P>) -> Option<Ordering> {
-        other.key.partial_cmp(&self.key)
-    }
-}
-
-impl<K: Ord, P> Ord for InvCmpHolder<K, P> {
-    fn cmp(&self, other: &InvCmpHolder<K, P>) -> Ordering {
-        other.key.cmp(&self.key)
-    }
-}
 
 fn reverse_path<N: Eq + Hash + Clone>(parents: &HashMap<N, N>, start: N) -> Vec<N> {
     let mut path = vec![start];

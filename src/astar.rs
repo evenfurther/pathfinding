@@ -1,9 +1,10 @@
 use num_traits::Zero;
 use std::collections::{BinaryHeap, HashMap};
 use std::collections::hash_map::Entry::{Occupied, Vacant};
+use std::cmp::Ordering;
 use std::hash::Hash;
 
-use super::{reverse_path, InvCmpHolder};
+use super::reverse_path;
 
 /// Compute a shortest path using the [A* search
 /// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
@@ -87,12 +88,13 @@ where
     FS: Fn(&N) -> bool,
 {
     let mut to_see = BinaryHeap::new();
-    to_see.push(InvCmpHolder {
-        key: heuristic(start),
+    to_see.push(SmallestCostHolder {
+        estimated_cost: heuristic(start),
+        cost: Zero::zero(),
         payload: (Zero::zero(), start.clone()),
     });
     let mut parents: HashMap<N, (N, C)> = HashMap::new();
-    while let Some(InvCmpHolder {
+    while let Some(SmallestCostHolder {
         payload: (cost, node),
         ..
     }) = to_see.pop()
@@ -125,8 +127,9 @@ where
                 };
                 if inserted {
                     let new_predicted_cost = new_cost + heuristic(&neighbour);
-                    to_see.push(InvCmpHolder {
-                        key: new_predicted_cost,
+                    to_see.push(SmallestCostHolder {
+                        estimated_cost: new_predicted_cost,
+                        cost: cost,
                         payload: (new_cost, neighbour),
                     });
                 }
@@ -134,4 +137,37 @@ where
         }
     }
     None
+}
+
+struct SmallestCostHolder<K, P> {
+    estimated_cost: K,
+    cost: K,
+    payload: P,
+}
+
+impl<K: PartialEq, P> PartialEq for SmallestCostHolder<K, P> {
+    fn eq(&self, other: &SmallestCostHolder<K, P>) -> bool {
+        self.estimated_cost.eq(&other.estimated_cost) && self.cost.eq(&other.cost)
+    }
+}
+
+impl<K: PartialEq, P> Eq for SmallestCostHolder<K, P> {}
+
+impl<K: PartialOrd, P> PartialOrd for SmallestCostHolder<K, P> {
+    fn partial_cmp(&self, other: &SmallestCostHolder<K, P>) -> Option<Ordering> {
+        match other.estimated_cost.partial_cmp(&self.estimated_cost) {
+            None => None,
+            Some(Ordering::Equal) => self.cost.partial_cmp(&other.cost),
+            s => s,
+        }
+    }
+}
+
+impl<K: Ord, P> Ord for SmallestCostHolder<K, P> {
+    fn cmp(&self, other: &SmallestCostHolder<K, P>) -> Ordering {
+        match other.estimated_cost.cmp(&self.estimated_cost) {
+            Ordering::Equal => self.cost.cmp(&other.cost),
+            s => s,
+        }
+    }
 }
