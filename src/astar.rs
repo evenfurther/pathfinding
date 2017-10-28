@@ -153,13 +153,9 @@ impl<K: PartialEq, P> PartialEq for SmallestCostHolder<K, P> {
 
 impl<K: PartialEq, P> Eq for SmallestCostHolder<K, P> {}
 
-impl<K: PartialOrd, P> PartialOrd for SmallestCostHolder<K, P> {
+impl<K: Ord, P> PartialOrd for SmallestCostHolder<K, P> {
     fn partial_cmp(&self, other: &SmallestCostHolder<K, P>) -> Option<Ordering> {
-        match other.estimated_cost.partial_cmp(&self.estimated_cost) {
-            None => None,
-            Some(Ordering::Equal) => self.cost.partial_cmp(&other.cost),
-            s => s,
-        }
+        Some(self.cmp(other))
     }
 }
 
