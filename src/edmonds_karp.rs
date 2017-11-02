@@ -76,7 +76,7 @@ pub fn edmonds_karp_matrix<C>(
 where
     C: Zero + Signed + Bounded + PartialOrd + Copy,
 {
-    let mut ek = EdmondsKarp::new(capacities.shape()[0], source, sink);
+    let mut ek = EdmondsKarp::new(capacities, source, sink);
     ek.augment(capacities)
 }
 
@@ -89,8 +89,6 @@ pub struct EdmondsKarp<C> {
     size: usize,
     flows: Array2<C>,
     total_capacity: C,
-    parents: Array1<Option<usize>>,
-    path_capacity: Array1<C>,
 }
 
 impl<C> EdmondsKarp<C>
@@ -98,15 +96,14 @@ where
     C: Zero + Signed + Bounded + PartialOrd + Copy,
 {
     /// Create a new `EdmondsKarp` structure.
-    pub fn new(size: usize, source: usize, sink: usize) -> EdmondsKarp<C> {
+    pub fn new(capacities: &Array2<C>, source: usize, sink: usize) -> EdmondsKarp<C> {
+        let size = capacities.shape()[0];
         EdmondsKarp {
             source: source,
             sink: sink,
             size: size,
             flows: Array2::<C>::zeros((size, size)),
             total_capacity: Zero::zero(),
-            parents: Array1::from_elem(size, None),
-            path_capacity: Array1::from_elem(size, C::max_value()),
         }
     }
 
@@ -172,21 +169,23 @@ where
         if self.source >= self.size || self.sink >= self.size {
             return (vec![], Zero::zero());
         }
+        let mut parents = Array1::from_elem(self.size, None);
+        let mut path_capacity = Array1::from_elem(self.size, C::max_value());
         let mut to_see = VecDeque::new();
         'augment: loop {
             to_see.clear();
             to_see.push_back(self.source);
             while let Some(node) = to_see.pop_front() {
-                let capacity_so_far = self.path_capacity[node];
+                let capacity_so_far = path_capacity[node];
                 for neighbour in 0..self.size {
                     let residual = capacities[[node, neighbour]] - self.flows[[node, neighbour]];
                     if neighbour == self.source || residual <= Zero::zero()
-                        || self.parents[neighbour].is_some()
+                        || parents[neighbour].is_some()
                     {
                         continue;
                     }
-                    self.parents[neighbour] = Some(node);
-                    self.path_capacity[neighbour] = if capacity_so_far < residual {
+                    parents[neighbour] = Some(node);
+                    path_capacity[neighbour] = if capacity_so_far < residual {
                         capacity_so_far
                     } else {
                         residual
@@ -194,21 +193,19 @@ where
                     if neighbour == self.sink {
                         let mut n = self.sink;
                         while n != self.source {
-                            let p = self.parents[n].unwrap();
-                            self.flows[[p, n]] = self.flows[[p, n]] + self.path_capacity[self.sink];
-                            self.flows[[n, p]] = self.flows[[n, p]] - self.path_capacity[self.sink];
+                            let p = parents[n].unwrap();
+                            self.flows[[p, n]] = self.flows[[p, n]] + path_capacity[self.sink];
+                            self.flows[[n, p]] = self.flows[[n, p]] - path_capacity[self.sink];
                             n = p;
                         }
-                        self.total_capacity = self.total_capacity + self.path_capacity[self.sink];
-                        self.parents.fill(None);
-                        self.path_capacity.fill(C::max_value());
+                        self.total_capacity = self.total_capacity + path_capacity[self.sink];
+                        parents.fill(None);
+                        path_capacity.fill(C::max_value());
                         continue 'augment;
                     }
                     to_see.push_back(neighbour);
                 }
             }
-            self.parents.fill(None);
-            self.path_capacity.fill(C::max_value());
             break;
         }
         (
