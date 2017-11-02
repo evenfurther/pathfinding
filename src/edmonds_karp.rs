@@ -110,6 +110,19 @@ where
         }
     }
 
+    /// Set a capacity and return `true` if this caused the existing flows
+    /// to be reset.
+    pub fn set_capacity(
+        &mut self,
+        capacities: &mut Array2<C>,
+        from: usize,
+        to: usize,
+        capacity: C,
+    ) -> bool {
+        capacities[[from, to]] = capacity;
+        self.reset_after_change(capacities, from, to)
+    }
+
     /// Reset all flows because capacities have changed.
     pub fn reset_flows(&mut self) {
         self.flows.fill(Zero::zero());
@@ -117,7 +130,8 @@ where
     }
 
     /// Reset all flows in case capacities have been reduced to below the
-    /// existing flow. Return `true` if a reset has been performed.
+    /// existing flow. Return `true` if a reset has been performed since
+    /// the last computation.
     pub fn reset_if_needed(&mut self, capacities: &Array2<C>) -> bool {
         (0..self.size).any(|from| {
             (0..self.size).any(|to| self.reset_after_change(capacities, from, to))
@@ -125,9 +139,12 @@ where
     }
 
     /// Reset all flows in case the given capacity has been reduced to below
-    /// the existing flow value. Return `true` if a reset has been performed.
+    /// the existing flow value. Return `true` if a reset has been performed
+    /// since the last computation.
     pub fn reset_after_change(&mut self, capacities: &Array2<C>, from: usize, to: usize) -> bool {
-        if capacities[[from, to]] < self.flows[[from, to]] {
+        if self.total_capacity == Zero::zero() {
+            true
+        } else if capacities[[from, to]] < self.flows[[from, to]] {
             self.reset_flows();
             true
         } else {
@@ -136,7 +153,8 @@ where
     }
 
     /// Reset all flows in case any of the given capacity has been reduced to below
-    /// the existing flow value. Return `true` if a reset has been performed.
+    /// the existing flow value. Return `true` if a reset has been performed since
+    /// the last computation.
     pub fn reset_after_changes(
         &mut self,
         capacities: &Array2<C>,
