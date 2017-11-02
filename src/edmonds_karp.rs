@@ -76,37 +76,33 @@ pub fn edmonds_karp_matrix<C>(
 where
     C: Zero + Signed + Bounded + PartialOrd + Copy,
 {
-    let mut ek = EdmondsKarp::new(source, sink, capacities);
-    ek.augment()
+    let mut ek = EdmondsKarp::new(capacities.shape()[0], source, sink);
+    ek.augment(capacities)
 }
 
-/// Structure holding Edmonds-Karp algorithm internal variables. Only
-/// `capacities` may be manipulated from outside in order to gradually
-/// change the capacities.
-pub struct EdmondsKarp<'a, C: 'a> {
+/// Structure holding Edmonds-Karp algorithm internal variables. This is
+/// not supposed to be manipulated from outside and must be treated as
+/// opaque.
+pub struct EdmondsKarp<C> {
     source: usize,
     sink: usize,
     size: usize,
-    capacities: &'a Array2<C>,
     flows: Array2<C>,
     total_capacity: C,
     parents: Array1<Option<usize>>,
     path_capacity: Array1<C>,
 }
 
-impl<'a, C> EdmondsKarp<'a, C>
+impl<C> EdmondsKarp<C>
 where
-    C: 'a + Zero + Signed + Bounded + PartialOrd + Copy,
+    C: Zero + Signed + Bounded + PartialOrd + Copy,
 {
     /// Create a new `EdmondsKarp` structure.
-    pub fn new(source: usize, sink: usize, capacities: &'a Array2<C>) -> EdmondsKarp<'a, C> {
-        let size = capacities.shape()[0];
-        assert_eq!(capacities.shape()[0], capacities.shape()[1]);
+    pub fn new(size: usize, source: usize, sink: usize) -> EdmondsKarp<C> {
         EdmondsKarp {
             source: source,
             sink: sink,
             size: size,
-            capacities: capacities,
             flows: Array2::<C>::zeros((size, size)),
             total_capacity: Zero::zero(),
             parents: Array1::from_elem(size, None),
@@ -122,16 +118,16 @@ where
 
     /// Reset all flows in case capacities have been reduced to below the
     /// existing flow. Return `true` if a reset has been performed.
-    pub fn reset_if_needed(&mut self) -> bool {
+    pub fn reset_if_needed(&mut self, capacities: &Array2<C>) -> bool {
         (0..self.size).any(|from| {
-            (0..self.size).any(|to| self.reset_after_change(from, to))
+            (0..self.size).any(|to| self.reset_after_change(capacities, from, to))
         })
     }
 
     /// Reset all flows in case the given capacity has been reduced to below
     /// the existing flow value. Return `true` if a reset has been performed.
-    pub fn reset_after_change(&mut self, from: usize, to: usize) -> bool {
-        if self.capacities[[from, to]] < self.flows[[from, to]] {
+    pub fn reset_after_change(&mut self, capacities: &Array2<C>, from: usize, to: usize) -> bool {
+        if capacities[[from, to]] < self.flows[[from, to]] {
             self.reset_flows();
             true
         } else {
@@ -141,14 +137,20 @@ where
 
     /// Reset all flows in case any of the given capacity has been reduced to below
     /// the existing flow value. Return `true` if a reset has been performed.
-    pub fn reset_after_changes(&mut self, changes: &[(usize, usize)]) -> bool {
+    pub fn reset_after_changes(
+        &mut self,
+        capacities: &Array2<C>,
+        changes: &[(usize, usize)],
+    ) -> bool {
         changes
             .iter()
-            .any(|&(from, to)| self.reset_after_change(from, to))
+            .any(|&(from, to)| self.reset_after_change(capacities, from, to))
     }
 
     /// Augment paths so that the flow is maximal.
-    pub fn augment(&mut self) -> EKFlows<usize, C> {
+    pub fn augment(&mut self, capacities: &Array2<C>) -> EKFlows<usize, C> {
+        assert_eq!(capacities.shape()[0], capacities.shape()[1]);
+        assert_eq!(capacities.shape()[0], self.size);
         if self.source >= self.size || self.sink >= self.size {
             return (vec![], Zero::zero());
         }
@@ -159,8 +161,7 @@ where
             while let Some(node) = to_see.pop_front() {
                 let capacity_so_far = self.path_capacity[node];
                 for neighbour in 0..self.size {
-                    let residual =
-                        self.capacities[[node, neighbour]] - self.flows[[node, neighbour]];
+                    let residual = capacities[[node, neighbour]] - self.flows[[node, neighbour]];
                     if neighbour == self.source || residual <= Zero::zero()
                         || self.parents[neighbour].is_some()
                     {
