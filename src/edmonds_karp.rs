@@ -114,6 +114,39 @@ where
         }
     }
 
+    /// Reset all flows because capacities have changed.
+    pub fn reset_flows(&mut self) {
+        self.flows.fill(Zero::zero());
+        self.total_capacity = Zero::zero();
+    }
+
+    /// Reset all flows in case capacities have been reduced to below the
+    /// existing flow. Return `true` if a reset has been performed.
+    pub fn reset_if_needed(&mut self) -> bool {
+        (0..self.size).any(|from| {
+            (0..self.size).any(|to| self.reset_after_change(from, to))
+        })
+    }
+
+    /// Reset all flows in case the given capacity has been reduced to below
+    /// the existing flow value. Return `true` if a reset has been performed.
+    pub fn reset_after_change(&mut self, from: usize, to: usize) -> bool {
+        if self.capacities[[from, to]] < self.flows[[from, to]] {
+            self.reset_flows();
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Reset all flows in case any of the given capacity has been reduced to below
+    /// the existing flow value. Return `true` if a reset has been performed.
+    pub fn reset_after_changes(&mut self, changes: &[(usize, usize)]) -> bool {
+        changes
+            .iter()
+            .any(|&(from, to)| self.reset_after_change(from, to))
+    }
+
     /// Augment paths so that the flow is maximal.
     pub fn augment(&mut self) -> EKFlows<usize, C> {
         if self.source >= self.size || self.sink >= self.size {
