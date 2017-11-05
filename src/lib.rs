@@ -10,8 +10,9 @@
 
 #[cfg(feature = "kuhn_munkres")]
 extern crate fixedbitset;
-#[cfg(any(feature = "edmonds_karp", feature = "kuhn_munkres"))]
-pub extern crate ndarray;
+#[cfg(feature = "edmonds_karp")]
+#[macro_use]
+extern crate itertools;
 pub extern crate num_traits;
 
 mod astar;
@@ -24,6 +25,7 @@ mod fringe;
 mod idastar;
 #[cfg(feature = "kuhn_munkres")]
 mod kuhn_munkres;
+mod square_matrix;
 
 pub use astar::*;
 pub use bfs::*;
@@ -35,6 +37,7 @@ pub use fringe::*;
 pub use idastar::*;
 #[cfg(feature = "kuhn_munkres")]
 pub use kuhn_munkres::*;
+pub use square_matrix::*;
 
 use std::collections::HashMap;
 use std::hash::Hash;
