@@ -46,3 +46,29 @@ fn cranes() {
     ];
     assert_eq!(kuhn_munkres_min(&distances).0, 275);
 }
+
+#[test]
+fn murray() {
+    // Test from http://csclab.murraystate.edu/~bob.pilgrim/445/munkres.html
+    let weights = array![[1, 2, 3], [2, 4, 6], [3, 6, 9],];
+    assert_eq!(kuhn_munkres_min(&weights).0, 10);
+}
+
+#[test]
+fn mattkrick() {
+    // Test from https://github.com/mattkrick/hungarian-on3
+    let data = array![[400, 150, 400], [400, 450, 600], [300, 225, 300]];
+    assert_eq!(kuhn_munkres_min(&data).0, 850);
+}
+
+#[test]
+fn hungarian() {
+    // Test from http://www.hungarianalgorithm.com/examplehungarianalgorithm.php
+    let weights = array![
+        [82, 83, 69, 92],
+        [77, 37, 49, 92],
+        [11, 69, 5, 86],
+        [8, 9, 98, 23],
+    ];
+    assert_eq!(kuhn_munkres_min(&weights).0, 140);
+}
