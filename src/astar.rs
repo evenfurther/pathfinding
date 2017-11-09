@@ -143,7 +143,7 @@ where
 
 #[derive(Eq, Hash, PartialEq)]
 struct PathNode<N> where N: Clone {
-    node: N,
+    node: Rc<N>,
     parent: Option<Rc<PathNode<N>>>
 }
 
@@ -187,7 +187,7 @@ where
     to_see.push(SmallestCostHolder {
         estimated_cost: heuristic(start),
         cost: Zero::zero(),
-        payload: Rc::new(PathNode{node: start.clone(), parent: None})
+        payload: Rc::new(PathNode{node: Rc::new(start.clone()), parent: None})
     });
     let mut lowest_cost = HashMap::new();
     let mut min_cost = None;
@@ -203,7 +203,7 @@ where
                 break;
             }
         }
-        if success(&pn.node) {
+        if success(pn.node.borrow()) {
             min_cost = Some(cost);
             out.push(mk_path(&payload));
             continue;
@@ -216,12 +216,13 @@ where
                 continue;
             }
         }
-        for (neighbour, move_cost) in neighbours(&pn.node) {
+        for (neighbour, move_cost) in neighbours(pn.node.borrow()) {
             let new_cost = cost + move_cost;
             if neighbour != *start {
                 let new_predicted_cost = new_cost + heuristic(&neighbour);
 
-                match lowest_cost.entry(neighbour.clone()) {
+                let nrc = Rc::new(neighbour);
+                match lowest_cost.entry(Rc::clone(&nrc)) {
                     Vacant(e) => { e.insert(new_cost); }
                     Occupied(mut e) => {
                         if *e.get() > new_cost {
@@ -233,7 +234,7 @@ where
                 to_see.push(SmallestCostHolder {
                     estimated_cost: new_predicted_cost,
                     cost: new_cost,
-                    payload: Rc::new(PathNode{node: neighbour, parent: Some(Rc::clone(&payload))})
+                    payload: Rc::new(PathNode{node: nrc, parent: Some(Rc::clone(&payload))})
                 });
             }
         }
@@ -246,7 +247,8 @@ fn mk_path<N>(mut pl: &Rc<PathNode<N>>) -> Vec<N> where N: Clone
     let mut path = Vec::new();
     loop {
         let cur: &PathNode<N> = Rc::borrow(pl);
-        path.push(cur.node.clone());
+        let n: &N = cur.node.borrow();
+        path.push(n.clone());
         match cur.parent {
             Some(ref p) => pl = p,
             None => break
