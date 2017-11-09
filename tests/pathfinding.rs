@@ -157,7 +157,11 @@ mod ex2 {
         );
         assert_eq!(cost, 8);
         assert_eq!(paths.len(), 1);
-        assert!(paths.iter().all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx])));
+        assert!(
+            paths
+                .iter()
+                .all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx]))
+        );
         assert_eq!(*counter.borrow(), 18);
     }
 
@@ -178,7 +182,11 @@ mod ex2 {
         assert_eq!(cost, 9);
         println!("{:?}", paths);
         assert_eq!(paths.len(), 3);
-        assert!(paths.iter().all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx])));
+        assert!(
+            paths
+                .iter()
+                .all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx]))
+        );
         assert_eq!(*counter.borrow(), 22);
     }
 

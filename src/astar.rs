@@ -142,9 +142,12 @@ where
 }
 
 #[derive(Eq, Hash, PartialEq)]
-struct PathNode<N> where N: Clone {
+struct PathNode<N>
+where
+    N: Clone,
+{
     node: Rc<N>,
-    parent: Option<Rc<PathNode<N>>>
+    parent: Option<Rc<PathNode<N>>>,
 }
 
 /// Compute all shortest paths using the [A* search
@@ -168,6 +171,7 @@ struct PathNode<N> where N: Clone {
 ///
 /// Each path comprises both the start and an end node. Note that while every path shares the same
 /// start node, different paths may have different end nodes.
+
 pub fn astar_bag<N, C, FN, IN, FH, FS>(
     start: &N,
     neighbours: FN,
@@ -187,15 +191,18 @@ where
     to_see.push(SmallestCostHolder {
         estimated_cost: heuristic(start),
         cost: Zero::zero(),
-        payload: Rc::new(PathNode{node: Rc::new(start.clone()), parent: None})
+        payload: Rc::new(PathNode {
+            node: Rc::new(start.clone()),
+            parent: None,
+        }),
     });
     let mut lowest_cost = HashMap::new();
     let mut min_cost = None;
-    while let Some(SmallestCostHolder{
+    while let Some(SmallestCostHolder {
         cost,
         estimated_cost,
-        payload}
-    ) = to_see.pop()
+        payload,
+    }) = to_see.pop()
     {
         let pn: &PathNode<N> = Rc::borrow(&payload);
         if let Some(mc) = min_cost {
@@ -223,18 +230,21 @@ where
 
                 let nrc = Rc::new(neighbour);
                 match lowest_cost.entry(Rc::clone(&nrc)) {
-                    Vacant(e) => { e.insert(new_cost); }
-                    Occupied(mut e) => {
-                        if *e.get() > new_cost {
-                            e.insert(new_cost);
-                        }
+                    Vacant(e) => {
+                        e.insert(new_cost);
                     }
+                    Occupied(mut e) => if *e.get() > new_cost {
+                        e.insert(new_cost);
+                    },
                 }
 
                 to_see.push(SmallestCostHolder {
                     estimated_cost: new_predicted_cost,
                     cost: new_cost,
-                    payload: Rc::new(PathNode{node: nrc, parent: Some(Rc::clone(&payload))})
+                    payload: Rc::new(PathNode {
+                        node: nrc,
+                        parent: Some(Rc::clone(&payload)),
+                    }),
                 });
             }
         }
@@ -242,7 +252,9 @@ where
     (out, min_cost.unwrap_or_else(Zero::zero))
 }
 
-fn mk_path<N>(mut pl: &Rc<PathNode<N>>) -> Vec<N> where N: Clone
+fn mk_path<N>(mut pl: &Rc<PathNode<N>>) -> Vec<N>
+where
+    N: Clone,
 {
     let mut path = Vec::new();
     loop {
@@ -251,7 +263,7 @@ fn mk_path<N>(mut pl: &Rc<PathNode<N>>) -> Vec<N> where N: Clone
         path.push(n.clone());
         match cur.parent {
             Some(ref p) => pl = p,
-            None => break
+            None => break,
         }
     }
     path.reverse();
