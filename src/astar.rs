@@ -3,6 +3,8 @@ use std::collections::{BinaryHeap, HashMap};
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::cmp::Ordering;
 use std::hash::Hash;
+use std::rc::Rc;
+use std::borrow::Borrow;
 
 use super::reverse_path;
 
@@ -137,6 +139,121 @@ where
         }
     }
     None
+}
+
+#[derive(Eq, Hash, PartialEq)]
+struct PathNode<N> where N: Clone {
+    node: N,
+    parent: Option<Rc<PathNode<N>>>
+}
+
+/// Compute all shortest paths using the [A* search
+/// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm). Whereas `astar`
+/// (non-deterministically) returns a single shortest path, `astar_bag` returns all shortest paths
+/// (in a non-deterministic order).
+///
+/// The shortest paths starting from `start` up to a node for which `success` returns `true` are
+/// computed and returned in a `Vec` along with the cost (which, by definition, is the same for
+/// each shortest path). If no paths are found, the vector will be empty.
+///
+/// - `start` is the starting node.
+/// - `neighbours` returns a list of neighbours for a given node, along with the cost for moving
+/// from the node to the neighbour.
+/// - `heuristic` returns an approximation of the cost from a given node to the goal. The
+/// approximation must not be greater than the real cost, or a wrong shortest path may be returned.
+/// - `success` checks whether the goal has been reached. It is not a node as some problems require
+/// a dynamic solution instead of a fixed node.
+///
+/// A node will never be included twice in the path as determined by the `Eq` relationship.
+///
+/// Each path comprises both the start and an end node. Note that while every path shares the same
+/// start node, different paths may have different end nodes.
+pub fn astar_bag<N, C, FN, IN, FH, FS>(
+    start: &N,
+    neighbours: FN,
+    heuristic: FH,
+    success: FS,
+) -> (Vec<Vec<N>>, C)
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: Fn(&N) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+    FH: Fn(&N) -> C,
+    FS: Fn(&N) -> bool,
+{
+    let mut to_see = BinaryHeap::new();
+    let mut out = Vec::new();
+    to_see.push(SmallestCostHolder {
+        estimated_cost: heuristic(start),
+        cost: Zero::zero(),
+        payload: Rc::new(PathNode{node: start.clone(), parent: None})
+    });
+    let mut lowest_cost = HashMap::new();
+    let mut min_cost = None;
+    while let Some(SmallestCostHolder{
+        cost,
+        estimated_cost,
+        payload}
+    ) = to_see.pop()
+    {
+        let pn: &PathNode<N> = Rc::borrow(&payload);
+        if let Some(mc) = min_cost {
+            if estimated_cost > mc {
+                break;
+            }
+        }
+        if success(&pn.node) {
+            min_cost = Some(cost);
+            out.push(mk_path(&payload));
+            continue;
+        }
+        // We may have inserted the same node several times into the binary heap: if we found a
+        // lower-cost way of accessing it then there's no point in exploring higher-cost versions
+        // (since we will already have explored the lower-cost versions).
+        if let Some(c) = lowest_cost.get(&pn.node) {
+            if cost > *c {
+                continue;
+            }
+        }
+        for (neighbour, move_cost) in neighbours(&pn.node) {
+            let new_cost = cost + move_cost;
+            if neighbour != *start {
+                let new_predicted_cost = new_cost + heuristic(&neighbour);
+
+                match lowest_cost.entry(neighbour.clone()) {
+                    Vacant(e) => { e.insert(new_cost); }
+                    Occupied(mut e) => {
+                        if *e.get() > new_cost {
+                            e.insert(new_cost);
+                        }
+                    }
+                }
+
+                to_see.push(SmallestCostHolder {
+                    estimated_cost: new_predicted_cost,
+                    cost: new_cost,
+                    payload: Rc::new(PathNode{node: neighbour, parent: Some(Rc::clone(&payload))})
+                });
+            }
+        }
+    }
+    (out, min_cost.unwrap_or_else(Zero::zero))
+}
+
+fn mk_path<N>(mut pl: &Rc<PathNode<N>>) -> Vec<N> where N: Clone
+{
+    let mut path = Vec::new();
+    loop {
+        let cur: &PathNode<N> = Rc::borrow(pl);
+        path.push(cur.node.clone());
+        match cur.parent {
+            Some(ref p) => pl = p,
+            None => break
+        }
+    }
+    path.reverse();
+    path
 }
 
 struct SmallestCostHolder<K, P> {
