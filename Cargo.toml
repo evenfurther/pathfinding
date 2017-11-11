@@ -12,20 +12,12 @@ categories = ["algorithms"]
 readme = "README.md"
 
 [dependencies]
-fixedbitset = { version = "0.1", optional = true }
-itertools = { version = "0.7", optional = true }
+fixedbitset = "0.1"
+itertools = "0.7"
 num-traits = "0.1"
 
 [dev-dependencies]
 lazy_static = "0.2"
-
-[features]
-default = ["edmonds_karp", "kuhn_munkres"]
-edmonds_karp = ["itertools"]
-kuhn_munkres = ["fixedbitset"]
-
-[package.metadata.docs.rs]
-all-features = true
 
 [badges]
 appveyor = { repository = "samueltardieu/pathfinding" }

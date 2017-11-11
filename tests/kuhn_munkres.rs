@@ -1,5 +1,3 @@
-#![cfg(feature = "kuhn_munkres")]
-
 extern crate pathfinding;
 
 use pathfinding::*;
