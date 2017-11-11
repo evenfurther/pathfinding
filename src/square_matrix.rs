@@ -47,8 +47,28 @@ impl<C: Clone + Signed> Neg for SquareMatrix<C> {
 }
 
 impl<C> SquareMatrix<C> {
+    /// Create new square matrix from vector values. The first value
+    /// will be assigned to index (0, 0), the second one to index (0, 1),
+    /// and so on.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if the number of values is not a square number.
+    pub fn from_vec(values: Vec<C>) -> SquareMatrix<C> {
+        let size = (values.len() as f32).sqrt().round() as usize;
+        assert_eq!(
+            size * size,
+            values.len(),
+            "length of vector is not a square number"
+        );
+        SquareMatrix {
+            size: size,
+            data: values,
+        }
+    }
+
     fn idx(&self, i: &(usize, usize)) -> usize {
-        i.0 + i.1 * self.size
+        i.0 * self.size + i.1
     }
 }
 
