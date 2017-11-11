@@ -3,7 +3,8 @@ use square_matrix::SquareMatrix;
 use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;
 
-type EKFlows<N, C> = (Vec<((N, N), C)>, C);
+/// Type alias for Edmonds-Karp result.
+pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 
 /// Compute the maximum flow that can go through a directed graph using the
 /// [Edmonds Karp algorithm](https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm).
