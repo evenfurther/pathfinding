@@ -1,9 +1,10 @@
-use ndarray::{indices_of, Array1, Array2};
 use num_traits::{Bounded, Signed, Zero};
+use square_matrix::SquareMatrix;
 use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;
 
-type EKFlows<N, C> = (Vec<((N, N), C)>, C);
+/// Type alias for Edmonds-Karp result.
+pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 
 /// Compute the maximum flow that can go through a directed graph using the
 /// [Edmonds Karp algorithm](https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm).
@@ -19,6 +20,10 @@ type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 ///
 /// Note that the capacity type C must be signed as the algorithm has to deal with
 /// negative residual capacities.
+///
+/// By creating an `EdmondsKarp` structure, it is possible to adjust the capacities
+/// after computing the maximum flow and rerun the algorithm without starting from
+/// scratch.
 
 pub fn edmonds_karp<N, C, IC>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
 where
@@ -33,9 +38,9 @@ where
         .into_iter()
         .map(|i| (vertices[i].clone(), i))
         .collect::<HashMap<_, _>>();
-    let mut capacities = Array2::<C>::zeros((size, size));
+    let mut capacities = SquareMatrix::new(size, Zero::zero());
     for ((from, to), capacity) in caps {
-        capacities[[reverse[&from], reverse[&to]]] = capacity;
+        capacities[&(reverse[&from], reverse[&to])] = capacity;
     }
     let (paths, max) = edmonds_karp_matrix(reverse[source], reverse[sink], &capacities);
     (
@@ -71,73 +76,166 @@ where
 pub fn edmonds_karp_matrix<C>(
     source: usize,
     sink: usize,
-    capacities: &Array2<C>,
+    capacities: &SquareMatrix<C>,
 ) -> EKFlows<usize, C>
 where
     C: Zero + Signed + Bounded + PartialOrd + Copy,
 {
-    let size = capacities.shape()[0];
-    assert_eq!(capacities.shape()[0], capacities.shape()[1]);
-    if source >= size || sink >= size {
-        return (vec![], Zero::zero());
-    }
-    // Permanent evoluting data structures.
-    let mut flows = Array2::<C>::zeros((size, size));
-    let mut total_capacity = Zero::zero();
-    let mut to_see = VecDeque::new();
+    let mut ek = EdmondsKarp::new(capacities.size, source, sink);
+    ek.augment(capacities)
+}
 
-    // Data which will be cleared for every path but
-    // is allocated once.
-    let mut parents = Array1::from_elem(size, None);
-    let mut path_capacity = Array1::from_elem(size, C::max_value());
+/// Structure holding Edmonds-Karp algorithm internal variables. This is
+/// not supposed to be manipulated from outside and must be treated as
+/// opaque.
+pub struct EdmondsKarp<C> {
+    source: usize,
+    sink: usize,
+    size: usize,
+    flows: SquareMatrix<C>,
+    total_capacity: C,
+}
 
-    // Repeatidly look for an augmenting path.
-    'augment: loop {
-        to_see.clear();
-        to_see.push_back(source);
-        while let Some(node) = to_see.pop_front() {
-            let capacity_so_far = path_capacity[node];
-            for neighbour in 0..size {
-                let residual = capacities[[node, neighbour]] - flows[[node, neighbour]];
-                if neighbour == source || residual <= Zero::zero() || parents[neighbour].is_some() {
-                    continue;
-                }
-                parents[neighbour] = Some(node);
-                path_capacity[neighbour] = if capacity_so_far < residual {
-                    capacity_so_far
-                } else {
-                    residual
-                };
-                if neighbour == sink {
-                    let mut n = sink;
-                    while n != source {
-                        let p = parents[n].unwrap();
-                        flows[[p, n]] = flows[[p, n]] + path_capacity[sink];
-                        flows[[n, p]] = flows[[n, p]] - path_capacity[sink];
-                        n = p;
-                    }
-                    total_capacity = total_capacity + path_capacity[sink];
-                    parents.fill(None);
-                    path_capacity.fill(C::max_value());
-                    continue 'augment;
-                }
-                to_see.push_back(neighbour);
-            }
+impl<C> EdmondsKarp<C>
+where
+    C: Zero + Signed + Bounded + PartialOrd + Copy,
+{
+    /// Create a new `EdmondsKarp` structure.
+    /// - `size` is the size of each dimension of the the capacities
+    ///   square matrix.
+    /// - `source` is the source node (the origin of the flow).
+    /// - `sink` is the sink node (the target of the flow).
+    pub fn new(size: usize, source: usize, sink: usize) -> EdmondsKarp<C> {
+        EdmondsKarp {
+            source: source,
+            sink: sink,
+            size: size,
+            flows: SquareMatrix::new(size, Zero::zero()),
+            total_capacity: Zero::zero(),
         }
-        break;
     }
-    (
-        indices_of(&flows)
-            .into_iter()
-            .filter_map(|(a, b)| {
-                let f = flows[[a, b]];
-                if f > Zero::zero() {
-                    Some(((a, b), f))
-                } else {
-                    None
+
+    /// Set a capacity and return `true` if this caused the existing flows
+    /// to be reset.
+    pub fn set_capacity(
+        &mut self,
+        capacities: &mut SquareMatrix<C>,
+        from: usize,
+        to: usize,
+        capacity: C,
+    ) -> bool {
+        capacities[&(from, to)] = capacity;
+        self.reset_after_change(capacities, from, to)
+    }
+
+    /// Reset all flows unconditionally because capacities have changed.
+    pub fn reset_flows(&mut self) {
+        self.flows.fill(Zero::zero());
+        self.total_capacity = Zero::zero();
+    }
+
+    /// Reset all flows in case capacities have been reduced to below the
+    /// existing flow. Return `true` if a reset has been performed since
+    /// the last computation.
+    pub fn reset_if_needed(&mut self, capacities: &SquareMatrix<C>) -> bool {
+        (0..self.size).any(|from| {
+            (0..self.size).any(|to| self.reset_after_change(capacities, from, to))
+        })
+    }
+
+    /// Reset all flows in case the given capacity has been reduced to below
+    /// the existing flow value. Return `true` if a reset has been performed
+    /// since the last computation.
+    pub fn reset_after_change(
+        &mut self,
+        capacities: &SquareMatrix<C>,
+        from: usize,
+        to: usize,
+    ) -> bool {
+        if self.total_capacity == Zero::zero() {
+            true
+        } else if capacities[&(from, to)] < self.flows[&(from, to)] {
+            self.reset_flows();
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Reset all flows in case any of the given capacity has been reduced to below
+    /// the existing flow value. Return `true` if a reset has been performed since
+    /// the last computation.
+    pub fn reset_after_changes(
+        &mut self,
+        capacities: &SquareMatrix<C>,
+        changes: &[(usize, usize)],
+    ) -> bool {
+        changes
+            .iter()
+            .any(|&(from, to)| self.reset_after_change(capacities, from, to))
+    }
+
+    /// Compute the maximum flow.
+    pub fn augment(&mut self, capacities: &SquareMatrix<C>) -> EKFlows<usize, C> {
+        assert_eq!(capacities.size, self.size);
+        if self.source >= self.size || self.sink >= self.size {
+            return (vec![], Zero::zero());
+        }
+        let mut parents = Vec::with_capacity(self.size);
+        parents.resize(self.size, None);
+        let mut path_capacity = Vec::with_capacity(self.size);
+        path_capacity.resize(self.size, C::max_value());
+        let mut to_see = VecDeque::new();
+        'augment: loop {
+            to_see.clear();
+            to_see.push_back(self.source);
+            while let Some(node) = to_see.pop_front() {
+                let capacity_so_far = path_capacity[node];
+                for neighbour in 0..self.size {
+                    let residual = capacities[&(node, neighbour)] - self.flows[&(node, neighbour)];
+                    if neighbour == self.source || residual <= Zero::zero()
+                        || parents[neighbour].is_some()
+                    {
+                        continue;
+                    }
+                    parents[neighbour] = Some(node);
+                    path_capacity[neighbour] = if capacity_so_far < residual {
+                        capacity_so_far
+                    } else {
+                        residual
+                    };
+                    if neighbour == self.sink {
+                        let mut n = self.sink;
+                        while n != self.source {
+                            let p = parents[n].unwrap();
+                            self.flows[&(p, n)] = self.flows[&(p, n)] + path_capacity[self.sink];
+                            self.flows[&(n, p)] = self.flows[&(n, p)] - path_capacity[self.sink];
+                            n = p;
+                        }
+                        self.total_capacity = self.total_capacity + path_capacity[self.sink];
+                        parents.clear();
+                        parents.resize(self.size, None);
+                        path_capacity.clear();
+                        path_capacity.resize(self.size, C::max_value());
+                        continue 'augment;
+                    }
+                    to_see.push_back(neighbour);
                 }
-            })
-            .collect(),
-        total_capacity,
-    )
+            }
+            break;
+        }
+        (
+            iproduct!(0..self.flows.size, 0..self.flows.size)
+                .filter_map(|(a, b)| {
+                    let f = self.flows[&(a, b)];
+                    if f > Zero::zero() {
+                        Some(((a, b), f))
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+            self.total_capacity,
+        )
+    }
 }

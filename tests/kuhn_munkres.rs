@@ -1,10 +1,30 @@
-#![cfg(feature = "kuhn_munkres")]
-
-#[macro_use]
-extern crate ndarray;
 extern crate pathfinding;
 
 use pathfinding::*;
+
+macro_rules! array {
+    ($a:expr) => {{
+        let mut m = SquareMatrix::new($a.len(), 0);
+        for i in 0..m.size {
+            m[&(0, i)] = $a[i];
+        }
+        m
+    }};
+    ($a:expr, $($b: expr),+) => {{
+        let mut m = array!($a);
+        let mut r = 0;
+        $(
+            {
+                r += 1;
+                for i in 0..m.size {
+                    m[&(r, i)] = $b[i];
+                }
+            }
+        )+
+        m
+    }};
+    ($a:expr, $($b: expr),+, ) => (array!($a, $($b),+))
+}
 
 #[test]
 fn tryalgo_examples() {

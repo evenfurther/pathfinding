@@ -139,11 +139,13 @@ where
         }
         let mut neighbs = neighbours(start)
             .into_iter()
-            .filter_map(|(n, c)| if path.contains(&n) {
-                None
-            } else {
-                let h = heuristic(&n);
-                Some((n, c, c + h))
+            .filter_map(|(n, c)| {
+                if path.contains(&n) {
+                    None
+                } else {
+                    let h = heuristic(&n);
+                    Some((n, c, c + h))
+                }
             })
             .collect::<Vec<_>>();
         neighbs.sort_by_key(|&(_, _, c)| c);

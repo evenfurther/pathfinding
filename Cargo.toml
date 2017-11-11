@@ -6,26 +6,18 @@ keywords = ["shortest-path", "astar", "dijkstra", "flow", "graph"]
 license = "Apache-2.0/MIT"
 homepage = "https://rfc1149.net/devel/pathfinding.html"
 documentation = "https://docs.rs/pathfinding/"
-version = "0.2.5-pre"
+version = "0.3.0-pre"
 authors = ["Samuel Tardieu <sam@rfc1149.net>"]
 categories = ["algorithms"]
 readme = "README.md"
 
 [dependencies]
-fixedbitset = { version = "0.1", optional = true }
-ndarray = { version = "^0.10.7", optional = true }
+fixedbitset = "0.1"
+itertools = "0.7"
 num-traits = "0.1"
 
 [dev-dependencies]
 lazy_static = "0.2"
-
-[features]
-default = ["edmonds_karp", "kuhn_munkres"]
-edmonds_karp = ["ndarray"]
-kuhn_munkres = ["ndarray", "fixedbitset"]
-
-[package.metadata.docs.rs]
-all-features = true
 
 [badges]
 appveyor = { repository = "samueltardieu/pathfinding" }
