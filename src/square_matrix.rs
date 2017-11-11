@@ -56,13 +56,13 @@ impl<'a, C> Index<&'a (usize, usize)> for SquareMatrix<C> {
     type Output = C;
 
     fn index(&self, index: &'a (usize, usize)) -> &C {
-        &self.data[self.idx(&index)]
+        &self.data[self.idx(index)]
     }
 }
 
 impl<'a, C> IndexMut<&'a (usize, usize)> for SquareMatrix<C> {
     fn index_mut(&mut self, index: &'a (usize, usize)) -> &mut C {
-        let i = self.idx(&index);
+        let i = self.idx(index);
         &mut self.data[i]
     }
 }

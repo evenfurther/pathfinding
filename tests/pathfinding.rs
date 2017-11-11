@@ -89,7 +89,7 @@ mod ex2 {
     use pathfinding::*;
     use std::cell::RefCell;
 
-    const MAZE: &'static str = "\
+    const MAZE: &str = "\
 #########
 #.#.....#
 ###.##..#
