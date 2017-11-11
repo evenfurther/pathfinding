@@ -8,6 +8,7 @@ branches:
 matrix:
   include:
     - rust: stable
+      env: CHECK_UPDATE=y
     - rust: beta
     - rust: nightly
     - rust: nightly
@@ -27,6 +28,7 @@ install:
 before_script:
   - if [ ! -z "$CHECK_FMT" ]; then PATH=$PATH:~/.cargo/bin cargo fmt -- --write-mode=diff; fi
   - if [ ! -z "$CHECK_CLIPPY" ]; then PATH=$PATH:~/.cargo/bin cargo clippy -- -D clippy; fi
+  - if [ ! -z "$CHECK_UPDATE" ]; then PATH=$PATH:~/.cargo/bin cargo update -q && git diff --exit-code ; fi
 
 script:
   - cargo build --verbose --all
