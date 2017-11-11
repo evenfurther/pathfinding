@@ -19,6 +19,10 @@ type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 ///
 /// Note that the capacity type C must be signed as the algorithm has to deal with
 /// negative residual capacities.
+///
+/// By creating an `EdmondsKarp` structure, it is possible to adjust the capacities
+/// after computing the maximum flow and rerun the algorithm without starting from
+/// scratch.
 
 pub fn edmonds_karp<N, C, IC>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
 where
@@ -76,7 +80,7 @@ pub fn edmonds_karp_matrix<C>(
 where
     C: Zero + Signed + Bounded + PartialOrd + Copy,
 {
-    let mut ek = EdmondsKarp::new(capacities, source, sink);
+    let mut ek = EdmondsKarp::new(capacities.size, source, sink);
     ek.augment(capacities)
 }
 
@@ -96,8 +100,11 @@ where
     C: Zero + Signed + Bounded + PartialOrd + Copy,
 {
     /// Create a new `EdmondsKarp` structure.
-    pub fn new(capacities: &SquareMatrix<C>, source: usize, sink: usize) -> EdmondsKarp<C> {
-        let size = capacities.size;
+    /// - `size` is the size of each dimension of the the capacities
+    ///   square matrix.
+    /// - `source` is the source node (the origin of the flow).
+    /// - `sink` is the sink node (the target of the flow).
+    pub fn new(size: usize, source: usize, sink: usize) -> EdmondsKarp<C> {
         EdmondsKarp {
             source: source,
             sink: sink,
@@ -120,7 +127,7 @@ where
         self.reset_after_change(capacities, from, to)
     }
 
-    /// Reset all flows because capacities have changed.
+    /// Reset all flows unconditionally because capacities have changed.
     pub fn reset_flows(&mut self) {
         self.flows.fill(Zero::zero());
         self.total_capacity = Zero::zero();
@@ -167,7 +174,7 @@ where
             .any(|&(from, to)| self.reset_after_change(capacities, from, to))
     }
 
-    /// Augment paths so that the flow is maximal.
+    /// Compute the maximum flow.
     pub fn augment(&mut self, capacities: &SquareMatrix<C>) -> EKFlows<usize, C> {
         assert_eq!(capacities.size, self.size);
         if self.source >= self.size || self.sink >= self.size {
