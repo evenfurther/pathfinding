@@ -40,8 +40,8 @@ fn check_wikipedia_result(flows: EKFlows<char, i32>) {
 }
 
 #[test]
-fn wikipedia_example() {
-    check_wikipedia_result(edmonds_karp(
+fn wikipedia_example_dense() {
+    check_wikipedia_result(edmonds_karp_dense(
         &"ABCDEFGH".chars().collect::<Vec<_>>(),
         &'A',
         &'G',
@@ -50,18 +50,26 @@ fn wikipedia_example() {
 }
 
 #[test]
-fn wikipedia_progressive_example() {
+fn wikipedia_example_sparse() {
+    check_wikipedia_result(edmonds_karp_sparse(
+        &"ABCDEFGH".chars().collect::<Vec<_>>(),
+        &'A',
+        &'G',
+        neighbours_wikipedia(),
+    ));
+}
+
+#[test]
+fn wikipedia_progressive_example_dense() {
     let neighbours = neighbours_wikipedia();
     let size = neighbours.len();
-    let mut ek = EdmondsKarp::new(size, 0, 6);
-    let mut capacities = SquareMatrix::new(size, 0);
+    let mut ek = DenseCapacity::new(size, 0, 6);
     for ((from, to), cap) in neighbours {
-        let (_, total) = ek.augment(&capacities);
+        let (_, total) = ek.augment();
         assert!(total < 5);
-        let reset = ek.set_capacity(&mut capacities, from as usize - 65, to as usize - 65, cap);
-        assert!(total == 0 || !reset);
+        ek.set_capacity(from as usize - 65, to as usize - 65, cap);
     }
-    let (caps, total) = ek.augment(&capacities);
+    let (caps, total) = ek.augment();
     let caps = caps.into_iter()
         .map(|((from, to), cap)| {
             (((from + 65) as u8 as char, (to + 65) as u8 as char), cap)
@@ -71,8 +79,39 @@ fn wikipedia_progressive_example() {
 }
 
 #[test]
-fn disconnected() {
-    let (caps, total) = edmonds_karp(
+fn wikipedia_progressive_example_sparse() {
+    let neighbours = neighbours_wikipedia();
+    let size = neighbours.len();
+    let mut ek = SparseCapacity::new(size, 0, 6);
+    for ((from, to), cap) in neighbours {
+        let (_, total) = ek.augment();
+        assert!(total < 5);
+        ek.set_capacity(from as usize - 65, to as usize - 65, cap);
+    }
+    let (caps, total) = ek.augment();
+    let caps = caps.into_iter()
+        .map(|((from, to), cap)| {
+            (((from + 65) as u8 as char, (to + 65) as u8 as char), cap)
+        })
+        .collect::<Vec<_>>();
+    check_wikipedia_result((caps, total));
+}
+
+#[test]
+fn disconnected_dense() {
+    let (caps, total) = edmonds_karp_dense(
+        &['A', 'B'],
+        &'A',
+        &'B',
+        std::iter::empty::<((char, char), isize)>(),
+    );
+    assert_eq!(caps.len(), 0);
+    assert_eq!(total, 0);
+}
+
+#[test]
+fn disconnected_sparse() {
+    let (caps, total) = edmonds_karp_sparse(
         &['A', 'B'],
         &'A',
         &'B',
