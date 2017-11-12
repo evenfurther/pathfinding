@@ -171,7 +171,7 @@ where
 ///
 /// Each path comprises both the start and an end node. Note that while every path shares the same
 /// start node, different paths may have different end nodes.
-/// 
+///
 /// ### Warning
 ///
 /// The number of results with the same value might be very large in some graphs. Use with caution.

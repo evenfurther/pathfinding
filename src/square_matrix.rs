@@ -2,6 +2,7 @@ use num_traits::Signed;
 use std::ops::{Index, IndexMut, Neg};
 
 /// Square matrix of an arbitrary type
+#[derive(Debug)]
 pub struct SquareMatrix<C> {
     /// Size of every dimension
     pub size: usize,
