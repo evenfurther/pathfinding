@@ -11,8 +11,7 @@ pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 /// [Edmonds Karp algorithm](https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm).
 ///
 /// A maximum flow going from `source` to `sink` will be computed, and the various
-/// flow values along with the total will be returned. A dense matrix will be used
-/// to represent the edges.
+/// flow values along with the total will be returned.
 ///
 /// - `vertices` is the collection of vertices in the graph.
 /// - `source` is the source node (the origin of the flow).
@@ -20,21 +19,23 @@ pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 /// - `caps` is an iterator-like object describing the positive capacities between the
 ///   nodes.
 ///
-/// Note that the capacity type C must be signed as the algorithm has to deal with
+/// Note that the capacity type `C` must be signed as the algorithm has to deal with
 /// negative residual capacities.
 ///
 /// By creating an `EdmondsKarp` structure, it is possible to adjust the capacities
 /// after computing the maximum flow and rerun the algorithm without starting from
-/// scratch.
+/// scratch. This function is a helper function that remaps the `N` node type to
+/// appropriate indices.
 ///
 /// # Panics
 ///
 /// This function panics if `source` or `sink` is not found in `vertices`.
-pub fn edmonds_karp_dense<N, C, IC>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
+pub fn edmonds_karp<N, C, IC, EK>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
 where
     N: Eq + Hash + Copy,
     C: Zero + Bounded + Signed + Ord + Copy,
     IC: IntoIterator<Item = ((N, N), C)>,
+    EK: EdmondsKarp<C>,
 {
     // Build a correspondance between N and 0..vertices.len() so that we can
     // work with matrices more easily.
@@ -43,7 +44,7 @@ where
         .into_iter()
         .map(|i| (vertices[i], i))
         .collect::<HashMap<_, _>>();
-    let mut capacities = DenseCapacity::new(size, reverse[source], reverse[sink]);
+    let mut capacities = EK::new(size, reverse[source], reverse[sink]);
     for ((from, to), capacity) in caps {
         capacities.set_capacity(reverse[&from], reverse[&to], capacity);
     }
@@ -57,29 +58,17 @@ where
     )
 }
 
-/// Compute the maximum flow that can go through a directed graph using the
-/// [Edmonds Karp algorithm](https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm).
-///
-/// A maximum flow going from `source` to `sink` will be computed, and the various
-/// flow values along with the total will be returned. A sparse representation will be
-/// used to represent the edges.
-///
-/// - `vertices` is the collection of vertices in the graph.
-/// - `source` is the source node (the origin of the flow).
-/// - `sink` is the sink node (the target of the flow).
-/// - `caps` is an iterator-like object describing the positive capacities between the
-///   nodes.
-///
-/// Note that the capacity type C must be signed as the algorithm has to deal with
-/// negative residual capacities.
-///
-/// By creating an `EdmondsKarp` structure, it is possible to adjust the capacities
-/// after computing the maximum flow and rerun the algorithm without starting from
-/// scratch.
-///
-/// # Panics
-///
-/// This function panics if `source` or `sink` is not found in `vertices`.
+/// Helper for the `edmonds_karp` function using an adjacency matrix for dense graphs.
+pub fn edmonds_karp_dense<N, C, IC>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
+where
+    N: Eq + Hash + Copy,
+    C: Zero + Bounded + Signed + Ord + Copy,
+    IC: IntoIterator<Item = ((N, N), C)>,
+{
+    edmonds_karp::<N, C, IC, DenseCapacity<C>>(vertices, source, sink, caps)
+}
+
+/// Helper for the `edmonds_karp` function using adjacency maps for sparse graphs.
 pub fn edmonds_karp_sparse<N, C, IC>(
     vertices: &[N],
     source: &N,
@@ -88,28 +77,10 @@ pub fn edmonds_karp_sparse<N, C, IC>(
 ) -> EKFlows<N, C>
 where
     N: Eq + Hash + Copy,
-    C: Zero + Bounded + Signed + Ord + Copy + Eq,
+    C: Zero + Bounded + Signed + Ord + Copy,
     IC: IntoIterator<Item = ((N, N), C)>,
 {
-    // Build a correspondance between N and 0..vertices.len() so that we can
-    // work with matrices more easily.
-    let size = vertices.len();
-    let reverse = (0..size)
-        .into_iter()
-        .map(|i| (vertices[i], i))
-        .collect::<HashMap<_, _>>();
-    let mut capacities = SparseCapacity::new(size, reverse[source], reverse[sink]);
-    for ((from, to), capacity) in caps {
-        capacities.set_capacity(reverse[&from], reverse[&to], capacity);
-    }
-    let (paths, max) = capacities.augment();
-    (
-        paths
-            .into_iter()
-            .map(|((a, b), c)| ((vertices[a], vertices[b]), c))
-            .collect(),
-        max,
-    )
+    edmonds_karp::<N, C, IC, SparseCapacity<C>>(vertices, source, sink, caps)
 }
 
 /// Representation of capacity and flow data.
