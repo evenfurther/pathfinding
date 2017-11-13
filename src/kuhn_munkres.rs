@@ -1,6 +1,6 @@
 use num_traits::{Bounded, Signed, Zero};
 use fixedbitset::FixedBitSet;
-use square_matrix::SquareMatrix;
+use matrix::Matrix;
 use std::iter::Sum;
 
 /// Adjacency matrix for weights.
@@ -21,13 +21,13 @@ pub trait Weights<C> {
         C: Signed;
 }
 
-impl<C: Copy> Weights<C> for SquareMatrix<C> {
+impl<C: Copy> Weights<C> for Matrix<C> {
     fn rows(&self) -> usize {
-        self.size
+        self.rows
     }
 
     fn columns(&self) -> usize {
-        self.size
+        self.columns
     }
 
     fn at(&self, row: usize, col: usize) -> C {
@@ -70,7 +70,10 @@ where
     // We call x the rows and y the columns. (nx, ny) is the size of the matrix.
     let nx = weights.rows();
     let ny = weights.columns();
-    assert!(nx <= ny, "number of rows must not be larger than number of columns");
+    assert!(
+        nx <= ny,
+        "number of rows must not be larger than number of columns"
+    );
     // xy represents matchings for x, yz matchings for y
     let mut xy: Vec<Option<usize>> = vec![None; nx];
     let mut yx: Vec<Option<usize>> = vec![None; ny];

@@ -1,8 +1,7 @@
 use num_traits::{Bounded, Signed, Zero};
-use square_matrix::SquareMatrix;
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::hash::Hash;
-use super::dijkstra;
+use super::{dijkstra, Matrix};
 
 /// Type alias for Edmonds-Karp result.
 pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
@@ -99,8 +98,9 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
     /// # Panics
     ///
     /// This function panics when `source` or `sink` is greater or equal than the
-    /// number of rows in the `capacities` matrix.
-    fn from_matrix(source: usize, sink: usize, capacities: SquareMatrix<C>) -> Self
+    /// number of rows in the `capacities` matrix, or it the matrix is not
+    /// a square one.
+    fn from_matrix(source: usize, sink: usize, capacities: Matrix<C>) -> Self
     where
         Self: Sized;
 
@@ -114,7 +114,7 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
     where
         Self: Sized,
     {
-        Self::from_matrix(source, sink, SquareMatrix::from_vec(capacities))
+        Self::from_matrix(source, sink, Matrix::square_from_vec(capacities))
     }
 
     /// Common data.
@@ -346,8 +346,12 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
         }
     }
 
-    fn from_matrix(source: usize, sink: usize, capacities: SquareMatrix<C>) -> SparseCapacity<C> {
-        let size = capacities.size;
+    fn from_matrix(source: usize, sink: usize, capacities: Matrix<C>) -> SparseCapacity<C> {
+        assert!(
+            capacities.is_square(),
+            "capacities matrix is not a square one"
+        );
+        let size = capacities.rows;
         assert!(source < size, "source is greater or equal than matrix side");
         assert!(sink < size, "sink is greater or equal than matrix side");
         let mut result = Self::new(size, source, sink);
@@ -433,8 +437,8 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
 #[derive(Debug)]
 pub struct DenseCapacity<C> {
     common: Common<C>,
-    residuals: SquareMatrix<C>,
-    flows: SquareMatrix<C>,
+    residuals: Matrix<C>,
+    flows: Matrix<C>,
 }
 
 impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C> {
@@ -449,13 +453,17 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
                 total_capacity: Zero::zero(),
                 detailed_flows: true,
             },
-            residuals: SquareMatrix::new(size, Zero::zero()),
-            flows: SquareMatrix::new(size, Zero::zero()),
+            residuals: Matrix::new(size, size, Zero::zero()),
+            flows: Matrix::new(size, size, Zero::zero()),
         }
     }
 
-    fn from_matrix(source: usize, sink: usize, capacities: SquareMatrix<C>) -> DenseCapacity<C> {
-        let size = capacities.size;
+    fn from_matrix(source: usize, sink: usize, capacities: Matrix<C>) -> DenseCapacity<C> {
+        assert!(
+            capacities.is_square(),
+            "capacities matrix is not a square one"
+        );
+        let size = capacities.rows;
         assert!(source < size, "source is greater or equal than matrix side");
         assert!(sink < size, "sink is greater or equal than matrix side");
         DenseCapacity {
@@ -467,7 +475,7 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
                 detailed_flows: true,
             },
             residuals: capacities,
-            flows: SquareMatrix::new(size, Zero::zero()),
+            flows: Matrix::new(size, size, Zero::zero()),
         }
     }
 

@@ -4,8 +4,8 @@ use pathfinding::*;
 
 macro_rules! array {
     ($a:expr) => {{
-        let mut m = SquareMatrix::new($a.len(), 0);
-        for i in 0..m.size {
+        let mut m = Matrix::new($a.len(), $a.len(), 0);
+        for i in 0..m.rows {
             m[&(0, i)] = $a[i];
         }
         m
@@ -16,7 +16,7 @@ macro_rules! array {
         $(
             {
                 r += 1;
-                for i in 0..m.size {
+                for i in 0..m.rows {
                     m[&(r, i)] = $b[i];
                 }
             }
@@ -96,34 +96,7 @@ fn hungarian() {
 #[test]
 fn non_square() {
     // Test from https://www.youtube.com/watch?v=aPVtIhnwHPE
-
-    struct A {
-        vec: Vec<i32>,
-        nx: usize,
-        ny: usize,
-    }
-
-    impl Weights<i32> for A {
-        fn rows(&self) -> usize {
-            self.nx
-        }
-        fn columns(&self) -> usize {
-            self.ny
-        }
-        fn at(&self, row: usize, col: usize) -> i32 {
-            self.vec[row * self.ny + col]
-        }
-        fn neg(&self) -> A {
-            A {
-                vec: self.vec.iter().map(|n| -*n).collect(),
-                nx: self.nx,
-                ny: self.ny,
-            }
-        }
-    }
-
-    let data = A {
-        vec: vec![
+    let data = Matrix::from_vec(4, 5, vec![
             62,
             78,
             50,
@@ -144,10 +117,7 @@ fn non_square() {
             87,
             77,
             80,
-        ],
-        nx: 4,
-        ny: 5,
-    };
+        ]);
 
     let (total, assignments) = kuhn_munkres(&data);
     assert_eq!(total, 376);
