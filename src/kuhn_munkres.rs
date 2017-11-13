@@ -5,8 +5,11 @@ use std::iter::Sum;
 
 /// Adjacency matrix for weights.
 pub trait Weights<C> {
-    /// Return the size of the adjacency matrix.
-    fn size(&self) -> usize;
+    /// Return the number of rows.
+    fn rows(&self) -> usize;
+
+    /// Return the number of columns.
+    fn columns(&self) -> usize;
 
     /// Return the element at position.
     fn at(&self, row: usize, col: usize) -> C;
@@ -19,7 +22,11 @@ pub trait Weights<C> {
 }
 
 impl<C: Copy> Weights<C> for SquareMatrix<C> {
-    fn size(&self) -> usize {
+    fn rows(&self) -> usize {
+        self.size
+    }
+
+    fn columns(&self) -> usize {
         self.size
     }
 
@@ -46,34 +53,43 @@ impl<C: Copy> Weights<C> for SquareMatrix<C> {
 /// the total assignments weight, and a vector containing indices in
 /// the Y set for every vertex in the X set.
 ///
+/// For this reason, the number of rows must not be larger than the number of
+/// columns as that would let some rows unassigned.
+///
 /// This algorithm executes in O(n³) where n is the cardinality of the sets.
-
+///
+/// # Panics
+///
+/// This function panics if the number of rows is larger than the number of
+/// columns.
 pub fn kuhn_munkres<C, W>(weights: &W) -> (C, Vec<usize>)
 where
     C: Bounded + Sum<C> + Signed + Zero + Ord + Copy,
     W: Weights<C>,
 {
-    // We call x the rows and y the columns. n is the size of the matrix.
-    let n = weights.size();
+    // We call x the rows and y the columns. (nx, ny) is the size of the matrix.
+    let nx = weights.rows();
+    let ny = weights.columns();
+    assert!(nx <= ny, "number of rows must not be larger than number of columns");
     // xy represents matchings for x, yz matchings for y
-    let mut xy: Vec<Option<usize>> = vec![None; n];
-    let mut yx: Vec<Option<usize>> = vec![None; n];
+    let mut xy: Vec<Option<usize>> = vec![None; nx];
+    let mut yx: Vec<Option<usize>> = vec![None; ny];
     // lx is the labelling for x nodes, ly the labelling for y nodes. We start
     // with an acceptable labelling with the maximum possible values for lx
     // and 0 for ly.
-    let mut lx: Vec<C> = (0..n)
-        .map(|row| (0..n).map(|col| weights.at(row, col)).max().unwrap())
+    let mut lx: Vec<C> = (0..nx)
+        .map(|row| (0..ny).map(|col| weights.at(row, col)).max().unwrap())
         .collect::<Vec<_>>();
-    let mut ly: Vec<C> = vec![Zero::zero(); n];
+    let mut ly: Vec<C> = vec![Zero::zero(); ny];
     // s, augmenting, and slack will be reset every time they are reused. augmenting
     // contains Some(prev) when the corresponding node belongs to the augmenting path.
-    let mut s = FixedBitSet::with_capacity(n);
-    let mut alternating = Vec::with_capacity(n);
-    let mut slack = vec![Zero::zero(); n];
-    let mut slackx = Vec::with_capacity(n);
-    for root in 0..n {
+    let mut s = FixedBitSet::with_capacity(nx);
+    let mut alternating = Vec::with_capacity(ny);
+    let mut slack = vec![Zero::zero(); ny];
+    let mut slackx = Vec::with_capacity(ny);
+    for root in 0..nx {
         alternating.clear();
-        alternating.resize(n, None);
+        alternating.resize(ny, None);
         // Find y such that the path is augmented. This will be set when breaking for the
         // loop below. Above the loop is some code to initialize the search.
         let mut y = {
@@ -83,18 +99,18 @@ where
             // sum of the labels of root and y, and the weight between root and y.
             // As we add x nodes to the alternating path, we update the slack to
             // represent the smallest margin between one of the x nodes and y.
-            for y in 0..n {
+            for y in 0..ny {
                 slack[y] = lx[root] + ly[y] - weights.at(root, y);
             }
             slackx.clear();
-            slackx.resize(n, root);
+            slackx.resize(ny, root);
             Some(loop {
                 let mut delta = Bounded::max_value();
                 let mut x = 0;
                 let mut y = 0;
                 // Select one of the smallest slack delta and its edge (x, y)
                 // for y not in the alternating path already.
-                for yy in 0..n {
+                for yy in 0..ny {
                     if alternating[yy].is_none() && slack[yy] < delta {
                         delta = slack[yy];
                         x = slackx[yy];
@@ -110,7 +126,7 @@ where
                     for x in s.ones() {
                         lx[x] = lx[x] - delta;
                     }
-                    for y in 0..n {
+                    for y in 0..ny {
                         if alternating[y].is_some() {
                             ly[y] = ly[y] + delta;
                         } else {
@@ -133,7 +149,7 @@ where
                 // Update slack because of the added vertex in s might contain a
                 // greater slack than with previously inserted x nodes in the augmenting
                 // path.
-                for y in 0..n {
+                for y in 0..ny {
                     if alternating[y].is_none() {
                         let alternate_slack = lx[x] + ly[y] - weights.at(x, y);
                         if slack[y] > alternate_slack {
