@@ -3,25 +3,58 @@ use fixedbitset::FixedBitSet;
 use square_matrix::SquareMatrix;
 use std::iter::Sum;
 
+/// Adjacency matrix for weights.
+pub trait Weights<C> {
+    /// Return the size of the adjacency matrix.
+    fn size(&self) -> usize;
+
+    /// Return the element at position.
+    fn at(&self, row: usize, col: usize) -> C;
+
+    /// Return the negated weights.
+    fn neg(&self) -> Self
+    where
+        Self: Sized,
+        C: Signed;
+}
+
+impl<C: Copy> Weights<C> for SquareMatrix<C> {
+    fn size(&self) -> usize {
+        self.size
+    }
+
+    fn at(&self, row: usize, col: usize) -> C {
+        self[&(row, col)]
+    }
+
+    fn neg(&self) -> Self
+    where
+        C: Signed,
+    {
+        -self.clone()
+    }
+}
+
 /// Compute the maximum matching between two disjoints sets of vertices
 /// using the
 /// [Kuhn-Munkres algorithm](https://en.wikipedia.org/wiki/Hungarian_algorithm)
 /// (also known as Hungarian algorithm).
 ///
 /// The weights between the first and second sets are given into the
-/// `weights` square matrix. The first axis is indexed by the X set,
+/// `weights` adjacency matrix. The first axis is indexed by the X set,
 /// and the second axis by the Y set. The return value is a pair with
 /// the total assignments weight, and a vector containing indices in
 /// the Y set for every vertex in the X set.
 ///
 /// This algorithm executes in O(n³) where n is the cardinality of the sets.
 
-pub fn kuhn_munkres<C>(weights: &SquareMatrix<C>) -> (C, Vec<usize>)
+pub fn kuhn_munkres<C, W>(weights: &W) -> (C, Vec<usize>)
 where
-    C: Bounded + Sum<C> + Zero + Signed + Ord + Copy,
+    C: Bounded + Sum<C> + Signed + Zero + Ord + Copy,
+    W: Weights<C>,
 {
     // We call x the rows and y the columns. n is the size of the matrix.
-    let n = weights.size;
+    let n = weights.size();
     // xy represents matchings for x, yz matchings for y
     let mut xy: Vec<Option<usize>> = vec![None; n];
     let mut yx: Vec<Option<usize>> = vec![None; n];
@@ -29,7 +62,7 @@ where
     // with an acceptable labelling with the maximum possible values for lx
     // and 0 for ly.
     let mut lx: Vec<C> = (0..n)
-        .map(|row| (0..n).map(|col| weights[&(row, col)]).max().unwrap())
+        .map(|row| (0..n).map(|col| weights.at(row, col)).max().unwrap())
         .collect::<Vec<_>>();
     let mut ly: Vec<C> = vec![Zero::zero(); n];
     // s, augmenting, and slack will be reset every time they are reused. augmenting
@@ -51,7 +84,7 @@ where
             // As we add x nodes to the alternating path, we update the slack to
             // represent the smallest margin between one of the x nodes and y.
             for y in 0..n {
-                slack[y] = lx[root] + ly[y] - weights[&(root, y)];
+                slack[y] = lx[root] + ly[y] - weights.at(root, y);
             }
             slackx.clear();
             slackx.resize(n, root);
@@ -85,7 +118,7 @@ where
                         }
                     }
                 }
-                debug_assert!(lx[x] + ly[y] == weights[&(x, y)]);
+                debug_assert!(lx[x] + ly[y] == weights.at(x, y));
                 // Add (x, y) to the alternating path.
                 alternating[y] = Some(x);
                 if yx[y].is_none() {
@@ -102,7 +135,7 @@ where
                 // path.
                 for y in 0..n {
                     if alternating[y].is_none() {
-                        let alternate_slack = lx[x] + ly[y] - weights[&(x, y)];
+                        let alternate_slack = lx[x] + ly[y] - weights.at(x, y);
                         if slack[y] > alternate_slack {
                             slack[y] = alternate_slack;
                             slackx[y] = x;
@@ -139,10 +172,11 @@ where
 ///
 /// This algorithm executes in O(n³) where n is the cardinality of the sets.
 
-pub fn kuhn_munkres_min<C>(weights: &SquareMatrix<C>) -> (C, Vec<usize>)
+pub fn kuhn_munkres_min<C, W>(weights: &W) -> (C, Vec<usize>)
 where
     C: Bounded + Sum<C> + Zero + Signed + Ord + Copy,
+    W: Weights<C>,
 {
-    let (total, assignments) = kuhn_munkres(&-weights.clone());
+    let (total, assignments) = kuhn_munkres(&weights.neg());
     (-total, assignments)
 }
