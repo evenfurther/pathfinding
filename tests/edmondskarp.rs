@@ -144,7 +144,7 @@ fn modified_dense() {
     assert_eq!(ek.augment().1, 10);
     // Try setting lower branch individual capacities
     // to 4 one at a time.
-    for &(from, to) in [(0, 4), (4, 5), (5, 3)].into_iter() {
+    for &(from, to) in &[(0, 4), (4, 5), (5, 3)] {
         ek.set_capacity(from, to, 4);
         assert_eq!(ek.augment().1, 9);
         ek.set_capacity(from, to, 5);
@@ -175,7 +175,7 @@ fn modified_sparse() {
     assert_eq!(ek.augment().1, 10);
     // Try setting lower branch individual capacities
     // to 4 one at a time.
-    for &(from, to) in [(0, 4), (4, 5), (5, 3)].into_iter() {
+    for &(from, to) in &[(0, 4), (4, 5), (5, 3)] {
         ek.set_capacity(from, to, 4);
         assert_eq!(ek.augment().1, 9);
         ek.set_capacity(from, to, 5);
