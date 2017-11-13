@@ -15,7 +15,7 @@ mod edmonds_karp;
 mod fringe;
 mod idastar;
 mod kuhn_munkres;
-mod square_matrix;
+mod matrix;
 
 pub use astar::*;
 pub use bfs::*;
@@ -25,7 +25,7 @@ pub use edmonds_karp::*;
 pub use fringe::*;
 pub use idastar::*;
 pub use kuhn_munkres::*;
-pub use square_matrix::*;
+pub use matrix::*;
 
 use std::collections::HashMap;
 use std::hash::Hash;
