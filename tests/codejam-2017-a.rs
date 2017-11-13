@@ -129,26 +129,24 @@ fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut BufRead) -> Result<String, Er
     Ok(format!("Case #{}: {}", n, answer))
 }
 
-#[test]
-fn codejam() {
-    let mut file_dense = Cursor::new(include_str!("A-small-practice.in"));
-    let mut file_sparse = Cursor::new(include_str!("A-small-practice.in"));
-    let ntests = read_ints(&mut file_dense).expect("cannot read number of test cases")[0];
-    read_ints(&mut file_sparse).unwrap();
+fn codejam<EK: EdmondsKarp<i32>>() {
+    let mut file = Cursor::new(include_str!("A-small-practice.in"));
+    let ntests = read_ints(&mut file).expect("cannot read number of test cases")[0];
     let mut out = String::new();
     for n in 1..(ntests + 1) {
-        let dense_result =
-            test::<DenseCapacity<i32>>(n, &mut file_dense).expect("problem with test");
-        let sparse_result =
-            test::<SparseCapacity<i32>>(n, &mut file_sparse).expect("problem with test");
-        assert_eq!(
-            dense_result,
-            sparse_result,
-            "dense and sparse results are different"
-        );
-        out += &dense_result;
+        out += &test::<EK>(n, &mut file).expect("problem with test");
         out += "\n";
     }
     let expected = include_str!("A-small-practice.out");
     assert_eq!(out, expected, "answers do not match");
+}
+
+#[test]
+fn codejam_dense() {
+    codejam::<DenseCapacity<_>>();
+}
+
+#[test]
+fn codejam_sparse() {
+    codejam::<SparseCapacity<_>>();
 }
