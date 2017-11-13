@@ -7,7 +7,7 @@ fn check_version() {
         .lines()
         .find(|l| l.starts_with("pathfinding = "))
         .expect("no version line found in README.md");
-    let version = line.split("\"").collect::<Vec<_>>()[1];
+    let version = line.split('"').collect::<Vec<_>>()[1];
     assert!(
         VERSION.starts_with(version),
         format!(
