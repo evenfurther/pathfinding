@@ -32,8 +32,8 @@ pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 /// This function panics if `source` or `sink` is not found in `vertices`.
 pub fn edmonds_karp_dense<N, C, IC>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
 where
-    N: Eq + Hash + Clone,
-    C: Zero + Bounded + Signed + PartialOrd + Clone,
+    N: Eq + Hash + Copy,
+    C: Zero + Bounded + Signed + PartialOrd + Copy,
     IC: IntoIterator<Item = ((N, N), C)>,
 {
     // Build a correspondance between N and 0..vertices.len() so that we can
@@ -41,7 +41,7 @@ where
     let size = vertices.len();
     let reverse = (0..size)
         .into_iter()
-        .map(|i| (vertices[i].clone(), i))
+        .map(|i| (vertices[i], i))
         .collect::<HashMap<_, _>>();
     let mut capacities = DenseCapacity::new(size, reverse[source], reverse[sink]);
     for ((from, to), capacity) in caps {
@@ -51,9 +51,7 @@ where
     (
         paths
             .into_iter()
-            .map(|((a, b), c)| {
-                ((vertices[a].clone(), vertices[b].clone()), c)
-            })
+            .map(|((a, b), c)| ((vertices[a], vertices[b]), c))
             .collect(),
         max,
     )
@@ -89,8 +87,8 @@ pub fn edmonds_karp_sparse<N, C, IC>(
     caps: IC,
 ) -> EKFlows<N, C>
 where
-    N: Eq + Hash + Clone,
-    C: Zero + Bounded + Signed + PartialOrd + Clone + Eq,
+    N: Eq + Hash + Copy,
+    C: Zero + Bounded + Signed + PartialOrd + Copy + Eq,
     IC: IntoIterator<Item = ((N, N), C)>,
 {
     // Build a correspondance between N and 0..vertices.len() so that we can
@@ -98,7 +96,7 @@ where
     let size = vertices.len();
     let reverse = (0..size)
         .into_iter()
-        .map(|i| (vertices[i].clone(), i))
+        .map(|i| (vertices[i], i))
         .collect::<HashMap<_, _>>();
     let mut capacities = SparseCapacity::new(size, reverse[source], reverse[sink]);
     for ((from, to), capacity) in caps {
@@ -108,16 +106,14 @@ where
     (
         paths
             .into_iter()
-            .map(|((a, b), c)| {
-                ((vertices[a].clone(), vertices[b].clone()), c)
-            })
+            .map(|((a, b), c)| ((vertices[a], vertices[b]), c))
             .collect(),
         max,
     )
 }
 
 /// Representation of capacity and flow data.
-pub trait EdmondsKarp<C: Clone + Zero + Signed + PartialOrd + Bounded> {
+pub trait EdmondsKarp<C: Copy + Zero + Signed + PartialOrd + Bounded> {
     /// Common data.
     fn common(&self) -> &Common<C>;
 
@@ -164,7 +160,7 @@ pub trait EdmondsKarp<C: Clone + Zero + Signed + PartialOrd + Bounded> {
 
     /// Get total capacity.
     fn total_capacity(&self) -> C {
-        self.common().total_capacity.clone()
+        self.common().total_capacity
     }
 
     /// Set total capacity.
@@ -198,14 +194,14 @@ pub trait EdmondsKarp<C: Clone + Zero + Signed + PartialOrd + Bounded> {
             to_see.clear();
             to_see.push_back(source);
             while let Some(node) = to_see.pop_front() {
-                let capacity_so_far = path_capacity[node].clone();
+                let capacity_so_far = path_capacity[node];
                 for (neighbour, residual) in self.residual_neighbours(node).iter().cloned() {
                     if neighbour == source || parents[neighbour].is_some() {
                         continue;
                     }
                     parents[neighbour] = Some(node);
-                    path_capacity[neighbour] = if capacity_so_far.clone() < residual.clone() {
-                        capacity_so_far.clone()
+                    path_capacity[neighbour] = if capacity_so_far < residual {
+                        capacity_so_far
                     } else {
                         residual
                     };
@@ -213,11 +209,11 @@ pub trait EdmondsKarp<C: Clone + Zero + Signed + PartialOrd + Bounded> {
                         let mut n = sink;
                         while n != source {
                             let p = parents[n].unwrap();
-                            self.add_flow(p, n, path_capacity[sink].clone());
+                            self.add_flow(p, n, path_capacity[sink]);
                             n = p;
                         }
                         let total = self.total_capacity();
-                        self.set_total_capacity(total + path_capacity[sink].clone());
+                        self.set_total_capacity(total + path_capacity[sink]);
                         parents.clear();
                         parents.resize(size, None);
                         path_capacity.clear();
@@ -256,7 +252,7 @@ pub struct SparseCapacity<C> {
     residuals: BTreeMap<usize, BTreeMap<usize, C>>,
 }
 
-impl<C: Clone + Eq + Zero + Signed + Bounded + PartialOrd> SparseCapacity<C> {
+impl<C: Copy + Eq + Zero + Signed + Bounded + PartialOrd> SparseCapacity<C> {
     /// Create a new sparse structure.
     ///
     /// # Panics
@@ -288,7 +284,7 @@ impl<C: Clone + Eq + Zero + Signed + Bounded + PartialOrd> SparseCapacity<C> {
     pub fn from_matrix(
         source: usize,
         sink: usize,
-        capacities: SquareMatrix<C>,
+        capacities: &SquareMatrix<C>,
     ) -> SparseCapacity<C> {
         let size = capacities.size;
         assert!(source < size, "source is greater or equal than matrix side");
@@ -296,7 +292,7 @@ impl<C: Clone + Eq + Zero + Signed + Bounded + PartialOrd> SparseCapacity<C> {
         let mut result = Self::new(size, source, sink);
         for from in 0..size {
             for to in 0..size {
-                let capacity = capacities[&(from, to)].clone();
+                let capacity = capacities[&(from, to)];
                 if capacity > Zero::zero() {
                     result.set_capacity(from, to, capacity);
                 }
@@ -313,14 +309,14 @@ impl<C: Clone + Eq + Zero + Signed + Bounded + PartialOrd> SparseCapacity<C> {
     /// number of rows of the newly created square capacities matrix, or when the
     /// data is not square.
     pub fn from_vec(source: usize, sink: usize, data: Vec<C>) -> SparseCapacity<C> {
-        Self::from_matrix(source, sink, SquareMatrix::from_vec(data))
+        Self::from_matrix(source, sink, &SquareMatrix::from_vec(data))
     }
 
     fn set_value(data: &mut BTreeMap<usize, BTreeMap<usize, C>>, from: usize, to: usize, value: C) {
         let to_remove = {
-            let sub = data.entry(from).or_insert(BTreeMap::new());
+            let sub = data.entry(from).or_insert_with(BTreeMap::new);
             if value != Zero::zero() {
-                sub.insert(to, value.clone());
+                sub.insert(to, value);
             } else {
                 sub.remove(&to);
             }
@@ -334,7 +330,7 @@ impl<C: Clone + Eq + Zero + Signed + Bounded + PartialOrd> SparseCapacity<C> {
     fn get_value(data: &BTreeMap<usize, BTreeMap<usize, C>>, from: usize, to: usize) -> C {
         data.get(&from)
             .and_then(|ns| ns.get(&to).cloned())
-            .unwrap_or(Zero::zero())
+            .unwrap_or_else(Zero::zero)
     }
 
     fn add_residual_capacity(&mut self, from: usize, to: usize, capacity: C) {
@@ -343,7 +339,7 @@ impl<C: Clone + Eq + Zero + Signed + Bounded + PartialOrd> SparseCapacity<C> {
     }
 }
 
-impl<C: Clone + Zero + Signed + Eq + PartialOrd + Bounded> EdmondsKarp<C> for SparseCapacity<C> {
+impl<C: Copy + Zero + Signed + Eq + PartialOrd + Bounded> EdmondsKarp<C> for SparseCapacity<C> {
     fn common(&self) -> &Common<C> {
         &self.common
     }
@@ -356,12 +352,11 @@ impl<C: Clone + Zero + Signed + Eq + PartialOrd + Bounded> EdmondsKarp<C> for Sp
         self.residuals
             .get(&from)
             .map(|ns| {
-                ns.clone()
-                    .into_iter()
-                    .filter(|&(_, ref c)| c.clone() > Zero::zero())
+                ns.into_iter()
+                    .filter_map(|(&n, &c)| if c > Zero::zero() { Some((n, c)) } else { None })
                     .collect()
             })
-            .unwrap_or(Vec::new())
+            .unwrap_or_else(Vec::new)
     }
 
     fn residual_capacity(&self, from: usize, to: usize) -> C {
@@ -390,22 +385,17 @@ impl<C: Clone + Zero + Signed + Eq + PartialOrd + Bounded> EdmondsKarp<C> for Sp
 
     fn set_capacity(&mut self, from: usize, to: usize, capacity: C) {
         let flow = self.flow(from, to);
-        Self::set_value(
-            &mut self.residuals,
-            from,
-            to,
-            capacity.clone() - flow.clone(),
-        );
+        Self::set_value(&mut self.residuals, from, to, capacity - flow);
         if capacity < flow {
             self.common.needs_reset = true;
         }
     }
 
     fn add_flow(&mut self, from: usize, to: usize, capacity: C) {
-        let direct = self.flow(from, to) + capacity.clone();
-        Self::set_value(&mut self.flows, from, to, direct.clone());
+        let direct = self.flow(from, to) + capacity;
+        Self::set_value(&mut self.flows, from, to, direct);
         Self::set_value(&mut self.flows, to, from, -direct);
-        self.add_residual_capacity(from, to, -capacity.clone());
+        self.add_residual_capacity(from, to, -capacity);
         self.add_residual_capacity(to, from, capacity);
     }
 
@@ -432,7 +422,7 @@ pub struct DenseCapacity<C> {
     flows: SquareMatrix<C>,
 }
 
-impl<C: Clone + Zero> DenseCapacity<C> {
+impl<C: Copy + Zero> DenseCapacity<C> {
     /// Create a new dense structure.
     ///
     /// # Panics
@@ -495,7 +485,7 @@ impl<C: Clone + Zero> DenseCapacity<C> {
     }
 }
 
-impl<C: Clone + Zero + Signed + PartialOrd + Bounded> EdmondsKarp<C> for DenseCapacity<C> {
+impl<C: Copy + Zero + Signed + PartialOrd + Bounded> EdmondsKarp<C> for DenseCapacity<C> {
     fn common(&self) -> &Common<C> {
         &self.common
     }
@@ -518,11 +508,11 @@ impl<C: Clone + Zero + Signed + PartialOrd + Bounded> EdmondsKarp<C> for DenseCa
     }
 
     fn residual_capacity(&self, from: usize, to: usize) -> C {
-        self.capacities[&(from, to)].clone() - self.flows[&(from, to)].clone()
+        self.capacities[&(from, to)] - self.flows[&(from, to)]
     }
 
     fn flow(&self, from: usize, to: usize) -> C {
-        self.flows[&(from, to)].clone()
+        self.flows[&(from, to)]
     }
 
     fn flows(&self) -> Vec<((usize, usize), C)> {
@@ -539,15 +529,15 @@ impl<C: Clone + Zero + Signed + PartialOrd + Bounded> EdmondsKarp<C> for DenseCa
     }
 
     fn set_capacity(&mut self, from: usize, to: usize, capacity: C) {
-        self.capacities[&(from, to)] = capacity.clone();
-        if capacity < self.flows[&(from, to)].clone() {
+        self.capacities[&(from, to)] = capacity;
+        if capacity < self.flows[&(from, to)] {
             self.common.needs_reset = true;
         }
     }
 
     fn add_flow(&mut self, from: usize, to: usize, capacity: C) {
-        self.flows[&(from, to)] = self.flows[&(from, to)].clone() + capacity.clone();
-        self.flows[&(to, from)] = self.flows[&(to, from)].clone() - capacity.clone();
+        self.flows[&(from, to)] = self.flows[&(from, to)] + capacity;
+        self.flows[&(to, from)] = self.flows[&(to, from)] - capacity;
     }
 
     fn reset_if_needed(&mut self) {
