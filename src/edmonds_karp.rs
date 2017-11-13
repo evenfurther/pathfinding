@@ -2,7 +2,7 @@ use num_traits::{Bounded, Signed, Zero};
 use square_matrix::SquareMatrix;
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::hash::Hash;
-use std::mem::swap;
+use super::dijkstra;
 
 /// Type alias for Edmonds-Karp result.
 pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
@@ -88,7 +88,7 @@ pub fn edmonds_karp_sparse<N, C, IC>(
 ) -> EKFlows<N, C>
 where
     N: Eq + Hash + Copy,
-    C: Zero + Bounded + Signed + PartialOrd + Copy + Eq,
+    C: Zero + Bounded + Signed + Ord + Copy + Eq,
     IC: IntoIterator<Item = ((N, N), C)>,
 {
     // Build a correspondance between N and 0..vertices.len() so that we can
@@ -156,7 +156,7 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + PartialOrd + Bounded> {
     fn add_flow(&mut self, from: usize, to: usize, capacity: C);
 
     /// Reset the flows if needed.
-    fn reset_if_needed(&mut self);
+    fn reset_if_needed(&mut self) {}
 
     /// Get total capacity.
     fn total_capacity(&self) -> C {
@@ -240,7 +240,6 @@ pub struct Common<C> {
     source: usize,
     sink: usize,
     total_capacity: C,
-    needs_reset: bool,
     detailed_flows: bool,
 }
 
@@ -252,7 +251,7 @@ pub struct SparseCapacity<C> {
     residuals: BTreeMap<usize, BTreeMap<usize, C>>,
 }
 
-impl<C: Copy + Eq + Zero + Signed + Bounded + PartialOrd> SparseCapacity<C> {
+impl<C: Copy + Eq + Zero + Signed + Bounded + Ord> SparseCapacity<C> {
     /// Create a new sparse structure.
     ///
     /// # Panics
@@ -267,7 +266,6 @@ impl<C: Copy + Eq + Zero + Signed + Bounded + PartialOrd> SparseCapacity<C> {
                 source: source,
                 sink: sink,
                 total_capacity: Zero::zero(),
-                needs_reset: false,
                 detailed_flows: true,
             },
             flows: BTreeMap::new(),
@@ -337,9 +335,58 @@ impl<C: Copy + Eq + Zero + Signed + Bounded + PartialOrd> SparseCapacity<C> {
         let new_capacity = self.residual_capacity(from, to) + capacity;
         Self::set_value(&mut self.residuals, from, to, new_capacity);
     }
+
+    fn cancel_flow(&mut self, from: usize, to: usize, mut capacity: C) {
+        if from == to {
+            return;
+        }
+        while capacity > Zero::zero() {
+            let max_capacity = self.flows
+                .iter()
+                .map(|(_, ns)| ns.iter().map(|(_, &c)| c).max().unwrap())
+                .max()
+                .unwrap();
+            if let Some((path, _)) = dijkstra(
+                &from,
+                |&n| {
+                    self.flows
+                        .get(&n)
+                        .cloned()
+                        .unwrap_or_else(BTreeMap::new)
+                        .into_iter()
+                        .filter_map(|(n, c)| {
+                            if c > Zero::zero() {
+                                Some((n, max_capacity - c))
+                            } else {
+                                None
+                            }
+                        })
+                },
+                |&n| n == to,
+            ) {
+                let path = path.clone()
+                    .into_iter()
+                    .zip(path.into_iter().skip(1))
+                    .collect::<Vec<_>>();
+                let mut max_cancelable = path.iter()
+                    .map(|&(src, dst)| self.flow(src, dst))
+                    .max()
+                    .unwrap();
+                if max_cancelable > capacity {
+                    max_cancelable = capacity;
+                }
+                for (src, dst) in path {
+                    self.add_flow(dst, src, max_cancelable);
+                }
+                capacity = capacity - max_cancelable;
+            } else {
+                panic!("no flow to cancel");
+            }
+        }
+    }
 }
 
-impl<C: Copy + Zero + Signed + Eq + PartialOrd + Bounded> EdmondsKarp<C> for SparseCapacity<C> {
+impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapacity<C> {
     fn common(&self) -> &Common<C> {
         &self.common
     }
@@ -385,10 +432,17 @@ impl<C: Copy + Zero + Signed + Eq + PartialOrd + Bounded> EdmondsKarp<C> for Spa
 
     fn set_capacity(&mut self, from: usize, to: usize, capacity: C) {
         let flow = self.flow(from, to);
-        Self::set_value(&mut self.residuals, from, to, capacity - flow);
+        let delta = capacity - (self.residual_capacity(from, to) + flow);
         if capacity < flow {
-            self.common.needs_reset = true;
+            let to_cancel = flow - capacity;
+            self.add_flow(to, from, to_cancel);
+            let source = self.common.source;
+            self.cancel_flow(source, from, to_cancel);
+            let sink = self.common.sink;
+            self.cancel_flow(to, sink, to_cancel);
+            self.common.total_capacity = self.common.total_capacity - to_cancel;
         }
+        self.add_residual_capacity(from, to, delta);
     }
 
     fn add_flow(&mut self, from: usize, to: usize, capacity: C) {
@@ -398,20 +452,6 @@ impl<C: Copy + Zero + Signed + Eq + PartialOrd + Bounded> EdmondsKarp<C> for Spa
         self.add_residual_capacity(from, to, -capacity);
         self.add_residual_capacity(to, from, capacity);
     }
-
-    fn reset_if_needed(&mut self) {
-        if self.common.needs_reset {
-            let mut flows = BTreeMap::new();
-            swap(&mut self.flows, &mut flows);
-            for (from, ns) in flows {
-                for (to, capacity) in ns {
-                    self.add_residual_capacity(from, to, capacity);
-                }
-            }
-            self.common.total_capacity = Zero::zero();
-            self.common.needs_reset = false;
-        }
-    }
 }
 
 /// Dense capacity and flow data.
@@ -420,6 +460,7 @@ pub struct DenseCapacity<C> {
     common: Common<C>,
     capacities: SquareMatrix<C>,
     flows: SquareMatrix<C>,
+    needs_reset: bool,
 }
 
 impl<C: Copy + Zero> DenseCapacity<C> {
@@ -437,11 +478,11 @@ impl<C: Copy + Zero> DenseCapacity<C> {
                 source: source,
                 sink: sink,
                 total_capacity: Zero::zero(),
-                needs_reset: false,
                 detailed_flows: true,
             },
             capacities: SquareMatrix::new(size, Zero::zero()),
             flows: SquareMatrix::new(size, Zero::zero()),
+            needs_reset: false,
         }
     }
 
@@ -465,11 +506,11 @@ impl<C: Copy + Zero> DenseCapacity<C> {
                 source: source,
                 sink: sink,
                 total_capacity: Zero::zero(),
-                needs_reset: false,
                 detailed_flows: true,
             },
             capacities: capacities,
             flows: SquareMatrix::new(size, Zero::zero()),
+            needs_reset: false,
         }
     }
 
@@ -531,7 +572,7 @@ impl<C: Copy + Zero + Signed + PartialOrd + Bounded> EdmondsKarp<C> for DenseCap
     fn set_capacity(&mut self, from: usize, to: usize, capacity: C) {
         self.capacities[&(from, to)] = capacity;
         if capacity < self.flows[&(from, to)] {
-            self.common.needs_reset = true;
+            self.needs_reset = true;
         }
     }
 
@@ -541,10 +582,10 @@ impl<C: Copy + Zero + Signed + PartialOrd + Bounded> EdmondsKarp<C> for DenseCap
     }
 
     fn reset_if_needed(&mut self) {
-        if self.common.needs_reset {
+        if self.needs_reset {
             self.flows.fill(Zero::zero());
             self.common.total_capacity = Zero::zero();
-            self.common.needs_reset = false;
+            self.needs_reset = false;
         }
     }
 }

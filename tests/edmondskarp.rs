@@ -120,3 +120,65 @@ fn disconnected_sparse() {
     assert_eq!(caps.len(), 0);
     assert_eq!(total, 0);
 }
+
+#[test]
+fn modified_dense() {
+    // Graph is:
+    //
+    // 0 --> 1 --> 2 --> 3
+    // |---> 4 --> 5 ----^
+    //
+    // Upper branch has capacity 5, lower branch 4.
+    let mut ek = DenseCapacity::new(6, 0, 3);
+    ek.set_capacity(0, 1, 5);
+    ek.set_capacity(1, 2, 5);
+    ek.set_capacity(2, 3, 5);
+    ek.set_capacity(0, 4, 4);
+    ek.set_capacity(4, 5, 4);
+    ek.set_capacity(5, 3, 4);
+    assert_eq!(ek.augment().1, 9);
+    // Set lower branch capacity to 5.
+    ek.set_capacity(0, 4, 5);
+    ek.set_capacity(4, 5, 5);
+    ek.set_capacity(5, 3, 5);
+    assert_eq!(ek.augment().1, 10);
+    // Try setting lower branch individual capacities
+    // to 4 one at a time.
+    for &(from, to) in [(0, 4), (4, 5), (5, 3)].into_iter() {
+        ek.set_capacity(from, to, 4);
+        assert_eq!(ek.augment().1, 9);
+        ek.set_capacity(from, to, 5);
+        assert_eq!(ek.augment().1, 10);
+    }
+}
+
+#[test]
+fn modified_sparse() {
+    // Graph is:
+    //
+    // 0 --> 1 --> 2 --> 3
+    // |---> 4 --> 5 ----^
+    //
+    // Upper branch has capacity 5, lower branch 4.
+    let mut ek = SparseCapacity::new(6, 0, 3);
+    ek.set_capacity(0, 1, 5);
+    ek.set_capacity(1, 2, 5);
+    ek.set_capacity(2, 3, 5);
+    ek.set_capacity(0, 4, 4);
+    ek.set_capacity(4, 5, 4);
+    ek.set_capacity(5, 3, 4);
+    assert_eq!(ek.augment().1, 9);
+    // Set lower branch capacity to 5.
+    ek.set_capacity(0, 4, 5);
+    ek.set_capacity(4, 5, 5);
+    ek.set_capacity(5, 3, 5);
+    assert_eq!(ek.augment().1, 10);
+    // Try setting lower branch individual capacities
+    // to 4 one at a time.
+    for &(from, to) in [(0, 4), (4, 5), (5, 3)].into_iter() {
+        ek.set_capacity(from, to, 4);
+        assert_eq!(ek.augment().1, 9);
+        ek.set_capacity(from, to, 5);
+        assert_eq!(ek.augment().1, 10);
+    }
+}
