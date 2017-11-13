@@ -31,19 +31,19 @@ fn read_ints(file: &mut BufRead) -> Result<Vec<usize>, Error> {
     let mut s = String::new();
     file.read_line(&mut s)?;
     s.pop();
-    s.split(" ")
+    s.split(' ')
         .map(|w| w.parse::<usize>().map_err(|e| e.into()))
         .collect()
 }
 
-fn test(n: usize, file: &mut BufRead) -> Result<String, Error> {
+fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut BufRead) -> Result<String, Error> {
     let ndices = read_ints(file)?[0];
     let mut dices = Vec::new();
     let mut values = HashMap::new();
     for d in 0..ndices {
         let mut dice = read_ints(file)?;
         for v in dice.clone() {
-            values.entry(v).or_insert_with(|| HashSet::new()).insert(d);
+            values.entry(v).or_insert_with(HashSet::new).insert(d);
         }
         dice.sort();
         dices.push(dice);
@@ -51,7 +51,7 @@ fn test(n: usize, file: &mut BufRead) -> Result<String, Error> {
     let mut groups: Vec<Vec<usize>> = Vec::new();
     let mut keys = values.keys().collect::<Vec<_>>();
     keys.sort();
-    for &v in keys.into_iter() {
+    for &v in keys {
         if groups.is_empty() || *groups.last().unwrap().last().unwrap() != v - 1 {
             groups.push(vec![v]);
         } else {
@@ -75,22 +75,22 @@ fn test(n: usize, file: &mut BufRead) -> Result<String, Error> {
             let value_offset = 2;
             let dice_offset = value_offset + group.len();
             let size = dice_offset + subdices.len();
-            let mut ek = SparseCapacity::<i32>::new(size, 0, 1);
+            let mut ek = EK::new(size, 0, 1);
             ek.omit_detailed_flows();
             // Set capacity 1 between each value and the dice holding this value.
             let smallest_value = group[0];
-            for &value in group.iter() {
-                for dice in values[&value].iter() {
+            for &value in &group {
+                for dice in &values[&value] {
                     ek.set_capacity(
                         value - smallest_value + value_offset,
-                        subdices[&dice] + dice_offset,
+                        subdices[dice] + dice_offset,
                         1,
                     );
                 }
             }
             // Set capacity 1 between each dice and the sink.
             for i in 0..subdices.len() {
-                ek.set_capacity(i + &dice_offset, 1, 1);
+                ek.set_capacity(i + dice_offset, 1, 1);
             }
             // Add path from the source to the first value.
             ek.set_capacity(0, value_offset, 1);
@@ -129,15 +129,24 @@ fn test(n: usize, file: &mut BufRead) -> Result<String, Error> {
     Ok(format!("Case #{}: {}", n, answer))
 }
 
-#[test]
-fn codejam() {
+fn codejam<EK: EdmondsKarp<i32>>() {
     let mut file = Cursor::new(include_str!("A-small-practice.in"));
     let ntests = read_ints(&mut file).expect("cannot read number of test cases")[0];
     let mut out = String::new();
     for n in 1..(ntests + 1) {
-        out += &test(n, &mut file).expect("problem with test");
+        out += &test::<EK>(n, &mut file).expect("problem with test");
         out += "\n";
     }
     let expected = include_str!("A-small-practice.out");
     assert_eq!(out, expected, "answers do not match");
+}
+
+#[test]
+fn codejam_dense() {
+    codejam::<DenseCapacity<_>>();
+}
+
+#[test]
+fn codejam_sparse() {
+    codejam::<SparseCapacity<_>>();
 }
