@@ -114,6 +114,38 @@ where
 
 /// Representation of capacity and flow data.
 pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
+    /// Create a new empty structure.
+    ///
+    /// # Panics
+    ///
+    /// This function panics when `source` or `sink` is greater or equal than `size`.
+    fn new(size: usize, source: usize, sink: usize) -> Self
+    where
+        Self: Sized;
+
+    /// Create a new populated structure.
+    ///
+    /// # Panics
+    ///
+    /// This function panics when `source` or `sink` is greater or equal than the
+    /// number of rows in the `capacities` matrix.
+    fn from_matrix(source: usize, sink: usize, capacities: SquareMatrix<C>) -> Self
+    where
+        Self: Sized;
+
+    /// Create a new populated structure.
+    ///
+    /// # Panics
+    ///
+    /// This function panics when `source` or `sink` is greater or equal than the
+    /// number of rows in the square matrix created from the `capacities` vector.
+    fn from_vec(source: usize, sink: usize, capacities: Vec<C>) -> Self
+    where
+        Self: Sized,
+    {
+        Self::from_matrix(source, sink, SquareMatrix::from_vec(capacities))
+    }
+
     /// Common data.
     fn common(&self) -> &Common<C>;
 
@@ -304,64 +336,6 @@ pub struct SparseCapacity<C> {
 }
 
 impl<C: Copy + Eq + Zero + Signed + Bounded + Ord> SparseCapacity<C> {
-    /// Create a new sparse structure.
-    ///
-    /// # Panics
-    ///
-    /// This function panics when `source` or `sink` is greater or equal than `size`.
-    pub fn new(size: usize, source: usize, sink: usize) -> SparseCapacity<C> {
-        assert!(source < size, "source is greater or equal than size");
-        assert!(sink < size, "sink is greater or equal than size");
-        SparseCapacity {
-            common: Common {
-                size: size,
-                source: source,
-                sink: sink,
-                total_capacity: Zero::zero(),
-                detailed_flows: true,
-            },
-            flows: BTreeMap::new(),
-            residuals: BTreeMap::new(),
-        }
-    }
-
-    /// Create a new sparse structure.
-    ///
-    /// # Panics
-    ///
-    /// This function panics when `source` or `sink` is greater or equal than the
-    /// number of rows in the `capacities` matrix.
-    pub fn from_matrix(
-        source: usize,
-        sink: usize,
-        capacities: &SquareMatrix<C>,
-    ) -> SparseCapacity<C> {
-        let size = capacities.size;
-        assert!(source < size, "source is greater or equal than matrix side");
-        assert!(sink < size, "sink is greater or equal than matrix side");
-        let mut result = Self::new(size, source, sink);
-        for from in 0..size {
-            for to in 0..size {
-                let capacity = capacities[&(from, to)];
-                if capacity > Zero::zero() {
-                    result.set_capacity(from, to, capacity);
-                }
-            }
-        }
-        result
-    }
-
-    /// Create a new sparse structure.
-    ///
-    /// # Panics
-    ///
-    /// This function panics when `source` or `sink` is greater or equal than the
-    /// number of rows of the newly created square capacities matrix, or when the
-    /// data is not square.
-    pub fn from_vec(source: usize, sink: usize, data: Vec<C>) -> SparseCapacity<C> {
-        Self::from_matrix(source, sink, &SquareMatrix::from_vec(data))
-    }
-
     fn set_value(data: &mut BTreeMap<usize, BTreeMap<usize, C>>, from: usize, to: usize, value: C) {
         let to_remove = {
             let sub = data.entry(from).or_insert_with(BTreeMap::new);
@@ -385,6 +359,38 @@ impl<C: Copy + Eq + Zero + Signed + Bounded + Ord> SparseCapacity<C> {
 }
 
 impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapacity<C> {
+    fn new(size: usize, source: usize, sink: usize) -> SparseCapacity<C> {
+        assert!(source < size, "source is greater or equal than size");
+        assert!(sink < size, "sink is greater or equal than size");
+        SparseCapacity {
+            common: Common {
+                size: size,
+                source: source,
+                sink: sink,
+                total_capacity: Zero::zero(),
+                detailed_flows: true,
+            },
+            flows: BTreeMap::new(),
+            residuals: BTreeMap::new(),
+        }
+    }
+
+    fn from_matrix(source: usize, sink: usize, capacities: SquareMatrix<C>) -> SparseCapacity<C> {
+        let size = capacities.size;
+        assert!(source < size, "source is greater or equal than matrix side");
+        assert!(sink < size, "sink is greater or equal than matrix side");
+        let mut result = Self::new(size, source, sink);
+        for from in 0..size {
+            for to in 0..size {
+                let capacity = capacities[&(from, to)];
+                if capacity > Zero::zero() {
+                    result.set_capacity(from, to, capacity);
+                }
+            }
+        }
+        result
+    }
+
     fn common(&self) -> &Common<C> {
         &self.common
     }
@@ -460,13 +466,8 @@ pub struct DenseCapacity<C> {
     flows: SquareMatrix<C>,
 }
 
-impl<C: Copy + Zero> DenseCapacity<C> {
-    /// Create a new dense structure.
-    ///
-    /// # Panics
-    ///
-    /// This function panics when `source` or `sink` is greater or equal than `size`.
-    pub fn new(size: usize, source: usize, sink: usize) -> DenseCapacity<C> {
+impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C> {
+    fn new(size: usize, source: usize, sink: usize) -> DenseCapacity<C> {
         assert!(source < size, "source is greater or equal than size");
         assert!(sink < size, "sink is greater or equal than size");
         DenseCapacity {
@@ -482,17 +483,7 @@ impl<C: Copy + Zero> DenseCapacity<C> {
         }
     }
 
-    /// Create a new dense structure.
-    ///
-    /// # Panics
-    ///
-    /// This function panics when `source` or `sink` is greater or equal than the
-    /// number of rows in the `capacities` matrix.
-    pub fn from_matrix(
-        source: usize,
-        sink: usize,
-        capacities: SquareMatrix<C>,
-    ) -> DenseCapacity<C> {
+    fn from_matrix(source: usize, sink: usize, capacities: SquareMatrix<C>) -> DenseCapacity<C> {
         let size = capacities.size;
         assert!(source < size, "source is greater or equal than matrix side");
         assert!(sink < size, "sink is greater or equal than matrix side");
@@ -509,19 +500,6 @@ impl<C: Copy + Zero> DenseCapacity<C> {
         }
     }
 
-    /// Create a new dense structure.
-    ///
-    /// # Panics
-    ///
-    /// This function panics when `source` or `sink` is greater or equal than the
-    /// number of rows of the newly created square capacities matrix, or when the
-    /// data is not square.
-    pub fn from_vec(source: usize, sink: usize, data: Vec<C>) -> DenseCapacity<C> {
-        Self::from_matrix(source, sink, SquareMatrix::from_vec(data))
-    }
-}
-
-impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C> {
     fn common(&self) -> &Common<C> {
         &self.common
     }
