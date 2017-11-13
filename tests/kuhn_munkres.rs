@@ -92,3 +92,64 @@ fn hungarian() {
     ];
     assert_eq!(kuhn_munkres_min(&weights).0, 140);
 }
+
+#[test]
+fn non_square() {
+    // Test from https://www.youtube.com/watch?v=aPVtIhnwHPE
+
+    struct A {
+        vec: Vec<i32>,
+        nx: usize,
+        ny: usize,
+    }
+
+    impl Weights<i32> for A {
+        fn rows(&self) -> usize {
+            self.nx
+        }
+        fn columns(&self) -> usize {
+            self.ny
+        }
+        fn at(&self, row: usize, col: usize) -> i32 {
+            self.vec[row * self.ny + col]
+        }
+        fn neg(&self) -> A {
+            A {
+                vec: self.vec.iter().map(|n| -*n).collect(),
+                nx: self.nx,
+                ny: self.ny,
+            }
+        }
+    }
+
+    let data = A {
+        vec: vec![
+            62,
+            78,
+            50,
+            101,
+            82,
+            71,
+            84,
+            61,
+            73,
+            59,
+            87,
+            92,
+            111,
+            71,
+            81,
+            48,
+            64,
+            87,
+            77,
+            80,
+        ],
+        nx: 4,
+        ny: 5,
+    };
+
+    let (total, assignments) = kuhn_munkres(&data);
+    assert_eq!(total, 376);
+    assert_eq!(assignments, vec![3, 1, 2, 4]);
+}
