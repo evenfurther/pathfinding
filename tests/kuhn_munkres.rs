@@ -96,7 +96,10 @@ fn hungarian() {
 #[test]
 fn non_square() {
     // Test from https://www.youtube.com/watch?v=aPVtIhnwHPE
-    let data = Matrix::from_vec(4, 5, vec![
+    let data = Matrix::from_vec(
+        4,
+        5,
+        vec![
             62,
             78,
             50,
@@ -117,7 +120,8 @@ fn non_square() {
             87,
             77,
             80,
-        ]);
+        ],
+    );
 
     let (total, assignments) = kuhn_munkres(&data);
     assert_eq!(total, 376);
