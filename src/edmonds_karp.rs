@@ -1,7 +1,7 @@
 use num_traits::{Bounded, Signed, Zero};
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::hash::Hash;
-use super::{dijkstra, Matrix};
+use super::{bfs, Matrix};
 
 /// Type alias for Edmonds-Karp result.
 pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
@@ -148,7 +148,7 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
     fn flow(&self, from: usize, to: usize) -> C;
 
     /// All positive flows starting from a node.
-    fn flows_from(&self, from: usize) -> Vec<(usize, C)>;
+    fn flows_from(&self, from: usize) -> Vec<usize>;
 
     /// All flows between nodes.
     fn flows(&self) -> Vec<((usize, usize), C)>;
@@ -256,16 +256,7 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
             return;
         }
         while capacity > Zero::zero() {
-            let max_capacity = self.common().total_capacity;
-            if let Some((path, _)) = dijkstra(
-                &from,
-                |&n| {
-                    self.flows_from(n)
-                        .into_iter()
-                        .map(|(o, c)| (o, max_capacity - c))
-                },
-                |&n| n == to,
-            ) {
+            if let Some(path) = bfs(&from, |&n| self.flows_from(n).into_iter(), |&n| n == to) {
                 let path = path.clone()
                     .into_iter()
                     .zip(path.into_iter().skip(1))
@@ -422,14 +413,15 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
         Self::set_value(&mut self.residuals, from, to, new_capacity);
     }
 
-    fn flows_from(&self, n: usize) -> Vec<(usize, C)> {
+    fn flows_from(&self, n: usize) -> Vec<usize> {
         self.flows
             .get(&n)
-            .cloned()
-            .unwrap_or_else(BTreeMap::new)
-            .into_iter()
-            .filter_map(|(o, c)| if c > Zero::zero() { Some((o, c)) } else { None })
-            .collect()
+            .map(|ns| {
+                ns.iter()
+                    .filter_map(|(&o, &c)| if c > Zero::zero() { Some(o) } else { None })
+                    .collect()
+            })
+            .unwrap_or_else(Vec::new)
     }
 }
 
@@ -532,12 +524,12 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
         self.residuals[&(from, to)] = self.residual_capacity(from, to) + capacity;
     }
 
-    fn flows_from(&self, from: usize) -> Vec<(usize, C)> {
+    fn flows_from(&self, from: usize) -> Vec<usize> {
         (0..self.common.size)
             .filter_map(|to| {
                 let flow = self.flow(from, to);
                 if flow > Zero::zero() {
-                    Some((to, flow))
+                    Some(to)
                 } else {
                     None
                 }
