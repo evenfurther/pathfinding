@@ -42,19 +42,18 @@ impl<C: Copy> Weights<C> for Matrix<C> {
     }
 }
 
-/// Compute the maximum matching between two disjoints sets of vertices
-/// using the
+/// Compute a maximum weight maximum matching between two disjoints sets of
+/// vertices using the
 /// [Kuhn-Munkres algorithm](https://en.wikipedia.org/wiki/Hungarian_algorithm)
 /// (also known as Hungarian algorithm).
 ///
 /// The weights between the first and second sets are given into the
-/// `weights` adjacency matrix. The first axis is indexed by the X set,
-/// and the second axis by the Y set. The return value is a pair with
-/// the total assignments weight, and a vector containing indices in
-/// the Y set for every vertex in the X set.
+/// `weights` adjacency matrix. The return value is a pair with
+/// the total assignments weight, and a vector containing the column
+/// corresponding the every row.
 ///
 /// For this reason, the number of rows must not be larger than the number of
-/// columns as that would let some rows unassigned.
+/// columns as no row will be left unassigned.
 ///
 /// This algorithm executes in O(n³) where n is the cardinality of the sets.
 ///
@@ -178,19 +177,25 @@ where
     )
 }
 
-/// Compute the minimum matching between two disjoints sets of vertices
-/// using the
+/// Compute a minimum weight maximum matching between two disjoints sets of
+/// vertices using the
 /// [Kuhn-Munkres algorithm](https://en.wikipedia.org/wiki/Hungarian_algorithm)
 /// (also known as Hungarian algorithm).
 ///
 /// The weights between the first and second sets are given into the
-/// `weights` square matrix. The first axis is indexed by the X set,
-/// and the second axis by the Y set. The return value is a pair with
-/// the total assignments weight, and a vector containing indices in
-/// the Y set for every vertex in the X set.
+/// `weights` adjacency matrix. The return value is a pair with
+/// the total assignments weight, and a vector containing the column
+/// corresponding the every row.
+///
+/// For this reason, the number of rows must not be larger than the number of
+/// columns as no row will be left unassigned.
 ///
 /// This algorithm executes in O(n³) where n is the cardinality of the sets.
-
+///
+/// # Panics
+///
+/// This function panics if the number of rows is larger than the number of
+/// columns.
 pub fn kuhn_munkres_min<C, W>(weights: &W) -> (C, Vec<usize>)
 where
     C: Bounded + Sum<C> + Zero + Signed + Ord + Copy,
