@@ -3,6 +3,7 @@ extern crate pathfinding;
 use pathfinding::*;
 use std::collections::HashMap;
 
+/// Return a list of edges with their capacities.
 fn neighbours_wikipedia() -> Vec<((char, char), i32)> {
     Box::new(
         vec![
@@ -110,22 +111,21 @@ fn disconnected_sparse() {
 fn modified<EK: EdmondsKarp<i32>>() {
     // Graph is:
     //
-    // 0 --> 1 --> 2 --> 3
-    // |---> 4 --> 5 ----^
+    // 0 -(6)-> 1 -(5)-> 2 -(7)-> 3
+    // |                          ^
+    // +--(4)-> 4 -(8)-> 5 -(9)---+
     //
     // Upper branch has capacity 5, lower branch 4.
     let mut ek = EK::new(6, 0, 3);
-    ek.set_capacity(0, 1, 5);
+    ek.set_capacity(0, 1, 6);
     ek.set_capacity(1, 2, 5);
-    ek.set_capacity(2, 3, 5);
+    ek.set_capacity(2, 3, 7);
     ek.set_capacity(0, 4, 4);
-    ek.set_capacity(4, 5, 4);
-    ek.set_capacity(5, 3, 4);
+    ek.set_capacity(4, 5, 8);
+    ek.set_capacity(5, 3, 9);
     assert_eq!(ek.augment().1, 9);
     // Set lower branch capacity to 5.
     ek.set_capacity(0, 4, 5);
-    ek.set_capacity(4, 5, 5);
-    ek.set_capacity(5, 3, 5);
     assert_eq!(ek.augment().1, 10);
     // Try setting lower branch individual capacities
     // to 4 one at a time.
@@ -135,6 +135,12 @@ fn modified<EK: EdmondsKarp<i32>>() {
         ek.set_capacity(from, to, 5);
         assert_eq!(ek.augment().1, 10);
     }
+    // Set capacity 0->4 to 4.
+    ek.set_capacity(0, 4, 4);
+    assert_eq!(ek.augment().1, 9);
+    // Add a branch 1->4 of 2.
+    ek.set_capacity(1, 4, 2);
+    assert_eq!(ek.augment().1, 10);
 }
 
 #[test]
