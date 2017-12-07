@@ -20,10 +20,17 @@ fn test_order() {
     let mut rng = rand::OsRng::new().unwrap();
     let mut ints = (1..1000).collect_vec();
     rng.shuffle(&mut ints);
-    let sorted = tsort(&ints, |&n| (2..).map(|m| m*n).take_while(|&p| p < 1000).collect_vec()).unwrap();
+    let sorted = tsort(&ints, |&n| {
+        (2..).map(|m| m * n).take_while(|&p| p < 1000).collect_vec()
+    }).unwrap();
     for (i, &vi) in sorted.iter().enumerate() {
-        for &vj in sorted.iter().skip(i+1) {
-            assert!(vi % vj != 0, "{} is located after {} and divides it", vj, vi);
+        for &vj in sorted.iter().skip(i + 1) {
+            assert!(
+                vi % vj != 0,
+                "{} is located after {} and divides it",
+                vj,
+                vi
+            );
         }
     }
 }
@@ -36,7 +43,14 @@ fn test_complexity() {
     let mut ints = (1..1000).collect_vec();
     rng.shuffle(&mut ints);
     let requested = RwLock::new(0);
-    let result = tsort(&ints, |&n| { *requested.write().unwrap() += 1; if n < 999 { vec![n+1] } else { vec![] }});
+    let result = tsort(&ints, |&n| {
+        *requested.write().unwrap() += 1;
+        if n < 999 {
+            vec![n + 1]
+        } else {
+            vec![]
+        }
+    });
     assert_eq!(result, Ok((1..1000).collect_vec()));
     assert_eq!(*requested.read().unwrap(), 999);
 }

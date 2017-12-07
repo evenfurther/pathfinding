@@ -19,9 +19,7 @@ fn neighbours_wikipedia() -> Vec<((char, char), i32)> {
             ("EG", 1),
             ("FG", 9),
         ].into_iter()
-            .map(|(s, c)| {
-                ((s.chars().nth(0).unwrap(), s.chars().nth(1).unwrap()), c)
-            }),
+            .map(|(s, c)| ((s.chars().nth(0).unwrap(), s.chars().nth(1).unwrap()), c)),
     ).collect()
 }
 
@@ -70,9 +68,7 @@ fn wikipedia_progressive_example<EK: EdmondsKarp<i32>>() {
     }
     let (caps, total) = ek.augment();
     let caps = caps.into_iter()
-        .map(|((from, to), cap)| {
-            (((from + 65) as u8 as char, (to + 65) as u8 as char), cap)
-        })
+        .map(|((from, to), cap)| (((from + 65) as u8 as char, (to + 65) as u8 as char), cap))
         .collect::<Vec<_>>();
     check_wikipedia_result((caps, total));
 }

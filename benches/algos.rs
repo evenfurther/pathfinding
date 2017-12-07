@@ -141,9 +141,7 @@ fn no_path_astar(b: &mut Bencher) {
 
 #[bench]
 fn no_path_bfs(b: &mut Bencher) {
-    b.iter(|| {
-        assert_eq!(bfs(&Pt::new(2, 3), |n| neighbours(n), |_| false), None)
-    });
+    b.iter(|| assert_eq!(bfs(&Pt::new(2, 3), |n| neighbours(n), |_| false), None));
 }
 
 #[bench]
