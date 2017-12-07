@@ -16,6 +16,7 @@ mod fringe;
 mod idastar;
 mod kuhn_munkres;
 mod matrix;
+mod topological_sort;
 
 pub use astar::*;
 pub use bfs::*;
@@ -26,6 +27,7 @@ pub use fringe::*;
 pub use idastar::*;
 pub use kuhn_munkres::*;
 pub use matrix::*;
+pub use topological_sort::*;
 
 use std::collections::HashMap;
 use std::hash::Hash;
