@@ -151,12 +151,12 @@ mod ex2 {
             *counter.borrow_mut() += 1;
             neighbours(n)
         };
-        let (paths, cost) = astar_bag(
+        let (paths, cost) = astar_bag_collect(
             &(2, 3),
             neighbours_counter,
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
-        );
+        ).unwrap();
         assert_eq!(cost, 8);
         assert_eq!(paths.len(), 1);
         assert!(
@@ -164,7 +164,7 @@ mod ex2 {
                 .iter()
                 .all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx]))
         );
-        assert_eq!(*counter.borrow(), 18);
+        assert_eq!(*counter.borrow(), 15);
     }
 
     #[test]
@@ -175,21 +175,20 @@ mod ex2 {
             *counter.borrow_mut() += 1;
             neighbours(n)
         };
-        let (paths, cost) = astar_bag(
+        let (paths, cost) = astar_bag_collect(
             &(2, 3),
             neighbours_counter,
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
-        );
+        ).unwrap();
         assert_eq!(cost, 9);
-        println!("{:?}", paths);
         assert_eq!(paths.len(), 3);
         assert!(
             paths
                 .iter()
                 .all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx]))
         );
-        assert_eq!(*counter.borrow(), 22);
+        assert_eq!(*counter.borrow(), 18);
     }
 
     #[test]
