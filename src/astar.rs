@@ -215,7 +215,7 @@ where
                         e.insert((p, new_cost));
                     }
                     Occupied(mut e) => if e.get().1 >= new_cost {
-                        let mut s = e.get_mut();
+                        let s = e.get_mut();
                         if s.1 > new_cost {
                             s.0.clear();
                             s.0.insert(node.clone());
