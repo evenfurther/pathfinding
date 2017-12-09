@@ -29,13 +29,13 @@ pub use kuhn_munkres::*;
 pub use matrix::*;
 pub use topological_sort::*;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;
 
 fn reverse_path<N: Eq + Hash + Clone>(parents: &HashMap<N, N>, start: N) -> Vec<N> {
-    let mut path = vec![start];
-    while let Some(parent) = parents.get(path.last().unwrap()).cloned() {
-        path.push(parent);
+    let mut path = std::iter::once(start).collect::<VecDeque<_>>();
+    while let Some(parent) = parents.get(&path[0]).cloned() {
+        path.push_front(parent);
     }
-    path.into_iter().rev().collect()
+    path.into_iter().collect()
 }

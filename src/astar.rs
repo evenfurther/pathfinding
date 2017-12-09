@@ -72,7 +72,6 @@ use super::reverse_path;
 ///                    |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
-
 pub fn astar<N, C, FN, IN, FH, FS>(
     start: &N,
     neighbours: FN,
@@ -359,11 +358,11 @@ impl<N: Clone + Eq + Hash> Iterator for AstarSolution<N> {
             return None;
         }
         self.complete();
-        let mut path = self.current
+        let path = self.current
             .iter()
+            .rev()
             .map(|v| v.last().cloned().unwrap())
             .collect::<Vec<_>>();
-        path.reverse();
         self.next_vec();
         self.terminated = self.current.is_empty();
         Some(path)

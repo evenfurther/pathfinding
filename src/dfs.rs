@@ -1,27 +1,3 @@
-fn step<N, FN, IN, FS>(path: &mut Vec<N>, neighbours: &FN, success: &FS) -> bool
-where
-    N: Eq,
-    FN: Fn(&N) -> IN,
-    IN: IntoIterator<Item = N>,
-    FS: Fn(&N) -> bool,
-{
-    if success(path.last().unwrap()) {
-        true
-    } else {
-        let neighbours_it = neighbours(path.last().unwrap());
-        for n in neighbours_it {
-            if !path.contains(&n) {
-                path.push(n);
-                if step(path, neighbours, success) {
-                    return true;
-                }
-                path.pop();
-            }
-        }
-        false
-    }
-}
-
 /// Compute a path using the [depth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Depth-first_search).
 ///
@@ -73,5 +49,29 @@ where
         Some(path)
     } else {
         None
+    }
+}
+
+fn step<N, FN, IN, FS>(path: &mut Vec<N>, neighbours: &FN, success: &FS) -> bool
+where
+    N: Eq,
+    FN: Fn(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+    FS: Fn(&N) -> bool,
+{
+    if success(path.last().unwrap()) {
+        true
+    } else {
+        let neighbours_it = neighbours(path.last().unwrap());
+        for n in neighbours_it {
+            if !path.contains(&n) {
+                path.push(n);
+                if step(path, neighbours, success) {
+                    return true;
+                }
+                path.pop();
+            }
+        }
+        false
     }
 }

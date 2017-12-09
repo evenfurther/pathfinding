@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
 use std::hash::Hash;
 
 /// Find a topological order in a directed graph if one exists.
@@ -42,7 +42,7 @@ where
     let mut unmarked: HashSet<N> = nodes.iter().cloned().collect::<HashSet<_>>();
     let mut marked = HashSet::with_capacity(nodes.len());
     let mut temp = HashSet::new();
-    let mut sorted = Vec::with_capacity(nodes.len());
+    let mut sorted = VecDeque::with_capacity(nodes.len());
     while let Some(node) = unmarked.iter().cloned().next() {
         temp.clear();
         visit(
@@ -54,8 +54,7 @@ where
             &mut sorted,
         )?;
     }
-    sorted.reverse();
-    Ok(sorted)
+    Ok(sorted.into_iter().collect())
 }
 
 fn visit<N, FN, IN>(
@@ -64,7 +63,7 @@ fn visit<N, FN, IN>(
     unmarked: &mut HashSet<N>,
     marked: &mut HashSet<N>,
     temp: &mut HashSet<N>,
-    sorted: &mut Vec<N>,
+    sorted: &mut VecDeque<N>,
 ) -> Result<(), N>
 where
     N: Eq + Hash + Clone,
@@ -83,6 +82,6 @@ where
         visit(&n, successors, unmarked, marked, temp, sorted)?;
     }
     marked.insert(node.clone());
-    sorted.push(node.clone());
+    sorted.push_front(node.clone());
     Ok(())
 }

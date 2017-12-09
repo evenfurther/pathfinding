@@ -2,17 +2,7 @@ use num_traits::{Bounded, Zero};
 use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;
 use std::mem;
-
 use super::reverse_path;
-
-fn remove<T: Eq>(v: &mut VecDeque<T>, e: &T) -> bool {
-    if let Some(index) = v.iter().position(|x| x == e) {
-        v.remove(index);
-        true
-    } else {
-        false
-    }
-}
 
 /// Compute a shortest path using the [Fringe search
 /// algorithm](https://en.wikipedia.org/wiki/Fringe_search).
@@ -137,5 +127,14 @@ where
         }
         mem::swap(&mut now, &mut later);
         flimit = fmin;
+    }
+}
+
+fn remove<T: Eq>(v: &mut VecDeque<T>, e: &T) -> bool {
+    if let Some(index) = v.iter().position(|x| x == e) {
+        v.remove(index);
+        true
+    } else {
+        false
     }
 }
