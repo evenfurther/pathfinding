@@ -280,7 +280,7 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
 }
 
 /// Common fields.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Common<C> {
     size: usize,
     source: usize,
@@ -289,13 +289,17 @@ pub struct Common<C> {
     detailed_flows: bool,
 }
 
+unsafe impl<C: Send> Send for Common<C> {}
+
 /// Sparse capacity and flow data.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SparseCapacity<C> {
     common: Common<C>,
     flows: BTreeMap<usize, BTreeMap<usize, C>>,
     residuals: BTreeMap<usize, BTreeMap<usize, C>>,
 }
+
+unsafe impl<C: Send> Send for SparseCapacity<C> {}
 
 impl<C: Copy + Eq + Zero + Signed + Bounded + Ord> SparseCapacity<C> {
     fn set_value(data: &mut BTreeMap<usize, BTreeMap<usize, C>>, from: usize, to: usize, value: C) {
@@ -426,12 +430,14 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
 }
 
 /// Dense capacity and flow data.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct DenseCapacity<C> {
     common: Common<C>,
     residuals: Matrix<C>,
     flows: Matrix<C>,
 }
+
+unsafe impl<C: Send> Send for DenseCapacity<C> {}
 
 impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C> {
     fn new(size: usize, source: usize, sink: usize) -> DenseCapacity<C> {

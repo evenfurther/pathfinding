@@ -316,12 +316,15 @@ impl<K: Ord, P> Ord for SmallestCostHolder<K, P> {
 }
 
 /// Iterator structure created by the `astar_bag` function.
+#[derive(Clone)]
 pub struct AstarSolution<N> {
     sinks: Vec<N>,
     parents: HashMap<N, Vec<N>>,
     current: Vec<Vec<N>>,
     terminated: bool,
 }
+
+unsafe impl<N: Send> Send for AstarSolution<N> {}
 
 impl<N: Clone + Eq + Hash> AstarSolution<N> {
     fn complete(&mut self) {

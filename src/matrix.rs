@@ -2,7 +2,7 @@ use num_traits::Signed;
 use std::ops::{Index, IndexMut, Neg};
 
 /// Matrix of an arbitrary type
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Matrix<C> {
     /// Rows
     pub rows: usize,
@@ -10,6 +10,8 @@ pub struct Matrix<C> {
     pub columns: usize,
     data: Vec<C>,
 }
+
+unsafe impl<C: Send> Send for Matrix<C> {}
 
 impl<C: Clone> Matrix<C> {
     /// Create new matrix with an initial value.
@@ -32,16 +34,6 @@ impl<C: Clone> Matrix<C> {
     pub fn fill(&mut self, value: C) {
         self.data.clear();
         self.data.resize(self.rows * self.columns, value);
-    }
-}
-
-impl<C: Clone> Clone for Matrix<C> {
-    fn clone(&self) -> Matrix<C> {
-        Matrix {
-            rows: self.rows,
-            columns: self.columns,
-            data: self.data.clone(),
-        }
     }
 }
 
