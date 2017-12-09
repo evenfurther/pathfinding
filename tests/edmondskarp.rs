@@ -148,3 +148,22 @@ fn modified_dense() {
 fn modified_sparse() {
     modified::<SparseCapacity<i32>>()
 }
+
+#[test]
+#[should_panic]
+fn empty() {
+    let mut ek = DenseCapacity::<i32>::new(0, 0, 0);
+    ek.augment();
+}
+
+#[test]
+#[should_panic]
+fn unknown_source() {
+    edmonds_karp_dense(&vec![1, 2, 3], &0, &3, Vec::<((i32, i32), i32)>::new());
+}
+
+#[test]
+#[should_panic]
+fn unknown_sink() {
+    edmonds_karp_dense(&vec![1, 2, 3], &1, &4, Vec::<((i32, i32), i32)>::new());
+}

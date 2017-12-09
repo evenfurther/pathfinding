@@ -5,7 +5,7 @@ extern crate pathfinding;
 use pathfinding::Matrix;
 
 #[test]
-fn test_sm() {
+fn sm() {
     let mut m = Matrix::new(2, 2, 0usize);
     m[&(0, 0)] = 0;
     m[&(0, 1)] = 1;
@@ -24,7 +24,7 @@ fn test_sm() {
 }
 
 #[test]
-fn test_from_vec() {
+fn from_vec() {
     let m = Matrix::from_vec(2, 3, vec![10, 20, 30, 40, 50, 60]);
     assert_eq!(m.rows, 2);
     assert_eq!(m.columns, 3);
@@ -38,7 +38,7 @@ fn test_from_vec() {
 }
 
 #[test]
-fn test_square_from_vec() {
+fn square_from_vec() {
     let m = Matrix::square_from_vec(vec![10, 20, 30, 40]);
     assert_eq!(m.rows, 2);
     assert_eq!(m.columns, 2);
@@ -47,4 +47,16 @@ fn test_square_from_vec() {
     assert_eq!(m[&(0, 1)], 20);
     assert_eq!(m[&(1, 0)], 30);
     assert_eq!(m[&(1, 1)], 40);
+}
+
+#[test]
+#[should_panic]
+fn from_vec_panic() {
+    Matrix::from_vec(2, 3, vec![1, 2, 3]);
+}
+
+#[test]
+#[should_panic]
+fn square_from_vec_panic() {
+    Matrix::square_from_vec(vec![1, 2, 3]);
 }

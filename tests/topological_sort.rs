@@ -8,13 +8,13 @@ use rand::Rng;
 use std::sync::RwLock;
 
 #[test]
-fn test_empty() {
+fn empty() {
     let empty: Vec<usize> = vec![];
     assert_eq!(tsort(&empty, |&n| vec![n]), Ok(empty));
 }
 
 #[test]
-fn test_order() {
+fn order() {
     // Shuffle integers from 1 to 1000, and order them so that divisors
     // are located before the numbers they divide.
     let mut rng = rand::OsRng::new().unwrap();
@@ -36,7 +36,7 @@ fn test_order() {
 }
 
 #[test]
-fn test_complexity() {
+fn complexity() {
     // To ensure that the sort is O(|E| + |V|), we ensure that the
     // neighbours for a particular node are requested exactly one time.
     let mut rng = rand::OsRng::new().unwrap();
