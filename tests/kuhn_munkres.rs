@@ -127,3 +127,10 @@ fn non_square() {
     assert_eq!(total, 376);
     assert_eq!(assignments, vec![3, 1, 2, 4]);
 }
+
+#[test]
+fn empty() {
+    let (total, assignments) = kuhn_munkres(&Matrix::new(0, 0, 0));
+    assert_eq!(total, 0);
+    assert_eq!(assignments, vec![]);
+}
