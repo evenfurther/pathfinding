@@ -102,7 +102,7 @@ where
         while let Some(i) = now.pop_front() {
             let (g, neighbours) = {
                 let (node, &(_, g)) = parents.get_index(i).unwrap();
-                let f = g + heuristic(&node);
+                let f = g + heuristic(node);
                 if f > flimit {
                     if f < fmin {
                         fmin = f;
@@ -114,7 +114,7 @@ where
                     let path = reverse_path(&parents, |&(p, _)| p, i);
                     return Some((path, g));
                 }
-                (g, neighbours(&node))
+                (g, neighbours(node))
             };
             for (neighbour, cost) in neighbours {
                 let g_neighbour = g + cost;
