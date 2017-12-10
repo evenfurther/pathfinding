@@ -329,7 +329,7 @@ impl<K: Ord, P> Ord for SmallestCostHolder<K, P> {
 #[derive(Clone)]
 pub struct AstarSolution<N> {
     sinks: Vec<usize>,
-    parents: OrderMap<N, Vec<usize>>,
+    parents: Vec<(N, Vec<usize>)>,
     current: Vec<Vec<usize>>,
     terminated: bool,
 }
@@ -361,11 +361,11 @@ impl<N: Clone + Eq + Hash> AstarSolution<N> {
     }
 
     fn node(&self, i: usize) -> &N {
-        self.parents.get_index(i).unwrap().0
+        &self.parents[i].0
     }
 
     fn parents(&self, i: usize) -> &Vec<usize> {
-        self.parents.get_index(i).unwrap().1
+        &self.parents[i].1
     }
 }
 
