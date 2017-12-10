@@ -16,7 +16,7 @@ This crate implements several pathfinding, flow, and graph algorithms in [Rust][
 - [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
 - [IDA*][IDA*]: explore longer and longer paths in a weighted graph at the cost of multiple similar examinations.
 - [Kuhn-Munkres][Kuhn-Munkres]: find the maximum (or minimum) matching in a weighted bipartite graph.
-* [Topological sorting][Topological sorting]: find an acceptable topological order in a directed graph.
+- [Topological sorting][Topological sorting]: find an acceptable topological order in a directed graph.
 
 Those algorithms are generic over their arguments.
 
