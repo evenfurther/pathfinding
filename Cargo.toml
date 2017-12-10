@@ -15,6 +15,7 @@ readme = "README.md"
 fixedbitset = "0.1"
 itertools = "0.7"
 num-traits = "0.1"
+ordermap = "0.3.2"
 
 [dev-dependencies]
 lazy_static = "0.2"

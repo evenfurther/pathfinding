@@ -1,7 +1,10 @@
 use num_traits::{Bounded, Zero};
-use std::collections::{HashMap, VecDeque};
+use ordermap::OrderMap;
+use ordermap::Entry::{Occupied, Vacant};
+use std::collections::VecDeque;
 use std::hash::Hash;
 use std::mem;
+use std::usize;
 use super::reverse_path;
 
 /// Compute a shortest path using the [Fringe search
@@ -86,43 +89,52 @@ where
 {
     let mut now = VecDeque::new();
     let mut later = VecDeque::new();
-    let mut costs: HashMap<N, C> = HashMap::new();
-    let mut parents: HashMap<N, N> = HashMap::new();
+    let mut parents: OrderMap<N, (usize, C)> = OrderMap::new();
     let mut flimit = heuristic(start);
-    now.push_back(start.clone());
-    costs.insert(start.clone(), Zero::zero());
+    now.push_back(0);
+    parents.insert(start.clone(), (usize::MAX, Zero::zero()));
 
     loop {
         if now.is_empty() {
             return None;
         }
         let mut fmin = C::max_value();
-        while let Some(node) = now.pop_front() {
-            let g = costs[&node];
-            let f = g + heuristic(&node);
-            if f > flimit {
-                if f < fmin {
-                    fmin = f;
-                }
-                later.push_back(node);
-                continue;
-            }
-            if success(&node) {
-                return Some((reverse_path(&parents, node), g));
-            }
-            for (neighbour, cost) in neighbours(&node) {
-                let g_neighbour = g + cost;
-                if let Some(&old_g) = costs.get(&neighbour) {
-                    if old_g <= g_neighbour {
-                        continue;
+        while let Some(i) = now.pop_front() {
+            let (g, neighbours) = {
+                let (node, &(_, g)) = parents.get_index(i).unwrap();
+                let f = g + heuristic(node);
+                if f > flimit {
+                    if f < fmin {
+                        fmin = f;
                     }
+                    later.push_back(i);
+                    continue;
                 }
-                if !remove(&mut later, &neighbour) {
-                    remove(&mut now, &neighbour);
+                if success(node) {
+                    let path = reverse_path(&parents, |&(p, _)| p, i);
+                    return Some((path, g));
                 }
-                now.push_front(neighbour.clone());
-                costs.insert(neighbour.clone(), g_neighbour);
-                parents.insert(neighbour, node.clone());
+                (g, neighbours(node))
+            };
+            for (neighbour, cost) in neighbours {
+                let g_neighbour = g + cost;
+                let n; // index for neighbour
+                match parents.entry(neighbour) {
+                    Vacant(e) => {
+                        n = e.index();
+                        e.insert((i, g_neighbour));
+                    }
+                    Occupied(e) => if e.get().1 > g_neighbour {
+                        n = e.index();
+                        e.insert((i, g_neighbour));
+                    } else {
+                        continue;
+                    },
+                }
+                if !remove(&mut later, &n) {
+                    remove(&mut now, &n);
+                }
+                now.push_front(n);
             }
         }
         mem::swap(&mut now, &mut later);
