@@ -134,3 +134,9 @@ fn empty() {
     assert_eq!(total, 0);
     assert_eq!(assignments, vec![]);
 }
+
+#[test]
+#[should_panic]
+fn unbalanced() {
+    kuhn_munkres(&Matrix::new(3, 2, 0));
+}
