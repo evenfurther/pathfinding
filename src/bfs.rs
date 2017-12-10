@@ -1,6 +1,8 @@
-use std::collections::{HashMap, VecDeque};
-use std::collections::hash_map::Entry::Vacant;
+use ordermap::OrderMap;
+use ordermap::Entry::Vacant;
+use std::collections::VecDeque;
 use std::hash::Hash;
+use std::usize;
 
 use super::reverse_path;
 
@@ -67,18 +69,22 @@ where
     FS: Fn(&N) -> bool,
 {
     let mut to_see = VecDeque::new();
-    to_see.push_back(start.clone());
-    let mut parents: HashMap<N, N> = HashMap::new();
-    while let Some(node) = to_see.pop_front() {
-        if success(&node) {
-            return Some(reverse_path(&parents, node));
-        }
-        for neighbour in neighbours(&node) {
-            if neighbour != *start {
-                if let Vacant(e) = parents.entry(neighbour.clone()) {
-                    e.insert(node.clone());
-                    to_see.push_back(neighbour);
-                }
+    let mut parents: OrderMap<N, usize> = OrderMap::new();
+    to_see.push_back(0);
+    parents.insert(start.clone(), usize::MAX);
+    while let Some(i) = to_see.pop_front() {
+        let neighbours = {
+            let node = parents.get_index(i).unwrap().0;
+            if success(node) {
+                let path = reverse_path(&parents, |&p| p, i);
+                return Some(path);
+            }
+            neighbours(node)
+        };
+        for neighbour in neighbours {
+            if let Vacant(e) = parents.entry(neighbour) {
+                to_see.push_back(e.index());
+                e.insert(i);
             }
         }
     }

@@ -1,8 +1,10 @@
+use ordermap::OrderMap;
+use ordermap::Entry::{Vacant, Occupied};
 use num_traits::Zero;
-use std::collections::{BinaryHeap, HashMap, HashSet};
-use std::collections::hash_map::Entry::{Occupied, Vacant};
+use std::collections::{BinaryHeap, HashSet};
 use std::cmp::Ordering;
 use std::hash::Hash;
+use std::usize;
 
 use super::reverse_path;
 
@@ -90,49 +92,52 @@ where
     to_see.push(SmallestCostHolder {
         estimated_cost: heuristic(start),
         cost: Zero::zero(),
-        payload: (Zero::zero(), start.clone()),
+        payload: (Zero::zero(), 0),
     });
-    let mut parents: HashMap<N, (N, C)> = HashMap::new();
+    let mut parents: OrderMap<N, (usize, C)> = OrderMap::new();
+    parents.insert(start.clone(), (usize::MAX, Zero::zero()));
     while let Some(SmallestCostHolder {
-        payload: (cost, node),
-        ..
+        payload: (cost, i), ..
     }) = to_see.pop()
     {
-        if success(&node) {
-            let parents = parents.into_iter().map(|(n, (p, _))| (n, p)).collect();
-            return Some((reverse_path(&parents, node), cost));
-        }
-        // We may have inserted a node several time into the binary heap if we found
-        // a better way to access it. Ensure that we are currently dealing with the
-        // best path and discard the others.
-        if let Some(&(_, c)) = parents.get(&node) {
+        let neighbours = {
+            let (node, &(_, c)) = parents.get_index(i).unwrap();
+            if success(node) {
+                let path = reverse_path(&parents, |&(p, _)| p, i);
+                return Some((path, cost));
+            }
+            // We may have inserted a node several time into the binary heap if we found
+            // a better way to access it. Ensure that we are currently dealing with the
+            // best path and discard the others.
             if cost > c {
                 continue;
             }
-        }
-        for (neighbour, move_cost) in neighbours(&node) {
+            neighbours(node)
+        };
+        for (neighbour, move_cost) in neighbours {
             let new_cost = cost + move_cost;
-            if neighbour != *start {
-                let mut inserted = true;
-                match parents.entry(neighbour.clone()) {
-                    Vacant(e) => {
-                        e.insert((node.clone(), new_cost));
-                    }
-                    Occupied(mut e) => if e.get().1 > new_cost {
-                        e.insert((node.clone(), new_cost));
-                    } else {
-                        inserted = false;
-                    },
-                };
-                if inserted {
-                    let new_predicted_cost = new_cost + heuristic(&neighbour);
-                    to_see.push(SmallestCostHolder {
-                        estimated_cost: new_predicted_cost,
-                        cost: cost,
-                        payload: (new_cost, neighbour),
-                    });
+            let h; // heuristic(&neighbour)
+            let n; // index for neighbour
+            match parents.entry(neighbour) {
+                Vacant(e) => {
+                    h = heuristic(e.key());
+                    n = e.index();
+                    e.insert((i, new_cost));
                 }
+                Occupied(e) => if e.get().1 > new_cost {
+                    h = heuristic(e.key());
+                    n = e.index();
+                    e.insert((i, new_cost));
+                } else {
+                    continue;
+                },
             }
+
+            to_see.push(SmallestCostHolder {
+                estimated_cost: new_cost + h,
+                cost: cost,
+                payload: (new_cost, n),
+            });
         }
     }
     None
@@ -179,11 +184,12 @@ where
     to_see.push(SmallestCostHolder {
         estimated_cost: heuristic(start),
         cost: Zero::zero(),
-        payload: (Zero::zero(), start.clone()),
+        payload: (Zero::zero(), 0),
     });
-    let mut parents: HashMap<N, (HashSet<N>, C)> = HashMap::new();
+    let mut parents: OrderMap<N, (HashSet<usize>, C)> = OrderMap::new();
+    parents.insert(start.clone(), (HashSet::new(), Zero::zero()));
     while let Some(SmallestCostHolder {
-        payload: (cost, node),
+        payload: (cost, i),
         estimated_cost,
         ..
     }) = to_see.pop()
@@ -193,56 +199,61 @@ where
                 break;
             }
         }
-        if success(&node) {
-            min_cost = Some(cost);
-            sinks.insert(node.clone());
-        }
-        // We may have inserted a node several time into the binary heap if we found
-        // a better way to access it. Ensure that we are currently dealing with the
-        // best path and discard the others.
-        if let Some(&(_, c)) = parents.get(&node) {
+        let neighbours = {
+            let (node, &(_, c)) = parents.get_index(i).unwrap();
+            if success(node) {
+                min_cost = Some(cost);
+                sinks.insert(i);
+            }
+            // We may have inserted a node several time into the binary heap if we found
+            // a better way to access it. Ensure that we are currently dealing with the
+            // best path and discard the others.
             if cost > c {
                 continue;
             }
-        }
-        for (neighbour, move_cost) in neighbours(&node) {
+            neighbours(node)
+        };
+        for (neighbour, move_cost) in neighbours {
             let new_cost = cost + move_cost;
-            if neighbour != *start {
-                match parents.entry(neighbour.clone()) {
-                    Vacant(e) => {
-                        let mut p = HashSet::new();
-                        p.insert(node.clone());
-                        e.insert((p, new_cost));
+            let h; // heuristic(&neighbour)
+            let n; // index for neighbour
+            match parents.entry(neighbour) {
+                Vacant(e) => {
+                    h = heuristic(e.key());
+                    n = e.index();
+                    let mut p = HashSet::new();
+                    p.insert(i);
+                    e.insert((p, new_cost));
+                }
+                Occupied(mut e) => if e.get().1 > new_cost {
+                    h = heuristic(e.key());
+                    n = e.index();
+                    let s = e.get_mut();
+                    s.0.clear();
+                    s.0.insert(i);
+                    s.1 = new_cost;
+                } else {
+                    if e.get().1 == new_cost {
+                        // New parent with an identical cost, this is not
+                        // considered as an insertion.
+                        e.get_mut().0.insert(i);
                     }
-                    Occupied(mut e) => if e.get().1 >= new_cost {
-                        let s = e.get_mut();
-                        if s.1 > new_cost {
-                            s.0.clear();
-                            s.0.insert(node.clone());
-                            s.1 = new_cost;
-                        } else {
-                            // New parent with an identical cost, this is not
-                            // considered as an insertion.
-                            s.0.insert(node.clone());
-                            continue;
-                        }
-                    } else {
-                        continue;
-                    },
-                };
-                let new_predicted_cost = new_cost + heuristic(&neighbour);
-                to_see.push(SmallestCostHolder {
-                    estimated_cost: new_predicted_cost,
-                    cost: cost,
-                    payload: (new_cost, neighbour),
-                });
+                    continue;
+                },
             }
+
+            to_see.push(SmallestCostHolder {
+                estimated_cost: new_cost + h,
+                cost: cost,
+                payload: (new_cost, n),
+            });
         }
     }
+
     min_cost.map(|cost| {
         let parents = parents
             .into_iter()
-            .map(|(k, (p, _))| (k, p.into_iter().collect()))
+            .map(|(k, (ps, _))| (k, ps.into_iter().collect()))
             .collect();
         (
             AstarSolution {
@@ -317,9 +328,9 @@ impl<K: Ord, P> Ord for SmallestCostHolder<K, P> {
 /// Iterator structure created by the `astar_bag` function.
 #[derive(Clone)]
 pub struct AstarSolution<N> {
-    sinks: Vec<N>,
-    parents: HashMap<N, Vec<N>>,
-    current: Vec<Vec<N>>,
+    sinks: Vec<usize>,
+    parents: OrderMap<N, Vec<usize>>,
+    current: Vec<Vec<usize>>,
     terminated: bool,
 }
 
@@ -327,18 +338,18 @@ unsafe impl<N: Send> Send for AstarSolution<N> {}
 
 impl<N: Clone + Eq + Hash> AstarSolution<N> {
     fn complete(&mut self) {
-        match self.current.last().cloned() {
-            None => {
-                self.current = vec![self.sinks.clone()];
-                self.complete();
-            }
-            Some(last) => {
-                let top = last.last().unwrap();
-                if let Some(ps) = self.parents.get(top).cloned() {
-                    self.current.push(ps.clone());
-                    self.complete();
+        loop {
+            let ps = match self.current.last() {
+                None => self.sinks.clone(),
+                Some(last) => {
+                    let &top = last.last().unwrap();
+                    self.parents(top).clone()
                 }
+            };
+            if ps.is_empty() {
+                break;
             }
+            self.current.push(ps);
         }
     }
 
@@ -347,6 +358,14 @@ impl<N: Clone + Eq + Hash> AstarSolution<N> {
             self.current.pop();
         }
         self.current.last_mut().map(|v| v.pop());
+    }
+
+    fn node(&self, i: usize) -> &N {
+        self.parents.get_index(i).unwrap().0
+    }
+
+    fn parents(&self, i: usize) -> &Vec<usize> {
+        self.parents.get_index(i).unwrap().1
     }
 }
 
@@ -362,6 +381,7 @@ impl<N: Clone + Eq + Hash> Iterator for AstarSolution<N> {
             .iter()
             .rev()
             .map(|v| v.last().cloned().unwrap())
+            .map(|i| self.node(i).clone())
             .collect::<Vec<_>>();
         self.next_vec();
         self.terminated = self.current.is_empty();
