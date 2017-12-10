@@ -1,5 +1,5 @@
 use ordermap::OrderMap;
-use ordermap::Entry::{Vacant, Occupied};
+use ordermap::Entry::{Occupied, Vacant};
 use num_traits::Zero;
 use std::collections::{BinaryHeap, HashSet};
 use std::cmp::Ordering;
