@@ -169,7 +169,6 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
         self.add_residual_capacity(from, to, delta);
     }
 
-
     /// Add a given flow between two nodes. This should not be used
     /// directly.
     fn add_flow(&mut self, from: usize, to: usize, capacity: C);
