@@ -321,7 +321,7 @@ mod ex2 {
             dfs(
                 (2, 3),
                 |n| neighbours(n).into_iter().map(|(n, _)| n),
-                |n| { n == &GOAL }
+                |n| n == &GOAL
             ),
             None
         );

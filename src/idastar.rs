@@ -111,7 +111,6 @@ enum Path<N, C> {
     Impossible,
 }
 
-
 fn search<N, C, FN, IN, FH, FS>(
     path: &mut Vec<N>,
     cost: C,

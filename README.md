@@ -11,6 +11,7 @@ This crate implements several pathfinding, flow, and graph algorithms in [Rust][
 - [A*][A*]: find the shortest path in a weighted graph using an heuristic to guide the process.
 - [breadth-first search (BFS)][BFS]: explore nearest neighbours first, then widen the search.
 - [depth-first search (DFS)][DFS]: explore a graph by going as far as possible, then backtrack.
+- [Connected components][Connected components]: find disjoint connected sets of vertices.
 - [Dijkstra][Dijkstra]: find the shortest path in a weighted graph.
 - [Edmonds Karp][Edmonds Karp]: find the maximum flow in a directed graph.
 - [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
@@ -67,6 +68,7 @@ This code is released under a dual Apache 2.0 / MIT free software license.
 
 [A*]: https://en.wikipedia.org/wiki/A*_search_algorithm
 [BFS]: https://en.wikipedia.org/wiki/Breadth-first_search
+[Connected components]: https://en.wikipedia.org/wiki/Connected_component_(graph_theory)
 [DFS]: https://en.wikipedia.org/wiki/Depth-first_search
 [Dijkstra]: https://en.wikipedia.org/wiki/Dijkstra's_algorithm
 [Edmonds Karp]: https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm

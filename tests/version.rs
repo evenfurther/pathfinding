@@ -12,8 +12,7 @@ fn check_version() {
         VERSION.starts_with(version),
         format!(
             "Version in README.md ({}) is not compatible with Cargo.toml ({})",
-            version,
-            VERSION
+            version, VERSION
         )
     );
 }
