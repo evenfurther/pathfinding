@@ -10,6 +10,7 @@ pub extern crate num_traits;
 
 mod astar;
 mod bfs;
+mod connected_components;
 mod dfs;
 mod dijkstra;
 mod edmonds_karp;
@@ -21,6 +22,7 @@ mod topological_sort;
 
 pub use astar::*;
 pub use bfs::*;
+pub use connected_components::*;
 pub use dfs::*;
 pub use dijkstra::*;
 pub use edmonds_karp::*;
