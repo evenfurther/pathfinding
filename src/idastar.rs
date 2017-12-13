@@ -70,17 +70,17 @@ use std::hash::Hash;
 
 pub fn idastar<N, C, FN, IN, FH, FS>(
     start: &N,
-    neighbours: FN,
-    heuristic: FH,
-    success: FS,
+    mut neighbours: FN,
+    mut heuristic: FH,
+    mut success: FS,
 ) -> Option<(Vec<N>, C)>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
-    FN: Fn(&N) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
-    FH: Fn(&N) -> C,
-    FS: Fn(&N) -> bool,
+    FH: FnMut(&N) -> C,
+    FS: FnMut(&N) -> bool,
 {
     let mut bound = heuristic(start);
     let mut path = vec![start.clone()];
@@ -89,9 +89,9 @@ where
             &mut path,
             Zero::zero(),
             bound,
-            &neighbours,
-            &heuristic,
-            &success,
+            &mut neighbours,
+            &mut heuristic,
+            &mut success,
         ) {
             Path::Found(path, cost) => return Some((path, cost)),
             Path::Minimum(min) => {
@@ -115,17 +115,17 @@ fn search<N, C, FN, IN, FH, FS>(
     path: &mut Vec<N>,
     cost: C,
     bound: C,
-    neighbours: &FN,
-    heuristic: &FH,
-    success: &FS,
+    neighbours: &mut FN,
+    heuristic: &mut FH,
+    success: &mut FS,
 ) -> Path<N, C>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
-    FN: Fn(&N) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
-    FH: Fn(&N) -> C,
-    FS: Fn(&N) -> bool,
+    FH: FnMut(&N) -> C,
+    FS: FnMut(&N) -> bool,
 {
     let neighbs = {
         let start = &path[path.len() - 1];

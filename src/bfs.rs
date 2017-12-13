@@ -61,12 +61,12 @@ use super::reverse_path;
 ///                  |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").len(), 5);
 /// ```
-pub fn bfs<N, FN, IN, FS>(start: &N, neighbours: FN, success: FS) -> Option<Vec<N>>
+pub fn bfs<N, FN, IN, FS>(start: &N, mut neighbours: FN, mut success: FS) -> Option<Vec<N>>
 where
     N: Eq + Hash + Clone,
-    FN: Fn(&N) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
-    FS: Fn(&N) -> bool,
+    FS: FnMut(&N) -> bool,
 {
     let mut to_see = VecDeque::new();
     let mut parents: OrderMap<N, usize> = OrderMap::new();

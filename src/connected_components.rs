@@ -116,10 +116,10 @@ where
 ///
 /// This function returns a list of sets of nodes forming disjoint connected
 /// sets.
-pub fn connected_components<N, FN, IN>(starts: &[N], neighbours: FN) -> Vec<HashSet<N>>
+pub fn connected_components<N, FN, IN>(starts: &[N], mut neighbours: FN) -> Vec<HashSet<N>>
 where
     N: Clone + Hash + Eq,
-    FN: Fn(&N) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
     components(&starts

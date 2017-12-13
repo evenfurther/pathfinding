@@ -75,17 +75,17 @@ use super::reverse_path;
 /// ```
 pub fn fringe<N, C, FN, IN, FH, FS>(
     start: &N,
-    neighbours: FN,
-    heuristic: FH,
-    success: FS,
+    mut neighbours: FN,
+    mut heuristic: FH,
+    mut success: FS,
 ) -> Option<(Vec<N>, C)>
 where
     N: Eq + Hash + Clone,
     C: Bounded + Zero + Ord + Copy,
-    FN: Fn(&N) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
-    FH: Fn(&N) -> C,
-    FS: Fn(&N) -> bool,
+    FH: FnMut(&N) -> C,
+    FS: FnMut(&N) -> bool,
 {
     let mut now = VecDeque::new();
     let mut later = VecDeque::new();
