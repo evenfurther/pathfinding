@@ -79,6 +79,7 @@ fn corner_to_corner_bfs(b: &mut Bencher) {
 }
 
 #[bench]
+#[ignore] // Stack explosion, as expected
 fn corner_to_corner_dfs(b: &mut Bencher) {
     b.iter(|| {
         assert_ne!(
