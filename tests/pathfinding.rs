@@ -233,7 +233,7 @@ mod ex2 {
                 counter += 1;
                 neighbours(n)
             },
-            |n| n == &GOAL
+            |n| n == &GOAL,
         ).expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
