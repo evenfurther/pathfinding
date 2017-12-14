@@ -32,7 +32,7 @@ fn get_and_redirect(table: &mut Vec<usize>, idx: usize) -> usize {
 /// - A mapping from every group to its set identifier, with the identifiers being
 /// the same ones as the ones in the previous mapping. Each group corresponds to
 /// the identifier at the same index, except for empty group whose identifier is
-/// set to std::usize::MAX.
+/// set to `std::usize::MAX`.
 pub fn separate_components<N>(groups: &[Vec<N>]) -> (HashMap<N, usize>, Vec<usize>)
 where
     N: Clone + Hash + Eq,
