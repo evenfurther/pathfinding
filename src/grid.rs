@@ -20,7 +20,7 @@ macro_rules! absdiff {
 /// diagonal mode is enabled.
 ///
 /// Internally, a Grid is represented either as a collection of vertices
-/// or as a collection or non-existing vertices, depending on the density of
+/// or as a collection of absent vertices, depending on the density of
 /// the grid. The switch between both representations is done automatically
 /// when vertices are added or removed, or when the grid is resized.
 pub struct Grid {
