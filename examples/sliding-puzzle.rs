@@ -8,6 +8,9 @@ use rand::os::OsRng;
 use rand::Rng;
 use std::time::Instant;
 
+#[cfg(test)]
+const SIDE: u8 = 3;
+#[cfg(not(test))]
 const SIDE: u8 = 4;
 const LIMIT: usize = (SIDE * SIDE) as usize;
 
@@ -155,6 +158,12 @@ impl Default for Game {
     fn default() -> Game {
         GOAL.clone()
     }
+}
+
+#[test]
+fn test() {
+    // main() already contains checks.
+    main();
 }
 
 fn main() {

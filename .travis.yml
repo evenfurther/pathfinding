@@ -10,11 +10,12 @@ matrix:
     - rust: stable
     - rust: beta
     - rust: nightly
+      env: NIGHTLY=y
     - rust: nightly
       env: CHECK_CLIPPY=y CHECK_FMT=y
   allow_failures:
     - rust: nightly
-      env: CHECK_CLIPPY=y CHECK_FMT=y
+      env: CHECK_CLIPPY=y CHECK_FMT=y NIGHTLY=y
   fast_finish: true
 
 cache:
@@ -25,10 +26,9 @@ install:
   - if [ ! -z "$CHECK_CLIPPY" ]; then (cargo install --force clippy | true); fi
 
 before_script:
-  - if [ ! -z "$CHECK_FMT" ]; then PATH=$PATH:~/.cargo/bin cargo fmt -- --write-mode=diff; fi
-  - if [ ! -z "$CHECK_CLIPPY" ]; then PATH=$PATH:~/.cargo/bin cargo clippy -- -D clippy; fi
+  - if [ ! -z "$CHECK_FMT" ]; then PATH=$PATH:~/.cargo/bin cargo fmt --all -- --write-mode=diff; fi
+  - if [ ! -z "$CHECK_CLIPPY" ]; then PATH=$PATH:~/.cargo/bin cargo clippy --all -- -D clippy; fi
 
 script:
-  - cargo build --verbose --all
-  - cargo test --verbose --all
-  - cargo test --verbose --examples
+  - if [ "$NIGHTLY" ]; then cargo build --all-targets; else cargo build --all; fi
+  - if [ "$NIGHTLY" ]; then cargo test --all-targets; else cargo test --all; fi
