@@ -76,17 +76,17 @@ use super::reverse_path;
 /// ```
 pub fn astar<N, C, FN, IN, FH, FS>(
     start: &N,
-    neighbours: FN,
-    heuristic: FH,
-    success: FS,
+    mut neighbours: FN,
+    mut heuristic: FH,
+    mut success: FS,
 ) -> Option<(Vec<N>, C)>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
-    FN: Fn(&N) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
-    FH: Fn(&N) -> C,
-    FS: Fn(&N) -> bool,
+    FH: FnMut(&N) -> C,
+    FS: FnMut(&N) -> bool,
 {
     let mut to_see = BinaryHeap::new();
     to_see.push(SmallestCostHolder {
@@ -166,17 +166,17 @@ where
 /// start node, different paths may have different end nodes.
 pub fn astar_bag<N, C, FN, IN, FH, FS>(
     start: &N,
-    neighbours: FN,
-    heuristic: FH,
-    success: FS,
+    mut neighbours: FN,
+    mut heuristic: FH,
+    mut success: FS,
 ) -> Option<(AstarSolution<N>, C)>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
-    FN: Fn(&N) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
-    FH: Fn(&N) -> C,
-    FS: Fn(&N) -> bool,
+    FH: FnMut(&N) -> C,
+    FS: FnMut(&N) -> bool,
 {
     let mut to_see = BinaryHeap::new();
     let mut min_cost = None;
@@ -287,10 +287,10 @@ pub fn astar_bag_collect<N, C, FN, IN, FH, FS>(
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
-    FN: Fn(&N) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
-    FH: Fn(&N) -> C,
-    FS: Fn(&N) -> bool,
+    FH: FnMut(&N) -> C,
+    FS: FnMut(&N) -> bool,
 {
     astar_bag(start, neighbours, heuristic, success)
         .map(|(solutions, cost)| (solutions.collect(), cost))

@@ -33,10 +33,10 @@ use std::hash::Hash;
 ///                               |&n| (n+1..10).take(2).chain(std::iter::once(9)));
 ///  assert_eq!(sorted, Err(9));
 /// ```
-pub fn topological_sort<N, FN, IN>(nodes: &[N], successors: FN) -> Result<Vec<N>, N>
+pub fn topological_sort<N, FN, IN>(nodes: &[N], mut successors: FN) -> Result<Vec<N>, N>
 where
     N: Eq + Hash + Clone,
-    FN: Fn(&N) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
     let mut unmarked: HashSet<N> = nodes.iter().cloned().collect::<HashSet<_>>();
@@ -47,7 +47,7 @@ where
         temp.clear();
         visit(
             &node,
-            &successors,
+            &mut successors,
             &mut unmarked,
             &mut marked,
             &mut temp,
@@ -59,7 +59,7 @@ where
 
 fn visit<N, FN, IN>(
     node: &N,
-    successors: &FN,
+    successors: &mut FN,
     unmarked: &mut HashSet<N>,
     marked: &mut HashSet<N>,
     temp: &mut HashSet<N>,
@@ -67,7 +67,7 @@ fn visit<N, FN, IN>(
 ) -> Result<(), N>
 where
     N: Eq + Hash + Clone,
-    FN: Fn(&N) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
     unmarked.remove(node);

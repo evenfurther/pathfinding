@@ -35,10 +35,10 @@ pub use topological_sort::*;
 use ordermap::OrderMap;
 use std::hash::Hash;
 
-fn reverse_path<N, V, F>(parents: &OrderMap<N, V>, parent: F, start: usize) -> Vec<N>
+fn reverse_path<N, V, F>(parents: &OrderMap<N, V>, mut parent: F, start: usize) -> Vec<N>
 where
     N: Eq + Hash + Clone,
-    F: Fn(&V) -> usize,
+    F: FnMut(&V) -> usize,
 {
     let path = itertools::unfold(start, |i| {
         parents.get_index(*i).map(|(node, value)| {

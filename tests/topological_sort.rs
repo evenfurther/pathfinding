@@ -5,7 +5,6 @@ extern crate rand;
 use itertools::Itertools;
 use pathfinding::topological_sort as tsort;
 use rand::Rng;
-use std::sync::RwLock;
 
 #[test]
 fn empty() {
@@ -42,9 +41,9 @@ fn complexity() {
     let mut rng = rand::OsRng::new().unwrap();
     let mut ints = (1..1000).collect_vec();
     rng.shuffle(&mut ints);
-    let requested = RwLock::new(0);
+    let mut requested = 0;
     let result = tsort(&ints, |&n| {
-        *requested.write().unwrap() += 1;
+        requested += 1;
         if n < 999 {
             vec![n + 1]
         } else {
@@ -52,5 +51,5 @@ fn complexity() {
         }
     });
     assert_eq!(result, Ok((1..1000).collect_vec()));
-    assert_eq!(*requested.read().unwrap(), 999);
+    assert_eq!(requested, 999);
 }

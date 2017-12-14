@@ -47,7 +47,9 @@ fn empty_components() {
 
 #[test]
 fn basic_connected_components() {
+    let mut counter = 0;
     let c = connected_components(&[1, 4], |&n| {
+        counter += 1;
         if n % 2 == 0 {
             vec![2, 4, 6, 8]
         } else {
@@ -57,4 +59,5 @@ fn basic_connected_components() {
     assert_eq!(c.len(), 2);
     assert_eq!(c[0].clone().into_iter().sorted(), vec![1, 3, 5, 7]);
     assert_eq!(c[1].clone().into_iter().sorted(), vec![2, 4, 6, 8]);
+    assert_eq!(counter, 2);
 }

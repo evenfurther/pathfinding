@@ -87,7 +87,6 @@ mod ex1 {
 mod ex2 {
 
     use pathfinding::*;
-    use std::cell::RefCell;
 
     const MAZE: &str = "\
 #########
@@ -127,33 +126,31 @@ mod ex2 {
     #[test]
     fn astar_path_ok() {
         const GOAL: (usize, usize) = (6, 3);
-        let counter = RefCell::new(0);
-        let neighbours_counter = |n: &(usize, usize)| {
-            *counter.borrow_mut() += 1;
-            neighbours(n)
-        };
+        let mut counter = 0;
         let (path, cost) = astar(
             &(2, 3),
-            neighbours_counter,
+            |n| {
+                counter += 1;
+                neighbours(n)
+            },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
         ).expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
-        assert_eq!(*counter.borrow(), 11);
+        assert_eq!(counter, 11);
     }
 
     #[test]
     fn astar_bag_path_single_ok() {
         const GOAL: (usize, usize) = (6, 3);
-        let counter = RefCell::new(0);
-        let neighbours_counter = |n: &(usize, usize)| {
-            *counter.borrow_mut() += 1;
-            neighbours(n)
-        };
+        let mut counter = 0;
         let (paths, cost) = astar_bag_collect(
             &(2, 3),
-            neighbours_counter,
+            |n| {
+                counter += 1;
+                neighbours(n)
+            },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
         ).unwrap();
@@ -164,20 +161,19 @@ mod ex2 {
                 .iter()
                 .all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx]))
         );
-        assert_eq!(*counter.borrow(), 15);
+        assert_eq!(counter, 15);
     }
 
     #[test]
     fn astar_bag_path_multiple_ok() {
         const GOAL: (usize, usize) = (7, 3);
-        let counter = RefCell::new(0);
-        let neighbours_counter = |n: &(usize, usize)| {
-            *counter.borrow_mut() += 1;
-            neighbours(n)
-        };
+        let mut counter = 0;
         let (paths, cost) = astar_bag_collect(
             &(2, 3),
-            neighbours_counter,
+            |n| {
+                counter += 1;
+                neighbours(n)
+            },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
         ).unwrap();
@@ -188,60 +184,60 @@ mod ex2 {
                 .iter()
                 .all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx]))
         );
-        assert_eq!(*counter.borrow(), 18);
+        assert_eq!(counter, 18);
     }
 
     #[test]
     fn idastar_path_ok() {
         const GOAL: (usize, usize) = (6, 3);
-        let counter = RefCell::new(0);
-        let neighbours_counter = |n: &(usize, usize)| {
-            *counter.borrow_mut() += 1;
-            neighbours(n)
-        };
+        let mut counter = 0;
         let (path, cost) = idastar(
             &(2, 3),
-            neighbours_counter,
+            |n| {
+                counter += 1;
+                neighbours(n)
+            },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
         ).expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
-        assert_eq!(*counter.borrow(), 18);
+        assert_eq!(counter, 18);
     }
 
     #[test]
     fn fringe_path_ok() {
         const GOAL: (usize, usize) = (6, 3);
-        let counter = RefCell::new(0);
-        let neighbours_counter = |n: &(usize, usize)| {
-            *counter.borrow_mut() += 1;
-            neighbours(n)
-        };
+        let mut counter = 0;
         let (path, cost) = fringe(
             &(2, 3),
-            neighbours_counter,
+            |n| {
+                counter += 1;
+                neighbours(n)
+            },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
         ).expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
-        assert_eq!(*counter.borrow(), 14);
+        assert_eq!(counter, 14);
     }
 
     #[test]
     fn dijkstra_path_ok() {
         const GOAL: (usize, usize) = (6, 3);
-        let counter = RefCell::new(0);
-        let neighbours_counter = |n: &(usize, usize)| {
-            *counter.borrow_mut() += 1;
-            neighbours(n)
-        };
-        let (path, cost) =
-            dijkstra(&(2, 3), neighbours_counter, |n| n == &GOAL).expect("path not found");
+        let mut counter = 0;
+        let (path, cost) = dijkstra(
+            &(2, 3),
+            |n| {
+                counter += 1;
+                neighbours(n)
+            },
+            |n| n == &GOAL
+        ).expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
-        assert_eq!(*counter.borrow(), 20);
+        assert_eq!(counter, 20);
     }
 
     #[test]

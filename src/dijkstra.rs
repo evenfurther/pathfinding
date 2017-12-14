@@ -64,9 +64,9 @@ pub fn dijkstra<N, C, FN, IN, FS>(start: &N, neighbours: FN, success: FS) -> Opt
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
-    FN: Fn(&N) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
-    FS: Fn(&N) -> bool,
+    FS: FnMut(&N) -> bool,
 {
     let zero = Zero::zero();
     astar(start, neighbours, |_| zero, success)
