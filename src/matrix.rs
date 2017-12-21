@@ -1,7 +1,7 @@
 extern crate itertools;
 
 use num_traits::Signed;
-use std::ops::{Index, IndexMut, Neg};
+use std::ops::{Index, IndexMut, Neg, Range};
 
 /// Matrix of an arbitrary type. Data are stored consecutively in
 /// memory, by rows. Raw data can be accessed using `as_ref()`
@@ -38,6 +38,22 @@ impl<C: Clone> Matrix<C> {
     pub fn fill(&mut self, value: C) {
         self.data.clear();
         self.data.resize(self.rows * self.columns, value);
+    }
+
+    /// Return a copy of a sub-matrix.
+    #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
+    pub fn slice(&self, rows: Range<usize>, columns: Range<usize>) -> Matrix<C> {
+        let height = rows.end - rows.start;
+        let width = columns.end - columns.start;
+        let mut v = Vec::with_capacity(height * width);
+        for r in rows {
+            v.extend(
+                self.data[r * self.columns + columns.start..r * self.columns + columns.end]
+                    .iter()
+                    .cloned(),
+            );
+        }
+        Matrix::from_vec(height, width, v)
     }
 
     /// Return a copy of a square matrix rotated clock-wise
@@ -86,6 +102,19 @@ impl<C: Clone> Matrix<C> {
             data: iproduct!(0..self.columns, 0..self.rows)
                 .map(|(c, r)| self.data[r * self.columns + c].clone())
                 .collect(),
+        }
+    }
+}
+
+impl<C: Copy> Matrix<C> {
+    /// Replace a slice of the current matrix with the content of another one.
+    pub fn set_slice(&mut self, pos: &(usize, usize), slice: &Matrix<C>) {
+        let &(ref row, ref column) = pos;
+        let height = (self.rows - row).min(slice.rows);
+        let width = (self.columns - column).min(slice.columns);
+        for r in 0..height {
+            self.data[(row + r) * self.columns + column..(row + r) * self.columns + column + width]
+                .copy_from_slice(&slice.data[r * slice.columns..r * slice.columns + width]);
         }
     }
 }
