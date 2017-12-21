@@ -4,7 +4,7 @@ use num_traits::Signed;
 use std::ops::{Index, IndexMut, Neg};
 
 /// Matrix of an arbitrary type
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Matrix<C> {
     /// Rows
     pub rows: usize,
