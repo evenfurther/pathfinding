@@ -5,6 +5,7 @@
 
 pub use num_traits;
 
+pub mod cycle_detection;
 pub mod directed;
 pub mod grid;
 pub mod kuhn_munkres;
@@ -14,6 +15,7 @@ pub mod utils;
 
 /// Export all public functions and structures for an easy access.
 pub mod prelude {
+    pub use crate::cycle_detection::*;
     pub use crate::directed::astar::*;
     pub use crate::directed::bfs::*;
     pub use crate::directed::dfs::*;
