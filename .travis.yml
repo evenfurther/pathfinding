@@ -15,7 +15,7 @@ matrix:
       env: CHECK_CLIPPY=y CHECK_FMT=y
   allow_failures:
     - rust: nightly
-      env: CHECK_CLIPPY=y CHECK_FMT=y NIGHTLY=y
+      env: CHECK_CLIPPY=y CHECK_FMT=y
   fast_finish: true
 
 cache:
