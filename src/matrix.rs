@@ -3,7 +3,9 @@ extern crate itertools;
 use num_traits::Signed;
 use std::ops::{Index, IndexMut, Neg};
 
-/// Matrix of an arbitrary type
+/// Matrix of an arbitrary type. Data are stored consecutively in
+/// memory, by rows. Raw data can be accessed using `as_ref()`
+/// or `as_mut()`.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Matrix<C> {
     /// Rows
@@ -144,7 +146,8 @@ impl<C> Matrix<C> {
         self.rows == self.columns
     }
 
-    fn idx(&self, i: &(usize, usize)) -> usize {
+    /// Index in raw data of a given position.
+    pub fn idx(&self, i: &(usize, usize)) -> usize {
         i.0 * self.columns + i.1
     }
 
@@ -231,5 +234,17 @@ impl<'a, C> IndexMut<&'a (usize, usize)> for Matrix<C> {
     fn index_mut(&mut self, index: &'a (usize, usize)) -> &mut C {
         let i = self.idx(index);
         &mut self.data[i]
+    }
+}
+
+impl<C> AsRef<[C]> for Matrix<C> {
+    fn as_ref(&self) -> &[C] {
+        &self.data
+    }
+}
+
+impl<C> AsMut<[C]> for Matrix<C> {
+    fn as_mut(&mut self) -> &mut [C] {
+        &mut self.data
     }
 }

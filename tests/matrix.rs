@@ -144,3 +144,21 @@ fn transpose() {
     assert_eq!(m1.transposed(), m2);
     assert_eq!(m2.transposed(), m1);
 }
+
+fn sum(slice: &[usize]) -> usize {
+    slice.iter().sum::<usize>()
+}
+
+#[test]
+fn as_ref() {
+    let m1 = Matrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]);
+    assert_eq!(sum(m1.as_ref()), 15);
+}
+
+#[test]
+fn as_mut() {
+    let mut m1 = Matrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]);
+    assert_eq!(sum(m1.as_ref()), 15);
+    m1.as_mut()[2] = 10;
+    assert_eq!(sum(m1.as_ref()), 23);
+}
