@@ -60,3 +60,87 @@ fn from_vec_panic() {
 fn square_from_vec_panic() {
     Matrix::square_from_vec(vec![1, 2, 3]);
 }
+
+#[test]
+#[should_panic]
+fn non_square_rotate_panic() {
+    Matrix::from_vec(1, 2, vec![1, 2]).rotated_cw(1);
+}
+
+#[test]
+fn rotate() {
+    // 0 1 => 2 0 => 3 2  => 1 3
+    // 2 3    3 1    1 0     0 2
+    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3]);
+    let m2 = Matrix::square_from_vec(vec![2, 0, 3, 1]);
+    let m3 = Matrix::square_from_vec(vec![3, 2, 1, 0]);
+    let m4 = Matrix::square_from_vec(vec![1, 3, 0, 2]);
+    assert_eq!(m1.rotated_cw(0), m1);
+    assert_eq!(m1.rotated_cw(1), m2);
+    assert_eq!(m1.rotated_cw(2), m3);
+    assert_eq!(m1.rotated_cw(3), m4);
+    assert_eq!(m1.rotated_ccw(0), m1);
+    assert_eq!(m1.rotated_ccw(1), m4);
+    assert_eq!(m1.rotated_ccw(2), m3);
+    assert_eq!(m1.rotated_ccw(3), m2);
+    // 0 1 2    6 3 0    8 7 6    2 5 8
+    // 3 4 5 => 7 4 1 => 5 4 3 => 1 4 7
+    // 6 7 8    8 5 2    2 1 0    0 3 6
+    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    let m2 = Matrix::square_from_vec(vec![6, 3, 0, 7, 4, 1, 8, 5, 2]);
+    let m3 = Matrix::square_from_vec(vec![8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let m4 = Matrix::square_from_vec(vec![2, 5, 8, 1, 4, 7, 0, 3, 6]);
+    assert_eq!(m1.rotated_cw(0), m1);
+    assert_eq!(m1.rotated_cw(1), m2);
+    assert_eq!(m1.rotated_cw(2), m3);
+    assert_eq!(m1.rotated_cw(3), m4);
+    assert_eq!(m1.rotated_ccw(0), m1);
+    assert_eq!(m1.rotated_ccw(1), m4);
+    assert_eq!(m1.rotated_ccw(2), m3);
+    assert_eq!(m1.rotated_ccw(3), m2);
+    // Same with 4
+    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+    let m2 = Matrix::square_from_vec(vec![12, 8, 4, 0, 13, 9, 5, 1, 14, 10, 6, 2, 15, 11, 7, 3]);
+    let m3 = Matrix::square_from_vec(vec![15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let m4 = Matrix::square_from_vec(vec![3, 7, 11, 15, 2, 6, 10, 14, 1, 5, 9, 13, 0, 4, 8, 12]);
+    assert_eq!(m1.rotated_cw(0), m1);
+    assert_eq!(m1.rotated_cw(1), m2);
+    assert_eq!(m1.rotated_cw(2), m3);
+    assert_eq!(m1.rotated_cw(3), m4);
+    assert_eq!(m1.rotated_ccw(0), m1);
+    assert_eq!(m1.rotated_ccw(1), m4);
+    assert_eq!(m1.rotated_ccw(2), m3);
+    assert_eq!(m1.rotated_ccw(3), m2);
+    // Same with 5
+    let m1 = Matrix::square_from_vec(vec![
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
+    ]);
+    let m2 = Matrix::square_from_vec(vec![
+        20, 15, 10, 5, 0, 21, 16, 11, 6, 1, 22, 17, 12, 7, 2, 23, 18, 13, 8, 3, 24, 19, 14, 9, 4
+    ]);
+    assert_eq!(m1.rotated_cw(0), m1);
+    assert_eq!(m1.rotated_cw(1), m2);
+    assert_eq!(m2.rotated_cw(3), m1);
+}
+
+#[test]
+fn flip() {
+    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3]);
+    let m2 = Matrix::square_from_vec(vec![1, 0, 3, 2]);
+    let m3 = Matrix::square_from_vec(vec![2, 3, 0, 1]);
+    assert_eq!(m1.flipped_lr(), m2);
+    assert_eq!(m1.flipped_ud(), m3);
+    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    let m2 = Matrix::square_from_vec(vec![2, 1, 0, 5, 4, 3, 8, 7, 6]);
+    let m3 = Matrix::square_from_vec(vec![6, 7, 8, 3, 4, 5, 0, 1, 2]);
+    assert_eq!(m1.flipped_lr(), m2);
+    assert_eq!(m1.flipped_ud(), m3);
+}
+
+#[test]
+fn transpose() {
+    let m1 = Matrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]);
+    let m2 = Matrix::from_vec(3, 2, vec![0, 3, 1, 4, 2, 5]);
+    assert_eq!(m1.transposed(), m2);
+    assert_eq!(m2.transposed(), m1);
+}
