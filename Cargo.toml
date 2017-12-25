@@ -18,8 +18,8 @@ num-traits = "0.1"
 ordermap = "0.3.2"
 
 [dev-dependencies]
-lazy_static = "0.2"
-rand = "0.3"
+lazy_static = "1.0.0"
+rand = "0.4"
 
 [badges]
 appveyor = { repository = "samueltardieu/pathfinding" }
