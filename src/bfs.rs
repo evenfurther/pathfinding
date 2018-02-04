@@ -1,5 +1,5 @@
 use ordermap::OrderMap;
-use ordermap::Entry::Vacant;
+use ordermap::map::Entry::Vacant;
 use std::collections::VecDeque;
 use std::hash::Hash;
 use std::usize;

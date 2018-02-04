@@ -5,8 +5,8 @@
 extern crate fixedbitset;
 #[macro_use]
 extern crate itertools;
-extern crate ordermap;
 pub extern crate num_traits;
+extern crate ordermap;
 
 mod astar;
 mod bfs;

@@ -67,7 +67,6 @@ use std::hash::Hash;
 ///                    |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
-
 pub fn idastar<N, C, FN, IN, FH, FS>(
     start: &N,
     mut neighbours: FN,

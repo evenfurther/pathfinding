@@ -93,8 +93,7 @@ fn test_gps() {
     assert_eq!(path, expected_path, "bad path found with fringe");
 
     assert_eq!(
-        cost_astar,
-        cost_fringe,
+        cost_astar, cost_fringe,
         "costs for astar and fringe are different"
     );
 
@@ -107,8 +106,7 @@ fn test_gps() {
     assert_eq!(path, expected_path, "bad path found with dijkstra");
 
     assert_eq!(
-        cost_astar,
-        cost_dijkstra,
+        cost_astar, cost_dijkstra,
         "costs for astar and dijkstra are different"
     );
 
@@ -122,8 +120,7 @@ fn test_gps() {
     assert_eq!(path, expected_path, "bad path found with idastar");
 
     assert_eq!(
-        cost_astar,
-        cost_idastar,
+        cost_astar, cost_idastar,
         "costs for astar and idastar are different"
     );
 }
