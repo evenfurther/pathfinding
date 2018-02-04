@@ -1,6 +1,6 @@
 use num_traits::{Bounded, Zero};
 use ordermap::OrderMap;
-use ordermap::Entry::{Occupied, Vacant};
+use ordermap::map::Entry::{Occupied, Vacant};
 use std::collections::VecDeque;
 use std::hash::Hash;
 use std::mem;
