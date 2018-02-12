@@ -14,7 +14,7 @@ readme = "README.md"
 [dependencies]
 fixedbitset = "0.1"
 itertools = "0.7"
-num-traits = "0.1"
+num-traits = "0.2"
 ordermap = "0.4.0"
 
 [dev-dependencies]
