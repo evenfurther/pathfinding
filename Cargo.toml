@@ -24,3 +24,8 @@ rand = "0.4"
 [badges]
 appveyor = { repository = "samueltardieu/pathfinding" }
 travis-ci = { repository = "samueltardieu/pathfinding" }
+
+[package.metadata.release]
+sign-commit = true
+pre-release-replacements = [{file = "README.md", search="^pathfinding = \".*\"$", replace="pathfinding = \"{{version}}\""}]
+dev-version-ext = "pre"
