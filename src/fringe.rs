@@ -1,6 +1,6 @@
 use num_traits::{Bounded, Zero};
-use ordermap::OrderMap;
-use ordermap::map::Entry::{Occupied, Vacant};
+use indexmap::IndexMap;
+use indexmap::map::Entry::{Occupied, Vacant};
 use std::collections::VecDeque;
 use std::hash::Hash;
 use std::mem;
@@ -89,7 +89,7 @@ where
 {
     let mut now = VecDeque::new();
     let mut later = VecDeque::new();
-    let mut parents: OrderMap<N, (usize, C)> = OrderMap::new();
+    let mut parents: IndexMap<N, (usize, C)> = IndexMap::new();
     let mut flimit = heuristic(start);
     now.push_back(0);
     parents.insert(start.clone(), (usize::MAX, Zero::zero()));

@@ -1,4 +1,4 @@
-use ordermap::OrderSet;
+use indexmap::IndexSet;
 use std::iter::FromIterator;
 
 macro_rules! absdiff {
@@ -33,7 +33,7 @@ pub struct Grid {
     // contains absent vertices. It is false if the grid is empty by default
     // and `exclusions` contains the vertices.
     dense: bool,
-    exclusions: OrderSet<(usize, usize)>,
+    exclusions: IndexSet<(usize, usize)>,
 }
 
 impl Grid {
@@ -45,7 +45,7 @@ impl Grid {
             height,
             diagonal_mode: false,
             dense: false,
-            exclusions: OrderSet::new(),
+            exclusions: IndexSet::new(),
         }
     }
 
