@@ -1,5 +1,5 @@
-use ordermap::OrderMap;
-use ordermap::map::Entry::Vacant;
+use indexmap::IndexMap;
+use indexmap::map::Entry::Vacant;
 use std::collections::VecDeque;
 use std::hash::Hash;
 use std::usize;
@@ -69,7 +69,7 @@ where
     FS: FnMut(&N) -> bool,
 {
     let mut to_see = VecDeque::new();
-    let mut parents: OrderMap<N, usize> = OrderMap::new();
+    let mut parents: IndexMap<N, usize> = IndexMap::new();
     to_see.push_back(0);
     parents.insert(start.clone(), usize::MAX);
     while let Some(i) = to_see.pop_front() {

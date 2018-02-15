@@ -6,7 +6,7 @@ extern crate fixedbitset;
 #[macro_use]
 extern crate itertools;
 pub extern crate num_traits;
-extern crate ordermap;
+extern crate indexmap;
 
 mod astar;
 mod bfs;
@@ -34,10 +34,10 @@ pub use kuhn_munkres::*;
 pub use matrix::*;
 pub use topological_sort::*;
 
-use ordermap::OrderMap;
+use indexmap::IndexMap;
 use std::hash::Hash;
 
-fn reverse_path<N, V, F>(parents: &OrderMap<N, V>, mut parent: F, start: usize) -> Vec<N>
+fn reverse_path<N, V, F>(parents: &IndexMap<N, V>, mut parent: F, start: usize) -> Vec<N>
 where
     N: Eq + Hash + Clone,
     F: FnMut(&V) -> usize,

@@ -1,5 +1,5 @@
-use ordermap::OrderMap;
-use ordermap::map::Entry::{Occupied, Vacant};
+use indexmap::IndexMap;
+use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
 use std::collections::{BinaryHeap, HashSet};
 use std::cmp::Ordering;
@@ -94,7 +94,7 @@ where
         cost: Zero::zero(),
         payload: (Zero::zero(), 0),
     });
-    let mut parents: OrderMap<N, (usize, C)> = OrderMap::new();
+    let mut parents: IndexMap<N, (usize, C)> = IndexMap::new();
     parents.insert(start.clone(), (usize::MAX, Zero::zero()));
     while let Some(SmallestCostHolder {
         payload: (cost, i), ..
@@ -186,7 +186,7 @@ where
         cost: Zero::zero(),
         payload: (Zero::zero(), 0),
     });
-    let mut parents: OrderMap<N, (HashSet<usize>, C)> = OrderMap::new();
+    let mut parents: IndexMap<N, (HashSet<usize>, C)> = IndexMap::new();
     parents.insert(start.clone(), (HashSet::new(), Zero::zero()));
     while let Some(SmallestCostHolder {
         payload: (cost, i),
