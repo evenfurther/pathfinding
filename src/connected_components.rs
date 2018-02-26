@@ -103,7 +103,7 @@ where
         .map(|(_, gs)| {
             gs.into_iter()
                 .map(|(i, _)| groups[i].clone())
-                .flatten()
+                .flat_map(|i| i)
                 .collect::<HashSet<_>>()
         })
         .collect()
