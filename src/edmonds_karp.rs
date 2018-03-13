@@ -329,9 +329,9 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
         assert!(sink < size, "sink is greater or equal than size");
         SparseCapacity {
             common: Common {
-                size: size,
-                source: source,
-                sink: sink,
+                size,
+                source,
+                sink,
                 total_capacity: Zero::zero(),
                 detailed_flows: true,
             },
@@ -444,9 +444,9 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
         assert!(sink < size, "sink is greater or equal than size");
         DenseCapacity {
             common: Common {
-                size: size,
-                source: source,
-                sink: sink,
+                size,
+                source,
+                sink,
                 total_capacity: Zero::zero(),
                 detailed_flows: true,
             },
@@ -465,9 +465,9 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
         assert!(sink < size, "sink is greater or equal than matrix side");
         DenseCapacity {
             common: Common {
-                size: size,
-                source: source,
-                sink: sink,
+                size,
+                source,
+                sink,
                 total_capacity: Zero::zero(),
                 detailed_flows: true,
             },
