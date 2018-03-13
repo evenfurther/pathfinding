@@ -135,7 +135,7 @@ where
 
             to_see.push(SmallestCostHolder {
                 estimated_cost: new_cost + h,
-                cost: cost,
+                cost,
                 payload: (new_cost, n),
             });
         }
@@ -244,7 +244,7 @@ where
 
             to_see.push(SmallestCostHolder {
                 estimated_cost: new_cost + h,
-                cost: cost,
+                cost,
                 payload: (new_cost, n),
             });
         }

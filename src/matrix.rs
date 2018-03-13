@@ -23,8 +23,8 @@ impl<C: Clone> Matrix<C> {
         let mut v = Vec::with_capacity(rows * columns);
         v.resize(rows * columns, value);
         Matrix {
-            rows: rows,
-            columns: columns,
+            rows,
+            columns,
             data: v,
         }
     }
@@ -147,8 +147,8 @@ impl<C> Matrix<C> {
             "length of vector does not correspond to announced dimensions"
         );
         Matrix {
-            rows: rows,
-            columns: columns,
+            rows,
+            columns,
             data: values,
         }
     }

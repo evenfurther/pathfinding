@@ -14,7 +14,7 @@ struct Pt {
 
 impl Pt {
     fn new(x: u16, y: u16) -> Pt {
-        Pt { x: x, y: y }
+        Pt { x, y }
     }
 
     #[inline]

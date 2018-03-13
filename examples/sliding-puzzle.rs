@@ -130,8 +130,8 @@ impl Game {
             .unwrap()
             .0 as u8;
         let mut game = Game {
-            positions: positions,
-            hole_idx: hole_idx,
+            positions,
+            hole_idx,
             weight: 0,
         };
         game.weight = (0..LIMIT as u8)
