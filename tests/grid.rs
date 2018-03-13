@@ -4,7 +4,7 @@ extern crate pathfinding;
 extern crate rand;
 
 use itertools::Itertools;
-use pathfinding::Grid;
+use pathfinding::grid::Grid;
 use rand::{Rng, StdRng};
 
 #[test]

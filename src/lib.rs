@@ -3,36 +3,39 @@
 //! This crate implements several pathfinding, flow, and graph algorithms.
 
 extern crate fixedbitset;
+extern crate indexmap;
 #[macro_use]
 extern crate itertools;
 pub extern crate num_traits;
-extern crate indexmap;
 
-mod astar;
-mod bfs;
-mod connected_components;
-mod dfs;
-mod dijkstra;
-mod edmonds_karp;
-mod fringe;
-mod grid;
-mod idastar;
-mod kuhn_munkres;
-mod matrix;
-mod topological_sort;
+pub mod astar;
+pub mod bfs;
+pub mod connected_components;
+pub mod dfs;
+pub mod dijkstra;
+pub mod edmonds_karp;
+pub mod fringe;
+pub mod grid;
+pub mod idastar;
+pub mod kuhn_munkres;
+pub mod matrix;
+pub mod topological_sort;
 
-pub use astar::*;
-pub use bfs::*;
-pub use connected_components::*;
-pub use dfs::*;
-pub use dijkstra::*;
-pub use edmonds_karp::*;
-pub use fringe::*;
-pub use grid::*;
-pub use idastar::*;
-pub use kuhn_munkres::*;
-pub use matrix::*;
-pub use topological_sort::*;
+/// Export all public functions and structures for an easy access.
+pub mod prelude {
+    pub use astar::*;
+    pub use bfs::*;
+    pub use connected_components::*;
+    pub use dfs::*;
+    pub use dijkstra::*;
+    pub use edmonds_karp::*;
+    pub use fringe::*;
+    pub use grid::*;
+    pub use idastar::*;
+    pub use kuhn_munkres::*;
+    pub use matrix::*;
+    pub use topological_sort::*;
+}
 
 use indexmap::IndexMap;
 use std::hash::Hash;

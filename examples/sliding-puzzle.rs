@@ -3,7 +3,7 @@ extern crate lazy_static;
 extern crate pathfinding;
 extern crate rand;
 
-use pathfinding::{astar, idastar};
+use pathfinding::prelude::{astar, idastar};
 use rand::os::OsRng;
 use rand::Rng;
 use std::time::Instant;

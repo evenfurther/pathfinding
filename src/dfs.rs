@@ -1,6 +1,8 @@
+//! Compute a path using the [depth-first search
+//! algorithm](https://en.wikipedia.org/wiki/Depth-first_search).
+
 /// Compute a path using the [depth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Depth-first_search).
-///
 /// The path starts from `start` up to a node for which `success` returns `true` is computed and
 /// returned along with its total cost, in a `Some`. If no path can be found, `None` is returned
 /// instead.
@@ -23,7 +25,7 @@
 /// If we put the adder first, an adder-only solution will be found:
 ///
 /// ```
-/// use pathfinding::dfs;
+/// use pathfinding::dfs::dfs;
 ///
 /// assert_eq!(dfs(1, |&n| vec![n+1, n*n].into_iter().filter(|&x| x <= 17), |&n| n == 17),
 ///            Some((1..18).collect()));
@@ -32,7 +34,7 @@
 /// However, if we put the multiplier first, a shorter solution will be explored first:
 ///
 /// ```
-/// use pathfinding::dfs;
+/// use pathfinding::dfs::dfs;
 ///
 /// assert_eq!(dfs(1, |&n| vec![n*n, n+1].into_iter().filter(|&x| x <= 17), |&n| n == 17),
 ///            Some(vec![1, 2, 4, 16, 17]));

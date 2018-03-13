@@ -4,7 +4,7 @@
 
 extern crate pathfinding;
 
-use pathfinding::*;
+use pathfinding::prelude::*;
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]

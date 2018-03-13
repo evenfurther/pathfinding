@@ -2,7 +2,7 @@
 
 extern crate pathfinding;
 
-use pathfinding::Matrix;
+use pathfinding::matrix::Matrix;
 
 #[test]
 fn sm() {

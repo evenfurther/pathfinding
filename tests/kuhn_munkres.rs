@@ -1,6 +1,7 @@
 extern crate pathfinding;
 
-use pathfinding::*;
+use pathfinding::kuhn_munkres::*;
+use pathfinding::matrix::Matrix;
 
 macro_rules! array {
     ($a:expr) => {{

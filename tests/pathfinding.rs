@@ -4,7 +4,7 @@ extern crate pathfinding;
 
 mod ex1 {
 
-    use pathfinding::*;
+    use pathfinding::prelude::*;
 
     fn neighbours(node: &u8) -> Vec<(u8, usize)> {
         lazy_static! {
@@ -86,7 +86,7 @@ mod ex1 {
 
 mod ex2 {
 
-    use pathfinding::*;
+    use pathfinding::prelude::*;
 
     const MAZE: &str = "\
 #########

@@ -1,3 +1,6 @@
+//! Compute a shortest path using the [Dijsktra search
+//! algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
+
 use astar::astar;
 use num_traits::Zero;
 use std::hash::Hash;
@@ -27,7 +30,7 @@ use std::hash::Hash;
 /// The first version uses an explicit type `Pos` on which the required traits are derived.
 ///
 /// ```
-/// use pathfinding::dijkstra;
+/// use pathfinding::dijkstra::dijkstra;
 ///
 /// #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 /// struct Pos(i32, i32);
@@ -50,7 +53,7 @@ use std::hash::Hash;
 /// and is thus shorter.
 ///
 /// ```
-/// use pathfinding::dijkstra;
+/// use pathfinding::dijkstra::dijkstra;
 ///
 /// static GOAL: (i32, i32) = (4, 6);
 /// let result = dijkstra(&(1, 1),

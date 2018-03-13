@@ -3,7 +3,7 @@
 
 extern crate pathfinding;
 
-use pathfinding::*;
+use pathfinding::prelude::*;
 use std::io::{self, Cursor};
 use std::io::prelude::*;
 use std::num::ParseIntError;

@@ -1,3 +1,6 @@
+//! Compute a shortest path using the [Fringe search
+//! algorithm](https://en.wikipedia.org/wiki/Fringe_search).
+
 use num_traits::{Bounded, Zero};
 use indexmap::IndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
@@ -34,7 +37,7 @@ use super::reverse_path;
 /// The first version uses an explicit type `Pos` on which the required traits are derived.
 ///
 /// ```
-/// use pathfinding::fringe;
+/// use pathfinding::fringe::fringe;
 ///
 /// #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 /// struct Pos(i32, i32);
@@ -62,7 +65,7 @@ use super::reverse_path;
 /// and is thus shorter.
 ///
 /// ```
-/// use pathfinding::fringe;
+/// use pathfinding::fringe::fringe;
 ///
 /// static GOAL: (i32, i32) = (4, 6);
 /// let result = fringe(&(1, 1),

@@ -1,7 +1,17 @@
+//! Compute the maximum flow that can go through a directed graph using the
+//! [Edmonds Karp algorithm](https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm).
+//!
+//! This module contains several functions helping compute the flow on a given
+//! graph, as well as a structure which allows iterative modifications of the
+//! network. When the network is modified, the flow is recomputed and tries to
+//! take advantage of computations already performed on unchanged or augmented
+//! edges.
+
 use num_traits::{Bounded, Signed, Zero};
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::hash::Hash;
-use super::{bfs, Matrix};
+use super::bfs::bfs;
+use super::matrix::Matrix;
 
 /// Type alias for Edmonds-Karp result.
 pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);

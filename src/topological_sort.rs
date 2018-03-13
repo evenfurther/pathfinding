@@ -1,3 +1,5 @@
+//! Find a topological order in a directed graph if one exists.
+
 use std::collections::{HashSet, VecDeque};
 use std::hash::Hash;
 
@@ -15,7 +17,7 @@ use std::hash::Hash;
 /// greater numbers as successors:
 ///
 /// ```
-/// use pathfinding::topological_sort;
+/// use pathfinding::topological_sort::topological_sort;
 ///
 /// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5],
 ///                               |&n| (n+1..10).take(2));
@@ -27,7 +29,7 @@ use std::hash::Hash;
 /// an error:
 ///
 /// ```
-/// use pathfinding::topological_sort;
+/// use pathfinding::topological_sort::topological_sort;
 ///
 /// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5],
 ///                               |&n| (n+1..10).take(2).chain(std::iter::once(9)));
