@@ -1,3 +1,6 @@
+//! Rectangular grid in which vertices can be added or removed, with or
+//! without diagonal links.
+
 use indexmap::IndexSet;
 use std::iter::FromIterator;
 

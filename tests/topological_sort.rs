@@ -3,7 +3,7 @@ extern crate pathfinding;
 extern crate rand;
 
 use itertools::Itertools;
-use pathfinding::topological_sort as tsort;
+use pathfinding::topological_sort::topological_sort as tsort;
 use rand::Rng;
 
 #[test]

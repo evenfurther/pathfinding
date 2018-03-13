@@ -27,7 +27,7 @@ In your `Cargo.toml`, put:
 
 ``` ini
 [dependencies]
-pathfinding = "0.6"
+pathfinding = "0.7"
 ```
 
 You can then pull your preferred algorithm (BFS in this example) using:
@@ -35,7 +35,7 @@ You can then pull your preferred algorithm (BFS in this example) using:
 ``` rust
 extern crate pathfinding;
 
-use pathfinding::bfs;
+use pathfinding::bfs::*;
 ```
 
 ## Example
@@ -44,7 +44,7 @@ We will search the shortest path on a chess board to go from (1, 1) to (4, 6) do
 moves.
 
 ``` rust
-use pathfinding::bfs;
+use pathfinding::bfs::*;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 struct Pos(i32, i32);

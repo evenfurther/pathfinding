@@ -2,7 +2,7 @@
 
 extern crate pathfinding;
 
-use pathfinding::*;
+use pathfinding::prelude::*;
 use std::collections::HashMap;
 
 // Latitude, longitude

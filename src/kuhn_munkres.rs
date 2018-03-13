@@ -1,3 +1,8 @@
+//! Compute a maximum weight maximum matching between two disjoints sets of
+//! vertices using the
+//! [Kuhn-Munkres algorithm](https://en.wikipedia.org/wiki/Hungarian_algorithm)
+//! (also known as Hungarian algorithm).
+
 use num_traits::{Bounded, Signed, Zero};
 use fixedbitset::FixedBitSet;
 use matrix::Matrix;

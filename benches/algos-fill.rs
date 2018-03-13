@@ -6,7 +6,7 @@
 extern crate pathfinding;
 extern crate test;
 
-use pathfinding::{astar, bfs, dfs, dijkstra, fringe, idastar};
+use pathfinding::prelude::{astar, bfs, dfs, dijkstra, fringe, idastar};
 use test::Bencher;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

@@ -1,3 +1,5 @@
+//! Separate components of an undirected graph into disjoint sets.
+
 use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
@@ -18,7 +20,7 @@ fn get_and_redirect(table: &mut Vec<usize>, idx: usize) -> usize {
     }
 }
 
-/// Separate components of a graph into closed sets.
+/// Separate components of an undirected graph into disjoint sets.
 ///
 /// - `groups` is a set of group of vertices connected together. It is
 ///   acceptable for a group to contain only one node. Empty groups
@@ -33,6 +35,10 @@ fn get_and_redirect(table: &mut Vec<usize>, idx: usize) -> usize {
 /// the same ones as the ones in the previous mapping. Each group corresponds to
 /// the identifier at the same index, except for empty group whose identifier is
 /// set to `std::usize::MAX`.
+///
+/// Note that if you have a raw undirected graph, you can build
+/// such a structure by creating a group for every vertex containing
+/// the vertex itself and its immediate neighbours.
 pub fn separate_components<N>(groups: &[Vec<N>]) -> (HashMap<N, usize>, Vec<usize>)
 where
     N: Clone + Hash + Eq,
@@ -80,12 +86,12 @@ where
     )
 }
 
-/// Separate components of a graph into closed sets.
+/// Separate components of an undirected graph into disjoint sets.
 ///
 /// - `groups` is a set of group of vertices connected together. It is
 ///   acceptable for a group to contain only one node.
 ///
-/// This function returns a list of sets of nodes fomring disjoint connected
+/// This function returns a list of sets of nodes forming disjoint connected
 /// sets.
 pub fn components<N>(groups: &[Vec<N>]) -> Vec<HashSet<N>>
 where

@@ -2,7 +2,7 @@ extern crate itertools;
 extern crate pathfinding;
 
 use itertools::Itertools;
-use pathfinding::astar_bag;
+use pathfinding::astar::astar_bag;
 
 #[test]
 fn multiple_sinks() {

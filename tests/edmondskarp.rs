@@ -1,6 +1,6 @@
 extern crate pathfinding;
 
-use pathfinding::*;
+use pathfinding::edmonds_karp::*;
 use std::collections::HashMap;
 
 /// Return a list of edges with their capacities.
