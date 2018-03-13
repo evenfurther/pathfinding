@@ -124,7 +124,7 @@ where
                         n = e.index();
                         e.insert((i, g_neighbour));
                     }
-                    Occupied(e) => if e.get().1 > g_neighbour {
+                    Occupied(mut e) => if e.get().1 > g_neighbour {
                         n = e.index();
                         e.insert((i, g_neighbour));
                     } else {

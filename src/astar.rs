@@ -124,7 +124,7 @@ where
                     n = e.index();
                     e.insert((i, new_cost));
                 }
-                Occupied(e) => if e.get().1 > new_cost {
+                Occupied(mut e) => if e.get().1 > new_cost {
                     h = heuristic(e.key());
                     n = e.index();
                     e.insert((i, new_cost));
