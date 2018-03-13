@@ -3,10 +3,10 @@
 //! This crate implements several pathfinding, flow, and graph algorithms.
 
 extern crate fixedbitset;
+extern crate indexmap;
 #[macro_use]
 extern crate itertools;
 pub extern crate num_traits;
-extern crate indexmap;
 
 mod astar;
 mod bfs;
