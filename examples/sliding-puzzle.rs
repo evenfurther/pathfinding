@@ -19,7 +19,7 @@ const LIMIT: usize = (SIDE * SIDE) as usize;
 struct Game {
     positions: [u8; LIMIT], // Correct position of piece at every index
     hole_idx: u8,           // Current index of the hole
-    weight: u8,             // Current some of pieces manhattan distances
+    weight: u8,             // Current some of pieces Manhattan distances
 }
 
 impl PartialEq for Game {
@@ -78,7 +78,7 @@ impl Game {
         pos / SIDE
     }
 
-    // Compute the manhattan distance between the piece at idx and its correct position.
+    // Compute the Manhattan distance between the piece at idx and its correct position.
     fn distance(&self, idx: u8) -> u8 {
         let (actual_x, actual_y) = (Self::x(idx), Self::y(idx));
         let (correct_x, correct_y) = (

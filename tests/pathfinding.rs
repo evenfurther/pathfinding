@@ -68,7 +68,7 @@ mod ex1 {
             ) {
                 None => assert_eq!(expected(target), None, "path not found"),
                 Some(path) => assert!(
-                    expected(target).expect("non-existant path found").0.len() <= path.len()
+                    expected(target).expect("non-existing path found").0.len() <= path.len()
                 ),
             }
         }

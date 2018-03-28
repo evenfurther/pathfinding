@@ -1,11 +1,11 @@
-//! Compute a shortest path using the [Dijsktra search
+//! Compute a shortest path using the [Dijkstra search
 //! algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
 
 use astar::astar;
 use num_traits::Zero;
 use std::hash::Hash;
 
-/// Compute a shortest path using the [Dijsktra search
+/// Compute a shortest path using the [Dijkstra search
 /// algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
 ///
 /// The shortest path starting from `start` up to a node for which `success` returns `true` is
