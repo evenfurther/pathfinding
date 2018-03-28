@@ -4,8 +4,8 @@ extern crate pathfinding;
 extern crate rand;
 
 use pathfinding::prelude::{astar, idastar};
-use rand::os::OsRng;
 use rand::Rng;
+use rand::os::OsRng;
 use std::time::Instant;
 
 #[cfg(test)]
@@ -15,7 +15,13 @@ const SIDE: u8 = 4;
 const LIMIT: usize = (SIDE * SIDE) as usize;
 
 macro_rules! absdiff {
-    ($a:expr, $b:expr) => { if $a > $b { $a - $b } else { $b - $a } }
+    ($a: expr, $b: expr) => {
+        if $a > $b {
+            $a - $b
+        } else {
+            $b - $a
+        }
+    };
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(derive_hash_xor_eq))]
@@ -47,16 +53,17 @@ lazy_static! {
         hole_idx: 0,
         weight: 0,
     };
-
-    static ref NEIGHBOURS: Vec<Vec<u8>> = (0..SIDE*SIDE).map(|idx|
-        (0..4).filter_map(|dir|
-                          match dir {
-                              0 if idx % SIDE > 0 => Some(idx - 1),
-                              1 if idx >= SIDE => Some(idx - SIDE),
-                              2 if idx % SIDE < SIDE - 1 => Some(idx + 1),
-                              3 if idx < SIDE * SIDE - SIDE => Some(idx + SIDE),
-                              _ => None,
-                          }).collect::<Vec<_>>()).collect();
+    static ref NEIGHBOURS: Vec<Vec<u8>> = (0..SIDE * SIDE)
+        .map(|idx| (0..4)
+            .filter_map(|dir| match dir {
+                0 if idx % SIDE > 0 => Some(idx - 1),
+                1 if idx >= SIDE => Some(idx - SIDE),
+                2 if idx % SIDE < SIDE - 1 => Some(idx + 1),
+                3 if idx < SIDE * SIDE - SIDE => Some(idx + SIDE),
+                _ => None,
+            })
+            .collect::<Vec<_>>())
+        .collect();
 }
 
 impl Game {

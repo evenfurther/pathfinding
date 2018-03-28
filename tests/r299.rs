@@ -55,7 +55,13 @@ fn parse(input: &str) -> (Vec<Point>, HashMap<Point, NeighbourInfo>) {
 }
 
 macro_rules! absdiff {
-    ($a:expr, $b:expr) => {if $a > $b { $a - $b } else { $b - $a }}
+    ($a: expr, $b: expr) => {
+        if $a > $b {
+            $a - $b
+        } else {
+            $b - $a
+        }
+    };
 }
 
 fn distance(a: &Point, b: &Point) -> usize {
