@@ -117,10 +117,8 @@ mod ex2 {
             .collect()
     }
 
-    macro_rules! absdiff { ($a:expr, $b:expr) => { if $a >= $b { $a - $b } else { $b - $a } } }
-
     fn distance(&(x1, y1): &(usize, usize), &(x2, y2): &(usize, usize)) -> usize {
-        absdiff!(x1, x2) + absdiff!(y1, y2)
+        absdiff(x1, x2) + absdiff(y1, y2)
     }
 
     #[test]
