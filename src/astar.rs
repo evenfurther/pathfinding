@@ -4,8 +4,8 @@
 use indexmap::IndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
-use std::collections::{BinaryHeap, HashSet};
 use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashSet};
 use std::hash::Hash;
 use std::usize;
 

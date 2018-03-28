@@ -15,7 +15,10 @@ use std::ops::Sub;
 /// assert_eq!(absdiff(17u32, 4u32), 13u32);
 /// ```
 #[inline]
-pub fn absdiff<T>(x: T, y: T) -> T where T: Sub<Output = T> + PartialOrd {
+pub fn absdiff<T>(x: T, y: T) -> T
+where
+    T: Sub<Output = T> + PartialOrd,
+{
     if x < y {
         y - x
     } else {
