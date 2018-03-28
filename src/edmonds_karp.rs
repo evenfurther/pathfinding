@@ -46,7 +46,7 @@ where
     IC: IntoIterator<Item = ((N, N), C)>,
     EK: EdmondsKarp<C>,
 {
-    // Build a correspondance between N and 0..vertices.len() so that we can
+    // Build a correspondence between N and 0..vertices.len() so that we can
     // work with matrices more easily.
     let size = vertices.len();
     let reverse = (0..size)

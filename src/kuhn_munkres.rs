@@ -78,7 +78,7 @@ where
         nx <= ny,
         "number of rows must not be larger than number of columns"
     );
-    // xy represents matchings for x, yz matchings for y
+    // xy represents matching for x, yz matching for y
     let mut xy: Vec<Option<usize>> = vec![None; nx];
     let mut yx: Vec<Option<usize>> = vec![None; ny];
     // lx is the labelling for x nodes, ly the labelling for y nodes. We start
