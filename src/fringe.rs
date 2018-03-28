@@ -1,14 +1,14 @@
 //! Compute a shortest path using the [Fringe search
 //! algorithm](https://en.wikipedia.org/wiki/Fringe_search).
 
-use num_traits::{Bounded, Zero};
+use super::reverse_path;
 use indexmap::IndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
+use num_traits::{Bounded, Zero};
 use std::collections::VecDeque;
 use std::hash::Hash;
 use std::mem;
 use std::usize;
-use super::reverse_path;
 
 /// Compute a shortest path using the [Fringe search
 /// algorithm](https://en.wikipedia.org/wiki/Fringe_search).
@@ -38,16 +38,17 @@ use super::reverse_path;
 ///
 /// ```
 /// use pathfinding::fringe::fringe;
+/// use pathfinding::utils::absdiff;
 ///
 /// #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 /// struct Pos(i32, i32);
 ///
 /// impl Pos {
-///   fn distance(&self, other: &Pos) -> usize {
-///     ((self.0 - other.0).abs() + (self.1 - other.1).abs()) as usize
+///   fn distance(&self, other: &Pos) -> u32 {
+///     (absdiff(self.0, other.0) + absdiff(self.1, other.1)) as u32
 ///   }
 ///
-///   fn neighbours(&self) -> Vec<(Pos, usize)> {
+///   fn neighbours(&self) -> Vec<(Pos, u32)> {
 ///     let &Pos(x, y) = self;
 ///     vec![Pos(x+1,y+2), Pos(x+1,y-2), Pos(x-1,y+2), Pos(x-1,y-2),
 ///          Pos(x+2,y+1), Pos(x+2,y-1), Pos(x-2,y+1), Pos(x-2,y-1)]
@@ -56,7 +57,9 @@ use super::reverse_path;
 /// }
 ///
 /// static GOAL: Pos = Pos(4, 6);
-/// let result = fringe(&Pos(1, 1), |p| p.neighbours(), |p| p.distance(&GOAL) / 3,
+/// let result = fringe(&Pos(1, 1),
+///                     |p| p.neighbours(),
+///                     |p| p.distance(&GOAL) / 3,
 ///                     |p| *p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
@@ -66,13 +69,14 @@ use super::reverse_path;
 ///
 /// ```
 /// use pathfinding::fringe::fringe;
+/// use pathfinding::utils::absdiff;
 ///
 /// static GOAL: (i32, i32) = (4, 6);
 /// let result = fringe(&(1, 1),
 ///                     |&(x, y)| vec![(x+1,y+2), (x+1,y-2), (x-1,y+2), (x-1,y-2),
 ///                                    (x+2,y+1), (x+2,y-1), (x-2,y+1), (x-2,y-1)]
 ///                                .into_iter().map(|p| (p, 1)),
-///                     |&(x, y)| ((x-GOAL.0).abs() + (y-GOAL.0).abs()) / 3,
+///                     |&(x, y)| (absdiff(x, GOAL.0) + absdiff(y, GOAL.1)) / 3,
 ///                     |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```

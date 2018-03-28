@@ -4,10 +4,10 @@
 extern crate pathfinding;
 
 use pathfinding::prelude::*;
-use std::io::{self, Cursor};
-use std::io::prelude::*;
-use std::num::ParseIntError;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::io::prelude::*;
+use std::io::{self, Cursor};
+use std::num::ParseIntError;
 
 #[derive(Debug)]
 enum Error {

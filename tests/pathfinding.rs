@@ -9,15 +9,16 @@ mod ex1 {
     fn neighbours(node: &u8) -> Vec<(u8, usize)> {
         lazy_static! {
             static ref NEIGHBOURS: Vec<Vec<(u8, usize)>> = vec![
-            vec![(1, 7), (2, 7), (3, 6)],
-            vec![(0, 8), (6, 7)],
-            vec![(5, 7)],
-            vec![(7, 7)],
-            vec![(4, 2)],
-            vec![(1, 1)],
-            vec![(2, 5), (4, 5), (5, 2)],
-            vec![(5, 8)],
-            vec![]];
+                vec![(1, 7), (2, 7), (3, 6)],
+                vec![(0, 8), (6, 7)],
+                vec![(5, 7)],
+                vec![(7, 7)],
+                vec![(4, 2)],
+                vec![(1, 1)],
+                vec![(2, 5), (4, 5), (5, 2)],
+                vec![(5, 8)],
+                vec![],
+            ];
         }
         NEIGHBOURS[*node as usize].clone()
     }
@@ -100,8 +101,9 @@ mod ex2 {
 ";
 
     lazy_static! {
-        static ref OPEN: Vec<Vec<bool>> =
-            MAZE.lines().map(|l| l.chars().map(|c| c == '.').collect()).collect();
+        static ref OPEN: Vec<Vec<bool>> = MAZE.lines()
+            .map(|l| l.chars().map(|c| c == '.').collect())
+            .collect();
     }
 
     fn neighbours(&(x, y): &(usize, usize)) -> Vec<((usize, usize), usize)> {
@@ -117,10 +119,8 @@ mod ex2 {
             .collect()
     }
 
-    macro_rules! absdiff { ($a:expr, $b:expr) => { if $a >= $b { $a - $b } else { $b - $a } } }
-
     fn distance(&(x1, y1): &(usize, usize), &(x2, y2): &(usize, usize)) -> usize {
-        absdiff!(x1, x2) + absdiff!(y1, y2)
+        absdiff(x1, x2) + absdiff(y1, y2)
     }
 
     #[test]

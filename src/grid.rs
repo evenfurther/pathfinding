@@ -1,20 +1,9 @@
 //! Rectangular grid in which vertices can be added or removed, with or
 //! without diagonal links.
 
+use super::utils::absdiff;
 use indexmap::IndexSet;
 use std::iter::FromIterator;
-
-macro_rules! absdiff {
-    ($a:expr, $b:expr) => {{
-        let a = $a;
-        let b = $b;
-        if a > b {
-            a - b
-        } else {
-            b - a
-        }
-    }}
-}
 
 #[derive(Clone)]
 /// Representation of a rectangular grid in which vertices can be added
@@ -189,8 +178,8 @@ impl Grid {
         if !self.has_vertex(v1) || !self.has_vertex(v2) {
             return false;
         }
-        let x = absdiff!(v1.0, v2.0);
-        let y = absdiff!(v1.1, v2.1);
+        let x = absdiff(v1.0, v2.0);
+        let y = absdiff(v1.1, v2.1);
         x + y == 1 || (x == 1 && y == 1 && self.diagonal_mode)
     }
 

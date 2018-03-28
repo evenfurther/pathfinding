@@ -54,12 +54,8 @@ fn parse(input: &str) -> (Vec<Point>, HashMap<Point, NeighbourInfo>) {
     (nodes, neighbours)
 }
 
-macro_rules! absdiff {
-    ($a:expr, $b:expr) => {if $a > $b { $a - $b } else { $b - $a }}
-}
-
 fn distance(a: &Point, b: &Point) -> usize {
-    absdiff!(a.row, b.row) + absdiff!(a.col, b.col)
+    absdiff(a.row, b.row) + absdiff(a.col, b.col)
 }
 
 #[test]
