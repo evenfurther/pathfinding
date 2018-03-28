@@ -20,6 +20,7 @@ pub mod idastar;
 pub mod kuhn_munkres;
 pub mod matrix;
 pub mod topological_sort;
+pub mod utils;
 
 /// Export all public functions and structures for an easy access.
 pub mod prelude {
@@ -35,6 +36,7 @@ pub mod prelude {
     pub use kuhn_munkres::*;
     pub use matrix::*;
     pub use topological_sort::*;
+    pub use utils::*;
 }
 
 use indexmap::IndexMap;
