@@ -7,11 +7,11 @@
 //! take advantage of computations already performed on unchanged or augmented
 //! edges.
 
+use super::bfs::bfs;
+use super::matrix::Matrix;
 use num_traits::{Bounded, Signed, Zero};
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::hash::Hash;
-use super::bfs::bfs;
-use super::matrix::Matrix;
 
 /// Type alias for Edmonds-Karp result.
 pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);

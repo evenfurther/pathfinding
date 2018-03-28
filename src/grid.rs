@@ -5,7 +5,7 @@ use indexmap::IndexSet;
 use std::iter::FromIterator;
 
 macro_rules! absdiff {
-    ($a:expr, $b:expr) => {{
+    ($a: expr, $b: expr) => {{
         let a = $a;
         let b = $b;
         if a > b {
@@ -13,7 +13,7 @@ macro_rules! absdiff {
         } else {
             b - a
         }
-    }}
+    }};
 }
 
 #[derive(Clone)]

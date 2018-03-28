@@ -1,14 +1,14 @@
 //! Compute a shortest path using the [Fringe search
 //! algorithm](https://en.wikipedia.org/wiki/Fringe_search).
 
-use num_traits::{Bounded, Zero};
+use super::reverse_path;
 use indexmap::IndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
+use num_traits::{Bounded, Zero};
 use std::collections::VecDeque;
 use std::hash::Hash;
 use std::mem;
 use std::usize;
-use super::reverse_path;
 
 /// Compute a shortest path using the [Fringe search
 /// algorithm](https://en.wikipedia.org/wiki/Fringe_search).
