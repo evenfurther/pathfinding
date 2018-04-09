@@ -19,6 +19,8 @@ indexmap = "1.0"
 
 [dev-dependencies]
 lazy_static = "1.0.0"
+movingai = "0.7.0"
+noisy_float = "0.1.4"
 rand = "0.4"
 
 [badges]
