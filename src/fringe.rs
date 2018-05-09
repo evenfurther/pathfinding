@@ -2,8 +2,8 @@
 //! algorithm](https://en.wikipedia.org/wiki/Fringe_search).
 
 use super::reverse_path;
-use indexmap::IndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
+use indexmap::IndexMap;
 use num_traits::{Bounded, Zero};
 use std::collections::VecDeque;
 use std::hash::Hash;

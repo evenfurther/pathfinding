@@ -1,8 +1,8 @@
 //! Compute a shortest path using the [breadth-first search
 //! algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
 
-use indexmap::IndexMap;
 use indexmap::map::Entry::Vacant;
+use indexmap::IndexMap;
 use std::collections::VecDeque;
 use std::hash::Hash;
 use std::usize;

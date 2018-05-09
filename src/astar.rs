@@ -1,8 +1,8 @@
 //! Compute a shortest path (or all shorted paths) using the [A* search
 //! algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
 
-use indexmap::IndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
+use indexmap::IndexMap;
 use num_traits::Zero;
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashSet};

@@ -4,8 +4,8 @@ extern crate pathfinding;
 extern crate rand;
 
 use pathfinding::prelude::{absdiff, astar, idastar};
-use rand::Rng;
 use rand::os::OsRng;
+use rand::Rng;
 use std::time::Instant;
 
 #[cfg(test)]
