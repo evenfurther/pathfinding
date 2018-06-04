@@ -12,6 +12,8 @@ matrix:
     - rust: nightly
       env: NIGHTLY=y
     - rust: nightly
+      env: MINIMAL=y NIGHTLY=y
+    - rust: nightly
       env: CHECK_CLIPPY=y CHECK_FMT=y
   allow_failures:
     - rust: nightly
@@ -28,6 +30,7 @@ install:
 before_script:
   - if [ ! -z "$CHECK_FMT" ]; then PATH=$PATH:~/.cargo/bin cargo fmt --all -- --write-mode=diff; fi
   - if [ ! -z "$CHECK_CLIPPY" ]; then PATH=$PATH:~/.cargo/bin cargo clippy --all -- -D clippy; fi
+  - if [ ! -z "$MINIMAL" ]; then PATH=$PATH:~/.cargo/bin cargo update -Z minimal-versions; fi
 
 script:
   - if [ "$NIGHTLY" ]; then cargo build --all-targets; else cargo build --all; fi

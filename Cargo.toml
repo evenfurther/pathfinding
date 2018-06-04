@@ -12,7 +12,7 @@ categories = ["algorithms"]
 readme = "README.md"
 
 [dependencies]
-fixedbitset = "0.1"
+fixedbitset = "0.1.9"
 itertools = "0.7"
 num-traits = "0.2"
 indexmap = "1.0"
@@ -20,7 +20,7 @@ indexmap = "1.0"
 [dev-dependencies]
 lazy_static = "1.0.0"
 movingai = "0.7.0"
-noisy_float = "0.1.4"
+noisy_float = "0.1.5"
 rand = "0.5"
 
 [badges]
