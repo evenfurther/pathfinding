@@ -12,7 +12,7 @@ categories = ["algorithms"]
 readme = "README.md"
 
 [dependencies]
-fixedbitset = "0.1"
+fixedbitset = "0.1.9"
 itertools = "0.7"
 num-traits = "0.2"
 indexmap = "1.0"
