@@ -22,7 +22,7 @@ The algorithms are generic over their arguments.
 - [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
 - [IDA*][IDA*]: explore longer and longer paths in a weighted graph at the cost of multiple similar examinations.
 - [strongly connected components][Strongly connected components]: find strongly connected components in a directed graph.
-- [Topological sorting][Topological sorting]: find an acceptable topological order in a directed graph.
+- [topological sorting][Topological sorting]: find an acceptable topological order in a directed graph.
 
 ### Undirected graphs
 
@@ -30,7 +30,8 @@ The algorithms are generic over their arguments.
 
 ### Matching
 
-- [Kuhn-Munkres][Kuhn-Munkres]: find the maximum (or minimum) matching in a weighted bipartite graph.
+- [Kuhn-Munkres][Kuhn-Munkres] (Hungarian algorithm): find the maximum (or minimum) matching
+in a weighted bipartite graph.
 
 ## Using this crate
 
