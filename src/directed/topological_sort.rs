@@ -9,7 +9,10 @@ use std::hash::Hash;
 /// - `successors` returns a list of successors for a given node.
 ///
 /// The function returns either `Ok` with an acceptable topological order,
-/// or `Err` with a node belonging to a cycle.
+/// or `Err` with a node belonging to a cycle. In the latter case, the
+/// strongly connected set can then be found using the
+/// [strongly_connected_component](super::strongly_connected_components::strongly_connected_component)
+/// function.
 ///
 /// # Examples
 ///

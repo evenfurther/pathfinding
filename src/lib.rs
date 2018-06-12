@@ -22,6 +22,7 @@ pub mod prelude {
     pub use directed::edmonds_karp::*;
     pub use directed::fringe::*;
     pub use directed::idastar::*;
+    pub use directed::strongly_connected_components::*;
     pub use directed::topological_sort::*;
     pub use grid::*;
     pub use kuhn_munkres::*;
