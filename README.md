@@ -6,20 +6,30 @@
 [![Documentation](https://docs.rs/pathfinding/badge.svg)](https://docs.rs/pathfinding)
 [![License: Apache-2.0/MIT](https://img.shields.io/crates/l/pathfinding.svg)](#license)
 
-This crate implements several pathfinding, flow, and graph algorithms in [Rust][Rust]
+This crate implements several pathfinding, flow, and graph algorithms in [Rust][Rust].
+
+## Algorithms
+
+The algorithms are generic over their arguments.
+
+### Directed graphs
 
 - [A*][A*]: find the shortest path in a weighted graph using an heuristic to guide the process.
 - [breadth-first search (BFS)][BFS]: explore nearest neighbours first, then widen the search.
 - [depth-first search (DFS)][DFS]: explore a graph by going as far as possible, then backtrack.
-- [Connected components][Connected components]: find disjoint connected sets of vertices.
 - [Dijkstra][Dijkstra]: find the shortest path in a weighted graph.
-- [Edmonds Karp][Edmonds Karp]: find the maximum flow in a directed graph.
+- [Edmonds Karp][Edmonds Karp]: find the maximum flow in a weighted graph.
 - [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
 - [IDA*][IDA*]: explore longer and longer paths in a weighted graph at the cost of multiple similar examinations.
-- [Kuhn-Munkres][Kuhn-Munkres]: find the maximum (or minimum) matching in a weighted bipartite graph.
 - [Topological sorting][Topological sorting]: find an acceptable topological order in a directed graph.
 
-Those algorithms are generic over their arguments.
+### Undirected graphs
+
+- [connected components][Connected components]: find disjoint connected sets of vertices.
+
+### Matching
+
+- [Kuhn-Munkres][Kuhn-Munkres]: find the maximum (or minimum) matching in a weighted bipartite graph.
 
 ## Using this crate
 
@@ -27,7 +37,7 @@ In your `Cargo.toml`, put:
 
 ``` ini
 [dependencies]
-pathfinding = "0.7"
+pathfinding = "0.8"
 ```
 
 You can then pull your preferred algorithm (BFS in this example) using:
@@ -35,7 +45,7 @@ You can then pull your preferred algorithm (BFS in this example) using:
 ``` rust
 extern crate pathfinding;
 
-use pathfinding::bfs::*;
+use pathfinding::prelude::bfs;
 ```
 
 ## Example
@@ -44,7 +54,7 @@ We will search the shortest path on a chess board to go from (1, 1) to (4, 6) do
 moves.
 
 ``` rust
-use pathfinding::bfs::*;
+use pathfinding::prelude::bfs;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 struct Pos(i32, i32);

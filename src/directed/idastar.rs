@@ -31,8 +31,7 @@ use std::hash::Hash;
 /// The first version uses an explicit type `Pos` on which the required traits are derived.
 ///
 /// ```
-/// use pathfinding::idastar::idastar;
-/// use pathfinding::utils::absdiff;
+/// use pathfinding::prelude::{absdiff, idastar};
 ///
 /// #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 /// struct Pos(i32, i32);
@@ -60,8 +59,7 @@ use std::hash::Hash;
 /// and is thus shorter.
 ///
 /// ```
-/// use pathfinding::idastar::idastar;
-/// use pathfinding::utils::absdiff;
+/// use pathfinding::prelude::{absdiff, idastar};
 ///
 /// static GOAL: (i32, i32) = (4, 6);
 /// let result = idastar(&(1, 1),

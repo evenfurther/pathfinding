@@ -7,11 +7,12 @@
 //! take advantage of computations already performed on unchanged or augmented
 //! edges.
 
-use super::bfs::bfs;
-use super::matrix::Matrix;
 use num_traits::{Bounded, Signed, Zero};
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::hash::Hash;
+
+use super::bfs::bfs;
+use matrix::Matrix;
 
 /// Type alias for Edmonds-Karp result.
 pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
@@ -266,11 +267,13 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
         }
         while capacity > Zero::zero() {
             if let Some(path) = bfs(&from, |&n| self.flows_from(n).into_iter(), |&n| n == to) {
-                let path = path.clone()
+                let path = path
+                    .clone()
                     .into_iter()
                     .zip(path.into_iter().skip(1))
                     .collect::<Vec<_>>();
-                let mut max_cancelable = path.iter()
+                let mut max_cancelable = path
+                    .iter()
                     .map(|&(src, dst)| self.flow(src, dst))
                     .max()
                     .unwrap();

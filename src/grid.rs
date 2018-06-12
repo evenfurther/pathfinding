@@ -1,9 +1,10 @@
 //! Rectangular grid in which vertices can be added or removed, with or
 //! without diagonal links.
 
-use super::utils::absdiff;
 use indexmap::IndexSet;
 use std::iter::FromIterator;
+
+use super::utils::absdiff;
 
 #[derive(Clone)]
 /// Representation of a rectangular grid in which vertices can be added

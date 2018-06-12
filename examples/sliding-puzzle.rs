@@ -24,7 +24,8 @@ struct Game {
 
 impl PartialEq for Game {
     fn eq(&self, other: &Game) -> bool {
-        self.hole_idx == other.hole_idx && self.weight == other.weight
+        self.hole_idx == other.hole_idx
+            && self.weight == other.weight
             && self.positions == other.positions
     }
 }
