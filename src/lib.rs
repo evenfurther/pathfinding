@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 //! This crate implements several pathfinding, flow, and graph algorithms.
 
 extern crate fixedbitset;
