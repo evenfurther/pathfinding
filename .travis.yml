@@ -7,6 +7,8 @@ branches:
 
 matrix:
   include:
+    - rust: nightly
+      env: CHECK_FMT=y
     - rust: stable
     - rust: beta
     - rust: nightly
@@ -14,21 +16,21 @@ matrix:
     - rust: nightly
       env: MINIMAL=y NIGHTLY=y
     - rust: nightly
-      env: CHECK_CLIPPY=y CHECK_FMT=y
+      env: CHECK_CLIPPY=y
   allow_failures:
     - rust: nightly
-      env: CHECK_CLIPPY=y CHECK_FMT=y
+      env: CHECK_CLIPPY=y
   fast_finish: true
 
 cache:
   cargo: true
 
 install:
-  - if [ ! -z "$CHECK_FMT" ]; then (cargo install --force rustfmt-nightly | true); fi
-  - if [ ! -z "$CHECK_CLIPPY" ]; then (cargo install --force clippy | true); fi
+  - if [ ! -z "$CHECK_FMT" ]; then rustup component add rustfmt-preview; fi
+  - if [ ! -z "$CHECK_CLIPPY" ]; then cargo install --force clippy; fi
 
 before_script:
-  - if [ ! -z "$CHECK_FMT" ]; then PATH=$PATH:~/.cargo/bin cargo fmt --all -- --write-mode=diff; fi
+  - if [ ! -z "$CHECK_FMT" ]; then PATH=$PATH:~/.cargo/bin cargo fmt --all -- --check; fi
   - if [ ! -z "$CHECK_CLIPPY" ]; then PATH=$PATH:~/.cargo/bin cargo clippy --all -- -D clippy; fi
   - if [ ! -z "$MINIMAL" ]; then PATH=$PATH:~/.cargo/bin cargo update -Z minimal-versions; fi
 
