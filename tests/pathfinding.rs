@@ -101,7 +101,8 @@ mod ex2 {
 ";
 
     lazy_static! {
-        static ref OPEN: Vec<Vec<bool>> = MAZE.lines()
+        static ref OPEN: Vec<Vec<bool>> = MAZE
+            .lines()
             .map(|l| l.chars().map(|c| c == '.').collect())
             .collect();
     }

@@ -10,7 +10,7 @@ extern crate test;
 use movingai::parser::{parse_map_file, parse_scen_file};
 use movingai::{Coords2D, Map2D};
 use noisy_float::prelude::*;
-use pathfinding::astar::astar;
+use pathfinding::directed::astar::astar;
 use std::path::Path;
 use test::Bencher;
 

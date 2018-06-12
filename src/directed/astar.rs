@@ -38,8 +38,7 @@ use super::reverse_path;
 /// The first version uses an explicit type `Pos` on which the required traits are derived.
 ///
 /// ```
-/// use pathfinding::astar::astar;
-/// use pathfinding::utils::absdiff;
+/// use pathfinding::prelude::{absdiff, astar};
 ///
 /// #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 /// struct Pos(i32, i32);
@@ -67,8 +66,7 @@ use super::reverse_path;
 /// and is thus shorter.
 ///
 /// ```
-/// use pathfinding::astar::astar;
-/// use pathfinding::utils::absdiff;
+/// use pathfinding::prelude::{absdiff, astar};
 ///
 /// static GOAL: (i32, i32) = (4, 6);
 /// let result = astar(&(1, 1),
@@ -382,7 +380,8 @@ impl<N: Clone + Eq + Hash> Iterator for AstarSolution<N> {
             return None;
         }
         self.complete();
-        let path = self.current
+        let path = self
+            .current
             .iter()
             .rev()
             .map(|v| v.last().cloned().unwrap())

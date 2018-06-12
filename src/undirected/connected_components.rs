@@ -47,7 +47,8 @@ where
     let mut indices = HashMap::new();
     let mut gindices = Vec::with_capacity(groups.len());
     for g in groups {
-        let idxs = g.iter()
+        let idxs = g
+            .iter()
             .map(|n| {
                 indices
                     .get(n)
@@ -128,15 +129,17 @@ where
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
-    components(&starts
-        .iter()
-        .map(|s| {
-            neighbours(s)
-                .into_iter()
-                .chain(once(s.clone()))
-                .collect_vec()
-        })
-        .collect_vec())
+    components(
+        &starts
+            .iter()
+            .map(|s| {
+                neighbours(s)
+                    .into_iter()
+                    .chain(once(s.clone()))
+                    .collect_vec()
+            })
+            .collect_vec(),
+    )
 }
 
 /// Locate vertices amongst disjoint sets.

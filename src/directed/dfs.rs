@@ -25,7 +25,7 @@
 /// If we put the adder first, an adder-only solution will be found:
 ///
 /// ```
-/// use pathfinding::dfs::dfs;
+/// use pathfinding::prelude::dfs;
 ///
 /// assert_eq!(dfs(1, |&n| vec![n+1, n*n].into_iter().filter(|&x| x <= 17), |&n| n == 17),
 ///            Some((1..18).collect()));
@@ -34,7 +34,7 @@
 /// However, if we put the multiplier first, a shorter solution will be explored first:
 ///
 /// ```
-/// use pathfinding::dfs::dfs;
+/// use pathfinding::prelude::dfs;
 ///
 /// assert_eq!(dfs(1, |&n| vec![n*n, n+1].into_iter().filter(|&x| x <= 17), |&n| n == 17),
 ///            Some(vec![1, 2, 4, 16, 17]));

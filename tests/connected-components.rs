@@ -2,7 +2,7 @@ extern crate itertools;
 extern crate pathfinding;
 
 use itertools::Itertools;
-use pathfinding::connected_components::*;
+use pathfinding::undirected::connected_components::*;
 use std::usize;
 
 #[test]

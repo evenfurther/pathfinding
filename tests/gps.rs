@@ -45,7 +45,8 @@ fn neighbour_distances(
     {
         let mut insert_neighbour = |from: &'static str, to: &'static str| {
             let from_coords = &coords[from];
-            let ns = to.split(',')
+            let ns = to
+                .split(',')
                 .map(|neighbour| {
                     (
                         neighbour,

@@ -33,7 +33,7 @@ use super::reverse_path;
 /// The first version uses an explicit type `Pos` on which the required traits are derived.
 ///
 /// ```
-/// use pathfinding::bfs::bfs;
+/// use pathfinding::prelude::bfs;
 ///
 /// #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 /// struct Pos(i32, i32);
@@ -55,7 +55,7 @@ use super::reverse_path;
 /// and is thus shorter.
 ///
 /// ```
-/// use pathfinding::bfs::bfs;
+/// use pathfinding::prelude::bfs;
 ///
 /// static GOAL: (i32, i32) = (4, 6);
 /// let result = bfs(&(1, 1),

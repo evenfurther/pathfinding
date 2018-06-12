@@ -1,6 +1,6 @@
 extern crate pathfinding;
 
-use pathfinding::edmonds_karp::*;
+use pathfinding::directed::edmonds_karp::*;
 use std::collections::HashMap;
 
 /// Return a list of edges with their capacities.
@@ -67,7 +67,8 @@ fn wikipedia_progressive_example<EK: EdmondsKarp<i32>>() {
         ek.set_capacity(from as usize - 65, to as usize - 65, cap);
     }
     let (caps, total) = ek.augment();
-    let caps = caps.into_iter()
+    let caps = caps
+        .into_iter()
         .map(|((from, to), cap)| (((from + 65) as u8 as char, (to + 65) as u8 as char), cap))
         .collect::<Vec<_>>();
     check_wikipedia_result((caps, total));
