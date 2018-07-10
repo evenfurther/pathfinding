@@ -95,18 +95,15 @@ where
     to_see.push(SmallestCostHolder {
         estimated_cost: heuristic(start),
         cost: Zero::zero(),
-        payload: (Zero::zero(), 0),
+        index: 0,
     });
     let mut parents: IndexMap<N, (usize, C)> = IndexMap::new();
     parents.insert(start.clone(), (usize::MAX, Zero::zero()));
-    while let Some(SmallestCostHolder {
-        payload: (cost, i), ..
-    }) = to_see.pop()
-    {
+    while let Some(SmallestCostHolder { cost, index, .. }) = to_see.pop() {
         let neighbours = {
-            let (node, &(_, c)) = parents.get_index(i).unwrap();
+            let (node, &(_, c)) = parents.get_index(index).unwrap();
             if success(node) {
-                let path = reverse_path(&parents, |&(p, _)| p, i);
+                let path = reverse_path(&parents, |&(p, _)| p, index);
                 return Some((path, cost));
             }
             // We may have inserted a node several time into the binary heap if we found
@@ -125,12 +122,12 @@ where
                 Vacant(e) => {
                     h = heuristic(e.key());
                     n = e.index();
-                    e.insert((i, new_cost));
+                    e.insert((index, new_cost));
                 }
                 Occupied(mut e) => if e.get().1 > new_cost {
                     h = heuristic(e.key());
                     n = e.index();
-                    e.insert((i, new_cost));
+                    e.insert((index, new_cost));
                 } else {
                     continue;
                 },
@@ -138,8 +135,8 @@ where
 
             to_see.push(SmallestCostHolder {
                 estimated_cost: new_cost + h,
-                cost,
-                payload: (new_cost, n),
+                cost: new_cost,
+                index: n,
             });
         }
     }
@@ -187,12 +184,13 @@ where
     to_see.push(SmallestCostHolder {
         estimated_cost: heuristic(start),
         cost: Zero::zero(),
-        payload: (Zero::zero(), 0),
+        index: 0,
     });
     let mut parents: IndexMap<N, (HashSet<usize>, C)> = IndexMap::new();
     parents.insert(start.clone(), (HashSet::new(), Zero::zero()));
     while let Some(SmallestCostHolder {
-        payload: (cost, i),
+        cost,
+        index,
         estimated_cost,
         ..
     }) = to_see.pop()
@@ -203,10 +201,10 @@ where
             }
         }
         let neighbours = {
-            let (node, &(_, c)) = parents.get_index(i).unwrap();
+            let (node, &(_, c)) = parents.get_index(index).unwrap();
             if success(node) {
                 min_cost = Some(cost);
-                sinks.insert(i);
+                sinks.insert(index);
             }
             // We may have inserted a node several time into the binary heap if we found
             // a better way to access it. Ensure that we are currently dealing with the
@@ -225,7 +223,7 @@ where
                     h = heuristic(e.key());
                     n = e.index();
                     let mut p = HashSet::new();
-                    p.insert(i);
+                    p.insert(index);
                     e.insert((p, new_cost));
                 }
                 Occupied(mut e) => if e.get().1 > new_cost {
@@ -233,13 +231,13 @@ where
                     n = e.index();
                     let s = e.get_mut();
                     s.0.clear();
-                    s.0.insert(i);
+                    s.0.insert(index);
                     s.1 = new_cost;
                 } else {
                     if e.get().1 == new_cost {
                         // New parent with an identical cost, this is not
                         // considered as an insertion.
-                        e.get_mut().0.insert(i);
+                        e.get_mut().0.insert(index);
                     }
                     continue;
                 },
@@ -247,8 +245,8 @@ where
 
             to_see.push(SmallestCostHolder {
                 estimated_cost: new_cost + h,
-                cost,
-                payload: (new_cost, n),
+                cost: new_cost,
+                index: n,
             });
         }
     }
@@ -299,28 +297,28 @@ where
         .map(|(solutions, cost)| (solutions.collect(), cost))
 }
 
-struct SmallestCostHolder<K, P> {
+struct SmallestCostHolder<K> {
     estimated_cost: K,
     cost: K,
-    payload: P,
+    index: usize,
 }
 
-impl<K: PartialEq, P> PartialEq for SmallestCostHolder<K, P> {
-    fn eq(&self, other: &SmallestCostHolder<K, P>) -> bool {
+impl<K: PartialEq> PartialEq for SmallestCostHolder<K> {
+    fn eq(&self, other: &SmallestCostHolder<K>) -> bool {
         self.estimated_cost.eq(&other.estimated_cost) && self.cost.eq(&other.cost)
     }
 }
 
-impl<K: PartialEq, P> Eq for SmallestCostHolder<K, P> {}
+impl<K: PartialEq> Eq for SmallestCostHolder<K> {}
 
-impl<K: Ord, P> PartialOrd for SmallestCostHolder<K, P> {
-    fn partial_cmp(&self, other: &SmallestCostHolder<K, P>) -> Option<Ordering> {
+impl<K: Ord> PartialOrd for SmallestCostHolder<K> {
+    fn partial_cmp(&self, other: &SmallestCostHolder<K>) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<K: Ord, P> Ord for SmallestCostHolder<K, P> {
-    fn cmp(&self, other: &SmallestCostHolder<K, P>) -> Ordering {
+impl<K: Ord> Ord for SmallestCostHolder<K> {
+    fn cmp(&self, other: &SmallestCostHolder<K>) -> Ordering {
         match other.estimated_cost.cmp(&self.estimated_cost) {
             Ordering::Equal => self.cost.cmp(&other.cost),
             s => s,
