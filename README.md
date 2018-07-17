@@ -15,8 +15,8 @@ The algorithms are generic over their arguments.
 ### Directed graphs
 
 - [A*][A*]: find the shortest path in a weighted graph using an heuristic to guide the process.
-- [breadth-first search (BFS)][BFS]: explore nearest neighbours first, then widen the search.
-- [depth-first search (DFS)][DFS]: explore a graph by going as far as possible, then backtrack.
+- [BFS][BFS]: explore nearest neighbours first, then widen the search.
+- [DFS][DFS]: explore a graph by going as far as possible, then backtrack.
 - [Dijkstra][Dijkstra]: find the shortest path in a weighted graph.
 - [Edmonds Karp][Edmonds Karp]: find the maximum flow in a weighted graph.
 - [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
