@@ -21,6 +21,7 @@ The algorithms are generic over their arguments.
 - [Edmonds Karp][Edmonds Karp]: find the maximum flow in a weighted graph.
 - [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
 - [IDA*][IDA*]: explore longer and longer paths in a weighted graph at the cost of multiple similar examinations.
+- [IDDFS][IDDFS]: explore longer and longer paths in an unweighted graph at the cost of multiple similar examinations.
 - [strongly connected components][Strongly connected components]: find strongly connected components in a directed graph.
 - [topological sorting][Topological sorting]: find an acceptable topological order in a directed graph.
 
@@ -86,6 +87,7 @@ This code is released under a dual Apache 2.0 / MIT free software license.
 [Edmonds Karp]: https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm
 [Fringe]: https://en.wikipedia.org/wiki/Fringe_search
 [IDA*]: https://en.wikipedia.org/wiki/Iterative_deepening_A*
+[IDDFS]: https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search
 [Kuhn-Munkres]: https://en.wikipedia.org/wiki/Hungarian_algorithm
 [Rust]: https://rust-lang.org/
 [Strongly connected components]: https://en.wikipedia.org/wiki/Strongly_connected_component
