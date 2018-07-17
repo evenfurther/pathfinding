@@ -89,6 +89,9 @@ repository.
 In order to pass the continuous integration tests, your code must be formatted using the latest
 `rustfmt` with the nightly rust toolchain (available as the `rustfmt-preview` component of `rustup`).
 
+This repository use the imperative mode in commit messages, such as "Add IDDFS",
+"Fix #xxx". This style is preferred over "Added IDDFS" or "Fixed #xxx".
+
 [A*]: https://en.wikipedia.org/wiki/A*_search_algorithm
 [BFS]: https://en.wikipedia.org/wiki/Breadth-first_search
 [Connected components]: https://en.wikipedia.org/wiki/Connected_component_(graph_theory)
