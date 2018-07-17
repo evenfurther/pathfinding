@@ -266,6 +266,18 @@ mod ex2 {
     }
 
     #[test]
+    fn iddfs_path_ok() {
+        const GOAL: (usize, usize) = (6, 3);
+        let path = iddfs(
+            (2, 3),
+            |n| neighbours(n).into_iter().map(|(n, _)| n),
+            |n| n == &GOAL,
+        ).expect("path not found");
+        assert_eq!(path.len(), 9);
+        assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
+    }
+
+    #[test]
     fn astar_no_path() {
         const GOAL: (usize, usize) = (1, 1);
         assert_eq!(
@@ -319,6 +331,19 @@ mod ex2 {
                 (2, 3),
                 |n| neighbours(n).into_iter().map(|(n, _)| n),
                 |n| n == &GOAL
+            ),
+            None
+        );
+    }
+
+    #[test]
+    fn iddfs_no_path() {
+        const GOAL: (usize, usize) = (1, 1);
+        assert_eq!(
+            iddfs(
+                (2, 3),
+                |n| neighbours(n).into_iter().map(|(n, _)| n),
+                |n| n == &GOAL,
             ),
             None
         );

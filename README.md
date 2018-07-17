@@ -21,6 +21,7 @@ The algorithms are generic over their arguments.
 - [Edmonds Karp][Edmonds Karp]: find the maximum flow in a weighted graph.
 - [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
 - [IDA*][IDA*]: explore longer and longer paths in a weighted graph at the cost of multiple similar examinations.
+- [IDDFS][IDDFS]: explore longer and longer paths in an unweighted graph at the cost of multiple similar examinations.
 - [strongly connected components][Strongly connected components]: find strongly connected components in a directed graph.
 - [topological sorting][Topological sorting]: find an acceptable topological order in a directed graph.
 
@@ -88,6 +89,9 @@ repository.
 In order to pass the continuous integration tests, your code must be formatted using the latest
 `rustfmt` with the nightly rust toolchain (available as the `rustfmt-preview` component of `rustup`).
 
+This repository use the imperative mode in commit messages, such as "Add IDDFS",
+"Fix #xxx". This style is preferred over "Added IDDFS" or "Fixed #xxx".
+
 [A*]: https://en.wikipedia.org/wiki/A*_search_algorithm
 [BFS]: https://en.wikipedia.org/wiki/Breadth-first_search
 [Connected components]: https://en.wikipedia.org/wiki/Connected_component_(graph_theory)
@@ -96,6 +100,7 @@ In order to pass the continuous integration tests, your code must be formatted u
 [Edmonds Karp]: https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm
 [Fringe]: https://en.wikipedia.org/wiki/Fringe_search
 [IDA*]: https://en.wikipedia.org/wiki/Iterative_deepening_A*
+[IDDFS]: https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search
 [Kuhn-Munkres]: https://en.wikipedia.org/wiki/Hungarian_algorithm
 [Rust]: https://rust-lang.org/
 [Strongly connected components]: https://en.wikipedia.org/wiki/Strongly_connected_component

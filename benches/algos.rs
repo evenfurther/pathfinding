@@ -3,7 +3,7 @@
 extern crate pathfinding;
 extern crate test;
 
-use pathfinding::prelude::{astar, bfs, dfs, dijkstra, fringe, idastar};
+use pathfinding::prelude::{astar, bfs, dfs, dijkstra, fringe, idastar, iddfs};
 use test::Bencher;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -125,6 +125,16 @@ fn corner_to_corner_idastar(b: &mut Bencher) {
 }
 
 #[bench]
+fn corner_to_corner_iddfs(b: &mut Bencher) {
+    b.iter(|| {
+        assert_ne!(
+            iddfs(Pt::new(0, 0), |n| neighbours(n), |n| n.x == 5 && n.y == 5,),
+            None
+        )
+    })
+}
+
+#[bench]
 fn no_path_astar(b: &mut Bencher) {
     b.iter(|| {
         assert_eq!(
@@ -142,6 +152,33 @@ fn no_path_astar(b: &mut Bencher) {
 #[bench]
 fn no_path_bfs(b: &mut Bencher) {
     b.iter(|| assert_eq!(bfs(&Pt::new(2, 3), |n| neighbours(n), |_| false), None));
+}
+
+#[bench]
+fn no_path_iddfs(b: &mut Bencher) {
+    fn less_neighbours(pt: &Pt) -> Vec<Pt> {
+        let mut ret = Vec::with_capacity(4);
+        if 0 < pt.x {
+            ret.push(Pt::new(pt.x - 1, pt.y))
+        }
+        if pt.x < 4 {
+            ret.push(Pt::new(pt.x + 1, pt.y))
+        }
+        if 0 < pt.y {
+            ret.push(Pt::new(pt.x, pt.y - 1))
+        }
+        if pt.y < 4 {
+            ret.push(Pt::new(pt.x, pt.y + 1))
+        }
+        ret
+    }
+
+    b.iter(|| {
+        assert_eq!(
+            iddfs(Pt::new(2, 3), |n| less_neighbours(n), |_| false),
+            None
+        )
+    });
 }
 
 #[bench]
