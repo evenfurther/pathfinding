@@ -15,8 +15,8 @@ The algorithms are generic over their arguments.
 ### Directed graphs
 
 - [A*][A*]: find the shortest path in a weighted graph using an heuristic to guide the process.
-- [breadth-first search (BFS)][BFS]: explore nearest neighbours first, then widen the search.
-- [depth-first search (DFS)][DFS]: explore a graph by going as far as possible, then backtrack.
+- [BFS][BFS]: explore nearest neighbours first, then widen the search.
+- [DFS][DFS]: explore a graph by going as far as possible, then backtrack.
 - [Dijkstra][Dijkstra]: find the shortest path in a weighted graph.
 - [Edmonds Karp][Edmonds Karp]: find the maximum flow in a weighted graph.
 - [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
@@ -78,6 +78,16 @@ assert_eq!(result.expect("no path found").len(), 5);
 ## License
 
 This code is released under a dual Apache 2.0 / MIT free software license.
+
+## Contributing
+
+You are welcome to contribute by opening [issues](https://github.com/samueltardieu/pathfinding/issues)
+or submitting [pull requests](https://github.com/samueltardieu/pathfinding/pulls). Please open an issue
+before implementing a new feature, in case it is a work in progress already or it is fit for this
+repository.
+
+In order to pass the continuous integration tests, your code must be formatted using the latest
+`rustfmt` with the nightly rust toolchain (available as the `rustfmt-preview` component of `rustup`).
 
 [A*]: https://en.wikipedia.org/wiki/A*_search_algorithm
 [BFS]: https://en.wikipedia.org/wiki/Breadth-first_search
