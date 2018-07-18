@@ -17,8 +17,6 @@ pub struct Matrix<C> {
     data: Vec<C>,
 }
 
-unsafe impl<C: Send> Send for Matrix<C> {}
-
 impl<C: Clone> Matrix<C> {
     /// Create new matrix with an initial value.
     pub fn new(rows: usize, columns: usize, value: C) -> Matrix<C> {
