@@ -301,8 +301,6 @@ pub struct Common<C> {
     detailed_flows: bool,
 }
 
-unsafe impl<C: Send> Send for Common<C> {}
-
 /// Sparse capacity and flow data.
 #[derive(Clone, Debug)]
 pub struct SparseCapacity<C> {
