@@ -335,8 +335,6 @@ pub struct AstarSolution<N> {
     terminated: bool,
 }
 
-unsafe impl<N: Send> Send for AstarSolution<N> {}
-
 impl<N: Clone + Eq + Hash> AstarSolution<N> {
     fn complete(&mut self) {
         loop {
