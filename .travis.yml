@@ -37,3 +37,11 @@ before_script:
 script:
   - if [ "$NIGHTLY" ]; then cargo build --all-targets; else cargo build --all; fi
   - if [ "$NIGHTLY" ]; then cargo test --all-targets; else cargo test --all; fi
+
+notifications:
+    webhooks:
+        urls:
+            - "https://scalar.vector.im/api/neb/services/hooks/dHJhdmlzLWNpLyU0MG9uZWV5ZWQlM0FtYXRyaXgub3JnLyUyMUpyV0JYUFRTWk9sR0FydVpCdiUzQW1hdHJpeC5vcmc"
+        on_success: change  # always|never|change
+        on_failure: always
+        on_start: never
