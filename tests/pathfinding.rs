@@ -116,8 +116,7 @@ mod ex2 {
                 } else {
                     None
                 }
-            })
-            .collect()
+            }).collect()
     }
 
     fn distance(&(x1, y1): &(usize, usize), &(x2, y2): &(usize, usize)) -> usize {
