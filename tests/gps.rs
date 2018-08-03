@@ -35,7 +35,7 @@ fn coords() -> HashMap<&'static str, Coords> {
         ("Toulouse", Coords(43.6045, 1.444)),
         ("Reims", Coords(49.2628, 4.0347)),
     ].into_iter()
-        .collect()
+    .collect()
 }
 
 fn neighbour_distances(
@@ -52,8 +52,7 @@ fn neighbour_distances(
                         neighbour,
                         from_coords.distance_in_meters(&coords[neighbour]),
                     )
-                })
-                .collect();
+                }).collect();
             neighbours.insert(from, ns);
         };
         insert_neighbour("Paris", "Lyon,Bordeaux,Reims");

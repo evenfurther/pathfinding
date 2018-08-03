@@ -34,8 +34,7 @@ fn parse(input: &str) -> (Vec<Point>, HashMap<Point, NeighbourInfo>) {
             l.split(' ')
                 .map(|s| s.parse::<usize>().unwrap_or(0))
                 .collect::<Vec<_>>()
-        })
-        .for_each(|words| {
+        }).for_each(|words| {
             let src = Point {
                 row: words[0],
                 col: words[1],
@@ -80,7 +79,7 @@ fn main() {
                     |n| distance(n, target),
                     |n| n == target,
                 ).unwrap()
-                    .1,
+                .1,
                 expected
             );
             assert_eq!(
@@ -96,7 +95,7 @@ fn main() {
                     |n| distance(n, target),
                     |n| n == target,
                 ).unwrap()
-                    .1,
+                .1,
                 expected
             );
             if expected < 150 {
@@ -108,7 +107,7 @@ fn main() {
                         |n| distance(n, target),
                         |n| n == target,
                     ).unwrap()
-                        .1,
+                    .1,
                     expected
                 );
             }

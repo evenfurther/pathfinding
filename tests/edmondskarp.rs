@@ -19,7 +19,7 @@ fn neighbours_wikipedia() -> Vec<((char, char), i32)> {
             ("EG", 1),
             ("FG", 9),
         ].into_iter()
-            .map(|(s, c)| ((s.chars().nth(0).unwrap(), s.chars().nth(1).unwrap()), c)),
+        .map(|(s, c)| ((s.chars().nth(0).unwrap(), s.chars().nth(1).unwrap()), c)),
     ).collect()
 }
 

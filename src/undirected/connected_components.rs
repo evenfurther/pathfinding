@@ -59,8 +59,7 @@ where
                         table.push(l);
                         l
                     })
-            })
-            .collect_vec();
+            }).collect_vec();
         let &idx = idxs.iter().min().unwrap_or(&usize::MAX);
         for i in idxs {
             if i != idx {
@@ -82,8 +81,7 @@ where
                 } else {
                     get_and_redirect(&mut table, i)
                 }
-            })
-            .collect(),
+            }).collect(),
     )
 }
 
@@ -112,8 +110,7 @@ where
                 .map(|(i, _)| groups[i].clone())
                 .flat_map(|i| i)
                 .collect::<HashSet<_>>()
-        })
-        .collect()
+        }).collect()
 }
 
 /// Extract connected components from a graph.
@@ -137,8 +134,7 @@ where
                     .into_iter()
                     .chain(once(s.clone()))
                     .collect_vec()
-            })
-            .collect_vec(),
+            }).collect_vec(),
     )
 }
 

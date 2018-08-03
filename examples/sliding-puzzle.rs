@@ -52,9 +52,7 @@ lazy_static! {
                 2 if idx % SIDE < SIDE - 1 => Some(idx + 1),
                 3 if idx < SIDE * SIDE - SIDE => Some(idx + SIDE),
                 _ => None,
-            })
-            .collect::<Vec<_>>())
-        .collect();
+            }).collect::<Vec<_>>()).collect();
 }
 
 impl Game {

@@ -386,8 +386,7 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
                 ns.into_iter()
                     .filter_map(|(&n, &c)| if c > Zero::zero() { Some((n, c)) } else { None })
                     .collect()
-            })
-            .unwrap_or_else(Vec::new)
+            }).unwrap_or_else(Vec::new)
     }
 
     fn residual_capacity(&self, from: usize, to: usize) -> C {
@@ -410,8 +409,7 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
                         None
                     }
                 })
-            })
-            .collect()
+            }).collect()
     }
 
     fn add_flow(&mut self, from: usize, to: usize, capacity: C) {
@@ -434,8 +432,7 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
                 ns.iter()
                     .filter_map(|(&o, &c)| if c > Zero::zero() { Some(o) } else { None })
                     .collect()
-            })
-            .unwrap_or_else(Vec::new)
+            }).unwrap_or_else(Vec::new)
     }
 }
 
@@ -504,8 +501,7 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
                 } else {
                     None
                 }
-            })
-            .collect()
+            }).collect()
     }
 
     fn residual_capacity(&self, from: usize, to: usize) -> C {
@@ -525,8 +521,7 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
                 } else {
                     None
                 }
-            })
-            .collect()
+            }).collect()
     }
 
     fn add_flow(&mut self, from: usize, to: usize, capacity: C) {
@@ -549,7 +544,6 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
                 } else {
                     None
                 }
-            })
-            .collect()
+            }).collect()
     }
 }

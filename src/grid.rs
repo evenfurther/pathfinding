@@ -347,8 +347,7 @@ impl<'a> Iterator for GridIterator<'a> {
                 .map(|v| {
                     self.x += 1;
                     v
-                })
-                .cloned()
+                }).cloned()
         }
     }
 }
