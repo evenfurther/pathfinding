@@ -40,8 +40,8 @@ before_script:
   - if [ ! -z "$MINIMAL" ]; then PATH=$PATH:~/.cargo/bin cargo update -Z minimal-versions; fi
 
 script:
-  - if [ "$NIGHTLY" ]; then cargo build --all-targets; else cargo build --all; fi
-  - if [ "$NIGHTLY" ]; then cargo test --all-targets; else cargo test --all; fi
+  - cargo build --all --all-targets
+  - cargo test --all --all-targets
 
 notifications:
     webhooks:
