@@ -106,8 +106,7 @@ where
         .group_by(|&(_, n)| n);
     gb.into_iter()
         .map(|(_, gs)| {
-            gs.into_iter()
-                .map(|(i, _)| groups[i].clone())
+            gs.map(|(i, _)| groups[i].clone())
                 .flat_map(|i| i)
                 .collect::<HashSet<_>>()
         }).collect()

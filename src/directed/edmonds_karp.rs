@@ -51,7 +51,6 @@ where
     // work with matrices more easily.
     let size = vertices.len();
     let reverse = (0..size)
-        .into_iter()
         .map(|i| (vertices[i], i))
         .collect::<HashMap<_, _>>();
     let mut capacities = EK::new(size, reverse[source], reverse[sink]);
