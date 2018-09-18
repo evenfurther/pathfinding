@@ -190,3 +190,122 @@ fn collect() {
     assert_eq!(g.height, 9);
     assert_eq!(g.vertices_len(), 3);
 }
+
+#[test]
+fn is_inside() {
+    let g = Grid::new(2, 4);
+    for x in 0..2 {
+        for y in 0..4 {
+            assert!(g.is_inside(&(x, y)));
+        }
+    }
+    for x in 0..2 {
+        assert!(!g.is_inside(&(x, 4)));
+    }
+    for y in 0..4 {
+        assert!(!g.is_inside(&(2, y)));
+    }
+}
+
+#[test]
+fn add_outside_vertex() {
+    let mut g = Grid::new(10, 10);
+    assert!(!g.add_vertex((10, 10)));
+}
+
+#[test]
+fn remove_outside_vertex() {
+    let mut g = Grid::new(10, 10);
+    assert!(!g.remove_vertex(&(10, 10)));
+}
+
+#[test]
+fn test_outside_vertex() {
+    let mut g = Grid::new(10, 10);
+    assert!(!g.has_vertex(&(10, 10)));
+    g.fill();
+    assert!(!g.has_vertex(&(10, 10)));
+}
+
+#[test]
+fn neighbours_outside_vertex() {
+    let mut g = Grid::new(10, 10);
+    assert_eq!(g.neighbours(&(10, 10)), vec![]);
+    g.fill();
+    assert_eq!(g.neighbours(&(10, 10)), vec![]);
+}
+
+#[test]
+fn totally_empty() {
+    let g = Grid::new(0, 0);
+    assert_eq!(g.vertices_len(), 0);
+}
+
+#[test]
+fn empty() {
+    let g = Grid::new(0, 4);
+    assert_eq!(g.vertices_len(), 0);
+}
+
+#[test]
+fn add_borders() {
+    let mut g = Grid::new(3, 4);
+    assert_eq!(g.add_borders(), 10);
+    assert_eq!(g.vertices_len(), 10);
+    for x in 0..3 {
+        assert!(g.has_vertex(&(x, 0)));
+        assert!(g.has_vertex(&(x, 3)));
+    }
+    for y in 0..4 {
+        assert!(g.has_vertex(&(0, y)));
+        assert!(g.has_vertex(&(2, y)));
+    }
+    assert_eq!(g.add_borders(), 0);
+}
+
+#[test]
+fn add_borders_empty() {
+    let mut g = Grid::new(4, 0);
+    assert_eq!(g.add_borders(), 0);
+}
+
+#[test]
+fn add_borders_flat() {
+    let mut g = Grid::new(4, 1);
+    assert_eq!(g.add_borders(), 4);
+}
+
+#[test]
+fn remove_borders() {
+    let mut g = Grid::new(3, 4);
+    g.fill();
+    assert_eq!(g.remove_borders(), 10);
+    assert_eq!(g.vertices_len(), 2);
+    for x in 0..3 {
+        assert!(!g.has_vertex(&(x, 0)));
+        assert!(!g.has_vertex(&(x, 3)));
+    }
+    for y in 0..4 {
+        assert!(!g.has_vertex(&(0, y)));
+        assert!(!g.has_vertex(&(2, y)));
+    }
+    assert_eq!(g.remove_borders(), 0);
+}
+
+#[test]
+fn remove_borders_empty() {
+    let mut g = Grid::new(0, 0);
+    assert_eq!(g.vertices_len(), 0);
+    g.fill();
+    assert_eq!(g.vertices_len(), 0);
+    assert_eq!(g.remove_borders(), 0);
+    assert_eq!(g.vertices_len(), 0);
+}
+
+#[test]
+fn remove_borders_flat() {
+    let mut g = Grid::new(4, 1);
+    assert_eq!(g.remove_borders(), 0);
+    g.fill();
+    assert_eq!(g.remove_borders(), 4);
+}

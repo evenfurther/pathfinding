@@ -42,6 +42,13 @@ impl Grid {
         }
     }
 
+    /// Check if a (possibly removed) vertex belongs to the grid or if it
+    /// is located outside the grid.
+    #[inline]
+    pub fn is_inside(&self, vertex: &(usize, usize)) -> bool {
+        vertex.0 < self.width && vertex.1 < self.height
+    }
+
     /// Enable diagonal mode. Diagonal edges will be created between
     /// adjacent vertices.
     pub fn enable_diagonal_mode(&mut self) {
@@ -94,8 +101,11 @@ impl Grid {
     }
 
     /// Add a new vertex. Return `true` if the vertex did not previously
-    /// exist.
+    /// exist and has been added.
     pub fn add_vertex(&mut self, vertex: (usize, usize)) -> bool {
+        if !self.is_inside(&vertex) {
+            return false;
+        }
         let r = if self.dense {
             self.exclusions.remove(&vertex)
         } else {
@@ -105,8 +115,12 @@ impl Grid {
         r
     }
 
-    /// Remove a vertex. Return `true` if the vertex did previously exist.
+    /// Remove a vertex. Return `true` if the vertex did previously exist
+    /// and has been removed.
     pub fn remove_vertex(&mut self, vertex: &(usize, usize)) -> bool {
+        if !self.is_inside(&vertex) {
+            return false;
+        }
         let r = if self.dense {
             self.exclusions.insert(*vertex)
         } else {
@@ -114,6 +128,48 @@ impl Grid {
         };
         self.rebalance();
         r
+    }
+
+    /// Return an iterator over the border vertices. The grid must not have
+    /// a zero width or height.
+    fn borders(&self) -> impl Iterator<Item = (usize, usize)> {
+        let width = self.width;
+        let height = self.height;
+        (0..width)
+            .flat_map(move |x| vec![(x, 0), (x, height - 1)].into_iter())
+            .chain((1..height - 1).flat_map(move |y| vec![(0, y), (width - 1, y)].into_iter()))
+    }
+
+    /// Add the borders of the grid. Return the number of added vertices.
+    pub fn add_borders(&mut self) -> usize {
+        if self.width == 0 || self.height == 0 {
+            return 0;
+        }
+        let count = if self.dense {
+            self.borders().filter(|v| self.exclusions.remove(v)).count()
+        } else {
+            self.borders()
+                .filter(|v| self.exclusions.insert(*v))
+                .count()
+        };
+        self.rebalance();
+        count
+    }
+
+    /// Remove the borders of the grid. Return the number of removed vertices.
+    pub fn remove_borders(&mut self) -> usize {
+        if self.width == 0 || self.height == 0 {
+            return 0;
+        }
+        let count = if self.dense {
+            self.borders()
+                .filter(|v| self.exclusions.insert(*v))
+                .count()
+        } else {
+            self.borders().filter(|v| self.exclusions.remove(v)).count()
+        };
+        self.rebalance();
+        count
     }
 
     fn rebalance(&mut self) {
@@ -171,7 +227,7 @@ impl Grid {
 
     /// Check if a vertex is present.
     pub fn has_vertex(&self, vertex: &(usize, usize)) -> bool {
-        self.exclusions.contains(vertex) ^ self.dense
+        self.is_inside(vertex) && (self.exclusions.contains(vertex) ^ self.dense)
     }
 
     /// Check if an edge is present.
