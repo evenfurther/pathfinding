@@ -123,7 +123,8 @@ fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut BufRead) -> Result<String, Er
                 }
             }
             max
-        }).max()
+        })
+        .max()
         .unwrap();
     Ok(format!("Case #{}: {}", n, answer))
 }

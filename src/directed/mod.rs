@@ -25,7 +25,8 @@ where
             *i = parent(value);
             node
         })
-    }).collect::<Vec<&N>>();
+    })
+    .collect::<Vec<&N>>();
 
     path.into_iter().rev().cloned().collect()
 }

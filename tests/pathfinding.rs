@@ -116,7 +116,8 @@ mod ex2 {
                 } else {
                     None
                 }
-            }).collect()
+            })
+            .collect()
     }
 
     fn distance(&(x1, y1): &(usize, usize), &(x2, y2): &(usize, usize)) -> usize {
@@ -135,7 +136,8 @@ mod ex2 {
             },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
-        ).expect("path not found");
+        )
+        .expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(counter, 11);
@@ -153,7 +155,8 @@ mod ex2 {
             },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(cost, 8);
         assert_eq!(paths.len(), 1);
         assert!(
@@ -176,7 +179,8 @@ mod ex2 {
             },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(cost, 9);
         assert_eq!(paths.len(), 3);
         assert!(
@@ -199,7 +203,8 @@ mod ex2 {
             },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
-        ).expect("path not found");
+        )
+        .expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(counter, 18);
@@ -217,7 +222,8 @@ mod ex2 {
             },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
-        ).expect("path not found");
+        )
+        .expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(counter, 14);
@@ -234,7 +240,8 @@ mod ex2 {
                 neighbours(n)
             },
             |n| n == &GOAL,
-        ).expect("path not found");
+        )
+        .expect("path not found");
         assert_eq!(cost, 8);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
         assert_eq!(counter, 20);
@@ -247,7 +254,8 @@ mod ex2 {
             &(2, 3),
             |n| neighbours(n).into_iter().map(|(n, _)| n),
             |n| n == &GOAL,
-        ).expect("path not found");
+        )
+        .expect("path not found");
         assert_eq!(path.len(), 9);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
     }
@@ -259,7 +267,8 @@ mod ex2 {
             (2, 3),
             |n| neighbours(n).into_iter().map(|(n, _)| n),
             |n| n == &GOAL,
-        ).expect("path not found");
+        )
+        .expect("path not found");
         assert!(path.len() >= 9);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
     }
@@ -271,7 +280,8 @@ mod ex2 {
             (2, 3),
             |n| neighbours(n).into_iter().map(|(n, _)| n),
             |n| n == &GOAL,
-        ).expect("path not found");
+        )
+        .expect("path not found");
         assert_eq!(path.len(), 9);
         assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
     }

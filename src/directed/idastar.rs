@@ -147,7 +147,8 @@ where
                     let h = heuristic(&n);
                     Some((n, c, c + h))
                 }
-            }).collect::<Vec<_>>();
+            })
+            .collect::<Vec<_>>();
         neighbs.sort_by_key(|&(_, _, c)| c);
         neighbs
     };

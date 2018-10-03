@@ -129,12 +129,14 @@ where
                         n = e.index();
                         e.insert((i, g_neighbour));
                     }
-                    Occupied(mut e) => if e.get().1 > g_neighbour {
-                        n = e.index();
-                        e.insert((i, g_neighbour));
-                    } else {
-                        continue;
-                    },
+                    Occupied(mut e) => {
+                        if e.get().1 > g_neighbour {
+                            n = e.index();
+                            e.insert((i, g_neighbour));
+                        } else {
+                            continue;
+                        }
+                    }
                 }
                 if !remove(&mut later, &n) {
                     remove(&mut now, &n);

@@ -67,7 +67,8 @@ fn all_scc() {
         .map(|mut v| {
             v.sort();
             v
-        }).collect::<Vec<_>>();
+        })
+        .collect::<Vec<_>>();
     c.sort();
     assert_eq!(c, *EXPECTED);
 }
@@ -80,7 +81,8 @@ fn some_scc() {
             .map(|mut v| {
                 v.sort();
                 v
-            }).collect::<Vec<_>>();
+            })
+            .collect::<Vec<_>>();
         c.sort();
         // Check that clusters are indeed valid ones
         for v in &c {
