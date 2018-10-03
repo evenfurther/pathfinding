@@ -541,14 +541,7 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
 
     fn flows_from(&self, from: usize) -> Vec<usize> {
         (0..self.common.size)
-            .filter_map(|to| {
-                let flow = self.flow(from, to);
-                if flow > Zero::zero() {
-                    Some(to)
-                } else {
-                    None
-                }
-            })
+            .filter(|to| self.flow(from, *to) > Zero::zero())
             .collect()
     }
 }
