@@ -240,6 +240,16 @@ impl Grid {
         x + y == 1 || (x == 1 && y == 1 && self.diagonal_mode)
     }
 
+    /// Iterate over edges.
+    pub fn edges<'a>(&'a self) -> EdgesIterator<'a> {
+        EdgesIterator {
+            grid: &self,
+            x: 0,
+            y: 0,
+            i: 0,
+        }
+    }
+
     /// Return the list of neighbours of a given vertex. If `vertex` is absent
     /// from the grid, an empty list is returned. Only existing vertices will
     /// be returned.
@@ -418,6 +428,46 @@ impl<'a> IntoIterator for &'a Grid {
             grid: self,
             x: 0,
             y: 0,
+        }
+    }
+}
+
+/// Iterator returned by calling `.edges()` on a grid.
+pub struct EdgesIterator<'a> {
+    grid: &'a Grid,
+    x: usize,
+    y: usize,
+    i: usize,
+}
+
+impl<'a> Iterator for EdgesIterator<'a> {
+    type Item = ((usize, usize), (usize, usize));
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            if self.y == self.grid.height {
+                return None;
+            }
+            let x = self.x;
+            let y = self.y;
+            let other = match self.i {
+                0 => (x + 1, y),
+                1 => (x, y + 1),
+                2 => (x + 1, y + 1),
+                _ => (x - 1, y + 1),
+            };
+            self.i += 1;
+            if (x == 0 && self.i == 3) || self.i == 4 {
+                self.i = 0;
+                self.x += 1;
+                if self.x == self.grid.width {
+                    self.x = 0;
+                    self.y += 1;
+                }
+            }
+            if self.grid.has_edge(&(x, y), &other) {
+                return Some(((x, y), other));
+            }
         }
     }
 }
