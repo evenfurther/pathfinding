@@ -1,0 +1,42 @@
+image: rust
+
+stages:
+  - lint
+  - test
+
+cache:
+  key: "$CI_JOB_NAME"
+  paths:
+    - /usr/local/rustup
+  untracked: true
+
+.test_template: &cargo_test
+  stage: test
+  before_script:
+    - rustup install $RUST
+  script:
+    - cargo +$RUST test
+
+stable:
+  <<: *cargo_test
+  variables:
+    RUST: stable
+
+beta:
+  <<: *cargo_test
+  variables:
+    RUST: beta
+
+nightly:
+  <<: *cargo_test
+  variables:
+    RUST: nightly
+
+nightly_fmt:
+  <<: *cargo_test
+  stage: lint
+  variables:
+    RUST: nightly
+  script:
+    - rustup component add --toolchain $RUST rustfmt-preview
+    - cargo +$RUST fmt --all -- --check
