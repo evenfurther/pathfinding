@@ -35,7 +35,8 @@ fn arena(b: &mut Bencher) {
                 },
                 |&node| distance(&node, &goal),
                 |&node| node == goal,
-            ).unwrap();
+            )
+            .unwrap();
             assert!(result.1 - r64(scene.optimal_length).abs() <= 1e-4);
         }
     })

@@ -21,7 +21,8 @@ fn order() {
     rng.shuffle(&mut ints);
     let sorted = tsort(&ints, |&n| {
         (2..).map(|m| m * n).take_while(|&p| p < 1000).collect_vec()
-    }).unwrap();
+    })
+    .unwrap();
     for (i, &vi) in sorted.iter().enumerate() {
         for &vj in sorted.iter().skip(i + 1) {
             assert!(

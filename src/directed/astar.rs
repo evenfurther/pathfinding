@@ -124,13 +124,15 @@ where
                     n = e.index();
                     e.insert((index, new_cost));
                 }
-                Occupied(mut e) => if e.get().1 > new_cost {
-                    h = heuristic(e.key());
-                    n = e.index();
-                    e.insert((index, new_cost));
-                } else {
-                    continue;
-                },
+                Occupied(mut e) => {
+                    if e.get().1 > new_cost {
+                        h = heuristic(e.key());
+                        n = e.index();
+                        e.insert((index, new_cost));
+                    } else {
+                        continue;
+                    }
+                }
             }
 
             to_see.push(SmallestCostHolder {
@@ -226,21 +228,23 @@ where
                     p.insert(index);
                     e.insert((p, new_cost));
                 }
-                Occupied(mut e) => if e.get().1 > new_cost {
-                    h = heuristic(e.key());
-                    n = e.index();
-                    let s = e.get_mut();
-                    s.0.clear();
-                    s.0.insert(index);
-                    s.1 = new_cost;
-                } else {
-                    if e.get().1 == new_cost {
-                        // New parent with an identical cost, this is not
-                        // considered as an insertion.
-                        e.get_mut().0.insert(index);
+                Occupied(mut e) => {
+                    if e.get().1 > new_cost {
+                        h = heuristic(e.key());
+                        n = e.index();
+                        let s = e.get_mut();
+                        s.0.clear();
+                        s.0.insert(index);
+                        s.1 = new_cost;
+                    } else {
+                        if e.get().1 == new_cost {
+                            // New parent with an identical cost, this is not
+                            // considered as an insertion.
+                            e.get_mut().0.insert(index);
+                        }
+                        continue;
                     }
-                    continue;
-                },
+                }
             }
 
             to_see.push(SmallestCostHolder {

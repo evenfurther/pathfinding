@@ -18,9 +18,11 @@ fn neighbours_wikipedia() -> Vec<((char, char), i32)> {
             ("EB", 1),
             ("EG", 1),
             ("FG", 9),
-        ].into_iter()
+        ]
+        .into_iter()
         .map(|(s, c)| ((s.chars().nth(0).unwrap(), s.chars().nth(1).unwrap()), c)),
-    ).collect()
+    )
+    .collect()
 }
 
 fn check_wikipedia_result(flows: EKFlows<char, i32>) {

@@ -14,7 +14,8 @@ fn method1() {
             let line = line.replace(" <->", ",");
             let mut words = line.split(", ").map(|w| w.parse::<usize>().unwrap());
             (words.next().unwrap(), words.collect::<Vec<_>>())
-        }).collect::<HashMap<_, _>>();
+        })
+        .collect::<HashMap<_, _>>();
     let all_nodes = pipes.keys().cloned().collect::<Vec<_>>();
     let components = connected_components(&all_nodes, |&n| {
         pipes.get(&n).cloned().unwrap_or_else(|| vec![])
@@ -32,7 +33,8 @@ fn method2() {
                 .split(", ")
                 .map(|w| w.parse::<usize>().unwrap())
                 .collect::<Vec<_>>()
-        }).collect::<Vec<_>>();
+        })
+        .collect::<Vec<_>>();
     let (indices, groups) = separate_components(&pipes);
     let zero = indices[&0];
     assert_eq!(152, indices.values().filter(|&g| *g == zero).count());
@@ -48,7 +50,8 @@ fn method3() {
                 .split(", ")
                 .map(|w| w.parse::<usize>().unwrap())
                 .collect::<Vec<_>>()
-        }).collect::<Vec<_>>();
+        })
+        .collect::<Vec<_>>();
     let groups = components(&pipes);
     let zero = groups.iter().find(|g| g.contains(&0)).unwrap();
     assert_eq!(152, zero.len());

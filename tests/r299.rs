@@ -34,7 +34,8 @@ fn parse(input: &str) -> (Vec<Point>, HashMap<Point, NeighbourInfo>) {
             l.split(' ')
                 .map(|s| s.parse::<usize>().unwrap_or(0))
                 .collect::<Vec<_>>()
-        }).for_each(|words| {
+        })
+        .for_each(|words| {
             let src = Point {
                 row: words[0],
                 col: words[1],
@@ -78,7 +79,8 @@ fn main() {
                     |n| graph[n].iter().cloned(),
                     |n| distance(n, target),
                     |n| n == target,
-                ).unwrap()
+                )
+                .unwrap()
                 .1,
                 expected
             );
@@ -94,7 +96,8 @@ fn main() {
                     |n| graph[n].iter().cloned(),
                     |n| distance(n, target),
                     |n| n == target,
-                ).unwrap()
+                )
+                .unwrap()
                 .1,
                 expected
             );
@@ -106,7 +109,8 @@ fn main() {
                         |n| graph[n].iter().cloned(),
                         |n| distance(n, target),
                         |n| n == target,
-                    ).unwrap()
+                    )
+                    .unwrap()
                     .1,
                     expected
                 );

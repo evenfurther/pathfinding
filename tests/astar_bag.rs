@@ -22,7 +22,8 @@ fn multiple_sinks() {
         },
         |_| 0,
         |&n| n == 4 || n == 7,
-    ).unwrap();
+    )
+    .unwrap();
     assert_eq!(cost, 4);
     assert_eq!(
         solutions.sorted(),
@@ -52,7 +53,8 @@ fn numerous_solutions() {
         },
         |&n| GOAL.saturating_sub(n) / 2,
         |&n| n == GOAL,
-    ).unwrap();
+    )
+    .unwrap();
     assert_eq!(cost, N * 2);
     assert_eq!(solutions.count(), 1 << N);
 }
