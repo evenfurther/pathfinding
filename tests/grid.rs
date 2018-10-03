@@ -22,6 +22,7 @@ fn empty_grid() {
     assert_eq!(g.iter().next(), None);
     assert!(g.is_empty());
     assert!(g.is_full());
+    assert_eq!(g.edges().next(), None);
 }
 
 #[test]
@@ -31,6 +32,7 @@ fn one_point_grid() {
     g.fill();
     assert_eq!(g.iter().collect_vec(), vec![(0, 0)]);
     assert_eq!(g.neighbours(&(0, 0)), vec![]);
+    assert_eq!(g.edges().next(), None);
 }
 
 #[test]
@@ -308,4 +310,53 @@ fn remove_borders_flat() {
     assert_eq!(g.remove_borders(), 0);
     g.fill();
     assert_eq!(g.remove_borders(), 4);
+}
+
+#[test]
+fn edges() {
+    let mut g = Grid::new(2, 2);
+    g.fill();
+    let mut edges = g.edges().collect::<Vec<_>>();
+    edges.sort();
+    assert_eq!(
+        edges,
+        vec![
+            ((0, 0), (0, 1)),
+            ((0, 0), (1, 0)),
+            ((0, 1), (1, 1)),
+            ((1, 0), (1, 1))
+        ]
+    );
+    g.enable_diagonal_mode();
+    let mut edges = g.edges().collect::<Vec<_>>();
+    edges.sort();
+    assert_eq!(
+        edges,
+        vec![
+            ((0, 0), (0, 1)),
+            ((0, 0), (1, 0)),
+            ((0, 0), (1, 1)),
+            ((0, 1), (1, 1)),
+            ((1, 0), (0, 1)),
+            ((1, 0), (1, 1))
+        ]
+    );
+    let mut g = Grid::new(3, 3);
+    g.fill();
+    g.remove_vertex(&(1, 1));
+    let mut edges = g.edges().collect::<Vec<_>>();
+    edges.sort();
+    assert_eq!(
+        edges,
+        vec![
+            ((0, 0), (0, 1)),
+            ((0, 0), (1, 0)),
+            ((0, 1), (0, 2)),
+            ((0, 2), (1, 2)),
+            ((1, 0), (2, 0)),
+            ((1, 2), (2, 2)),
+            ((2, 0), (2, 1)),
+            ((2, 1), (2, 2))
+        ]
+    );
 }
