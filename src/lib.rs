@@ -30,5 +30,6 @@ pub mod prelude {
     pub use crate::kuhn_munkres::*;
     pub use crate::matrix::*;
     pub use crate::undirected::connected_components::*;
+    pub use crate::undirected::kruskal::*;
     pub use crate::utils::*;
 }
