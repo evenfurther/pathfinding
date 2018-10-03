@@ -241,7 +241,7 @@ impl Grid {
     }
 
     /// Iterate over edges.
-    pub fn edges<'a>(&'a self) -> EdgesIterator<'a> {
+    pub fn edges(&self) -> EdgesIterator {
         EdgesIterator {
             grid: &self,
             x: 0,
