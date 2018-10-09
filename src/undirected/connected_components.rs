@@ -7,17 +7,14 @@ use std::iter::once;
 use std::usize;
 
 /// Lookup entries until we get the same value as the index, with
-/// path compression. Adding a new entry to the table consists
+/// path halving. Adding a new entry to the table consists
 /// into pushing the table length.
-fn get_and_redirect(table: &mut Vec<usize>, idx: usize) -> usize {
-    let r = table[idx];
-    if idx == r {
-        idx
-    } else {
-        let r = get_and_redirect(table, r);
-        table[idx] = r;
-        r
+fn get_and_redirect(table: &mut Vec<usize>, mut idx: usize) -> usize {
+    while idx != table[idx] {
+        table[idx] = table[table[idx]];
+        idx = table[idx];
     }
+    idx
 }
 
 /// Separate components of an undirected graph into disjoint sets.
