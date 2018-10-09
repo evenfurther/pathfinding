@@ -1,9 +1,18 @@
 #[macro_use]
 extern crate criterion;
+extern crate itertools;
 extern crate pathfinding;
+extern crate rand;
 
 use criterion::Criterion;
-use pathfinding::prelude::{astar, bfs, dfs, dijkstra, fringe, idastar, iddfs};
+use itertools::Itertools;
+use pathfinding::prelude::{
+    astar, bfs, dfs, dijkstra, fringe, idastar, iddfs, separate_components,
+};
+use rand::prng::XorShiftRng;
+use rand::{Rng, RngCore, SeedableRng};
+use std::collections::HashSet;
+use std::usize;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 struct Pt {
@@ -193,6 +202,55 @@ fn no_path_fringe(c: &mut Criterion) {
     });
 }
 
+fn bench_separate_components(c: &mut Criterion) {
+    c.bench_function("separate_components", |b| {
+        let mut rng = XorShiftRng::from_seed([
+            3, 42, 93, 129, 1, 85, 72, 42, 84, 23, 95, 212, 253, 10, 4, 2,
+        ]);
+        let mut seen = HashSet::new();
+        let mut components = (0..100)
+            .map(|_| {
+                let mut component = Vec::new();
+                for _ in 0..100 {
+                    let node = rng.next_u64();
+                    if !seen.contains(&node) {
+                        seen.insert(node);
+                        component.push(node);
+                    }
+                }
+                component.sort();
+                assert!(
+                    !component.is_empty(),
+                    "component is empty, rng seed needs changing"
+                );
+                component
+            })
+            .collect_vec();
+        components.sort_by_key(|c| c[0]);
+        let mut groups = components
+            .iter()
+            .flat_map(|component| {
+                let mut component = component.clone();
+                rng.shuffle(&mut component);
+                let mut subcomponents = Vec::new();
+                while !component.is_empty() {
+                    let cut = rng.gen_range(0, component.len());
+                    let mut subcomponent = component.drain(cut..).collect_vec();
+                    if !component.is_empty() {
+                        subcomponent.push(component[0]);
+                    }
+                    rng.shuffle(&mut subcomponent);
+                    subcomponents.push(subcomponent);
+                }
+                subcomponents
+            })
+            .collect_vec();
+        rng.shuffle(&mut groups);
+        // The result is already checked in a separate test.
+        b.iter(|| separate_components(&groups));
+    });
+}
+
 // We do not test IDA* and IDDFS with the no_path variant
 // as the successive increasing full explorations of the
 // maze will take too much time.
@@ -209,5 +267,6 @@ criterion_group!(
     no_path_bfs,
     no_path_dijkstra,
     no_path_fringe,
+    bench_separate_components,
 );
 criterion_main!(benches);
