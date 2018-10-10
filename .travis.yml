@@ -49,11 +49,7 @@ script: |
   else
     cargo build --all
   fi
-  if [ -n "$NIGHTLY" ]; then
-    cargo test --all-targets
-  else
-    cargo test --all
-  fi
+  cargo test --tests --examples
 
 notifications:
     webhooks:
