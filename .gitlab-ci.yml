@@ -15,7 +15,7 @@ cache:
   before_script:
     - rustup install $RUST
   script:
-    - cargo +$RUST test
+    - cargo +$RUST test --tests --examples
 
 stable:
   <<: *cargo_test

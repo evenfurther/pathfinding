@@ -18,10 +18,23 @@ num-traits = "0.2"
 indexmap = "1.0"
 
 [dev-dependencies]
+criterion = "0.2"
 lazy_static = "1.0.0"
 movingai = "0.7.0"
 noisy_float = "0.1.5"
 rand = "0.5"
+
+[[bench]]
+name = "algos"
+harness = false
+
+[[bench]]
+name = "algos-fill"
+harness = false
+
+[[bench]]
+name = "movingai"
+harness = false
 
 [badges]
 appveyor = { repository = "samueltardieu/pathfinding" }

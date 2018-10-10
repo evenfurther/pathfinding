@@ -27,21 +27,29 @@ cache:
   directories:
     - /home/travis/.cargo
 
-before_cache:
-  - rm -rf /home/travis/.cargo/registry
+before_cache: |
+  rm -rf /home/travis/.cargo/registry
 
-install:
-  - if [ ! -z "$CHECK_FMT" ]; then rustup component add rustfmt-preview; fi
-  - if [ ! -z "$CHECK_CLIPPY" ]; then rustup component add clippy-preview; fi
+install: |
+  if [ ! -z "$CHECK_FMT" ]; then rustup component add rustfmt-preview; fi
+  if [ ! -z "$CHECK_CLIPPY" ]; then rustup component add clippy-preview; fi
 
-before_script:
-  - if [ ! -z "$CHECK_FMT" ]; then PATH=$PATH:~/.cargo/bin cargo fmt --all -- --check; fi
-  - if [ ! -z "$CHECK_CLIPPY" ]; then PATH=$PATH:~/.cargo/bin cargo clippy --all -- -D clippy; fi
-  - if [ ! -z "$MINIMAL" ]; then PATH=$PATH:~/.cargo/bin cargo update -Z minimal-versions; fi
+before_script: |
+  if [ ! -z "$CHECK_FMT" ]; then PATH=$PATH:~/.cargo/bin cargo fmt --all -- --check; fi
+  if [ ! -z "$CHECK_CLIPPY" ]; then PATH=$PATH:~/.cargo/bin cargo clippy --all -- -D clippy; fi
+  if [ ! -z "$MINIMAL" ]; then PATH=$PATH:~/.cargo/bin cargo update -Z minimal-versions; fi
 
-script:
-  - if [ "$NIGHTLY" ]; then cargo build --all-targets; else cargo build --all; fi
-  - if [ "$NIGHTLY" ]; then cargo test --all-targets; else cargo test --all; fi
+script: |
+  if [ -n "$MINIMAL" ]; then
+    cargo build
+    exit 0
+  fi
+  if [ -n "$NIGHTLY" ]; then
+    cargo build --all-targets
+  else
+    cargo build --all
+  fi
+  cargo test --tests --examples
 
 notifications:
     webhooks:
