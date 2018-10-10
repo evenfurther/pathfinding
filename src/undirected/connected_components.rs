@@ -1,6 +1,7 @@
 //! Separate components of an undirected graph into disjoint sets.
 
 use itertools::Itertools;
+use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::iter::once;
@@ -40,48 +41,36 @@ pub fn separate_components<N>(groups: &[Vec<N>]) -> (HashMap<N, usize>, Vec<usiz
 where
     N: Clone + Hash + Eq,
 {
-    let mut table = Vec::new();
+    let mut table = (0..groups.len()).collect_vec();
     let mut indices = HashMap::new();
-    let mut gindices = Vec::with_capacity(groups.len());
-    for g in groups {
-        let idxs = g
-            .iter()
-            .map(|n| {
-                indices
-                    .get(n)
-                    .map(|&i| get_and_redirect(&mut table, i))
-                    .unwrap_or_else(|| {
-                        let l = table.len();
-                        indices.insert(n, l);
-                        table.push(l);
-                        l
-                    })
-            })
-            .collect_vec();
-        let &idx = idxs.iter().min().unwrap_or(&usize::MAX);
-        for i in idxs {
-            if i != idx {
-                table[i] = idx;
+    for (mut group_index, group) in groups.iter().enumerate() {
+        if group.is_empty() {
+            table[group_index] = usize::MAX;
+        }
+        for element in group {
+            match indices.entry(element.clone()) {
+                Occupied(e) => {
+                    table[group_index] = get_and_redirect(&mut table, *e.get());
+                    group_index = table[group_index];
+                }
+                Vacant(e) => {
+                    e.insert(group_index);
+                }
             }
         }
-        gindices.push(idx);
     }
-    (
-        indices
-            .into_iter()
-            .map(|(n, i)| (n.clone(), get_and_redirect(&mut table, i)))
-            .collect(),
-        gindices
-            .into_iter()
-            .map(|i| {
-                if i == usize::MAX {
-                    i
-                } else {
-                    get_and_redirect(&mut table, i)
-                }
-            })
-            .collect(),
-    )
+    for group_index in indices.values_mut() {
+        *group_index = get_and_redirect(&mut table, *group_index);
+    }
+    for group_index in 0..groups.len() {
+        if table[group_index] != usize::MAX {
+            let target = get_and_redirect(&mut table, group_index);
+            // Due to path halving, this particular entry might not
+            // be up-to-date yet.
+            table[group_index] = target;
+        }
+    }
+    (indices, table)
 }
 
 /// Separate components of an undirected graph into disjoint sets.
