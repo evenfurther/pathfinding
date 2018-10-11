@@ -309,3 +309,41 @@ impl<C> AsMut<[C]> for Matrix<C> {
         &mut self.data
     }
 }
+
+/// The matrix! macro allows the declaration of a Matrix from static data.
+/// All rows must have the same number of columns. The data will be copied
+/// into the matrix.
+///
+/// # Panics
+///
+/// This macro panics if the rows have an inconsistent number of columns.
+///
+/// # Example
+///
+/// ```
+/// #[macro_use] extern crate pathfinding;
+///
+/// use pathfinding::matrix::*;
+///
+/// let m = matrix![[10, 20, 30], [40, 50, 60]];
+///
+/// assert_eq!(m.columns, 3);
+/// assert_eq!(m.rows, 2);
+/// ```
+#[macro_export]
+macro_rules! matrix {
+    ($a:expr) => {{
+        let mut m = Matrix::new_empty($a.len());
+        m.extend(&$a);
+        m
+    }};
+    ($a:expr, $($b: expr),+) => {{
+        let mut m = matrix!($a);
+        let mut r = 0;
+        $(
+            m.extend(&$b);
+        )+
+        m
+    }};
+    ($a:expr, $($b: expr),+, ) => (matrix!($a, $($b),+))
+}
