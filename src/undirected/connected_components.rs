@@ -6,15 +6,36 @@ use std::hash::Hash;
 use std::iter::once;
 use std::usize;
 
-/// Lookup entries until we get the same value as the index, with
-/// path halving. Adding a new entry to the table consists
-/// into pushing the table length.
-fn get_and_redirect(table: &mut [usize], mut idx: usize) -> usize {
-    while idx != table[idx] {
-        table[idx] = table[table[idx]];
-        idx = table[idx];
+fn join(table: &mut [usize], mut rx: usize, mut ry: usize) -> usize {
+    while table[rx] != table[ry] {
+        if table[rx] > table[ry] {
+            if rx == table[rx] {
+                table[rx] = table[ry];
+                break;
+            }
+            let z = table[rx];
+            table[rx] = table[ry];
+            rx = z;
+        } else {
+            if ry == table[ry] {
+                table[ry] = table[rx];
+                break;
+            }
+            let z = table[ry];
+            table[ry] = table[rx];
+            ry = z;
+        }
     }
-    idx
+    table[rx]
+}
+
+fn find(table: &mut [usize], mut x: usize) -> usize {
+    while table[x] != x {
+        let t = table[x];
+        table[x] = table[table[x]];
+        x = t;
+    }
+    x
 }
 
 /// Separate components of an undirected graph into disjoint sets.
@@ -50,8 +71,7 @@ where
         for element in group {
             match indices.entry(element) {
                 Occupied(e) => {
-                    table[group_index] = get_and_redirect(&mut table, *e.get());
-                    group_index = table[group_index];
+                    group_index = join(&mut table, group_index, *e.get());
                 }
                 Vacant(e) => {
                     e.insert(group_index);
@@ -60,13 +80,12 @@ where
         }
     }
     for group_index in indices.values_mut() {
-        *group_index = get_and_redirect(&mut table, *group_index);
+        *group_index = find(&mut table, *group_index);
     }
+    // Flatten the table.
     for group_index in 0..groups.len() {
-        if table[group_index] != usize::max_value() {
-            let target = get_and_redirect(&mut table, group_index);
-            // Due to path halving, this particular entry might not
-            // be up-to-date yet.
+        if table[group_index] != usize::MAX {
+            let target = find(&mut table, group_index);
             table[group_index] = target;
         }
     }
