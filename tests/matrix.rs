@@ -63,13 +63,7 @@ fn square_from_vec_panic() {
 }
 
 #[test]
-#[should_panic]
-fn non_square_rotate_panic() {
-    Matrix::from_vec(1, 2, vec![1, 2]).rotated_cw(1);
-}
-
-#[test]
-fn rotate() {
+fn square_rotate() {
     // 0 1 => 2 0 => 3 2  => 1 3
     // 2 3    3 1    1 0     0 2
     let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3]);
@@ -122,6 +116,24 @@ fn rotate() {
     assert_eq!(m1.rotated_cw(0), m1);
     assert_eq!(m1.rotated_cw(1), m2);
     assert_eq!(m2.rotated_cw(3), m1);
+}
+
+#[test]
+fn non_square_rotate() {
+    let m0 = matrix![[10, 20, 30], [40, 50, 60]];
+    let m1 = matrix![[40, 10], [50, 20], [60, 30]];
+    let m2 = matrix![[60, 50, 40], [30, 20, 10]];
+    let m3 = matrix![[30, 60], [20, 50], [10, 40]];
+    assert_eq!(m0.rotated_cw(0), m0);
+    assert_eq!(m0.rotated_cw(1), m1);
+    assert_eq!(m0.rotated_cw(2), m2);
+    assert_eq!(m0.rotated_cw(3), m3);
+    assert_eq!(m0.rotated_cw(4), m0);
+    assert_eq!(m0.rotated_ccw(0), m0);
+    assert_eq!(m0.rotated_ccw(1), m3);
+    assert_eq!(m0.rotated_ccw(2), m2);
+    assert_eq!(m0.rotated_ccw(3), m1);
+    assert_eq!(m0.rotated_ccw(4), m0);
 }
 
 #[test]

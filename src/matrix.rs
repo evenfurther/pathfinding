@@ -56,28 +56,39 @@ impl<C: Clone> Matrix<C> {
         Matrix::from_vec(height, width, v)
     }
 
-    /// Return a copy of a square matrix rotated clock-wise
+    /// Return a copy of a matrix rotated clock-wise
     /// a number of times.
-    ///
-    /// # Panics
-    ///
-    /// This function panics if the matrix is not square.
     pub fn rotated_cw(&self, times: usize) -> Matrix<C> {
-        let mut copy = self.clone();
-        copy.rotate_cw(times);
-        copy
+        if self.is_square() {
+            let mut copy = self.clone();
+            copy.rotate_cw(times);
+            copy
+        } else {
+            match times % 4 {
+                0 => self.clone(),
+                1 => {
+                    let mut copy = self.transposed();
+                    copy.flip_lr();
+                    copy
+                }
+                2 => {
+                    let mut copy = self.clone();
+                    copy.data.reverse();
+                    copy
+                }
+                _ => {
+                    let mut copy = self.transposed();
+                    copy.flip_ud();
+                    copy
+                }
+            }
+        }
     }
 
-    /// Return a copy of a square matrix rotated counter-clock-wise
+    /// Return a copy of a matrix rotated counter-clock-wise
     /// a number of times.
-    ///
-    /// # Panics
-    ///
-    /// This function panics if the matrix is not square.
     pub fn rotated_ccw(&self, times: usize) -> Matrix<C> {
-        let mut copy = self.clone();
-        copy.rotate_ccw(times);
-        copy
+        self.rotated_cw(4 - (times % 4))
     }
 
     /// Return a copy of the matrix flipped along the vertical axis.
