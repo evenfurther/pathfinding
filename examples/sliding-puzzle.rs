@@ -176,7 +176,7 @@ fn main() {
             "idastar: {} moves in {}.{:03} seconds",
             result.1,
             elapsed.as_secs(),
-            elapsed.subsec_nanos() / 1_000_000
+            elapsed.subsec_millis()
         );
         result
     };
@@ -188,7 +188,7 @@ fn main() {
             "astar: {} moves in {}.{:03} seconds",
             result.1,
             elapsed.as_secs(),
-            elapsed.subsec_nanos() / 1_000_000
+            elapsed.subsec_millis()
         );
         result
     };
