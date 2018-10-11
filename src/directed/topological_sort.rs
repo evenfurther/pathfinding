@@ -12,7 +12,8 @@ use std::hash::Hash;
 /// or `Err` with a node belonging to a cycle. In the latter case, the
 /// strongly connected set can then be found using the
 /// [strongly_connected_component](super::strongly_connected_components::strongly_connected_component)
-/// function.
+/// function, or if only one of the loops is needed the [bfs_loop][super::bfs::bfs_loop] function
+/// can be used instead to identify one of the shortest loops involving this node.
 ///
 /// # Examples
 ///
@@ -22,21 +23,49 @@ use std::hash::Hash;
 /// ```
 /// use pathfinding::prelude::topological_sort;
 ///
-/// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5],
-///                               |&n| (n+1..10).take(2));
-///  assert_eq!(sorted, Ok(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]));
+/// fn neighbours(node: &usize) -> Vec<usize> {
+///   match *node {
+///     n if n <= 7 => vec![n+1, n+2],
+///     8 => vec![9],
+///     _ => vec![],
+///   }
+/// }
+///
+/// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5], neighbours);
+/// assert_eq!(sorted, Ok(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]));
 /// ```
 ///
-/// If, however, there is a loop in the graph (for example, all nodes including
-/// 9, have 9 has a successor), one of the nodes in the loop will be returned as
+/// If, however, there is a loop in the graph (for example, all nodes but 7
+/// have also 7 has a successor), one of the nodes in the loop will be returned as
 /// an error:
 ///
 /// ```
-/// use pathfinding::prelude::topological_sort;
+/// use pathfinding::prelude::*;
 ///
-/// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5],
-///                               |&n| (n+1..10).take(2).chain(std::iter::once(9)));
-///  assert_eq!(sorted, Err(9));
+/// fn neighbours(node: &usize) -> Vec<usize> {
+///   match *node {
+///     n if n <= 6 => vec![n+1, n+2, 7],
+///     7 => vec![8, 9],
+///     8 => vec![7, 9],
+///     _ => vec![7],
+///   }
+/// }
+///
+/// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5], neighbours);
+/// assert!(sorted.is_err());
+///
+/// // Let's assume that the returned node is 8 (it can be any node which is part
+/// // of a loop). We can lookup up one of the shortest loops containing 8
+/// // (8 -> 7 -> 8 is the unique loop with two hops containing 8):
+///
+/// assert_eq!(bfs_loop(&8, neighbours), Some(vec![8, 7, 8]));
+///
+/// // We can also request the whole strongly connected set containing 8. Here
+/// // 7, 8, and 9 are all reachable from one another.
+///
+/// let mut set = strongly_connected_component(&8, neighbours);
+/// set.sort();
+/// assert_eq!(set, vec![7, 8, 9]);
 /// ```
 pub fn topological_sort<N, FN, IN>(nodes: &[N], mut successors: FN) -> Result<Vec<N>, N>
 where
