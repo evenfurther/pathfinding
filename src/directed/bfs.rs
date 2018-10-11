@@ -93,3 +93,44 @@ where
     }
     None
 }
+
+/// Return one of the shortest loop from start to start if it exists, `None` otherwise.
+///
+/// - `start` is the starting node.
+/// - `neighbours` returns a list of neighbours for a given node.
+///
+/// Except the start node which will be included both at the beginning and the end of
+/// the path, a node will never be included twice in the path as determined
+/// by the `Eq` relationship.
+pub fn bfs_loop<N, FN, IN>(start: &N, mut neighbours: FN) -> Option<Vec<N>>
+where
+    N: Eq + Hash + Clone,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+{
+    // If the node is linked to itself, we have the shortest path.
+    if neighbours(start).into_iter().any(|n| &n == start) {
+        return Some(vec![start.clone(), start.clone()]);
+    }
+    // We will go through all the neighbours and look for a path to the start.
+    let mut shortest = None;
+    let mut shortest_len = usize::MAX;
+    for neighbour in neighbours(start).into_iter() {
+        if let Some(path) = bfs(&neighbour, &mut neighbours, |n| n == start) {
+            let path_len = path.len();
+            if path_len < shortest_len {
+                shortest_len = path_len;
+                shortest = Some(path);
+            }
+            if path_len == 2 {
+                break; // We will never find a shorter path than neighbour->start
+            }
+        }
+    }
+    shortest.map(|mut path| {
+        let mut cycle = Vec::with_capacity(path.len() + 1);
+        cycle.push(start.clone());
+        cycle.append(&mut path);
+        cycle
+    })
+}

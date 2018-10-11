@@ -83,6 +83,15 @@ mod ex1 {
     fn dfs_loop_ok() {
         assert_eq!(dfs(1, |_| vec![1], |&n| n == 2), None);
     }
+
+    #[test]
+    fn bfs_loops() {
+        let neighbours = |n: &u8| neighbours(n).into_iter().map(|(n, _)| n);
+        assert_eq!(bfs_loop(&0, neighbours), Some(vec![0, 1, 0]));
+        assert_eq!(bfs_loop(&1, neighbours), Some(vec![1, 0, 1]));
+        assert_eq!(bfs_loop(&2, neighbours), Some(vec![2, 5, 1, 0, 2]));
+        assert_eq!(bfs_loop(&8, neighbours), None);
+    }
 }
 
 mod ex2 {
