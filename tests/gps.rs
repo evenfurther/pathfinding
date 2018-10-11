@@ -39,46 +39,46 @@ fn coords() -> HashMap<&'static str, Coords> {
     .collect()
 }
 
-fn neighbour_distances(
+fn successor_distances(
     coords: &HashMap<&str, Coords>,
 ) -> HashMap<&'static str, Vec<(&'static str, u64)>> {
-    let mut neighbours = HashMap::new();
+    let mut successors = HashMap::new();
     {
-        let mut insert_neighbour = |from: &'static str, to: &'static str| {
+        let mut insert_successor = |from: &'static str, to: &'static str| {
             let from_coords = &coords[from];
             let ns = to
                 .split(',')
-                .map(|neighbour| {
+                .map(|successor| {
                     (
-                        neighbour,
-                        from_coords.distance_in_meters(&coords[neighbour]),
+                        successor,
+                        from_coords.distance_in_meters(&coords[successor]),
                     )
                 })
                 .collect();
-            neighbours.insert(from, ns);
+            successors.insert(from, ns);
         };
-        insert_neighbour("Paris", "Lyon,Bordeaux,Reims");
-        insert_neighbour("Lyon", "Paris,Marseille");
-        insert_neighbour("Marseille", "Lyon,Cannes,Toulouse");
-        insert_neighbour("Bordeaux", "Toulouse,Paris");
-        insert_neighbour("Cannes", "Marseille");
-        insert_neighbour("Toulouse", "Marseille,Bordeaux");
-        insert_neighbour("Reims", "Paris");
+        insert_successor("Paris", "Lyon,Bordeaux,Reims");
+        insert_successor("Lyon", "Paris,Marseille");
+        insert_successor("Marseille", "Lyon,Cannes,Toulouse");
+        insert_successor("Bordeaux", "Toulouse,Paris");
+        insert_successor("Cannes", "Marseille");
+        insert_successor("Toulouse", "Marseille,Bordeaux");
+        insert_successor("Reims", "Paris");
     }
-    neighbours
+    successors
 }
 
 #[test]
 fn test_gps() {
     let coords = coords();
-    let neighbour_distances = neighbour_distances(&coords);
+    let successor_distances = successor_distances(&coords);
     let (start, goal) = ("Paris", "Cannes");
     let goal_coords = &coords[goal];
     let expected_path = vec!["Paris", "Lyon", "Marseille", "Cannes"];
 
     let r = astar(
         &start,
-        |city| neighbour_distances[city].clone(),
+        |city| successor_distances[city].clone(),
         |city| goal_coords.distance_in_meters(&coords[city]),
         |city| city == &goal,
     );
@@ -87,7 +87,7 @@ fn test_gps() {
 
     let r = fringe(
         &start,
-        |city| neighbour_distances[city].clone(),
+        |city| successor_distances[city].clone(),
         |city| goal_coords.distance_in_meters(&coords[city]),
         |city| city == &goal,
     );
@@ -101,7 +101,7 @@ fn test_gps() {
 
     let r = dijkstra(
         &start,
-        |city| neighbour_distances[city].clone(),
+        |city| successor_distances[city].clone(),
         |city| city == &goal,
     );
     let (path, cost_dijkstra) = r.expect("no path found with dijkstra");
@@ -114,7 +114,7 @@ fn test_gps() {
 
     let r = idastar(
         &start,
-        |city| neighbour_distances[city].clone(),
+        |city| successor_distances[city].clone(),
         |city| goal_coords.distance_in_meters(&coords[city]),
         |city| city == &goal,
     );

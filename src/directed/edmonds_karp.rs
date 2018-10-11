@@ -148,8 +148,8 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
         self.common().sink
     }
 
-    /// List of neighbours with positive residual capacity and this capacity.
-    fn residual_neighbours(&self, from: usize) -> Vec<(usize, C)>;
+    /// List of successors with positive residual capacity and this capacity.
+    fn residual_successors(&self, from: usize) -> Vec<(usize, C)>;
 
     /// Residual capacity between two nodes.
     fn residual_capacity(&self, from: usize, to: usize) -> C;
@@ -222,17 +222,17 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
             to_see.push_back(source);
             while let Some(node) = to_see.pop_front() {
                 let capacity_so_far = path_capacity[node];
-                for (neighbour, residual) in self.residual_neighbours(node).iter().cloned() {
-                    if neighbour == source || parents[neighbour].is_some() {
+                for (successor, residual) in self.residual_successors(node).iter().cloned() {
+                    if successor == source || parents[successor].is_some() {
                         continue;
                     }
-                    parents[neighbour] = Some(node);
-                    path_capacity[neighbour] = if capacity_so_far < residual {
+                    parents[successor] = Some(node);
+                    path_capacity[successor] = if capacity_so_far < residual {
                         capacity_so_far
                     } else {
                         residual
                     };
-                    if neighbour == sink {
+                    if successor == sink {
                         let mut n = sink;
                         while n != source {
                             let p = parents[n].unwrap();
@@ -247,7 +247,7 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
                         path_capacity.resize(size, C::max_value());
                         continue 'augment;
                     }
-                    to_see.push_back(neighbour);
+                    to_see.push_back(successor);
                 }
             }
             break;
@@ -378,7 +378,7 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
         &mut self.common
     }
 
-    fn residual_neighbours(&self, from: usize) -> Vec<(usize, C)> {
+    fn residual_successors(&self, from: usize) -> Vec<(usize, C)> {
         self.residuals
             .get(&from)
             .map(|ns| {
@@ -494,7 +494,7 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
         &mut self.common
     }
 
-    fn residual_neighbours(&self, from: usize) -> Vec<(usize, C)> {
+    fn residual_successors(&self, from: usize) -> Vec<(usize, C)> {
         (0..self.common.size)
             .filter_map(|n| {
                 let residual = self.residual_capacity(from, n);

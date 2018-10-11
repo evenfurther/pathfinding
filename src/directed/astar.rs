@@ -19,8 +19,8 @@ use super::reverse_path;
 /// is returned instead.
 ///
 /// - `start` is the starting node.
-/// - `neighbours` returns a list of neighbours for a given node, along with the cost for moving
-/// from the node to the neighbour.
+/// - `successors` returns a list of successors for a given node, along with the cost for moving
+/// from the node to the successor.
 /// - `heuristic` returns an approximation of the cost from a given node to the goal. The
 /// approximation must not be greater than the real cost, or a wrong shortest path may be returned.
 /// - `success` checks whether the goal has been reached. It is not a node as some problems require
@@ -48,7 +48,7 @@ use super::reverse_path;
 ///     (absdiff(self.0, other.0) + absdiff(self.1, other.1)) as u32
 ///   }
 ///
-///   fn neighbours(&self) -> Vec<(Pos, u32)> {
+///   fn successors(&self) -> Vec<(Pos, u32)> {
 ///     let &Pos(x, y) = self;
 ///     vec![Pos(x+1,y+2), Pos(x+1,y-2), Pos(x-1,y+2), Pos(x-1,y-2),
 ///          Pos(x+2,y+1), Pos(x+2,y-1), Pos(x-2,y+1), Pos(x-2,y-1)]
@@ -57,7 +57,7 @@ use super::reverse_path;
 /// }
 ///
 /// static GOAL: Pos = Pos(4, 6);
-/// let result = astar(&Pos(1, 1), |p| p.neighbours(), |p| p.distance(&GOAL) / 3,
+/// let result = astar(&Pos(1, 1), |p| p.successors(), |p| p.distance(&GOAL) / 3,
 ///                    |p| *p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
@@ -79,7 +79,7 @@ use super::reverse_path;
 /// ```
 pub fn astar<N, C, FN, IN, FH, FS>(
     start: &N,
-    mut neighbours: FN,
+    mut successors: FN,
     mut heuristic: FH,
     mut success: FS,
 ) -> Option<(Vec<N>, C)>
@@ -100,7 +100,7 @@ where
     let mut parents: IndexMap<N, (usize, C)> = IndexMap::new();
     parents.insert(start.clone(), (usize::MAX, Zero::zero()));
     while let Some(SmallestCostHolder { cost, index, .. }) = to_see.pop() {
-        let neighbours = {
+        let successors = {
             let (node, &(_, c)) = parents.get_index(index).unwrap();
             if success(node) {
                 let path = reverse_path(&parents, |&(p, _)| p, index);
@@ -112,13 +112,13 @@ where
             if cost > c {
                 continue;
             }
-            neighbours(node)
+            successors(node)
         };
-        for (neighbour, move_cost) in neighbours {
+        for (successor, move_cost) in successors {
             let new_cost = cost + move_cost;
-            let h; // heuristic(&neighbour)
-            let n; // index for neighbour
-            match parents.entry(neighbour) {
+            let h; // heuristic(&successor)
+            let n; // index for successor
+            match parents.entry(successor) {
                 Vacant(e) => {
                     h = heuristic(e.key());
                     n = e.index();
@@ -155,8 +155,8 @@ where
 /// each shortest path), wrapped in a `Some`. If no paths are found, `None` is returned.
 ///
 /// - `start` is the starting node.
-/// - `neighbours` returns a list of neighbours for a given node, along with the cost for moving
-/// from the node to the neighbour.
+/// - `successors` returns a list of successors for a given node, along with the cost for moving
+/// from the node to the successor.
 /// - `heuristic` returns an approximation of the cost from a given node to the goal. The
 /// approximation must not be greater than the real cost, or a wrong shortest path may be returned.
 /// - `success` checks whether the goal has been reached. It is not a node as some problems require
@@ -168,7 +168,7 @@ where
 /// start node, different paths may have different end nodes.
 pub fn astar_bag<N, C, FN, IN, FH, FS>(
     start: &N,
-    mut neighbours: FN,
+    mut successors: FN,
     mut heuristic: FH,
     mut success: FS,
 ) -> Option<(AstarSolution<N>, C)>
@@ -202,7 +202,7 @@ where
                 break;
             }
         }
-        let neighbours = {
+        let successors = {
             let (node, &(_, c)) = parents.get_index(index).unwrap();
             if success(node) {
                 min_cost = Some(cost);
@@ -214,13 +214,13 @@ where
             if cost > c {
                 continue;
             }
-            neighbours(node)
+            successors(node)
         };
-        for (neighbour, move_cost) in neighbours {
+        for (successor, move_cost) in successors {
             let new_cost = cost + move_cost;
-            let h; // heuristic(&neighbour)
-            let n; // index for neighbour
-            match parents.entry(neighbour) {
+            let h; // heuristic(&successor)
+            let n; // index for successor
+            match parents.entry(successor) {
                 Vacant(e) => {
                     h = heuristic(e.key());
                     n = e.index();
@@ -285,7 +285,7 @@ where
 /// The number of results with the same value might be very large in some graphs. Use with caution.
 pub fn astar_bag_collect<N, C, FN, IN, FH, FS>(
     start: &N,
-    neighbours: FN,
+    successors: FN,
     heuristic: FH,
     success: FS,
 ) -> Option<(Vec<Vec<N>>, C)>
@@ -297,7 +297,7 @@ where
     FH: FnMut(&N) -> C,
     FS: FnMut(&N) -> bool,
 {
-    astar_bag(start, neighbours, heuristic, success)
+    astar_bag(start, successors, heuristic, success)
         .map(|(solutions, cost)| (solutions.collect(), cost))
 }
 

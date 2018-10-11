@@ -44,7 +44,7 @@ lazy_static! {
         hole_idx: 0,
         weight: 0,
     };
-    static ref NEIGHBOURS: Vec<Vec<u8>> = (0..SIDE * SIDE)
+    static ref SUCCESSORS: Vec<Vec<u8>> = (0..SIDE * SIDE)
         .map(|idx| (0..4)
             .filter_map(|dir| match dir {
                 0 if idx % SIDE > 0 => Some(idx - 1),
@@ -93,8 +93,8 @@ impl Game {
         self.positions == GOAL.positions
     }
 
-    fn neighbours(&self) -> Vec<(Game, u8)> {
-        NEIGHBOURS[self.hole_idx as usize]
+    fn successors(&self) -> Vec<(Game, u8)> {
+        SUCCESSORS[self.hole_idx as usize]
             .iter()
             .map(|&n| (self.switch(n), 1))
             .collect()
@@ -170,7 +170,7 @@ fn main() {
     assert!(b.is_solvable());
     let idastar_result = {
         let before = Instant::now();
-        let result = idastar(&b, |b| b.neighbours(), |b| b.weight, |b| b.solved()).unwrap();
+        let result = idastar(&b, |b| b.successors(), |b| b.weight, |b| b.solved()).unwrap();
         let elapsed = before.elapsed();
         println!(
             "idastar: {} moves in {}.{:03} seconds",
@@ -182,7 +182,7 @@ fn main() {
     };
     let astar_result = {
         let before = Instant::now();
-        let result = astar(&b, |b| b.neighbours(), |b| b.weight, |b| b.solved()).unwrap();
+        let result = astar(&b, |b| b.successors(), |b| b.weight, |b| b.solved()).unwrap();
         let elapsed = before.elapsed();
         println!(
             "astar: {} moves in {}.{:03} seconds",

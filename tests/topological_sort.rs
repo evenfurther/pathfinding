@@ -38,7 +38,7 @@ fn order() {
 #[test]
 fn complexity() {
     // To ensure that the sort is O(|E| + |V|), we ensure that the
-    // neighbours for a particular node are requested exactly one time.
+    // successors for a particular node are requested exactly one time.
     let mut rng = rand::OsRng::new().unwrap();
     let mut ints = (1..1000).collect_vec();
     rng.shuffle(&mut ints);

@@ -4,7 +4,7 @@ use pathfinding::directed::edmonds_karp::*;
 use std::collections::HashMap;
 
 /// Return a list of edges with their capacities.
-fn neighbours_wikipedia() -> Vec<((char, char), i32)> {
+fn successors_wikipedia() -> Vec<((char, char), i32)> {
     Box::new(
         vec![
             ("AB", 3),
@@ -45,7 +45,7 @@ fn wikipedia_example<EK: EdmondsKarp<i32>>() {
         &"ABCDEFGH".chars().collect::<Vec<_>>(),
         &'A',
         &'G',
-        neighbours_wikipedia(),
+        successors_wikipedia(),
     ));
 }
 
@@ -60,10 +60,10 @@ fn wikipedia_example_sparse() {
 }
 
 fn wikipedia_progressive_example<EK: EdmondsKarp<i32>>() {
-    let neighbours = neighbours_wikipedia();
-    let size = neighbours.len();
+    let successors = successors_wikipedia();
+    let size = successors.len();
     let mut ek = EK::new(size, 0, 6);
-    for ((from, to), cap) in neighbours {
+    for ((from, to), cap) in successors {
         let (_, total) = ek.augment();
         assert!(total < 5);
         ek.set_capacity(from as usize - 65, to as usize - 65, cap);

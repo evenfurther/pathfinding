@@ -12,8 +12,8 @@ use std::hash::Hash;
 /// is returned instead.
 ///
 /// - `start` is the starting node.
-/// - `neighbours` returns a list of neighbours for a given node, along with the cost for moving
-/// from the node to the neighbour.
+/// - `successors` returns a list of successors for a given node, along with the cost for moving
+/// from the node to the successor.
 /// - `heuristic` returns an approximation of the cost from a given node to the goal. The
 /// approximation must not be greater than the real cost, or a wrong shortest path may be returned.
 /// - `success` checks whether the goal has been reached. It is not a node as some problems require
@@ -41,7 +41,7 @@ use std::hash::Hash;
 ///     (absdiff(self.0, other.0) + absdiff(self.1, other.1)) as u32
 ///   }
 ///
-///   fn neighbours(&self) -> Vec<(Pos, u32)> {
+///   fn successors(&self) -> Vec<(Pos, u32)> {
 ///     let &Pos(x, y) = self;
 ///     vec![Pos(x+1,y+2), Pos(x+1,y-2), Pos(x-1,y+2), Pos(x-1,y-2),
 ///          Pos(x+2,y+1), Pos(x+2,y-1), Pos(x-2,y+1), Pos(x-2,y-1)]
@@ -50,7 +50,7 @@ use std::hash::Hash;
 /// }
 ///
 /// static GOAL: Pos = Pos(4, 6);
-/// let result = idastar(&Pos(1, 1), |p| p.neighbours(), |p| p.distance(&GOAL) / 3,
+/// let result = idastar(&Pos(1, 1), |p| p.successors(), |p| p.distance(&GOAL) / 3,
 ///                    |p| *p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
@@ -72,7 +72,7 @@ use std::hash::Hash;
 /// ```
 pub fn idastar<N, C, FN, IN, FH, FS>(
     start: &N,
-    mut neighbours: FN,
+    mut successors: FN,
     mut heuristic: FH,
     mut success: FS,
 ) -> Option<(Vec<N>, C)>
@@ -91,7 +91,7 @@ where
             &mut path,
             Zero::zero(),
             bound,
-            &mut neighbours,
+            &mut successors,
             &mut heuristic,
             &mut success,
         ) {
@@ -117,7 +117,7 @@ fn search<N, C, FN, IN, FH, FS>(
     path: &mut Vec<N>,
     cost: C,
     bound: C,
-    neighbours: &mut FN,
+    successors: &mut FN,
     heuristic: &mut FH,
     success: &mut FS,
 ) -> Path<N, C>
@@ -138,7 +138,7 @@ where
         if success(start) {
             return Path::Found(path.clone(), f);
         }
-        let mut neighbs = neighbours(start)
+        let mut neighbs = successors(start)
             .into_iter()
             .filter_map(|(n, c)| {
                 if path.contains(&n) {
@@ -155,7 +155,7 @@ where
     let mut min = None;
     for (node, extra, _) in neighbs {
         path.push(node);
-        match search(path, cost + extra, bound, neighbours, heuristic, success) {
+        match search(path, cost + extra, bound, successors, heuristic, success) {
             found @ Path::Found(_, _) => return found,
             Path::Minimum(m) => match min {
                 None => min = Some(m),

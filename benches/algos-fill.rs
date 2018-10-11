@@ -31,7 +31,7 @@ impl Pt {
 }
 
 #[inline]
-fn neighbours(pt: &Pt) -> Vec<Pt> {
+fn successors(pt: &Pt) -> Vec<Pt> {
     let mut ret = Vec::with_capacity(4);
     if 0 < pt.x {
         ret.push(Pt::new(pt.x - 1, pt.y))
@@ -54,7 +54,7 @@ fn corner_to_corner_astar(c: &mut Criterion) {
             assert_ne!(
                 astar(
                     &Pt::new(0, 0),
-                    |n| neighbours(n).into_iter().map(|n| (n, 1)),
+                    |n| successors(n).into_iter().map(|n| (n, 1)),
                     Pt::heuristic,
                     |n| n.x == 32 && n.y == 32,
                 ),
@@ -70,7 +70,7 @@ fn corner_to_corner_bfs(c: &mut Criterion) {
             assert_ne!(
                 bfs(
                     &Pt::new(0, 0),
-                    |n| neighbours(n),
+                    |n| successors(n),
                     |n| n.x == 32 && n.y == 32,
                 ),
                 None
@@ -83,7 +83,7 @@ fn corner_to_corner_dfs(c: &mut Criterion) {
     c.bench_function("fill-corner_to_corner_dfs", |b| {
         b.iter(|| {
             assert_ne!(
-                dfs(Pt::new(0, 0), |n| neighbours(n), |n| n.x == 32 && n.y == 32),
+                dfs(Pt::new(0, 0), |n| successors(n), |n| n.x == 32 && n.y == 32),
                 None
             )
         })
@@ -96,7 +96,7 @@ fn corner_to_corner_dijkstra(c: &mut Criterion) {
             assert_ne!(
                 dijkstra(
                     &Pt::new(0, 0),
-                    |n| neighbours(n).into_iter().map(|n| (n, 1)),
+                    |n| successors(n).into_iter().map(|n| (n, 1)),
                     |n| n.x == 32 && n.y == 32,
                 ),
                 None
@@ -111,7 +111,7 @@ fn corner_to_corner_fringe(c: &mut Criterion) {
             assert_ne!(
                 fringe(
                     &Pt::new(0, 0),
-                    |n| neighbours(n).into_iter().map(|n| (n, 1)),
+                    |n| successors(n).into_iter().map(|n| (n, 1)),
                     Pt::heuristic,
                     |n| n.x == 32 && n.y == 32,
                 ),
@@ -127,7 +127,7 @@ fn corner_to_corner_idastar(c: &mut Criterion) {
             assert_ne!(
                 idastar(
                     &Pt::new(0, 0),
-                    |n| neighbours(n).into_iter().map(|n| (n, 1)),
+                    |n| successors(n).into_iter().map(|n| (n, 1)),
                     Pt::heuristic,
                     |n| n.x == 32 && n.y == 32,
                 ),
@@ -141,7 +141,7 @@ fn corner_to_corner_iddfs(c: &mut Criterion) {
     c.bench_function("fill-corner_to_corner_iddfs", |b| {
         b.iter(|| {
             assert_ne!(
-                iddfs(Pt::new(0, 0), |n| neighbours(n), |n| n.x == 5 && n.y == 5,),
+                iddfs(Pt::new(0, 0), |n| successors(n), |n| n.x == 5 && n.y == 5,),
                 None
             )
         })
@@ -154,7 +154,7 @@ fn no_path_astar(c: &mut Criterion) {
             assert_eq!(
                 astar(
                     &Pt::new(2, 3),
-                    |n| neighbours(n).into_iter().map(|n| (n, 1)),
+                    |n| successors(n).into_iter().map(|n| (n, 1)),
                     |_| 1,
                     |_| false,
                 ),
@@ -166,7 +166,7 @@ fn no_path_astar(c: &mut Criterion) {
 
 fn no_path_bfs(c: &mut Criterion) {
     c.bench_function("fill-no_path_bfs", |b| {
-        b.iter(|| assert_eq!(bfs(&Pt::new(2, 3), |n| neighbours(n), |_| false), None))
+        b.iter(|| assert_eq!(bfs(&Pt::new(2, 3), |n| successors(n), |_| false), None))
     });
 }
 
@@ -176,7 +176,7 @@ fn no_path_dijkstra(c: &mut Criterion) {
             assert_eq!(
                 dijkstra(
                     &Pt::new(2, 3),
-                    |n| neighbours(n).into_iter().map(|n| (n, 1)),
+                    |n| successors(n).into_iter().map(|n| (n, 1)),
                     |_| false,
                 ),
                 None
@@ -191,7 +191,7 @@ fn no_path_fringe(c: &mut Criterion) {
             assert_eq!(
                 fringe(
                     &Pt::new(2, 3),
-                    |n| neighbours(n).into_iter().map(|n| (n, 1)),
+                    |n| successors(n).into_iter().map(|n| (n, 1)),
                     |_| 1,
                     |_| false,
                 ),

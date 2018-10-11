@@ -8,7 +8,7 @@
 /// instead.
 ///
 /// - `start` is the starting node.
-/// - `neighbours` returns a list of neighbours for a given node, which will be tried in order.
+/// - `successors` returns a list of successors for a given node, which will be tried in order.
 /// - `success` checks whether the goal has been reached. It is not a node as some problems require
 /// a dynamic solution instead of a fixed node.
 ///
@@ -39,7 +39,7 @@
 /// assert_eq!(dfs(1, |&n| vec![n*n, n+1].into_iter().filter(|&x| x <= 17), |&n| n == 17),
 ///            Some(vec![1, 2, 4, 16, 17]));
 /// ```
-pub fn dfs<N, FN, IN, FS>(start: N, mut neighbours: FN, mut success: FS) -> Option<Vec<N>>
+pub fn dfs<N, FN, IN, FS>(start: N, mut successors: FN, mut success: FS) -> Option<Vec<N>>
 where
     N: Eq,
     FN: FnMut(&N) -> IN,
@@ -47,14 +47,14 @@ where
     FS: FnMut(&N) -> bool,
 {
     let mut path = vec![start];
-    if step(&mut path, &mut neighbours, &mut success) {
+    if step(&mut path, &mut successors, &mut success) {
         Some(path)
     } else {
         None
     }
 }
 
-fn step<N, FN, IN, FS>(path: &mut Vec<N>, neighbours: &mut FN, success: &mut FS) -> bool
+fn step<N, FN, IN, FS>(path: &mut Vec<N>, successors: &mut FN, success: &mut FS) -> bool
 where
     N: Eq,
     FN: FnMut(&N) -> IN,
@@ -64,11 +64,11 @@ where
     if success(path.last().unwrap()) {
         true
     } else {
-        let neighbours_it = neighbours(path.last().unwrap());
-        for n in neighbours_it {
+        let successors_it = successors(path.last().unwrap());
+        for n in successors_it {
             if !path.contains(&n) {
                 path.push(n);
-                if step(path, neighbours, success) {
+                if step(path, successors, success) {
                     return true;
                 }
                 path.pop();

@@ -23,7 +23,7 @@ use std::hash::Hash;
 /// ```
 /// use pathfinding::prelude::topological_sort;
 ///
-/// fn neighbours(node: &usize) -> Vec<usize> {
+/// fn successors(node: &usize) -> Vec<usize> {
 ///   match *node {
 ///     n if n <= 7 => vec![n+1, n+2],
 ///     8 => vec![9],
@@ -31,7 +31,7 @@ use std::hash::Hash;
 ///   }
 /// }
 ///
-/// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5], neighbours);
+/// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5], successors);
 /// assert_eq!(sorted, Ok(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]));
 /// ```
 ///
@@ -42,7 +42,7 @@ use std::hash::Hash;
 /// ```
 /// use pathfinding::prelude::*;
 ///
-/// fn neighbours(node: &usize) -> Vec<usize> {
+/// fn successors(node: &usize) -> Vec<usize> {
 ///   match *node {
 ///     n if n <= 6 => vec![n+1, n+2, 7],
 ///     7 => vec![8, 9],
@@ -51,19 +51,19 @@ use std::hash::Hash;
 ///   }
 /// }
 ///
-/// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5], neighbours);
+/// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5], successors);
 /// assert!(sorted.is_err());
 ///
 /// // Let's assume that the returned node is 8 (it can be any node which is part
 /// // of a loop). We can lookup up one of the shortest loops containing 8
 /// // (8 -> 7 -> 8 is the unique loop with two hops containing 8):
 ///
-/// assert_eq!(bfs_loop(&8, neighbours), Some(vec![8, 7, 8]));
+/// assert_eq!(bfs_loop(&8, successors), Some(vec![8, 7, 8]));
 ///
 /// // We can also request the whole strongly connected set containing 8. Here
 /// // 7, 8, and 9 are all reachable from one another.
 ///
-/// let mut set = strongly_connected_component(&8, neighbours);
+/// let mut set = strongly_connected_component(&8, successors);
 /// set.sort();
 /// assert_eq!(set, vec![7, 8, 9]);
 /// ```
