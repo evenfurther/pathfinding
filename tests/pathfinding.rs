@@ -6,9 +6,9 @@ mod ex1 {
 
     use pathfinding::prelude::*;
 
-    fn neighbours(node: &u8) -> Vec<(u8, usize)> {
+    fn successors(node: &u8) -> Vec<(u8, usize)> {
         lazy_static! {
-            static ref NEIGHBOURS: Vec<Vec<(u8, usize)>> = vec![
+            static ref SUCCESSORS: Vec<Vec<(u8, usize)>> = vec![
                 vec![(1, 7), (2, 7), (3, 6)],
                 vec![(0, 8), (6, 7)],
                 vec![(5, 7)],
@@ -20,7 +20,7 @@ mod ex1 {
                 vec![],
             ];
         }
-        NEIGHBOURS[*node as usize].clone()
+        SUCCESSORS[*node as usize].clone()
     }
 
     fn expected(target: u8) -> Option<(Vec<u8>, usize)> {
@@ -42,7 +42,7 @@ mod ex1 {
     fn dijkstra_ok() {
         for target in 0..9 {
             assert_eq!(
-                dijkstra(&1, neighbours, |&node| node == target),
+                dijkstra(&1, successors, |&node| node == target),
                 expected(target)
             );
         }
@@ -52,7 +52,7 @@ mod ex1 {
     fn fringe_ok() {
         for target in 0..9 {
             assert_eq!(
-                fringe(&1, neighbours, |_| 0, |&node| node == target),
+                fringe(&1, successors, |_| 0, |&node| node == target),
                 expected(target)
             );
         }
@@ -63,7 +63,7 @@ mod ex1 {
         for target in 0..9 {
             match dfs(
                 1,
-                |n| neighbours(n).into_iter().map(|(v, _)| v),
+                |n| successors(n).into_iter().map(|(v, _)| v),
                 |&node| node == target,
             ) {
                 None => assert_eq!(expected(target), None, "path not found"),
@@ -86,11 +86,11 @@ mod ex1 {
 
     #[test]
     fn bfs_loops() {
-        let neighbours = |n: &u8| neighbours(n).into_iter().map(|(n, _)| n);
-        assert_eq!(bfs_loop(&0, neighbours), Some(vec![0, 1, 0]));
-        assert_eq!(bfs_loop(&1, neighbours), Some(vec![1, 0, 1]));
-        assert_eq!(bfs_loop(&2, neighbours), Some(vec![2, 5, 1, 0, 2]));
-        assert_eq!(bfs_loop(&8, neighbours), None);
+        let successors = |n: &u8| successors(n).into_iter().map(|(n, _)| n);
+        assert_eq!(bfs_loop(&0, successors), Some(vec![0, 1, 0]));
+        assert_eq!(bfs_loop(&1, successors), Some(vec![1, 0, 1]));
+        assert_eq!(bfs_loop(&2, successors), Some(vec![2, 5, 1, 0, 2]));
+        assert_eq!(bfs_loop(&8, successors), None);
     }
 }
 
@@ -116,7 +116,7 @@ mod ex2 {
             .collect();
     }
 
-    fn neighbours(&(x, y): &(usize, usize)) -> Vec<((usize, usize), usize)> {
+    fn successors(&(x, y): &(usize, usize)) -> Vec<((usize, usize), usize)> {
         vec![(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
             .into_iter()
             .filter_map(|(nx, ny)| {
@@ -141,7 +141,7 @@ mod ex2 {
             &(2, 3),
             |n| {
                 counter += 1;
-                neighbours(n)
+                successors(n)
             },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
@@ -160,7 +160,7 @@ mod ex2 {
             &(2, 3),
             |n| {
                 counter += 1;
-                neighbours(n)
+                successors(n)
             },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
@@ -184,7 +184,7 @@ mod ex2 {
             &(2, 3),
             |n| {
                 counter += 1;
-                neighbours(n)
+                successors(n)
             },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
@@ -208,7 +208,7 @@ mod ex2 {
             &(2, 3),
             |n| {
                 counter += 1;
-                neighbours(n)
+                successors(n)
             },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
@@ -227,7 +227,7 @@ mod ex2 {
             &(2, 3),
             |n| {
                 counter += 1;
-                neighbours(n)
+                successors(n)
             },
             |n| distance(n, &GOAL),
             |n| n == &GOAL,
@@ -246,7 +246,7 @@ mod ex2 {
             &(2, 3),
             |n| {
                 counter += 1;
-                neighbours(n)
+                successors(n)
             },
             |n| n == &GOAL,
         )
@@ -261,7 +261,7 @@ mod ex2 {
         const GOAL: (usize, usize) = (6, 3);
         let path = bfs(
             &(2, 3),
-            |n| neighbours(n).into_iter().map(|(n, _)| n),
+            |n| successors(n).into_iter().map(|(n, _)| n),
             |n| n == &GOAL,
         )
         .expect("path not found");
@@ -274,7 +274,7 @@ mod ex2 {
         const GOAL: (usize, usize) = (6, 3);
         let path = dfs(
             (2, 3),
-            |n| neighbours(n).into_iter().map(|(n, _)| n),
+            |n| successors(n).into_iter().map(|(n, _)| n),
             |n| n == &GOAL,
         )
         .expect("path not found");
@@ -287,7 +287,7 @@ mod ex2 {
         const GOAL: (usize, usize) = (6, 3);
         let path = iddfs(
             (2, 3),
-            |n| neighbours(n).into_iter().map(|(n, _)| n),
+            |n| successors(n).into_iter().map(|(n, _)| n),
             |n| n == &GOAL,
         )
         .expect("path not found");
@@ -299,7 +299,7 @@ mod ex2 {
     fn astar_no_path() {
         const GOAL: (usize, usize) = (1, 1);
         assert_eq!(
-            astar(&(2, 3), neighbours, |n| distance(n, &GOAL), |n| n == &GOAL),
+            astar(&(2, 3), successors, |n| distance(n, &GOAL), |n| n == &GOAL),
             None
         );
     }
@@ -308,7 +308,7 @@ mod ex2 {
     fn idastar_no_path() {
         const GOAL: (usize, usize) = (1, 1);
         assert_eq!(
-            idastar(&(2, 3), neighbours, |n| distance(n, &GOAL), |n| n == &GOAL),
+            idastar(&(2, 3), successors, |n| distance(n, &GOAL), |n| n == &GOAL),
             None
         );
     }
@@ -317,7 +317,7 @@ mod ex2 {
     fn fringe_no_path() {
         const GOAL: (usize, usize) = (1, 1);
         assert_eq!(
-            fringe(&(2, 3), neighbours, |n| distance(n, &GOAL), |n| n == &GOAL),
+            fringe(&(2, 3), successors, |n| distance(n, &GOAL), |n| n == &GOAL),
             None
         );
     }
@@ -325,7 +325,7 @@ mod ex2 {
     #[test]
     fn dijkstra_no_path() {
         const GOAL: (usize, usize) = (1, 1);
-        assert_eq!(dijkstra(&(2, 3), neighbours, |n| n == &GOAL), None);
+        assert_eq!(dijkstra(&(2, 3), successors, |n| n == &GOAL), None);
     }
 
     #[test]
@@ -334,7 +334,7 @@ mod ex2 {
         assert_eq!(
             bfs(
                 &(2, 3),
-                |n| neighbours(n).into_iter().map(|(n, _)| n),
+                |n| successors(n).into_iter().map(|(n, _)| n),
                 |n| n == &GOAL,
             ),
             None
@@ -347,7 +347,7 @@ mod ex2 {
         assert_eq!(
             dfs(
                 (2, 3),
-                |n| neighbours(n).into_iter().map(|(n, _)| n),
+                |n| successors(n).into_iter().map(|(n, _)| n),
                 |n| n == &GOAL
             ),
             None
@@ -360,7 +360,7 @@ mod ex2 {
         assert_eq!(
             iddfs(
                 (2, 3),
-                |n| neighbours(n).into_iter().map(|(n, _)| n),
+                |n| successors(n).into_iter().map(|(n, _)| n),
                 |n| n == &GOAL,
             ),
             None

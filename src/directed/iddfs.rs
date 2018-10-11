@@ -9,7 +9,7 @@
 /// is returned instead.
 ///
 /// - `start` is the starting node.
-/// - `neighbours` returns a list of neighbours for a given node.
+/// - `successors` returns a list of successors for a given node.
 /// - `success` checks whether the goal has been reached. It is not a node as some problems require
 /// a dynamic solution instead of a fixed node.
 ///
@@ -32,7 +32,7 @@
 /// struct Pos(i32, i32);
 ///
 /// impl Pos {
-///   fn neighbours(&self) -> Vec<Pos> {
+///   fn successors(&self) -> Vec<Pos> {
 ///     let &Pos(x, y) = self;
 ///     vec![Pos(x+1,y+2), Pos(x+1,y-2), Pos(x-1,y+2), Pos(x-1,y-2),
 ///          Pos(x+2,y+1), Pos(x+2,y-1), Pos(x-2,y+1), Pos(x-2,y-1)]
@@ -40,7 +40,7 @@
 /// }
 ///
 /// static GOAL: Pos = Pos(4, 6);
-/// let result = iddfs(Pos(1, 1), |p| p.neighbours(), |p| *p == GOAL);
+/// let result = iddfs(Pos(1, 1), |p| p.successors(), |p| *p == GOAL);
 /// assert_eq!(result.expect("no path found").len(), 5);
 /// ```
 ///
@@ -57,7 +57,7 @@
 ///                  |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").len(), 5);
 /// ```
-pub fn iddfs<N, FN, IN, FS>(start: N, mut neighbours: FN, mut success: FS) -> Option<Vec<N>>
+pub fn iddfs<N, FN, IN, FS>(start: N, mut successors: FN, mut success: FS) -> Option<Vec<N>>
 where
     N: Eq,
     FN: FnMut(&N) -> IN,
@@ -69,7 +69,7 @@ where
     let mut current_max_depth: usize = 1;
 
     loop {
-        match step(&mut path, &mut neighbours, &mut success, current_max_depth) {
+        match step(&mut path, &mut successors, &mut success, current_max_depth) {
             Path::FoundOptimum => return Some(path),
             Path::NoneAtThisDepth => current_max_depth += 1,
             Path::Impossible => return None,
@@ -86,7 +86,7 @@ enum Path {
 
 fn step<N, FN, IN, FS>(
     path: &mut Vec<N>,
-    neighbours: &mut FN,
+    successors: &mut FN,
     success: &mut FS,
     depth: usize,
 ) -> Path
@@ -101,14 +101,14 @@ where
     } else if success(path.last().unwrap()) {
         Path::FoundOptimum
     } else {
-        let neighbours_it = neighbours(path.last().unwrap());
+        let successors_it = successors(path.last().unwrap());
 
         let mut best_result = Path::Impossible;
 
-        for n in neighbours_it {
+        for n in successors_it {
             if !path.contains(&n) {
                 path.push(n);
-                match step(path, neighbours, success, depth - 1) {
+                match step(path, successors, success, depth - 1) {
                     Path::FoundOptimum => return Path::FoundOptimum,
                     Path::NoneAtThisDepth => best_result = Path::NoneAtThisDepth,
                     Path::Impossible => (),

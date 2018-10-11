@@ -14,8 +14,8 @@ use super::astar::astar;
 /// is returned instead.
 ///
 /// - `start` is the starting node.
-/// - `neighbours` returns a list of neighbours for a given node, along with the cost for moving
-/// from the node to the neighbour.
+/// - `successors` returns a list of successors for a given node, along with the cost for moving
+/// from the node to the successor.
 /// - `success` checks whether the goal has been reached. It is not a node as some problems require
 /// a dynamic solution instead of a fixed node.
 ///
@@ -37,7 +37,7 @@ use super::astar::astar;
 /// struct Pos(i32, i32);
 ///
 /// impl Pos {
-///   fn neighbours(&self) -> Vec<(Pos, usize)> {
+///   fn successors(&self) -> Vec<(Pos, usize)> {
 ///     let &Pos(x, y) = self;
 ///     vec![Pos(x+1,y+2), Pos(x+1,y-2), Pos(x-1,y+2), Pos(x-1,y-2),
 ///          Pos(x+2,y+1), Pos(x+2,y-1), Pos(x-2,y+1), Pos(x-2,y-1)]
@@ -46,7 +46,7 @@ use super::astar::astar;
 /// }
 ///
 /// static GOAL: Pos = Pos(4, 6);
-/// let result = dijkstra(&Pos(1, 1), |p| p.neighbours(), |p| *p == GOAL);
+/// let result = dijkstra(&Pos(1, 1), |p| p.successors(), |p| *p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
 ///
@@ -64,7 +64,7 @@ use super::astar::astar;
 ///                       |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
-pub fn dijkstra<N, C, FN, IN, FS>(start: &N, neighbours: FN, success: FS) -> Option<(Vec<N>, C)>
+pub fn dijkstra<N, C, FN, IN, FS>(start: &N, successors: FN, success: FS) -> Option<(Vec<N>, C)>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
@@ -73,5 +73,5 @@ where
     FS: FnMut(&N) -> bool,
 {
     let zero = Zero::zero();
-    astar(start, neighbours, |_| zero, success)
+    astar(start, successors, |_| zero, success)
 }

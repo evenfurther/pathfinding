@@ -15,7 +15,7 @@ The algorithms are generic over their arguments.
 ### Directed graphs
 
 - [A*][A*]: find the shortest path in a weighted graph using an heuristic to guide the process.
-- [BFS][BFS]: explore nearest neighbours first, then widen the search.
+- [BFS][BFS]: explore nearest successors first, then widen the search.
 - [DFS][DFS]: explore a graph by going as far as possible, then backtrack.
 - [Dijkstra][Dijkstra]: find the shortest path in a weighted graph.
 - [Edmonds Karp][Edmonds Karp]: find the maximum flow in a weighted graph.
@@ -63,7 +63,7 @@ use pathfinding::prelude::bfs;
 struct Pos(i32, i32);
 
 impl Pos {
-  fn neighbours(&self) -> Vec<Pos> {
+  fn successors(&self) -> Vec<Pos> {
     let &Pos(x, y) = self;
     vec![Pos(x+1,y+2), Pos(x+1,y-2), Pos(x-1,y+2), Pos(x-1,y-2),
          Pos(x+2,y+1), Pos(x+2,y-1), Pos(x-2,y+1), Pos(x-2,y-1)]
@@ -71,7 +71,7 @@ impl Pos {
 }
 
 static GOAL: Pos = Pos(4, 6);
-let result = bfs(&Pos(1, 1), |p| p.neighbours(), |p| *p == GOAL);
+let result = bfs(&Pos(1, 1), |p| p.successors(), |p| *p == GOAL);
 assert_eq!(result.expect("no path found").len(), 5);
 ```
 

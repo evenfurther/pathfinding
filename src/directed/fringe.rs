@@ -18,8 +18,8 @@ use std::usize;
 /// is returned instead.
 ///
 /// - `start` is the starting node.
-/// - `neighbours` returns a list of neighbours for a given node, along with the cost for moving
-/// from the node to the neighbour.
+/// - `successors` returns a list of successors for a given node, along with the cost for moving
+/// from the node to the successor.
 /// - `heuristic` returns an approximation of the cost from a given node to the goal. The
 /// approximation must not be greater than the real cost, or a wrong shortest path may be returned.
 /// - `success` checks whether the goal has been reached. It is not a node as some problems require
@@ -47,7 +47,7 @@ use std::usize;
 ///     (absdiff(self.0, other.0) + absdiff(self.1, other.1)) as u32
 ///   }
 ///
-///   fn neighbours(&self) -> Vec<(Pos, u32)> {
+///   fn successors(&self) -> Vec<(Pos, u32)> {
 ///     let &Pos(x, y) = self;
 ///     vec![Pos(x+1,y+2), Pos(x+1,y-2), Pos(x-1,y+2), Pos(x-1,y-2),
 ///          Pos(x+2,y+1), Pos(x+2,y-1), Pos(x-2,y+1), Pos(x-2,y-1)]
@@ -57,7 +57,7 @@ use std::usize;
 ///
 /// static GOAL: Pos = Pos(4, 6);
 /// let result = fringe(&Pos(1, 1),
-///                     |p| p.neighbours(),
+///                     |p| p.successors(),
 ///                     |p| p.distance(&GOAL) / 3,
 ///                     |p| *p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
@@ -80,7 +80,7 @@ use std::usize;
 /// ```
 pub fn fringe<N, C, FN, IN, FH, FS>(
     start: &N,
-    mut neighbours: FN,
+    mut successors: FN,
     mut heuristic: FH,
     mut success: FS,
 ) -> Option<(Vec<N>, C)>
@@ -105,7 +105,7 @@ where
         }
         let mut fmin = C::max_value();
         while let Some(i) = now.pop_front() {
-            let (g, neighbours) = {
+            let (g, successors) = {
                 let (node, &(_, g)) = parents.get_index(i).unwrap();
                 let f = g + heuristic(node);
                 if f > flimit {
@@ -119,20 +119,20 @@ where
                     let path = reverse_path(&parents, |&(p, _)| p, i);
                     return Some((path, g));
                 }
-                (g, neighbours(node))
+                (g, successors(node))
             };
-            for (neighbour, cost) in neighbours {
-                let g_neighbour = g + cost;
-                let n; // index for neighbour
-                match parents.entry(neighbour) {
+            for (successor, cost) in successors {
+                let g_successor = g + cost;
+                let n; // index for successor
+                match parents.entry(successor) {
                     Vacant(e) => {
                         n = e.index();
-                        e.insert((i, g_neighbour));
+                        e.insert((i, g_successor));
                     }
                     Occupied(mut e) => {
-                        if e.get().1 > g_neighbour {
+                        if e.get().1 > g_successor {
                             n = e.index();
-                            e.insert((i, g_neighbour));
+                            e.insert((i, g_successor));
                         } else {
                             continue;
                         }

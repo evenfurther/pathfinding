@@ -13,7 +13,7 @@ struct Point {
     col: usize,
 }
 
-fn add_neighbour(
+fn add_successor(
     n: &mut HashMap<Point, Vec<(Point, usize)>>,
     from: &Point,
     to: &Point,
@@ -23,11 +23,11 @@ fn add_neighbour(
     entry.push((to.clone(), cost));
 }
 
-type NeighbourInfo = Vec<(Point, usize)>;
+type SuccessorInfo = Vec<(Point, usize)>;
 
-fn parse(input: &str) -> (Vec<Point>, HashMap<Point, NeighbourInfo>) {
+fn parse(input: &str) -> (Vec<Point>, HashMap<Point, SuccessorInfo>) {
     let mut nodes = Vec::new();
-    let mut neighbours = HashMap::new();
+    let mut successors = HashMap::new();
     input
         .lines()
         .map(|l| {
@@ -48,10 +48,10 @@ fn parse(input: &str) -> (Vec<Point>, HashMap<Point, NeighbourInfo>) {
                 };
                 let cost = n[2];
                 assert!(cost >= distance(&src, &dst));
-                add_neighbour(&mut neighbours, &src, &dst, cost);
+                add_successor(&mut successors, &src, &dst, cost);
             }
         });
-    (nodes, neighbours)
+    (nodes, successors)
 }
 
 fn distance(a: &Point, b: &Point) -> usize {

@@ -17,7 +17,7 @@ use super::reverse_path;
 /// is returned instead.
 ///
 /// - `start` is the starting node.
-/// - `neighbours` returns a list of neighbours for a given node.
+/// - `successors` returns a list of successors for a given node.
 /// - `success` checks whether the goal has been reached. It is not a node as some problems require
 /// a dynamic solution instead of a fixed node.
 ///
@@ -39,7 +39,7 @@ use super::reverse_path;
 /// struct Pos(i32, i32);
 ///
 /// impl Pos {
-///   fn neighbours(&self) -> Vec<Pos> {
+///   fn successors(&self) -> Vec<Pos> {
 ///     let &Pos(x, y) = self;
 ///     vec![Pos(x+1,y+2), Pos(x+1,y-2), Pos(x-1,y+2), Pos(x-1,y-2),
 ///          Pos(x+2,y+1), Pos(x+2,y-1), Pos(x-2,y+1), Pos(x-2,y-1)]
@@ -47,7 +47,7 @@ use super::reverse_path;
 /// }
 ///
 /// static GOAL: Pos = Pos(4, 6);
-/// let result = bfs(&Pos(1, 1), |p| p.neighbours(), |p| *p == GOAL);
+/// let result = bfs(&Pos(1, 1), |p| p.successors(), |p| *p == GOAL);
 /// assert_eq!(result.expect("no path found").len(), 5);
 /// ```
 ///
@@ -64,7 +64,7 @@ use super::reverse_path;
 ///                  |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").len(), 5);
 /// ```
-pub fn bfs<N, FN, IN, FS>(start: &N, mut neighbours: FN, mut success: FS) -> Option<Vec<N>>
+pub fn bfs<N, FN, IN, FS>(start: &N, mut successors: FN, mut success: FS) -> Option<Vec<N>>
 where
     N: Eq + Hash + Clone,
     FN: FnMut(&N) -> IN,
@@ -76,16 +76,16 @@ where
     to_see.push_back(0);
     parents.insert(start.clone(), usize::MAX);
     while let Some(i) = to_see.pop_front() {
-        let neighbours = {
+        let successors = {
             let node = parents.get_index(i).unwrap().0;
             if success(node) {
                 let path = reverse_path(&parents, |&p| p, i);
                 return Some(path);
             }
-            neighbours(node)
+            successors(node)
         };
-        for neighbour in neighbours {
-            if let Vacant(e) = parents.entry(neighbour) {
+        for successor in successors {
+            if let Vacant(e) = parents.entry(successor) {
                 to_see.push_back(e.index());
                 e.insert(i);
             }
@@ -97,33 +97,33 @@ where
 /// Return one of the shortest loop from start to start if it exists, `None` otherwise.
 ///
 /// - `start` is the starting node.
-/// - `neighbours` returns a list of neighbours for a given node.
+/// - `successors` returns a list of successors for a given node.
 ///
 /// Except the start node which will be included both at the beginning and the end of
 /// the path, a node will never be included twice in the path as determined
 /// by the `Eq` relationship.
-pub fn bfs_loop<N, FN, IN>(start: &N, mut neighbours: FN) -> Option<Vec<N>>
+pub fn bfs_loop<N, FN, IN>(start: &N, mut successors: FN) -> Option<Vec<N>>
 where
     N: Eq + Hash + Clone,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
     // If the node is linked to itself, we have the shortest path.
-    if neighbours(start).into_iter().any(|n| &n == start) {
+    if successors(start).into_iter().any(|n| &n == start) {
         return Some(vec![start.clone(), start.clone()]);
     }
-    // We will go through all the neighbours and look for a path to the start.
+    // We will go through all the successors and look for a path to the start.
     let mut shortest = None;
     let mut shortest_len = usize::MAX;
-    for neighbour in neighbours(start).into_iter() {
-        if let Some(path) = bfs(&neighbour, &mut neighbours, |n| n == start) {
+    for successor in successors(start).into_iter() {
+        if let Some(path) = bfs(&successor, &mut successors, |n| n == start) {
             let path_len = path.len();
             if path_len < shortest_len {
                 shortest_len = path_len;
                 shortest = Some(path);
             }
             if path_len == 2 {
-                break; // We will never find a shorter path than neighbour->start
+                break; // We will never find a shorter path than successor->start
             }
         }
     }
