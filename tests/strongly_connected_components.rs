@@ -75,8 +75,8 @@ fn all_scc() {
 
 #[test]
 fn some_scc() {
-    fn starting_from(start: &usize) -> Vec<usize> {
-        let mut c = strongly_connected_components_from(start, successors)
+    fn starting_from(start: usize) -> Vec<usize> {
+        let mut c = strongly_connected_components_from(&start, successors)
             .into_iter()
             .map(|mut v| {
                 v.sort();
@@ -91,20 +91,20 @@ fn some_scc() {
         // Return the first element of each cluster
         c.into_iter().map(|v| v[0]).collect()
     }
-    for i in &[0, 1, 2, 3, 4] {
+    for &i in [0, 1, 2, 3, 4].iter() {
         assert_eq!(starting_from(i), vec![0, 5, 6, 9, 13, 15]);
     }
-    assert_eq!(starting_from(&5), vec![5, 6, 13, 15]);
-    for i in &[6, 7, 8] {
+    assert_eq!(starting_from(5), vec![5, 6, 13, 15]);
+    for &i in [6, 7, 8].iter() {
         assert_eq!(starting_from(i), vec![6, 15]);
     }
-    for i in &[9, 10, 11, 12] {
+    for &i in [9, 10, 11, 12].iter() {
         assert_eq!(starting_from(i), vec![9, 13, 15]);
     }
-    for i in &[13, 14] {
+    for &i in [13, 14].iter() {
         assert_eq!(starting_from(i), vec![13, 15]);
     }
-    assert_eq!(starting_from(&15), vec![15]);
+    assert_eq!(starting_from(15), vec![15]);
 }
 
 #[test]

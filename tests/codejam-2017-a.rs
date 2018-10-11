@@ -133,7 +133,7 @@ fn codejam<EK: EdmondsKarp<i32>>() {
     let mut file = Cursor::new(include_str!("A-small-practice.in"));
     let ntests = read_ints(&mut file).expect("cannot read number of test cases")[0];
     let mut out = String::new();
-    for n in 1..(ntests + 1) {
+    for n in 1..=ntests {
         out += &test::<EK>(n, &mut file).expect("problem with test");
         out += "\n";
     }
