@@ -104,6 +104,26 @@ impl<C: Clone> Matrix<C> {
                 .collect(),
         }
     }
+
+    /// Extend the matrix in place by adding one full row.
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the row does not have the expected
+    /// number of elements.
+    pub fn extend(&mut self, row: &[C]) {
+        assert_eq!(
+            self.columns,
+            row.len(),
+            "new row has {} columns intead of expected {}",
+            row.len(),
+            self.columns
+        );
+        self.rows += 1;
+        for e in row {
+            self.data.push(e.clone());
+        }
+    }
 }
 
 impl<C: Copy> Matrix<C> {
@@ -168,6 +188,18 @@ impl<C> Matrix<C> {
             "length of vector is not a square number"
         );
         Self::from_vec(size, size, values)
+    }
+
+    /// Create new empty matrix with a predefined number of rows.
+    /// This is useful to gradually build the matrix and extend it
+    /// later using [extend][Matrix::extend] and does not require
+    /// a filler element compared to [Matrix::new].
+    pub fn new_empty(columns: usize) -> Matrix<C> {
+        Matrix {
+            rows: 0,
+            columns,
+            data: vec![],
+        }
     }
 
     /// Check if a matrix is a square one.
@@ -276,4 +308,42 @@ impl<C> AsMut<[C]> for Matrix<C> {
     fn as_mut(&mut self) -> &mut [C] {
         &mut self.data
     }
+}
+
+/// The matrix! macro allows the declaration of a Matrix from static data.
+/// All rows must have the same number of columns. The data will be copied
+/// into the matrix.
+///
+/// # Panics
+///
+/// This macro panics if the rows have an inconsistent number of columns.
+///
+/// # Example
+///
+/// ```
+/// #[macro_use] extern crate pathfinding;
+///
+/// use pathfinding::matrix::*;
+///
+/// let m = matrix![[10, 20, 30], [40, 50, 60]];
+///
+/// assert_eq!(m.columns, 3);
+/// assert_eq!(m.rows, 2);
+/// ```
+#[macro_export]
+macro_rules! matrix {
+    ($a:expr) => {{
+        let mut m = Matrix::new_empty($a.len());
+        m.extend(&$a);
+        m
+    }};
+    ($a:expr, $($b: expr),+) => {{
+        let mut m = matrix!($a);
+        let mut r = 0;
+        $(
+            m.extend(&$b);
+        )+
+        m
+    }};
+    ($a:expr, $($b: expr),+, ) => (matrix!($a, $($b),+))
 }

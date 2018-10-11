@@ -1,5 +1,6 @@
 #![cfg(test)]
 
+#[macro_use]
 extern crate pathfinding;
 
 use pathfinding::matrix::Matrix;
@@ -200,4 +201,47 @@ fn set_slice() {
             60,
         ]
     );
+}
+
+#[test]
+fn empty_extend() {
+    let mut m = Matrix::new_empty(3);
+    m.extend(&[0, 1, 2]);
+    m.extend(&[3, 4, 5]);
+    assert_eq!(m.columns, 3);
+    assert_eq!(m.rows, 2);
+    let mut i = 0;
+    for row in 0..m.rows {
+        for column in 0..m.columns {
+            assert_eq!(m[&(row, column)], i);
+            i += 1;
+        }
+    }
+}
+
+#[test]
+#[should_panic]
+fn extend_bad_size_panic() {
+    let mut m = Matrix::new_empty(3);
+    m.extend(&[0, 1]);
+}
+
+#[test]
+fn matrix_macro() {
+    let m = matrix![[0, 1, 2], [3, 4, 5]];
+    assert_eq!(m.columns, 3);
+    assert_eq!(m.rows, 2);
+    let mut i = 0;
+    for row in 0..m.rows {
+        for column in 0..m.columns {
+            assert_eq!(m[&(row, column)], i);
+            i += 1;
+        }
+    }
+}
+
+#[test]
+#[should_panic]
+fn matrix_macro_inconsistent_panic() {
+    matrix![[0, 1, 2], [3, 4]];
 }
