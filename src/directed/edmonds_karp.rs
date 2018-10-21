@@ -284,7 +284,7 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
                 }
                 capacity = capacity - max_cancelable;
             } else {
-                panic!("no flow to cancel");
+                unreachable!("no flow to cancel");
             }
         }
     }
