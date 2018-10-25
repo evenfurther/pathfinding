@@ -16,19 +16,19 @@ pub mod utils;
 
 /// Export all public functions and structures for an easy access.
 pub mod prelude {
-    pub use directed::astar::*;
-    pub use directed::bfs::*;
-    pub use directed::dfs::*;
-    pub use directed::dijkstra::*;
-    pub use directed::edmonds_karp::*;
-    pub use directed::fringe::*;
-    pub use directed::idastar::*;
-    pub use directed::iddfs::*;
-    pub use directed::strongly_connected_components::*;
-    pub use directed::topological_sort::*;
-    pub use grid::*;
-    pub use kuhn_munkres::*;
-    pub use matrix::*;
-    pub use undirected::connected_components::*;
-    pub use utils::*;
+    pub use crate::directed::astar::*;
+    pub use crate::directed::bfs::*;
+    pub use crate::directed::dfs::*;
+    pub use crate::directed::dijkstra::*;
+    pub use crate::directed::edmonds_karp::*;
+    pub use crate::directed::fringe::*;
+    pub use crate::directed::idastar::*;
+    pub use crate::directed::iddfs::*;
+    pub use crate::directed::strongly_connected_components::*;
+    pub use crate::directed::topological_sort::*;
+    pub use crate::grid::*;
+    pub use crate::kuhn_munkres::*;
+    pub use crate::matrix::*;
+    pub use crate::undirected::connected_components::*;
+    pub use crate::utils::*;
 }
