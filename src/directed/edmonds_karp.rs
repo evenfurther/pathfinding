@@ -12,7 +12,7 @@ use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::hash::Hash;
 
 use super::bfs::bfs;
-use matrix::Matrix;
+use crate::matrix::Matrix;
 
 /// Type alias for Edmonds-Karp result.
 pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);

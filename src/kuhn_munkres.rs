@@ -3,8 +3,8 @@
 //! [Kuhn-Munkres algorithm](https://en.wikipedia.org/wiki/Hungarian_algorithm)
 //! (also known as Hungarian algorithm).
 
+use crate::matrix::Matrix;
 use fixedbitset::FixedBitSet;
-use matrix::Matrix;
 use num_traits::{Bounded, Signed, Zero};
 use std::iter::Sum;
 
