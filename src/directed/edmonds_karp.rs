@@ -382,7 +382,7 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
         self.residuals
             .get(&from)
             .map(|ns| {
-                ns.into_iter()
+                ns.iter()
                     .filter_map(|(&n, &c)| if c > Zero::zero() { Some((n, c)) } else { None })
                     .collect()
             })
