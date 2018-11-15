@@ -22,7 +22,7 @@ criterion = "0.2"
 lazy_static = "1.0.0"
 movingai = "0.7.0"
 noisy_float = "0.1.5"
-rand = "0.5"
+rand = "0.6"
 
 [[bench]]
 name = "algos"
