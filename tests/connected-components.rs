@@ -1,11 +1,12 @@
 extern crate itertools;
 extern crate pathfinding;
 extern crate rand;
+extern crate rand_xorshift;
 
 use itertools::Itertools;
 use pathfinding::undirected::connected_components::*;
-use rand::prng::XorShiftRng;
-use rand::{Rng, RngCore, SeedableRng};
+use rand::prelude::*;
+use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
 use std::usize;
 
@@ -97,7 +98,7 @@ fn larger_separate_components() {
         .iter()
         .flat_map(|component| {
             let mut component = component.clone();
-            rng.shuffle(&mut component);
+            component.shuffle(&mut rng);
             let mut subcomponents = Vec::new();
             while !component.is_empty() {
                 let cut = rng.gen_range(0, component.len());
@@ -105,13 +106,13 @@ fn larger_separate_components() {
                 if !component.is_empty() {
                     subcomponent.push(component[0]);
                 }
-                rng.shuffle(&mut subcomponent);
+                subcomponent.shuffle(&mut rng);
                 subcomponents.push(subcomponent);
             }
             subcomponents
         })
         .collect_vec();
-    rng.shuffle(&mut groups);
+    groups.shuffle(&mut rng);
     let (_, group_mappings) = separate_components(&groups);
     let mut out_groups = vec![HashSet::new(); groups.len()];
     for (i, n) in group_mappings.into_iter().enumerate() {

@@ -4,7 +4,7 @@ extern crate rand;
 
 use itertools::Itertools;
 use pathfinding::directed::topological_sort::topological_sort as tsort;
-use rand::Rng;
+use rand::prelude::SliceRandom;
 
 #[test]
 fn empty() {
@@ -16,9 +16,9 @@ fn empty() {
 fn order() {
     // Shuffle integers from 1 to 1000, and order them so that divisors
     // are located before the numbers they divide.
-    let mut rng = rand::OsRng::new().unwrap();
+    let mut rng = rand::rngs::OsRng::new().unwrap();
     let mut ints = (1..1000).collect_vec();
-    rng.shuffle(&mut ints);
+    ints.shuffle(&mut rng);
     let sorted = tsort(&ints, |&n| {
         (2..).map(|m| m * n).take_while(|&p| p < 1000).collect_vec()
     })
@@ -39,9 +39,9 @@ fn order() {
 fn complexity() {
     // To ensure that the sort is O(|E| + |V|), we ensure that the
     // successors for a particular node are requested exactly one time.
-    let mut rng = rand::OsRng::new().unwrap();
+    let mut rng = rand::rngs::OsRng::new().unwrap();
     let mut ints = (1..1000).collect_vec();
-    rng.shuffle(&mut ints);
+    ints.shuffle(&mut rng);
     let mut requested = 0;
     let result = tsort(&ints, |&n| {
         requested += 1;
