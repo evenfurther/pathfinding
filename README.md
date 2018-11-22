@@ -28,6 +28,7 @@ The algorithms are generic over their arguments.
 ### Undirected graphs
 
 - [connected components][Connected components]: find disjoint connected sets of vertices.
+- [kruskal][Kruskal]: find a minimum-spanning-tree.
 
 ### Matching
 
@@ -99,6 +100,7 @@ This repository use the imperative mode in commit messages, such as "Add IDDFS",
 [Dijkstra]: https://en.wikipedia.org/wiki/Dijkstra's_algorithm
 [Edmonds Karp]: https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm
 [Fringe]: https://en.wikipedia.org/wiki/Fringe_search
+[Kruskal]: https://en.wikipedia.org/wiki/Kruskal's_algorithm
 [IDA*]: https://en.wikipedia.org/wiki/Iterative_deepening_A*
 [IDDFS]: https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search
 [Kuhn-Munkres]: https://en.wikipedia.org/wiki/Hungarian_algorithm

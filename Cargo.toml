@@ -15,7 +15,7 @@ readme = "README.md"
 fixedbitset = "0.1.9"
 itertools = "0.7"
 num-traits = "0.2"
-indexmap = "1.0"
+indexmap = "1.0.2"
 
 [dev-dependencies]
 criterion = "0.2"
