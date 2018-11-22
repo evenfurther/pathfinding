@@ -4,8 +4,8 @@ extern crate pathfinding;
 extern crate rand;
 
 use pathfinding::prelude::{absdiff, astar, idastar};
-use rand::os::OsRng;
-use rand::Rng;
+use rand::prelude::*;
+use rand::rngs::OsRng;
 use std::time::Instant;
 
 #[cfg(test)]
@@ -143,7 +143,7 @@ impl Game {
         let mut rng = OsRng::new().unwrap();
         loop {
             let mut positions = Self::default().positions;
-            rng.shuffle(&mut positions);
+            positions.shuffle(&mut rng);
             let game = Self::from_array(positions);
             if game.is_solvable() {
                 return game;
