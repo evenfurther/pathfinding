@@ -28,7 +28,7 @@ The algorithms are generic over their arguments.
 ### Undirected graphs
 
 - [connected components][Connected components]: find disjoint connected sets of vertices.
-- [kruskal][Kruskal]: find a minimum-spanning-tree.
+- [Kruskal][Kruskal]: find a minimum-spanning-tree.
 
 ### Matching
 
