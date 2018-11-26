@@ -225,7 +225,7 @@ where
 ///
 /// If the `parents` map contains a loop, this function will attempt to build
 /// a path of infinite length and panic when memory is exhausted.
-#[cfg_attr(feature = "cargo-clippy", allow(implicit_hasher))]
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::implicit_hasher))]
 pub fn build_path<N, C>(target: &N, parents: &HashMap<N, (N, C)>) -> Vec<N>
 where
     N: Eq + Hash + Clone,
