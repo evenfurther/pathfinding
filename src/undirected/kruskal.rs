@@ -1,4 +1,5 @@
-//! Find minimum-spanning-tree in an undirected graph.
+//! Find minimum-spanning-tree in an undirected graph using
+//! [Kruskal's algorithm](https://en.wikipedia.org/wiki/Kruskal's_algorithm).
 
 use indexmap::IndexSet;
 use std::hash::Hash;
