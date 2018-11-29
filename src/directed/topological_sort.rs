@@ -1,7 +1,8 @@
 //! Find a topological order in a directed graph if one exists.
 
-use std::collections::{HashSet, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::hash::Hash;
+use std::mem;
 
 /// Find a topological order in a directed graph if one exists.
 ///
@@ -118,4 +119,92 @@ where
     marked.insert(node.clone());
     sorted.push_front(node.clone());
     Ok(())
+}
+
+/// Topologically sort a directed graph into groups of independent nodes.
+///
+/// - `nodes` is a collection of nodes.
+/// - `successors` returns a list of successors for a given node.
+///
+/// This function works like [`topological_sort`](self::topological_sort), but
+/// rather than producing a single ordering of nodes, this function partitions
+/// the nodes into groups: the first group contains all nodes with no
+/// dependencies, the second group contains all nodes whose only dependencies
+/// are in the first group, and so on.  Concatenating the groups produces a
+/// valid topological sort regardless of how the nodes within each group are
+/// reordered.  No guarantees are made about the order of nodes within each
+/// group.
+///
+/// The function returns either `Ok` with a valid list of groups, or `Err` with
+/// a (groups, remaining) tuple containing a (possibly empty) partial list of
+/// groups, and a list of remaining nodes that could not be grouped due to
+/// cycles.  In the error case, the strongly connected set(s) can then be found
+/// using the
+/// [`strongly_connected_components`](super::strongly_connected_components::strongly_connected_components)
+/// function on the list of remaining nodes.
+///
+/// The current implementation uses a variation of [Kahn's
+/// algorithm](https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm),
+/// and runs in O(|V| + |E|) time.
+pub fn topological_sort_into_groups<N, FN, IN>(nodes: &[N], mut successors: FN)
+    -> Result<Vec<Vec<N>>, (Vec<Vec<N>>, Vec<N>)>
+where
+    N: Eq + Hash + Clone,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+{
+    if nodes.is_empty() {
+        return Ok(Vec::new());
+    }
+    let mut succs_map = HashMap::<N, HashSet<N>>::with_capacity(nodes.len());
+    let mut preds_map = HashMap::<N, usize>::with_capacity(nodes.len());
+    for node in nodes.iter() {
+        succs_map.insert(node.clone(), successors(node).into_iter().collect());
+        preds_map.insert(node.clone(), 0);
+    }
+    for succs in succs_map.values() {
+        for succ in succs.iter() {
+            *preds_map.get_mut(succ).unwrap() += 1;
+        }
+    }
+    let mut groups = Vec::<Vec<N>>::new();
+    let mut prev_group: Vec<N> = preds_map
+        .iter()
+        .filter_map(|(node, &num_preds)| if num_preds == 0 {
+                        Some(node.clone())
+                    } else {
+                        None
+                    })
+        .collect();
+    if prev_group.is_empty() {
+        let remaining: Vec<N> =
+            preds_map.into_iter().map(|(node, _)| node).collect();
+        return Err((Vec::new(), remaining));
+    }
+    for node in prev_group.iter() {
+        preds_map.remove(node);
+    }
+    while !preds_map.is_empty() {
+        let mut next_group = Vec::<N>::new();
+        for node in prev_group.iter() {
+            for succ in succs_map.get(node).unwrap() {
+                {
+                    let num_preds = preds_map.get_mut(succ).unwrap();
+                    *num_preds -= 1;
+                    if *num_preds > 0 {
+                        continue;
+                    }
+                }
+                next_group.push(preds_map.remove_entry(succ).unwrap().0);
+            }
+        }
+        groups.push(mem::replace(&mut prev_group, next_group));
+        if prev_group.is_empty() {
+            let remaining: Vec<N> =
+                preds_map.into_iter().map(|(node, _)| node).collect();
+            return Err((groups, remaining));
+        }
+    }
+    groups.push(prev_group);
+    Ok(groups)
 }
