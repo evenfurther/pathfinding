@@ -3,14 +3,16 @@ extern crate criterion;
 extern crate itertools;
 extern crate pathfinding;
 extern crate rand;
+extern crate rand_xorshift;
 
 use criterion::Criterion;
 use itertools::Itertools;
 use pathfinding::prelude::{
     astar, bfs, dfs, dijkstra, fringe, idastar, iddfs, separate_components,
 };
-use rand::prng::XorShiftRng;
+use rand::prelude::SliceRandom;
 use rand::{Rng, RngCore, SeedableRng};
+use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
 use std::usize;
 
@@ -231,7 +233,7 @@ fn bench_separate_components(c: &mut Criterion) {
             .iter()
             .flat_map(|component| {
                 let mut component = component.clone();
-                rng.shuffle(&mut component);
+                component.shuffle(&mut rng);
                 let mut subcomponents = Vec::new();
                 while !component.is_empty() {
                     let cut = rng.gen_range(0, component.len());
@@ -239,13 +241,13 @@ fn bench_separate_components(c: &mut Criterion) {
                     if !component.is_empty() {
                         subcomponent.push(component[0]);
                     }
-                    rng.shuffle(&mut subcomponent);
+                    subcomponents.shuffle(&mut rng);
                     subcomponents.push(subcomponent);
                 }
                 subcomponents
             })
             .collect_vec();
-        rng.shuffle(&mut groups);
+        groups.shuffle(&mut rng);
         // The result is already checked in a separate test.
         b.iter(|| separate_components(&groups));
     });
