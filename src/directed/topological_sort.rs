@@ -187,7 +187,7 @@ where
     while !preds_map.is_empty() {
         let mut next_group = Vec::<N>::new();
         for node in prev_group.iter() {
-            for succ in succs_map.get(node).unwrap() {
+            for succ in &succs_map[node] {
                 {
                     let num_preds = preds_map.get_mut(succ).unwrap();
                     *num_preds -= 1;
