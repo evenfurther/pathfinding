@@ -146,6 +146,7 @@ where
 /// The current implementation uses a variation of [Kahn's
 /// algorithm](https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm),
 /// and runs in O(|V| + |E|) time.
+#[allow(clippy::type_complexity)]
 pub fn topological_sort_into_groups<N, FN, IN>(
     nodes: &[N],
     mut successors: FN,

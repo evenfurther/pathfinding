@@ -14,7 +14,7 @@ const SIDE: u8 = 3;
 const SIDE: u8 = 4;
 const LIMIT: usize = (SIDE * SIDE) as usize;
 
-#[cfg_attr(feature = "cargo-clippy", allow(derive_hash_xor_eq))]
+#[allow(clippy::derive_hash_xor_eq)]
 #[derive(Clone, Debug, Hash)]
 struct Game {
     positions: [u8; LIMIT], // Correct position of piece at every index
