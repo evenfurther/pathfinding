@@ -1,8 +1,6 @@
 // Problem A from the Google Code Jam finals 2017.
 // https://code.google.com/codejam/contest/dashboard?c=6314486#s=p0&a=0
 
-extern crate pathfinding;
-
 use pathfinding::prelude::*;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::io::prelude::*;
@@ -27,7 +25,7 @@ impl From<ParseIntError> for Error {
     }
 }
 
-fn read_ints(file: &mut BufRead) -> Result<Vec<usize>, Error> {
+fn read_ints(file: &mut dyn BufRead) -> Result<Vec<usize>, Error> {
     let mut s = String::new();
     file.read_line(&mut s)?;
     s.pop();
@@ -36,7 +34,7 @@ fn read_ints(file: &mut BufRead) -> Result<Vec<usize>, Error> {
         .collect()
 }
 
-fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut BufRead) -> Result<String, Error> {
+fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut dyn BufRead) -> Result<String, Error> {
     let ndices = read_ints(file)?[0];
     let mut dices = Vec::new();
     let mut values = HashMap::new();

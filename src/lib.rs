@@ -1,11 +1,9 @@
 #![deny(missing_docs)]
 //! This crate implements several pathfinding, flow, and graph algorithms.
 
-extern crate fixedbitset;
-extern crate indexmap;
 #[macro_use]
 extern crate itertools;
-pub extern crate num_traits;
+pub use num_traits;
 
 pub mod directed;
 pub mod grid;

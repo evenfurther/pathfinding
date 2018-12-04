@@ -1,8 +1,3 @@
-extern crate itertools;
-extern crate pathfinding;
-extern crate rand;
-extern crate rand_xorshift;
-
 use itertools::Itertools;
 use pathfinding::undirected::connected_components::*;
 use rand::prelude::*;

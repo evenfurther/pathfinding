@@ -1,6 +1,3 @@
-extern crate itertools;
-extern crate pathfinding;
-
 use itertools::Itertools;
 use pathfinding::prelude::*;
 

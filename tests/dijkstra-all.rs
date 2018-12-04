@@ -1,6 +1,3 @@
-extern crate pathfinding;
-extern crate rand;
-
 use pathfinding::prelude::*;
 use rand::{rngs, Rng};
 

@@ -1,9 +1,5 @@
 #[macro_use]
 extern crate criterion;
-extern crate itertools;
-extern crate pathfinding;
-extern crate rand;
-extern crate rand_xorshift;
 
 use criterion::Criterion;
 use itertools::Itertools;

@@ -1,7 +1,5 @@
 #![cfg(test)]
 
-extern crate pathfinding;
-
 use pathfinding::prelude::*;
 use std::collections::HashMap;
 

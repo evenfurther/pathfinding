@@ -1,7 +1,5 @@
 #[macro_use]
 extern crate lazy_static;
-extern crate pathfinding;
-extern crate rand;
 
 use pathfinding::prelude::{absdiff, astar, idastar};
 use rand::prelude::*;

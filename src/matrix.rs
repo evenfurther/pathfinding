@@ -1,7 +1,5 @@
 //! Matrix of an arbitrary type and utilities to rotate, transpose, etc.
 
-extern crate itertools;
-
 use num_traits::Signed;
 use std::ops::{Index, IndexMut, Neg, Range};
 

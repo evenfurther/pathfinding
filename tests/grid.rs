@@ -1,7 +1,5 @@
 #[macro_use]
 extern crate itertools;
-extern crate pathfinding;
-extern crate rand;
 
 use itertools::Itertools;
 use pathfinding::grid::Grid;

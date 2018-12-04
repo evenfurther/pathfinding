@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate lazy_static;
-extern crate pathfinding;
 
 use pathfinding::directed::strongly_connected_components::*;
 use std::collections::hash_map::HashMap;

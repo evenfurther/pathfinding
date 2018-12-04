@@ -2,9 +2,6 @@
 
 #[macro_use]
 extern crate criterion;
-extern crate movingai;
-extern crate noisy_float;
-extern crate pathfinding;
 
 use criterion::Criterion;
 use movingai::parser::{parse_map_file, parse_scen_file};
