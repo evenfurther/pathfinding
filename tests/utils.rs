@@ -1,5 +1,3 @@
-extern crate pathfinding;
-
 use pathfinding::utils::*;
 
 #[test]

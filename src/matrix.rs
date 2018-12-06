@@ -1,7 +1,5 @@
 //! Matrix of an arbitrary type and utilities to rotate, transpose, etc.
 
-extern crate itertools;
-
 use num_traits::Signed;
 use std::ops::{Index, IndexMut, Neg, Range};
 
@@ -41,7 +39,7 @@ impl<C: Clone> Matrix<C> {
     }
 
     /// Return a copy of a sub-matrix.
-    #[cfg_attr(feature = "cargo-clippy", allow(clippy::needless_pass_by_value))]
+    #[allow(clippy::needless_pass_by_value)]
     pub fn slice(&self, rows: Range<usize>, columns: Range<usize>) -> Matrix<C> {
         let height = rows.end - rows.start;
         let width = columns.end - columns.start;

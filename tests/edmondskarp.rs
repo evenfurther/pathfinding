@@ -1,5 +1,3 @@
-extern crate pathfinding;
-
 use pathfinding::directed::edmonds_karp::*;
 use std::collections::HashMap;
 

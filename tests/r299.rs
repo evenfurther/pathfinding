@@ -2,8 +2,6 @@
 
 // http://bit.ly/2jwqlY6
 
-extern crate pathfinding;
-
 use pathfinding::prelude::*;
 use std::collections::HashMap;
 

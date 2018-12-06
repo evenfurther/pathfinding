@@ -3,7 +3,6 @@
 
 #[macro_use]
 extern crate criterion;
-extern crate pathfinding;
 
 use criterion::Criterion;
 use pathfinding::prelude::{astar, bfs, dfs, dijkstra, fringe, idastar, iddfs};
