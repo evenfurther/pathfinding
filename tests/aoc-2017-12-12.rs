@@ -1,8 +1,6 @@
 // Test from https://adventofcode.com/, 2017-12-12
 
-#[macro_use]
-extern crate lazy_static;
-
+use lazy_static::lazy_static;
 use pathfinding::prelude::*;
 
 use std::collections::{HashMap, HashSet};

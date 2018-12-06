@@ -7,6 +7,7 @@
 //! take advantage of computations already performed on unchanged or augmented
 //! edges.
 
+use itertools::iproduct;
 use num_traits::{Bounded, Signed, Zero};
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::hash::Hash;

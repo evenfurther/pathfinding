@@ -1,8 +1,6 @@
 #![deny(missing_docs)]
 //! This crate implements several pathfinding, flow, and graph algorithms.
 
-#[macro_use]
-extern crate itertools;
 pub use num_traits;
 
 pub mod directed;

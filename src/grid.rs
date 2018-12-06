@@ -2,6 +2,7 @@
 //! without diagonal links.
 
 use indexmap::IndexSet;
+use itertools::iproduct;
 use std::iter::FromIterator;
 
 use super::utils::absdiff;
