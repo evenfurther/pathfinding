@@ -290,6 +290,24 @@ impl<C> Matrix<C> {
     pub fn rotate_ccw(&mut self, times: usize) {
         self.rotate_cw(4 - (times % 4))
     }
+
+    /// Return an iterator on neighbours of a given matrix cell, with or
+    /// without considering diagonals.
+    pub fn neighbours(
+        &self,
+        index: &(usize, usize),
+        diagonals: bool,
+    ) -> impl Iterator<Item = (usize, usize)> {
+        let &(r, c) = index;
+        let min_dr = if r == 0 { 0 } else { -1 };
+        let max_dr = if r == self.rows - 1 { 0 } else { 1 };
+        let min_dc = if c == 0 { 0 } else { -1 };
+        let max_dc = if c == self.columns - 1 { 0 } else { 1 };
+        (min_dc..=max_dc)
+            .flat_map(move |dc| (min_dr..=max_dr).map(move |dr| (dr, dc)))
+            .filter(move |&(dr, dc)| (diagonals && dr != 0 && dc != 0) || dr.abs() + dc.abs() == 1)
+            .map(move |(dr, dc)| ((r as isize + dr) as usize, (c as isize + dc) as usize))
+    }
 }
 
 impl<'a, C> Index<&'a (usize, usize)> for Matrix<C> {

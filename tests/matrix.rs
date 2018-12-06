@@ -4,6 +4,7 @@
 extern crate pathfinding;
 
 use pathfinding::matrix::Matrix;
+use pathfinding::utils::absdiff;
 
 #[test]
 fn sm() {
@@ -256,4 +257,28 @@ fn matrix_macro() {
 #[should_panic]
 fn matrix_macro_inconsistent_panic() {
     matrix![[0, 1, 2], [3, 4]];
+}
+
+#[test]
+fn neighbours() {
+    let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+    for r in 0..3 {
+        for c in 0..3 {
+            for diagonal in vec![false, true] {
+                let mut neighbours = m.neighbours(&(r, c), diagonal).collect::<Vec<_>>();
+                neighbours.sort();
+                let mut manual = Vec::new();
+                for rr in 0..3 {
+                    for cc in 0..3 {
+                        let dr = absdiff(r, rr);
+                        let dc = absdiff(c, cc);
+                        if dr + dc == 1 || (diagonal && dr == 1 && dc == 1) {
+                            manual.push((rr, cc));
+                        }
+                    }
+                }
+                assert_eq!(neighbours, manual);
+            }
+        }
+    }
 }
