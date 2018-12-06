@@ -348,9 +348,7 @@ impl<C> AsMut<[C]> for Matrix<C> {
 /// # Example
 ///
 /// ```
-/// #[macro_use] extern crate pathfinding;
-///
-/// use pathfinding::matrix::*;
+/// use pathfinding::matrix;
 ///
 /// let m = matrix![[10, 20, 30], [40, 50, 60]];
 ///
@@ -360,7 +358,7 @@ impl<C> AsMut<[C]> for Matrix<C> {
 #[macro_export]
 macro_rules! matrix {
     ($a:expr) => {{
-        let mut m = Matrix::new_empty($a.len());
+        let mut m = pathfinding::matrix::Matrix::new_empty($a.len());
         m.extend(&$a);
         m
     }};
