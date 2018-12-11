@@ -97,7 +97,7 @@ where
 /// The result is a map where every reachable node (not including `start`) is associated with
 /// an optimal parent node and a cost.
 ///
-/// The [build_path] function can be used to build a full path from the starting point to one
+/// The [`build_path`] function can be used to build a full path from the starting point to one
 /// of the reachable targets.
 pub fn dijkstra_all<N, C, FN, IN>(start: &N, successors: FN) -> HashMap<N, (N, C)>
 where
@@ -123,7 +123,7 @@ where
 /// `start`) is associated with an optimal parent node and a cost, as well as the node which
 /// caused the algorithm to stop if any.
 ///
-/// The [build_path] function can be used to build a full path from the starting point to one
+/// The [`build_path`] function can be used to build a full path from the starting point to one
 /// of the reachable targets.
 pub fn dijkstra_partial<N, C, FN, IN, FS>(
     start: &N,
@@ -211,8 +211,8 @@ where
 }
 
 /// Build a path leading to a target according to a parents map, which must
-/// contain no loop. This function can be used after [dijkstra_all] or
-/// [dijkstra_partial] to build a path from a starting point to a reachable target.
+/// contain no loop. This function can be used after [`dijkstra_all`] or
+/// [`dijkstra_partial`] to build a path from a starting point to a reachable target.
 ///
 /// - `target` is reachable target.
 /// - `parents` is a map containing an optimal parent (and an associated
