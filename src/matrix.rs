@@ -212,6 +212,12 @@ impl<C> Matrix<C> {
         }
     }
 
+    /// Retrieve the content of the matrix as a vector. The content starts
+    /// with the first row, then the second one, and so on.
+    pub fn to_vec(self) -> Vec<C> {
+        self.data
+    }
+
     /// Check if a matrix is a square one.
     pub fn is_square(&self) -> bool {
         self.rows == self.columns
