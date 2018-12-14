@@ -36,6 +36,16 @@ fn from_vec() {
 }
 
 #[test]
+fn to_vec() {
+    let mut m = Matrix::new(2, 2, 0usize);
+    m[&(0, 0)] = 0;
+    m[&(0, 1)] = 1;
+    m[&(1, 0)] = 10;
+    m[&(1, 1)] = 11;
+    assert_eq!(m.to_vec(), vec![0, 1, 10, 11]);
+}
+
+#[test]
 fn square_from_vec() {
     let m = Matrix::square_from_vec(vec![10, 20, 30, 40]);
     assert_eq!(m.rows, 2);
