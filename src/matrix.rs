@@ -1,5 +1,6 @@
 //! Matrix of an arbitrary type and utilities to rotate, transpose, etc.
 
+use itertools::iproduct;
 use num_traits::Signed;
 use std::ops::{Index, IndexMut, Neg, Range};
 

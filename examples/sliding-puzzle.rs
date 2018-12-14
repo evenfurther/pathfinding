@@ -1,6 +1,4 @@
-#[macro_use]
-extern crate lazy_static;
-
+use lazy_static::lazy_static;
 use pathfinding::prelude::{absdiff, astar, idastar};
 use rand::prelude::*;
 use rand::rngs::OsRng;

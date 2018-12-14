@@ -1,7 +1,4 @@
-#[macro_use]
-extern crate criterion;
-
-use criterion::Criterion;
+use criterion::*;
 use itertools::Itertools;
 use pathfinding::prelude::{
     astar, bfs, dfs, dijkstra, fringe, idastar, iddfs, separate_components,

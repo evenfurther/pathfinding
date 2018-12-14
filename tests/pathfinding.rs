@@ -1,8 +1,6 @@
-#[macro_use]
-extern crate lazy_static;
-
 mod ex1 {
 
+    use lazy_static::lazy_static;
     use pathfinding::prelude::*;
 
     fn successors(node: &u8) -> Vec<(u8, usize)> {
@@ -95,6 +93,7 @@ mod ex1 {
 
 mod ex2 {
 
+    use lazy_static::lazy_static;
     use pathfinding::prelude::*;
 
     const MAZE: &str = "\

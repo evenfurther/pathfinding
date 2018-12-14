@@ -1,10 +1,7 @@
 // This version uses a filler in the Pt structure to increase
 // the cost of cloning a node.
 
-#[macro_use]
-extern crate criterion;
-
-use criterion::Criterion;
+use criterion::*;
 use pathfinding::prelude::{astar, bfs, dfs, dijkstra, fringe, idastar, iddfs};
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

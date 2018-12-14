@@ -1,10 +1,6 @@
 #![cfg(test)]
 
-#[macro_use]
-extern crate pathfinding;
-
-use pathfinding::matrix::Matrix;
-use pathfinding::utils::absdiff;
+use pathfinding::{matrix, matrix::Matrix, utils::absdiff};
 
 #[test]
 fn sm() {

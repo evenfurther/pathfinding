@@ -1,8 +1,5 @@
-#[macro_use]
-extern crate pathfinding;
-
 use pathfinding::kuhn_munkres::*;
-use pathfinding::matrix::Matrix;
+use pathfinding::{matrix, matrix::Matrix};
 
 #[test]
 fn tryalgo_examples() {

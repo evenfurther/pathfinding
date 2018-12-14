@@ -1,6 +1,4 @@
-#[macro_use]
-extern crate lazy_static;
-
+use lazy_static::lazy_static;
 use pathfinding::directed::strongly_connected_components::*;
 use std::collections::hash_map::HashMap;
 
