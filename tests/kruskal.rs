@@ -10,7 +10,7 @@ fn grid_lines() {
         .map(|((x1, y1), (x2, y2))| ((x1, y1), (x2, y2), y1.min(y2)))
         .collect::<Vec<_>>();
     assert_eq!(weighted_edges.len(), 4);
-    let mst = kruskal(&weighted_edges).sorted();
+    let mst = kruskal(&weighted_edges).sorted().collect_vec();
     assert_eq!(
         mst,
         vec![

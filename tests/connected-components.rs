@@ -34,15 +34,21 @@ fn empty_separate_components() {
 fn basic_components() {
     let c = components(&[vec![1, 2], vec![3, 4], vec![5, 6], vec![1, 4, 7]]);
     assert_eq!(c.len(), 2);
-    assert_eq!(c[0].clone().into_iter().sorted(), vec![1, 2, 3, 4, 7]);
-    assert_eq!(c[1].clone().into_iter().sorted(), vec![5, 6]);
+    assert_eq!(
+        c[0].clone().into_iter().sorted().collect_vec(),
+        vec![1, 2, 3, 4, 7]
+    );
+    assert_eq!(c[1].clone().into_iter().sorted().collect_vec(), vec![5, 6]);
 }
 
 #[test]
 fn empty_components() {
     let c = components(&[vec![1, 2], vec![3, 4], vec![], vec![1, 4, 7]]);
     assert_eq!(c.len(), 1);
-    assert_eq!(c[0].clone().into_iter().sorted(), vec![1, 2, 3, 4, 7]);
+    assert_eq!(
+        c[0].clone().into_iter().sorted().collect_vec(),
+        vec![1, 2, 3, 4, 7]
+    );
 }
 
 #[test]
@@ -57,8 +63,14 @@ fn basic_connected_components() {
         }
     });
     assert_eq!(c.len(), 2);
-    assert_eq!(c[0].clone().into_iter().sorted(), vec![1, 3, 5, 7]);
-    assert_eq!(c[1].clone().into_iter().sorted(), vec![2, 4, 6, 8]);
+    assert_eq!(
+        c[0].clone().into_iter().sorted().collect_vec(),
+        vec![1, 3, 5, 7]
+    );
+    assert_eq!(
+        c[1].clone().into_iter().sorted().collect_vec(),
+        vec![2, 4, 6, 8]
+    );
     assert_eq!(counter, 2);
 }
 
