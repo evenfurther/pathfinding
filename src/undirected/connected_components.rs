@@ -90,7 +90,6 @@ where
         .enumerate()
         .filter(|&(_, n)| n != usize::MAX)
         .sorted_by(|&(_, n1), &(_, n2)| Ord::cmp(&n1, &n2))
-        .into_iter()
         .group_by(|&(_, n)| n);
     gb.into_iter()
         .map(|(_, gs)| {

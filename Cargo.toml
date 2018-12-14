@@ -14,7 +14,7 @@ edition = "2018"
 
 [dependencies]
 fixedbitset = "0.1.9"
-itertools = "0.7"
+itertools = "0.8"
 num-traits = "0.2"
 indexmap = "1.0.2"
 
