@@ -3,6 +3,7 @@
 
 use indexmap::IndexSet;
 use itertools::iproduct;
+use std::fmt;
 use std::iter::FromIterator;
 
 use super::utils::absdiff;
@@ -470,5 +471,19 @@ impl<'a> Iterator for EdgesIterator<'a> {
                 return Some(((x, y), other));
             }
         }
+    }
+}
+
+impl fmt::Debug for Grid {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for y in 0..self.height {
+            for x in 0..self.width {
+                write!(f, "{}", if self.has_vertex(&(x, y)) { '#' } else { '.' })?;
+            }
+            if y != self.height - 1 {
+                write!(f, "\n")?;
+            }
+        }
+        Ok(())
     }
 }
