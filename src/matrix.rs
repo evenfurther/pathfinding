@@ -224,7 +224,13 @@ impl<C> Matrix<C> {
     }
 
     /// Index in raw data of a given position.
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the coordinates do not designated a cell.
     pub fn idx(&self, i: &(usize, usize)) -> usize {
+        assert!(i.0 < self.rows, "trying to access row {} (max {})", i.0, self.rows - 1);
+        assert!(i.1 < self.columns, "trying to access column {} (max {})", i.1, self.columns - 1);
         i.0 * self.columns + i.1
     }
 
