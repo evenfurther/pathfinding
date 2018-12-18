@@ -298,3 +298,21 @@ fn from_rows() {
     let m = Matrix::from_rows((1..3).map(|n| (1..n).map(move |x| x * n)));
     assert!(m.is_err());
 }
+
+#[test]
+fn iter() {
+    let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+    let mut i = m.iter();
+    assert_eq!(i.next().unwrap(), &[0, 1, 2]);
+    assert_eq!(i.next().unwrap(), &[3, 4, 5]);
+    assert_eq!(i.next().unwrap(), &[6, 7, 8]);
+    assert_eq!(i.next(), None);
+}
+
+#[test]
+fn into_iter() {
+    let m = matrix![[0, 1, 2], [2, 1, 0], [1, 0, 2]];
+    for c in &m {
+        assert_eq!(c.iter().sum::<u32>(), 3);
+    }
+}

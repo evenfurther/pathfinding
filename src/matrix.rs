@@ -380,6 +380,11 @@ impl<C> Matrix<C> {
             .filter(move |&(dr, dc)| (diagonals && dr != 0 && dc != 0) || dr.abs() + dc.abs() == 1)
             .map(move |(dr, dc)| ((r as isize + dr) as usize, (c as isize + dc) as usize))
     }
+
+    /// Return an iterator on rows of the matrix.
+    pub fn iter(&self) -> RowIterator<C> {
+        (&self).into_iter()
+    }
 }
 
 impl<'a, C> Index<&'a (usize, usize)> for Matrix<C> {
@@ -456,5 +461,40 @@ impl Error for MatrixFormatError {}
 impl fmt::Display for MatrixFormatError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "matrix format error: {}", self.message)
+    }
+}
+
+/// Row iterator returned by `iter()` on a matrix.
+pub struct RowIterator<'a, C> {
+    matrix: &'a Matrix<C>,
+    row: usize,
+}
+
+impl<'a, C> Iterator for RowIterator<'a, C> {
+    type Item = &'a [C];
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.row < self.matrix.rows {
+            let r = Some(
+                &self.matrix.data
+                    [self.row * self.matrix.columns..(self.row + 1) * self.matrix.columns],
+            );
+            self.row += 1;
+            r
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a, C> IntoIterator for &'a Matrix<C> {
+    type IntoIter = RowIterator<'a, C>;
+    type Item = &'a [C];
+
+    fn into_iter(self) -> RowIterator<'a, C> {
+        RowIterator {
+            matrix: self,
+            row: 0,
+        }
     }
 }
