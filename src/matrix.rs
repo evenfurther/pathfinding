@@ -2,6 +2,8 @@
 
 use itertools::iproduct;
 use num_traits::Signed;
+use std::error::Error;
+use std::fmt;
 use std::ops::{Index, IndexMut, Neg, Range};
 
 /// Matrix of an arbitrary type. Data are stored consecutively in
@@ -212,6 +214,53 @@ impl<C> Matrix<C> {
         }
     }
 
+    /// Create a matrix from something convertible to an iterator on rows,
+    /// each row being convertible to an iterator on columns.
+    ///
+    /// An error will be returned if length of rows differ.
+    ///
+    /// ```
+    /// use pathfinding::matrix::*;
+    ///
+    /// # fn main() -> Result<(), MatrixFormatError> {
+    /// let input = "abc\ndef";
+    /// let matrix = Matrix::from_rows(input.lines().map(|l| l.chars()))?;
+    /// assert_eq!(matrix.rows, 2);
+    /// assert_eq!(matrix.columns, 3);
+    /// assert_eq!(matrix[&(1, 1)], 'e');
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn from_rows<IR, IC>(rows: IR) -> Result<Matrix<C>, MatrixFormatError>
+    where
+        IR: IntoIterator<Item = IC>,
+        IC: IntoIterator<Item = C>,
+    {
+        let mut rows = rows.into_iter();
+        if let Some(first_row) = rows.next() {
+            let mut data = first_row.into_iter().collect::<Vec<_>>();
+            let ncols = data.len();
+            let mut nrows = 1;
+            for (i, row) in rows.enumerate() {
+                nrows += 1;
+                data.extend(row);
+                if nrows * ncols != data.len() {
+                    return Err(MatrixFormatError {
+                        message: format!(
+                            "data for row {} (starting at 0) has len {} instead of expected {}",
+                            i + 1,
+                            data.len() - (nrows - 1) * ncols,
+                            ncols
+                        ),
+                    });
+                }
+            }
+            Ok(Matrix::from_vec(nrows, ncols, data))
+        } else {
+            Ok(Matrix::new_empty(0))
+        }
+    }
+
     /// Retrieve the content of the matrix as a vector. The content starts
     /// with the first row, then the second one, and so on.
     pub fn to_vec(self) -> Vec<C> {
@@ -229,8 +278,18 @@ impl<C> Matrix<C> {
     ///
     /// This function panics if the coordinates do not designated a cell.
     pub fn idx(&self, i: &(usize, usize)) -> usize {
-        assert!(i.0 < self.rows, "trying to access row {} (max {})", i.0, self.rows - 1);
-        assert!(i.1 < self.columns, "trying to access column {} (max {})", i.1, self.columns - 1);
+        assert!(
+            i.0 < self.rows,
+            "trying to access row {} (max {})",
+            i.0,
+            self.rows - 1
+        );
+        assert!(
+            i.1 < self.columns,
+            "trying to access column {} (max {})",
+            i.1,
+            self.columns - 1
+        );
         i.0 * self.columns + i.1
     }
 
@@ -384,4 +443,18 @@ macro_rules! matrix {
         m
     }};
     ($a:expr, $($b: expr),+, ) => (matrix!($a, $($b),+))
+}
+
+/// Format error encountered while attempting to build a Matrix.
+#[derive(Debug)]
+pub struct MatrixFormatError {
+    message: String,
+}
+
+impl Error for MatrixFormatError {}
+
+impl fmt::Display for MatrixFormatError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "matrix format error: {}", self.message)
+    }
 }

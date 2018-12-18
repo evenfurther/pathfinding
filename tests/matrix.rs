@@ -288,3 +288,13 @@ fn neighbours() {
         }
     }
 }
+
+#[test]
+fn from_rows() {
+    let m = Matrix::from_rows((1..3).map(|n| (1..5).map(move |x| x * n))).unwrap();
+    assert_eq!(m.rows, 2);
+    assert_eq!(m.columns, 4);
+    assert_eq!(m.to_vec(), vec![1, 2, 3, 4, 2, 4, 6, 8]);
+    let m = Matrix::from_rows((1..3).map(|n| (1..n).map(move |x| x * n)));
+    assert!(m.is_err());
+}
