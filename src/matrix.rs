@@ -41,9 +41,19 @@ impl<C: Clone> Matrix<C> {
         self.data.resize(self.rows * self.columns, value);
     }
 
-    /// Return a copy of a sub-matrix.
+    /// Return a copy of a sub-matrix, or return an error if the
+    /// ranges are outside the original matrix.
     #[allow(clippy::needless_pass_by_value)]
-    pub fn slice(&self, rows: Range<usize>, columns: Range<usize>) -> Matrix<C> {
+    pub fn slice(
+        &self,
+        rows: Range<usize>,
+        columns: Range<usize>,
+    ) -> Result<Matrix<C>, MatrixFormatError> {
+        if rows.end > self.rows || columns.end > self.columns {
+            return Err(MatrixFormatError {
+                message: "slice far end points outside the matrix".to_owned(),
+            });
+        }
         let height = rows.end - rows.start;
         let width = columns.end - columns.start;
         let mut v = Vec::with_capacity(height * width);
@@ -117,29 +127,31 @@ impl<C: Clone> Matrix<C> {
         }
     }
 
-    /// Extend the matrix in place by adding one full row.
-    ///
-    /// # Panics
-    ///
-    /// This function panics if the row does not have the expected
-    /// number of elements.
-    pub fn extend(&mut self, row: &[C]) {
-        assert_eq!(
-            self.columns,
-            row.len(),
-            "new row has {} columns intead of expected {}",
-            row.len(),
-            self.columns
-        );
+    /// Extend the matrix in place by adding one full row. An error
+    /// is returned if the row does not have the expected number of
+    /// elements.
+    pub fn extend(&mut self, row: &[C]) -> Result<(), MatrixFormatError> {
+        if self.columns != row.len() {
+            return Err(MatrixFormatError {
+                message: format!(
+                    "new row has {} columns intead of expected {}",
+                    row.len(),
+                    self.columns
+                ),
+            });
+        }
         self.rows += 1;
         for e in row {
             self.data.push(e.clone());
         }
+        Ok(())
     }
 }
 
 impl<C: Copy> Matrix<C> {
     /// Replace a slice of the current matrix with the content of another one.
+    /// Only the relevant cells will be extracted if the slice goes outside the
+    /// original matrix.
     pub fn set_slice(&mut self, pos: &(usize, usize), slice: &Matrix<C>) {
         let &(ref row, ref column) = pos;
         let height = (self.rows - row).min(slice.rows);
@@ -166,39 +178,34 @@ impl<C: Clone + Signed> Neg for Matrix<C> {
 impl<C> Matrix<C> {
     /// Create new matrix from vector values. The first value
     /// will be assigned to index (0, 0), the second one to index (0, 1),
-    /// and so on.
-    ///
-    /// # Panics
-    ///
-    /// This function will panic if the number of values does not correspond
-    /// to the announced size.
-    pub fn from_vec(rows: usize, columns: usize, values: Vec<C>) -> Matrix<C> {
-        assert_eq!(
-            rows * columns,
-            values.len(),
-            "length of vector does not correspond to announced dimensions"
-        );
-        Matrix {
+    /// and so on. An error is returned instead if data length does not
+    /// correspond to the announced size.
+    pub fn from_vec(
+        rows: usize,
+        columns: usize,
+        values: Vec<C>,
+    ) -> Result<Matrix<C>, MatrixFormatError> {
+        if rows * columns != values.len() {
+            return Err(MatrixFormatError { message: format!("length of vector does not correspond to announced dimensions ({} instead of {}×{}={})", values.len(), rows, columns, rows*columns)});
+        }
+        Ok(Matrix {
             rows,
             columns,
             data: values,
-        }
+        })
     }
 
     /// Create new square matrix from vector values. The first value
     /// will be assigned to index (0, 0), the second one to index (0, 1),
-    /// and so on.
-    ///
-    /// # Panics
-    ///
-    /// This function will panic if the number of values is not a square number.
-    pub fn square_from_vec(values: Vec<C>) -> Matrix<C> {
+    /// and so on. An error is returned if the number of values is not a
+    /// square number.
+    pub fn square_from_vec(values: Vec<C>) -> Result<Matrix<C>, MatrixFormatError> {
         let size = (values.len() as f32).sqrt().round() as usize;
-        assert_eq!(
-            size * size,
-            values.len(),
-            "length of vector is not a square number"
-        );
+        if size * size != values.len() {
+            return Err(MatrixFormatError {
+                message: format!("length of vector ({}) is not a square number", values.len()),
+            });
+        }
         Self::from_vec(size, size, values)
     }
 
@@ -255,7 +262,7 @@ impl<C> Matrix<C> {
                     });
                 }
             }
-            Ok(Matrix::from_vec(nrows, ncols, data))
+            Matrix::from_vec(nrows, ncols, data)
         } else {
             Ok(Matrix::new_empty(0))
         }
@@ -431,14 +438,14 @@ impl<C> AsMut<[C]> for Matrix<C> {
 macro_rules! matrix {
     ($a:expr) => {{
         let mut m = pathfinding::matrix::Matrix::new_empty($a.len());
-        m.extend(&$a);
+        m.extend(&$a).unwrap();
         m
     }};
     ($a:expr, $($b: expr),+) => {{
         let mut m = matrix!($a);
         let mut r = 0;
         $(
-            m.extend(&$b);
+            m.extend(&$b).unwrap();
         )+
         m
     }};
