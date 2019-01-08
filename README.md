@@ -1,7 +1,6 @@
 # pathfinding
 
-[![Unix build Status](https://travis-ci.org/samueltardieu/pathfinding.svg?branch=master)](https://travis-ci.org/samueltardieu/pathfinding)
-[![Windows build Status](https://ci.appveyor.com/api/projects/status/github/samueltardieu/pathfinding?branch=master&svg=true)](https://ci.appveyor.com/project/samueltardieu/pathfinding)
+[![Build Status](https://travis-ci.org/samueltardieu/pathfinding.svg?branch=master)](https://travis-ci.org/samueltardieu/pathfinding)
 [![Current Version](https://img.shields.io/crates/v/pathfinding.svg)](https://crates.io/crates/pathfinding)
 [![Documentation](https://docs.rs/pathfinding/badge.svg)](https://docs.rs/pathfinding)
 [![License: Apache-2.0/MIT](https://img.shields.io/crates/l/pathfinding.svg)](#license)
