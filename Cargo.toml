@@ -39,5 +39,4 @@ name = "movingai"
 harness = false
 
 [badges]
-appveyor = { repository = "samueltardieu/pathfinding" }
 travis-ci = { repository = "samueltardieu/pathfinding" }
