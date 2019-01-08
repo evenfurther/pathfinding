@@ -4,7 +4,7 @@ use itertools::iproduct;
 use num_traits::Signed;
 use std::error::Error;
 use std::fmt;
-use std::ops::{Index, IndexMut, Neg, Range};
+use std::ops::{Deref, DerefMut, Index, IndexMut, Neg, Range};
 
 /// Matrix of an arbitrary type. Data are stored consecutively in
 /// memory, by rows. Raw data can be accessed using `as_ref()`
@@ -261,12 +261,6 @@ impl<C> Matrix<C> {
         }
     }
 
-    /// Retrieve the content of the matrix as a vector. The content starts
-    /// with the first row, then the second one, and so on.
-    pub fn to_vec(self) -> Vec<C> {
-        self.data
-    }
-
     /// Check if a matrix is a square one.
     pub fn is_square(&self) -> bool {
         self.rows == self.columns
@@ -397,14 +391,16 @@ impl<'a, C> IndexMut<&'a (usize, usize)> for Matrix<C> {
     }
 }
 
-impl<C> AsRef<[C]> for Matrix<C> {
-    fn as_ref(&self) -> &[C] {
+impl<C> Deref for Matrix<C> {
+    type Target = [C];
+
+    fn deref(&self) -> &[C] {
         &self.data
     }
 }
 
-impl<C> AsMut<[C]> for Matrix<C> {
-    fn as_mut(&mut self) -> &mut [C] {
+impl<C> DerefMut for Matrix<C> {
+    fn deref_mut(&mut self) -> &mut [C] {
         &mut self.data
     }
 }
