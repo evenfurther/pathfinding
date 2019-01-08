@@ -481,7 +481,7 @@ impl fmt::Debug for Grid {
                 write!(f, "{}", if self.has_vertex(&(x, y)) { '#' } else { '.' })?;
             }
             if y != self.height - 1 {
-                write!(f, "\n")?;
+                writeln!(f)?;
             }
         }
         Ok(())
