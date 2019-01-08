@@ -125,7 +125,7 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
     where
         Self: Sized,
     {
-        Self::from_matrix(source, sink, Matrix::square_from_vec(capacities))
+        Self::from_matrix(source, sink, Matrix::square_from_vec(capacities).unwrap())
     }
 
     /// Common data.

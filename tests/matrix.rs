@@ -23,7 +23,7 @@ fn sm() {
 
 #[test]
 fn from_vec() {
-    let m = Matrix::from_vec(2, 3, vec![10, 20, 30, 40, 50, 60]);
+    let m = Matrix::from_vec(2, 3, vec![10, 20, 30, 40, 50, 60]).unwrap();
     assert_eq!(m.rows, 2);
     assert_eq!(m.columns, 3);
     assert!(!m.is_square());
@@ -33,6 +33,11 @@ fn from_vec() {
     assert_eq!(m[&(1, 0)], 40);
     assert_eq!(m[&(1, 1)], 50);
     assert_eq!(m[&(1, 2)], 60);
+}
+
+#[test]
+fn from_vec_error() {
+    assert!(Matrix::from_vec(2, 3, vec![20, 30, 40, 50, 60]).is_err());
 }
 
 #[test]
@@ -47,7 +52,7 @@ fn to_vec() {
 
 #[test]
 fn square_from_vec() {
-    let m = Matrix::square_from_vec(vec![10, 20, 30, 40]);
+    let m = Matrix::square_from_vec(vec![10, 20, 30, 40]).unwrap();
     assert_eq!(m.rows, 2);
     assert_eq!(m.columns, 2);
     assert!(m.is_square());
@@ -60,23 +65,23 @@ fn square_from_vec() {
 #[test]
 #[should_panic]
 fn from_vec_panic() {
-    Matrix::from_vec(2, 3, vec![1, 2, 3]);
+    Matrix::from_vec(2, 3, vec![1, 2, 3]).unwrap();
 }
 
 #[test]
 #[should_panic]
 fn square_from_vec_panic() {
-    Matrix::square_from_vec(vec![1, 2, 3]);
+    Matrix::square_from_vec(vec![1, 2, 3]).unwrap();
 }
 
 #[test]
 fn square_rotate() {
     // 0 1 => 2 0 => 3 2  => 1 3
     // 2 3    3 1    1 0     0 2
-    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3]);
-    let m2 = Matrix::square_from_vec(vec![2, 0, 3, 1]);
-    let m3 = Matrix::square_from_vec(vec![3, 2, 1, 0]);
-    let m4 = Matrix::square_from_vec(vec![1, 3, 0, 2]);
+    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3]).unwrap();
+    let m2 = Matrix::square_from_vec(vec![2, 0, 3, 1]).unwrap();
+    let m3 = Matrix::square_from_vec(vec![3, 2, 1, 0]).unwrap();
+    let m4 = Matrix::square_from_vec(vec![1, 3, 0, 2]).unwrap();
     assert_eq!(m1.rotated_cw(0), m1);
     assert_eq!(m1.rotated_cw(1), m2);
     assert_eq!(m1.rotated_cw(2), m3);
@@ -88,10 +93,10 @@ fn square_rotate() {
     // 0 1 2    6 3 0    8 7 6    2 5 8
     // 3 4 5 => 7 4 1 => 5 4 3 => 1 4 7
     // 6 7 8    8 5 2    2 1 0    0 3 6
-    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3, 4, 5, 6, 7, 8]);
-    let m2 = Matrix::square_from_vec(vec![6, 3, 0, 7, 4, 1, 8, 5, 2]);
-    let m3 = Matrix::square_from_vec(vec![8, 7, 6, 5, 4, 3, 2, 1, 0]);
-    let m4 = Matrix::square_from_vec(vec![2, 5, 8, 1, 4, 7, 0, 3, 6]);
+    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3, 4, 5, 6, 7, 8]).unwrap();
+    let m2 = Matrix::square_from_vec(vec![6, 3, 0, 7, 4, 1, 8, 5, 2]).unwrap();
+    let m3 = Matrix::square_from_vec(vec![8, 7, 6, 5, 4, 3, 2, 1, 0]).unwrap();
+    let m4 = Matrix::square_from_vec(vec![2, 5, 8, 1, 4, 7, 0, 3, 6]).unwrap();
     assert_eq!(m1.rotated_cw(0), m1);
     assert_eq!(m1.rotated_cw(1), m2);
     assert_eq!(m1.rotated_cw(2), m3);
@@ -101,10 +106,14 @@ fn square_rotate() {
     assert_eq!(m1.rotated_ccw(2), m3);
     assert_eq!(m1.rotated_ccw(3), m2);
     // Same with 4
-    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
-    let m2 = Matrix::square_from_vec(vec![12, 8, 4, 0, 13, 9, 5, 1, 14, 10, 6, 2, 15, 11, 7, 3]);
-    let m3 = Matrix::square_from_vec(vec![15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
-    let m4 = Matrix::square_from_vec(vec![3, 7, 11, 15, 2, 6, 10, 14, 1, 5, 9, 13, 0, 4, 8, 12]);
+    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+        .unwrap();
+    let m2 = Matrix::square_from_vec(vec![12, 8, 4, 0, 13, 9, 5, 1, 14, 10, 6, 2, 15, 11, 7, 3])
+        .unwrap();
+    let m3 = Matrix::square_from_vec(vec![15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0])
+        .unwrap();
+    let m4 = Matrix::square_from_vec(vec![3, 7, 11, 15, 2, 6, 10, 14, 1, 5, 9, 13, 0, 4, 8, 12])
+        .unwrap();
     assert_eq!(m1.rotated_cw(0), m1);
     assert_eq!(m1.rotated_cw(1), m2);
     assert_eq!(m1.rotated_cw(2), m3);
@@ -116,10 +125,12 @@ fn square_rotate() {
     // Same with 5
     let m1 = Matrix::square_from_vec(vec![
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-    ]);
+    ])
+    .unwrap();
     let m2 = Matrix::square_from_vec(vec![
         20, 15, 10, 5, 0, 21, 16, 11, 6, 1, 22, 17, 12, 7, 2, 23, 18, 13, 8, 3, 24, 19, 14, 9, 4,
-    ]);
+    ])
+    .unwrap();
     assert_eq!(m1.rotated_cw(0), m1);
     assert_eq!(m1.rotated_cw(1), m2);
     assert_eq!(m2.rotated_cw(3), m1);
@@ -145,22 +156,22 @@ fn non_square_rotate() {
 
 #[test]
 fn flip() {
-    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3]);
-    let m2 = Matrix::square_from_vec(vec![1, 0, 3, 2]);
-    let m3 = Matrix::square_from_vec(vec![2, 3, 0, 1]);
+    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3]).unwrap();
+    let m2 = Matrix::square_from_vec(vec![1, 0, 3, 2]).unwrap();
+    let m3 = Matrix::square_from_vec(vec![2, 3, 0, 1]).unwrap();
     assert_eq!(m1.flipped_lr(), m2);
     assert_eq!(m1.flipped_ud(), m3);
-    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3, 4, 5, 6, 7, 8]);
-    let m2 = Matrix::square_from_vec(vec![2, 1, 0, 5, 4, 3, 8, 7, 6]);
-    let m3 = Matrix::square_from_vec(vec![6, 7, 8, 3, 4, 5, 0, 1, 2]);
+    let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3, 4, 5, 6, 7, 8]).unwrap();
+    let m2 = Matrix::square_from_vec(vec![2, 1, 0, 5, 4, 3, 8, 7, 6]).unwrap();
+    let m3 = Matrix::square_from_vec(vec![6, 7, 8, 3, 4, 5, 0, 1, 2]).unwrap();
     assert_eq!(m1.flipped_lr(), m2);
     assert_eq!(m1.flipped_ud(), m3);
 }
 
 #[test]
 fn transpose() {
-    let m1 = Matrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]);
-    let m2 = Matrix::from_vec(3, 2, vec![0, 3, 1, 4, 2, 5]);
+    let m1 = Matrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]).unwrap();
+    let m2 = Matrix::from_vec(3, 2, vec![0, 3, 1, 4, 2, 5]).unwrap();
     assert_eq!(m1.transposed(), m2);
     assert_eq!(m2.transposed(), m1);
 }
@@ -171,13 +182,13 @@ fn sum(slice: &[usize]) -> usize {
 
 #[test]
 fn as_ref() {
-    let m1 = Matrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]);
+    let m1 = Matrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]).unwrap();
     assert_eq!(sum(m1.as_ref()), 15);
 }
 
 #[test]
 fn as_mut() {
-    let mut m1 = Matrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]);
+    let mut m1 = Matrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]).unwrap();
     assert_eq!(sum(m1.as_ref()), 15);
     m1.as_mut()[2] = 10;
     assert_eq!(sum(m1.as_ref()), 23);
@@ -187,19 +198,30 @@ fn as_mut() {
 fn slice() {
     let m1 = Matrix::square_from_vec(vec![
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-    ]);
-    let m2 = m1.slice(1..3, 2..5);
+    ])
+    .unwrap();
+    let m2 = m1.slice(1..3, 2..5).unwrap();
     assert_eq!(m2.rows, 2);
     assert_eq!(m2.columns, 3);
     assert_eq!(m2.as_ref().to_vec(), [7, 8, 9, 12, 13, 14]);
 }
 
 #[test]
+fn slice_err() {
+    let m1 = Matrix::square_from_vec(vec![
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+    ])
+    .unwrap();
+    assert!(m1.slice(1..3, 2..6).is_err());
+}
+
+#[test]
 fn set_slice() {
     let mut m1 = Matrix::square_from_vec(vec![
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-    ]);
-    let m2 = Matrix::from_vec(3, 2, vec![10, 20, 30, 40, 50, 60]);
+    ])
+    .unwrap();
+    let m2 = Matrix::from_vec(3, 2, vec![10, 20, 30, 40, 50, 60]).unwrap();
     m1.set_slice(&(2, 3), &m2);
     assert_eq!(
         m1.as_ref().to_vec(),
@@ -210,8 +232,9 @@ fn set_slice() {
     );
     let mut m1 = Matrix::square_from_vec(vec![
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-    ]);
-    let m2 = Matrix::from_vec(4, 3, vec![10, 20, 22, 30, 40, 44, 50, 60, 66, 70, 80, 88]);
+    ])
+    .unwrap();
+    let m2 = Matrix::from_vec(4, 3, vec![10, 20, 22, 30, 40, 44, 50, 60, 66, 70, 80, 88]).unwrap();
     m1.set_slice(&(2, 3), &m2);
     assert_eq!(
         m1.as_ref().to_vec(),
@@ -225,8 +248,8 @@ fn set_slice() {
 #[test]
 fn empty_extend() {
     let mut m = Matrix::new_empty(3);
-    m.extend(&[0, 1, 2]);
-    m.extend(&[3, 4, 5]);
+    m.extend(&[0, 1, 2]).unwrap();
+    m.extend(&[3, 4, 5]).unwrap();
     assert_eq!(m.columns, 3);
     assert_eq!(m.rows, 2);
     let mut i = 0;
@@ -242,7 +265,7 @@ fn empty_extend() {
 #[should_panic]
 fn extend_bad_size_panic() {
     let mut m = Matrix::new_empty(3);
-    m.extend(&[0, 1]);
+    m.extend(&[0, 1]).unwrap();
 }
 
 #[test]
@@ -297,4 +320,22 @@ fn from_rows() {
     assert_eq!(m.to_vec(), vec![1, 2, 3, 4, 2, 4, 6, 8]);
     let m = Matrix::from_rows((1..3).map(|n| (1..n).map(move |x| x * n)));
     assert!(m.is_err());
+}
+
+#[test]
+fn iter() {
+    let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+    let mut i = m.iter();
+    assert_eq!(i.next().unwrap(), &[0, 1, 2]);
+    assert_eq!(i.next().unwrap(), &[3, 4, 5]);
+    assert_eq!(i.next().unwrap(), &[6, 7, 8]);
+    assert_eq!(i.next(), None);
+}
+
+#[test]
+fn into_iter() {
+    let m = matrix![[0, 1, 2], [2, 1, 0], [1, 0, 2]];
+    for c in &m {
+        assert_eq!(c.iter().sum::<u32>(), 3);
+    }
 }
