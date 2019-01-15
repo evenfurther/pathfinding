@@ -8,7 +8,7 @@ use std::usize;
 #[test]
 fn basic_separate_components() {
     let (h, g) = separate_components(&[vec![1, 2], vec![3, 4], vec![5, 6], vec![1, 4]]);
-    assert!([1, 2, 3, 4].into_iter().map(|n| h[n]).all_equal());
+    assert!([1, 2, 3, 4].iter().map(|n| h[n]).all_equal());
     assert_eq!(h[&5], h[&6]);
     assert!(h[&1] != h[&5]);
     assert_eq!(h.len(), 6);
@@ -21,7 +21,7 @@ fn basic_separate_components() {
 #[test]
 fn empty_separate_components() {
     let (h, g) = separate_components(&[vec![1, 2], vec![3, 4], vec![], vec![1, 4]]);
-    assert!([1, 2, 3, 4].into_iter().map(|n| h[n]).all_equal());
+    assert!([1, 2, 3, 4].iter().map(|n| h[n]).all_equal());
     assert_eq!(h.len(), 4);
     assert_eq!(g[0], g[1]);
     assert_eq!(g[0], g[3]);
