@@ -293,7 +293,7 @@ fn neighbours() {
     let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
     for r in 0..3 {
         for c in 0..3 {
-            for diagonal in vec![false, true] {
+            for &diagonal in &[false, true] {
                 let mut neighbours = m.neighbours(&(r, c), diagonal).collect::<Vec<_>>();
                 neighbours.sort();
                 let mut manual = Vec::new();
