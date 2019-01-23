@@ -64,27 +64,43 @@ use super::reverse_path;
 ///                  |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").len(), 5);
 /// ```
-pub fn bfs<N, FN, IN, FS>(start: &N, mut successors: FN, mut success: FS) -> Option<Vec<N>>
+pub fn bfs<N, FN, IN, FS>(start: &N, successors: FN, success: FS) -> Option<Vec<N>>
 where
     N: Eq + Hash + Clone,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
 {
+    bfs_core(start, successors, success, true)
+}
+
+fn bfs_core<N, FN, IN, FS>(
+    start: &N,
+    mut successors: FN,
+    mut success: FS,
+    check_first: bool,
+) -> Option<Vec<N>>
+where
+    N: Eq + Hash + Clone,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+    FS: FnMut(&N) -> bool,
+{
+    if check_first && success(start) {
+        return Some(vec![start.clone()]);
+    }
     let mut to_see = VecDeque::new();
     let mut parents: IndexMap<N, usize> = IndexMap::new();
     to_see.push_back(0);
     parents.insert(start.clone(), usize::MAX);
     while let Some(i) = to_see.pop_front() {
-        let successors = {
-            let node = parents.get_index(i).unwrap().0;
-            if success(node) {
-                let path = reverse_path(&parents, |&p| p, i);
+        let node = parents.get_index(i).unwrap().0;
+        for successor in successors(node) {
+            if success(&successor) {
+                let mut path = reverse_path(&parents, |&p| p, i);
+                path.push(successor);
                 return Some(path);
             }
-            successors(node)
-        };
-        for successor in successors {
             if let Vacant(e) = parents.entry(successor) {
                 to_see.push_back(e.index());
                 e.insert(i);
@@ -102,35 +118,11 @@ where
 /// Except the start node which will be included both at the beginning and the end of
 /// the path, a node will never be included twice in the path as determined
 /// by the `Eq` relationship.
-pub fn bfs_loop<N, FN, IN>(start: &N, mut successors: FN) -> Option<Vec<N>>
+pub fn bfs_loop<N, FN, IN>(start: &N, successors: FN) -> Option<Vec<N>>
 where
     N: Eq + Hash + Clone,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
-    // If the node is linked to itself, we have the shortest path.
-    if successors(start).into_iter().any(|n| &n == start) {
-        return Some(vec![start.clone(), start.clone()]);
-    }
-    // We will go through all the successors and look for a path to the start.
-    let mut shortest = None;
-    let mut shortest_len = usize::MAX;
-    for successor in successors(start).into_iter() {
-        if let Some(path) = bfs(&successor, &mut successors, |n| n == start) {
-            let path_len = path.len();
-            if path_len < shortest_len {
-                shortest_len = path_len;
-                shortest = Some(path);
-            }
-            if path_len == 2 {
-                break; // We will never find a shorter path than successor->start
-            }
-        }
-    }
-    shortest.map(|mut path| {
-        let mut cycle = Vec::with_capacity(path.len() + 1);
-        cycle.push(start.clone());
-        cycle.append(&mut path);
-        cycle
-    })
+    bfs_core(start, successors, |n| n == start, false)
 }
