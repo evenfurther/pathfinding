@@ -56,7 +56,7 @@ where
     let mut ranks = Vec::with_capacity(number_of_nodes);
     ranks.resize(number_of_nodes, 1);
     let mut edges = edges.to_vec();
-    edges.sort_by_key(|e| e.2.clone());
+    edges.sort_by(|a, b| a.2.cmp(&b.2));
     edges.into_iter().filter_map(move |(a, b, w)| {
         let ra = find(&mut parents, a);
         let rb = find(&mut parents, b);
