@@ -30,7 +30,7 @@ fn read_ints(file: &mut dyn BufRead) -> Result<Vec<usize>, Error> {
     file.read_line(&mut s)?;
     s.pop();
     s.split(' ')
-        .map(|w| w.parse::<usize>().map_err(|e| e.into()))
+        .map(|w| w.parse::<usize>().map_err(Into::into))
         .collect()
 }
 

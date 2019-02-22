@@ -166,7 +166,7 @@ fn main() {
     assert!(b.is_solvable());
     let idastar_result = {
         let before = Instant::now();
-        let result = idastar(&b, |b| b.successors(), |b| b.weight, |b| b.solved()).unwrap();
+        let result = idastar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
         let elapsed = before.elapsed();
         println!(
             "idastar: {} moves in {}.{:03} seconds",
@@ -178,7 +178,7 @@ fn main() {
     };
     let astar_result = {
         let before = Instant::now();
-        let result = astar(&b, |b| b.successors(), |b| b.weight, |b| b.solved()).unwrap();
+        let result = astar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
         let elapsed = before.elapsed();
         println!(
             "astar: {} moves in {}.{:03} seconds",
