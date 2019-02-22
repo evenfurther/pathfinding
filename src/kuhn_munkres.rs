@@ -178,7 +178,7 @@ where
     }
     (
         lx.into_iter().sum::<C>() + ly.into_iter().sum(),
-        xy.into_iter().map(|v| v.unwrap()).collect::<Vec<_>>(),
+        xy.into_iter().map(Option::unwrap).collect::<Vec<_>>(),
     )
 }
 

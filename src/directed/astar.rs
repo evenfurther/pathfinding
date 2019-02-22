@@ -357,10 +357,10 @@ impl<N: Clone + Eq + Hash> AstarSolution<N> {
     }
 
     fn next_vec(&mut self) {
-        while self.current.last().map(|v| v.len()) == Some(1) {
+        while self.current.last().map(Vec::len) == Some(1) {
             self.current.pop();
         }
-        self.current.last_mut().map(|v| v.pop());
+        self.current.last_mut().map(Vec::pop);
     }
 
     fn node(&self, i: usize) -> &N {
