@@ -40,11 +40,10 @@ before_script: |
   if [ ! -z "$MINIMAL" ]; then PATH=$PATH:~/.cargo/bin cargo update -Z minimal-versions; fi
 
 script: |
+  set -e
   if [ -n "$MINIMAL" ]; then
     cargo build
-    exit 0
-  fi
-  if [ -n "$NIGHTLY" ]; then
+  elif [ -n "$NIGHTLY" ]; then
     cargo build --all-targets
   else
     cargo build --all
