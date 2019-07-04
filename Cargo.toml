@@ -19,7 +19,7 @@ num-traits = "0.2.6"
 indexmap = "1.0.2"
 
 [dev-dependencies]
-criterion = "0.2.10"
+#criterion = "0.2.11"
 lazy_static = "1.2.0"
 movingai = "1.0.0"
 noisy_float = "0.1.9"
