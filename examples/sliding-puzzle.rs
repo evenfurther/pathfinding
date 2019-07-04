@@ -136,7 +136,7 @@ impl Game {
     }
 
     fn shuffled() -> Game {
-        let mut rng = OsRng::new().unwrap();
+        let mut rng = OsRng;
         loop {
             let mut positions = Self::default().positions;
             positions.shuffle(&mut rng);
