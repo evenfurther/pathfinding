@@ -3,7 +3,7 @@ use rand::{rngs, Rng};
 
 fn build_network(size: usize) -> Matrix<usize> {
     let mut network = Matrix::new(size, size, 0);
-    let mut rng = rngs::OsRng::new().unwrap();
+    let mut rng = rngs::OsRng;
     for a in 0..size {
         for b in 0..size {
             if rng.gen_ratio(2, 3) {
