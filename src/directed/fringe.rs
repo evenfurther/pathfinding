@@ -138,22 +138,13 @@ where
                         }
                     }
                 }
-                if !remove(&mut later, &n) {
-                    remove(&mut now, &n);
+                if later.remove(n).is_none() {
+                    now.remove(n);
                 }
                 now.push_front(n);
             }
         }
         mem::swap(&mut now, &mut later);
         flimit = fmin;
-    }
-}
-
-fn remove<T: Eq>(v: &mut VecDeque<T>, e: &T) -> bool {
-    if let Some(index) = v.iter().position(|x| x == e) {
-        v.remove(index);
-        true
-    } else {
-        false
     }
 }
