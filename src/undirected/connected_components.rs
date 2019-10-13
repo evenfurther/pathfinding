@@ -94,7 +94,7 @@ where
     gb.into_iter()
         .map(|(_, gs)| {
             gs.map(|(i, _)| groups[i].clone())
-                .flat_map(|i| i)
+                .flatten()
                 .collect::<HashSet<_>>()
         })
         .collect()
