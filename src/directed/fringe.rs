@@ -97,7 +97,7 @@ where
     let mut parents: IndexMap<N, (usize, C)> = IndexMap::new();
     let mut flimit = heuristic(start);
     now.push_back(0);
-    parents.insert(start.clone(), (usize::MAX, Zero::zero()));
+    parents.insert(start.clone(), (usize::max_value(), Zero::zero()));
 
     loop {
         if now.is_empty() {

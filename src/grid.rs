@@ -34,8 +34,9 @@ pub struct Grid {
 impl Grid {
     /// Create a new empty grid object of the given dimensions, with
     /// diagonal mode disabled.
-    pub fn new(width: usize, height: usize) -> Grid {
-        Grid {
+    #[must_use]
+    pub fn new(width: usize, height: usize) -> Self {
+        Self {
             width,
             height,
             diagonal_mode: false,
@@ -47,6 +48,7 @@ impl Grid {
     /// Check if a (possibly removed) vertex belongs to the grid or if it
     /// is located outside the grid.
     #[inline]
+    #[must_use]
     pub fn is_inside(&self, vertex: &(usize, usize)) -> bool {
         vertex.0 < self.width && vertex.1 < self.height
     }
@@ -89,11 +91,13 @@ impl Grid {
     }
 
     /// Return the number of positions in this grid.
+    #[must_use]
     pub fn size(&self) -> usize {
         self.width * self.height
     }
 
     /// Return the number of vertices.
+    #[must_use]
     pub fn vertices_len(&self) -> usize {
         if self.dense {
             self.size() - self.exclusions.len()
@@ -202,6 +206,7 @@ impl Grid {
     }
 
     /// Return `true` if the grid contains no vertices.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         if self.dense {
             self.exclusions.len() == self.size()
@@ -212,6 +217,7 @@ impl Grid {
 
     /// Return `true` if no additional vertices can be set
     /// (because they are all already set).
+    #[must_use]
     pub fn is_full(&self) -> bool {
         if self.dense {
             self.exclusions.is_empty()
@@ -228,11 +234,13 @@ impl Grid {
     }
 
     /// Check if a vertex is present.
+    #[must_use]
     pub fn has_vertex(&self, vertex: &(usize, usize)) -> bool {
         self.is_inside(vertex) && (self.exclusions.contains(vertex) ^ self.dense)
     }
 
     /// Check if an edge is present.
+    #[must_use]
     pub fn has_edge(&self, v1: &(usize, usize), v2: &(usize, usize)) -> bool {
         if !self.has_vertex(v1) || !self.has_vertex(v2) {
             return false;
@@ -243,6 +251,7 @@ impl Grid {
     }
 
     /// Iterate over edges.
+    #[must_use]
     pub fn edges(&self) -> EdgesIterator<'_> {
         EdgesIterator {
             grid: &self,
@@ -255,6 +264,7 @@ impl Grid {
     /// Return the list of neighbours of a given vertex. If `vertex` is absent
     /// from the grid, an empty list is returned. Only existing vertices will
     /// be returned.
+    #[must_use]
     pub fn neighbours(&self, vertex: &(usize, usize)) -> Vec<(usize, usize)> {
         if !self.has_vertex(vertex) {
             return vec![];
@@ -294,13 +304,14 @@ impl Grid {
     }
 
     /// Iterate over vertices.
+    #[must_use]
     pub fn iter(&self) -> GridIterator<'_> {
         self.into_iter()
     }
 }
 
 impl FromIterator<(usize, usize)> for Grid {
-    fn from_iter<T>(iter: T) -> Grid
+    fn from_iter<T>(iter: T) -> Self
     where
         T: IntoIterator<Item = (usize, usize)>,
     {
@@ -315,7 +326,7 @@ impl FromIterator<(usize, usize)> for Grid {
                 height = y + 1;
             }
         }
-        let mut grid = Grid {
+        let mut grid = Self {
             width,
             height,
             diagonal_mode: false,
@@ -368,6 +379,7 @@ impl IntoIterator for Grid {
     type Item = (usize, usize);
     type IntoIter = GridIntoIterator;
 
+    #[must_use]
     fn into_iter(self) -> Self::IntoIter {
         GridIntoIterator {
             grid: self,
@@ -425,6 +437,7 @@ impl<'a> IntoIterator for &'a Grid {
     type Item = (usize, usize);
     type IntoIter = GridIterator<'a>;
 
+    #[must_use]
     fn into_iter(self) -> Self::IntoIter {
         GridIterator {
             grid: self,

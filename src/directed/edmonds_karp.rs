@@ -121,6 +121,7 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
     ///
     /// This function panics when `source` or `sink` is greater or equal than the
     /// number of rows in the square matrix created from the `capacities` vector.
+    #[must_use]
     fn from_vec(source: usize, sink: usize, capacities: Vec<C>) -> Self
     where
         Self: Sized,
@@ -335,10 +336,10 @@ impl<C: Copy + Eq + Zero + Signed + Bounded + Ord> SparseCapacity<C> {
 }
 
 impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapacity<C> {
-    fn new(size: usize, source: usize, sink: usize) -> SparseCapacity<C> {
+    fn new(size: usize, source: usize, sink: usize) -> Self {
         assert!(source < size, "source is greater or equal than size");
         assert!(sink < size, "sink is greater or equal than size");
-        SparseCapacity {
+        Self {
             common: Common {
                 size,
                 source,
@@ -351,7 +352,8 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
         }
     }
 
-    fn from_matrix(source: usize, sink: usize, capacities: Matrix<C>) -> SparseCapacity<C> {
+    #[must_use]
+    fn from_matrix(source: usize, sink: usize, capacities: Matrix<C>) -> Self {
         assert!(
             capacities.is_square(),
             "capacities matrix is not a square one"
@@ -380,14 +382,11 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
     }
 
     fn residual_successors(&self, from: usize) -> Vec<(usize, C)> {
-        self.residuals
-            .get(&from)
-            .map(|ns| {
-                ns.iter()
-                    .filter_map(|(&n, &c)| if c > Zero::zero() { Some((n, c)) } else { None })
-                    .collect()
-            })
-            .unwrap_or_else(Vec::new)
+        self.residuals.get(&from).map_or_else(Vec::new, |ns| {
+            ns.iter()
+                .filter_map(|(&n, &c)| if c > Zero::zero() { Some((n, c)) } else { None })
+                .collect()
+        })
     }
 
     fn residual_capacity(&self, from: usize, to: usize) -> C {
@@ -428,14 +427,11 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
     }
 
     fn flows_from(&self, n: usize) -> Vec<usize> {
-        self.flows
-            .get(&n)
-            .map(|ns| {
-                ns.iter()
-                    .filter_map(|(&o, &c)| if c > Zero::zero() { Some(o) } else { None })
-                    .collect()
-            })
-            .unwrap_or_else(Vec::new)
+        self.flows.get(&n).map_or_else(Vec::new, |ns| {
+            ns.iter()
+                .filter_map(|(&o, &c)| if c > Zero::zero() { Some(o) } else { None })
+                .collect()
+        })
     }
 }
 
@@ -450,10 +446,11 @@ pub struct DenseCapacity<C> {
 unsafe impl<C: Send> Send for DenseCapacity<C> {}
 
 impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C> {
-    fn new(size: usize, source: usize, sink: usize) -> DenseCapacity<C> {
+    #[must_use]
+    fn new(size: usize, source: usize, sink: usize) -> Self {
         assert!(source < size, "source is greater or equal than size");
         assert!(sink < size, "sink is greater or equal than size");
-        DenseCapacity {
+        Self {
             common: Common {
                 size,
                 source,
@@ -466,7 +463,8 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
         }
     }
 
-    fn from_matrix(source: usize, sink: usize, capacities: Matrix<C>) -> DenseCapacity<C> {
+    #[must_use]
+    fn from_matrix(source: usize, sink: usize, capacities: Matrix<C>) -> Self {
         assert!(
             capacities.is_square(),
             "capacities matrix is not a square one"
@@ -474,7 +472,7 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
         let size = capacities.rows;
         assert!(source < size, "source is greater or equal than matrix side");
         assert!(sink < size, "sink is greater or equal than matrix side");
-        DenseCapacity {
+        Self {
             common: Common {
                 size,
                 source,

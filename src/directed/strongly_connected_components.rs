@@ -30,7 +30,7 @@ where
     IN: IntoIterator<Item = N>,
 {
     fn new(nodes: &[N], successors: FN) -> Self {
-        Params {
+        Self {
             preorders: nodes
                 .iter()
                 .map(|n| (n.clone(), None))

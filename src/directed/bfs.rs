@@ -92,7 +92,7 @@ where
     let mut to_see = VecDeque::new();
     let mut parents: IndexMap<N, usize> = IndexMap::new();
     to_see.push_back(0);
-    parents.insert(start.clone(), usize::MAX);
+    parents.insert(start.clone(), usize::max_value());
     while let Some(i) = to_see.pop_front() {
         let node = parents.get_index(i).unwrap().0;
         for successor in successors(node) {

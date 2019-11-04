@@ -37,6 +37,7 @@ fn get_and_redirect(table: &mut Vec<usize>, mut idx: usize) -> usize {
 /// Note that if you have a raw undirected graph, you can build
 /// such a structure by creating a group for every vertex containing
 /// the vertex itself and its immediate neighbours.
+#[must_use]
 pub fn separate_components<N>(groups: &[Vec<N>]) -> (HashMap<N, usize>, Vec<usize>)
 where
     N: Clone + Hash + Eq,
@@ -45,7 +46,7 @@ where
     let mut indices = HashMap::new();
     for (mut group_index, group) in groups.iter().enumerate() {
         if group.is_empty() {
-            table[group_index] = usize::MAX;
+            table[group_index] = usize::max_value();
         }
         for element in group {
             match indices.entry(element.clone()) {
@@ -63,7 +64,7 @@ where
         *group_index = get_and_redirect(&mut table, *group_index);
     }
     for group_index in 0..groups.len() {
-        if table[group_index] != usize::MAX {
+        if table[group_index] != usize::max_value() {
             let target = get_and_redirect(&mut table, group_index);
             // Due to path halving, this particular entry might not
             // be up-to-date yet.
@@ -80,6 +81,7 @@ where
 ///
 /// This function returns a list of sets of nodes forming disjoint connected
 /// sets.
+#[must_use]
 pub fn components<N>(groups: &[Vec<N>]) -> Vec<HashSet<N>>
 where
     N: Clone + Hash + Eq,
@@ -88,13 +90,12 @@ where
     let gb = gindices
         .into_iter()
         .enumerate()
-        .filter(|&(_, n)| n != usize::MAX)
+        .filter(|&(_, n)| n != usize::max_value())
         .sorted_by(|&(_, n1), &(_, n2)| Ord::cmp(&n1, &n2))
         .group_by(|&(_, n)| n);
     gb.into_iter()
         .map(|(_, gs)| {
-            gs.map(|(i, _)| groups[i].clone())
-                .flatten()
+            gs.flat_map(|(i, _)| groups[i].clone())
                 .collect::<HashSet<_>>()
         })
         .collect()
@@ -133,6 +134,7 @@ where
 /// This function returns a map between every vertex and the index of
 /// the set it belongs to in the `components` list.
 #[allow(clippy::implicit_hasher)]
+#[must_use]
 pub fn component_index<N>(components: &[HashSet<N>]) -> HashMap<N, usize>
 where
     N: Clone + Hash + Eq,

@@ -185,12 +185,12 @@ where
         let remaining: Vec<N> = preds_map.into_iter().map(|(node, _)| node).collect();
         return Err((Vec::new(), remaining));
     }
-    for node in prev_group.iter() {
+    for node in &prev_group {
         preds_map.remove(node);
     }
     while !preds_map.is_empty() {
         let mut next_group = Vec::<N>::new();
-        for node in prev_group.iter() {
+        for node in &prev_group {
             for succ in &succs_map[node] {
                 {
                     let num_preds = preds_map.get_mut(succ).unwrap();

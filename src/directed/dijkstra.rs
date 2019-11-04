@@ -166,7 +166,7 @@ where
         index: 0,
     });
     let mut parents: IndexMap<N, (usize, C)> = IndexMap::new();
-    parents.insert(start.clone(), (usize::MAX, Zero::zero()));
+    parents.insert(start.clone(), (usize::max_value(), Zero::zero()));
     let mut target_reached = None;
     while let Some(SmallestHolder { cost, index }) = to_see.pop() {
         let successors = {
@@ -246,7 +246,7 @@ struct SmallestHolder<K> {
 }
 
 impl<K: PartialEq> PartialEq for SmallestHolder<K> {
-    fn eq(&self, other: &SmallestHolder<K>) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         self.cost == other.cost
     }
 }
@@ -254,13 +254,13 @@ impl<K: PartialEq> PartialEq for SmallestHolder<K> {
 impl<K: PartialEq> Eq for SmallestHolder<K> {}
 
 impl<K: Ord> PartialOrd for SmallestHolder<K> {
-    fn partial_cmp(&self, other: &SmallestHolder<K>) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl<K: Ord> Ord for SmallestHolder<K> {
-    fn cmp(&self, other: &SmallestHolder<K>) -> Ordering {
+    fn cmp(&self, other: &Self) -> Ordering {
         other.cost.cmp(&self.cost)
     }
 }
