@@ -98,7 +98,7 @@ where
         index: 0,
     });
     let mut parents: IndexMap<N, (usize, C)> = IndexMap::new();
-    parents.insert(start.clone(), (usize::MAX, Zero::zero()));
+    parents.insert(start.clone(), (usize::max_value(), Zero::zero()));
     while let Some(SmallestCostHolder { cost, index, .. }) = to_see.pop() {
         let successors = {
             let (node, &(_, c)) = parents.get_index(index).unwrap();
@@ -308,7 +308,7 @@ struct SmallestCostHolder<K> {
 }
 
 impl<K: PartialEq> PartialEq for SmallestCostHolder<K> {
-    fn eq(&self, other: &SmallestCostHolder<K>) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         self.estimated_cost.eq(&other.estimated_cost) && self.cost.eq(&other.cost)
     }
 }
@@ -316,13 +316,13 @@ impl<K: PartialEq> PartialEq for SmallestCostHolder<K> {
 impl<K: PartialEq> Eq for SmallestCostHolder<K> {}
 
 impl<K: Ord> PartialOrd for SmallestCostHolder<K> {
-    fn partial_cmp(&self, other: &SmallestCostHolder<K>) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl<K: Ord> Ord for SmallestCostHolder<K> {
-    fn cmp(&self, other: &SmallestCostHolder<K>) -> Ordering {
+    fn cmp(&self, other: &Self) -> Ordering {
         match other.estimated_cost.cmp(&self.estimated_cost) {
             Ordering::Equal => self.cost.cmp(&other.cost),
             s => s,

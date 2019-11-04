@@ -20,10 +20,10 @@ pub struct Matrix<C> {
 
 impl<C: Clone> Matrix<C> {
     /// Create new matrix with an initial value.
-    pub fn new(rows: usize, columns: usize, value: C) -> Matrix<C> {
+    pub fn new(rows: usize, columns: usize, value: C) -> Self {
         let mut v = Vec::with_capacity(rows * columns);
         v.resize(rows * columns, value);
-        Matrix {
+        Self {
             rows,
             columns,
             data: v,
@@ -31,7 +31,7 @@ impl<C: Clone> Matrix<C> {
     }
 
     /// Create new square matrix with initial value.
-    pub fn new_square(size: usize, value: C) -> Matrix<C> {
+    pub fn new_square(size: usize, value: C) -> Self {
         Self::new(size, size, value)
     }
 
@@ -48,7 +48,7 @@ impl<C: Clone> Matrix<C> {
         &self,
         rows: Range<usize>,
         columns: Range<usize>,
-    ) -> Result<Matrix<C>, MatrixFormatError> {
+    ) -> Result<Self, MatrixFormatError> {
         if rows.end > self.rows || columns.end > self.columns {
             return Err(MatrixFormatError {
                 message: "slice far end points outside the matrix".to_owned(),
@@ -64,12 +64,13 @@ impl<C: Clone> Matrix<C> {
                     .cloned(),
             );
         }
-        Matrix::from_vec(height, width, v)
+        Self::from_vec(height, width, v)
     }
 
     /// Return a copy of a matrix rotated clock-wise
     /// a number of times.
-    pub fn rotated_cw(&self, times: usize) -> Matrix<C> {
+    #[must_use]
+    pub fn rotated_cw(&self, times: usize) -> Self {
         if self.is_square() {
             let mut copy = self.clone();
             copy.rotate_cw(times);
@@ -98,27 +99,31 @@ impl<C: Clone> Matrix<C> {
 
     /// Return a copy of a matrix rotated counter-clock-wise
     /// a number of times.
-    pub fn rotated_ccw(&self, times: usize) -> Matrix<C> {
+    #[must_use]
+    pub fn rotated_ccw(&self, times: usize) -> Self {
         self.rotated_cw(4 - (times % 4))
     }
 
     /// Return a copy of the matrix flipped along the vertical axis.
-    pub fn flipped_lr(&self) -> Matrix<C> {
+    #[must_use]
+    pub fn flipped_lr(&self) -> Self {
         let mut copy = self.clone();
         copy.flip_lr();
         copy
     }
 
     /// Return a copy of the matrix flipped along the horizontal axis.
-    pub fn flipped_ud(&self) -> Matrix<C> {
+    #[must_use]
+    pub fn flipped_ud(&self) -> Self {
         let mut copy = self.clone();
         copy.flip_ud();
         copy
     }
 
     /// Return a copy of the matrix after transposition.
-    pub fn transposed(&self) -> Matrix<C> {
-        Matrix {
+    #[must_use]
+    pub fn transposed(&self) -> Self {
+        Self {
             rows: self.columns,
             columns: self.rows,
             data: iproduct!(0..self.columns, 0..self.rows)
@@ -152,7 +157,7 @@ impl<C: Copy> Matrix<C> {
     /// Replace a slice of the current matrix with the content of another one.
     /// Only the relevant cells will be extracted if the slice goes outside the
     /// original matrix.
-    pub fn set_slice(&mut self, pos: &(usize, usize), slice: &Matrix<C>) {
+    pub fn set_slice(&mut self, pos: &(usize, usize), slice: &Self) {
         let &(ref row, ref column) = pos;
         let height = (self.rows - row).min(slice.rows);
         let width = (self.columns - column).min(slice.columns);
@@ -164,10 +169,11 @@ impl<C: Copy> Matrix<C> {
 }
 
 impl<C: Clone + Signed> Neg for Matrix<C> {
-    type Output = Matrix<C>;
+    type Output = Self;
 
-    fn neg(self) -> Matrix<C> {
-        Matrix {
+    #[must_use]
+    fn neg(self) -> Self {
+        Self {
             rows: self.rows,
             columns: self.columns,
             data: self.data.iter().map(|x| -x.clone()).collect::<Vec<_>>(),
@@ -184,11 +190,11 @@ impl<C> Matrix<C> {
         rows: usize,
         columns: usize,
         values: Vec<C>,
-    ) -> Result<Matrix<C>, MatrixFormatError> {
+    ) -> Result<Self, MatrixFormatError> {
         if rows * columns != values.len() {
             return Err(MatrixFormatError { message: format!("length of vector does not correspond to announced dimensions ({} instead of {}×{}={})", values.len(), rows, columns, rows*columns)});
         }
-        Ok(Matrix {
+        Ok(Self {
             rows,
             columns,
             data: values,
@@ -199,7 +205,7 @@ impl<C> Matrix<C> {
     /// will be assigned to index (0, 0), the second one to index (0, 1),
     /// and so on. An error is returned if the number of values is not a
     /// square number.
-    pub fn square_from_vec(values: Vec<C>) -> Result<Matrix<C>, MatrixFormatError> {
+    pub fn square_from_vec(values: Vec<C>) -> Result<Self, MatrixFormatError> {
         let size = (values.len() as f32).sqrt().round() as usize;
         if size * size != values.len() {
             return Err(MatrixFormatError {
@@ -209,12 +215,13 @@ impl<C> Matrix<C> {
         Self::from_vec(size, size, values)
     }
 
-    /// Create new empty matrix with a predefined number of rows.
+    /// Create new empty matrix with a predefined number of columns.
     /// This is useful to gradually build the matrix and extend it
-    /// later using [extend][Matrix::extend] and does not require
-    /// a filler element compared to [Matrix::new].
-    pub fn new_empty(columns: usize) -> Matrix<C> {
-        Matrix {
+    /// later using [`extend`][Matrix::extend] and does not require
+    /// a filler element compared to [`Matrix::new`].
+    #[must_use]
+    pub fn new_empty(columns: usize) -> Self {
+        Self {
             rows: 0,
             columns,
             data: vec![],
@@ -238,7 +245,7 @@ impl<C> Matrix<C> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn from_rows<IR, IC>(rows: IR) -> Result<Matrix<C>, MatrixFormatError>
+    pub fn from_rows<IR, IC>(rows: IR) -> Result<Self, MatrixFormatError>
     where
         IR: IntoIterator<Item = IC>,
         IC: IntoIterator<Item = C>,
@@ -262,13 +269,14 @@ impl<C> Matrix<C> {
                     });
                 }
             }
-            Matrix::from_vec(nrows, ncols, data)
+            Self::from_vec(nrows, ncols, data)
         } else {
-            Ok(Matrix::new_empty(0))
+            Ok(Self::new_empty(0))
         }
     }
 
     /// Check if a matrix is a square one.
+    #[must_use]
     pub fn is_square(&self) -> bool {
         self.rows == self.columns
     }
@@ -278,6 +286,7 @@ impl<C> Matrix<C> {
     /// # Panics
     ///
     /// This function panics if the coordinates do not designated a cell.
+    #[must_use]
     pub fn idx(&self, i: &(usize, usize)) -> usize {
         assert!(
             i.0 < self.rows,
@@ -378,11 +387,17 @@ impl<C> Matrix<C> {
         let max_dc = if c == self.columns - 1 { 0 } else { 1 };
         (min_dc..=max_dc)
             .flat_map(move |dc| (min_dr..=max_dr).map(move |dr| (dr, dc)))
-            .filter(move |&(dr, dc)| (diagonals && dr != 0 && dc != 0) || dr.abs() + dc.abs() == 1)
-            .map(move |(dr, dc)| ((r as isize + dr) as usize, (c as isize + dc) as usize))
+            .filter_map(move |(dr, dc)| {
+                if (diagonals && dr != 0 && dc != 0) || dr.abs() + dc.abs() == 1 {
+                    Some(((r as isize + dr) as usize, (c as isize + dc) as usize))
+                } else {
+                    None
+                }
+            })
     }
 
     /// Return an iterator on rows of the matrix.
+    #[must_use]
     pub fn iter(&self) -> RowIterator<C> {
         (&self).into_iter()
     }
@@ -391,6 +406,7 @@ impl<C> Matrix<C> {
 impl<'a, C> Index<&'a (usize, usize)> for Matrix<C> {
     type Output = C;
 
+    #[must_use]
     fn index(&self, index: &'a (usize, usize)) -> &C {
         &self.data[self.idx(index)]
     }
@@ -406,6 +422,7 @@ impl<'a, C> IndexMut<&'a (usize, usize)> for Matrix<C> {
 impl<C> Deref for Matrix<C> {
     type Target = [C];
 
+    #[must_use]
     fn deref(&self) -> &[C] {
         &self.data
     }
@@ -494,6 +511,7 @@ impl<'a, C> IntoIterator for &'a Matrix<C> {
     type IntoIter = RowIterator<'a, C>;
     type Item = &'a [C];
 
+    #[must_use]
     fn into_iter(self) -> RowIterator<'a, C> {
         RowIterator {
             matrix: self,

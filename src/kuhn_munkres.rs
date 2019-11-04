@@ -27,18 +27,22 @@ pub trait Weights<C> {
 }
 
 impl<C: Copy> Weights<C> for Matrix<C> {
+    #[must_use]
     fn rows(&self) -> usize {
         self.rows
     }
 
+    #[must_use]
     fn columns(&self) -> usize {
         self.columns
     }
 
+    #[must_use]
     fn at(&self, row: usize, col: usize) -> C {
         self[&(row, col)]
     }
 
+    #[must_use]
     fn neg(&self) -> Self
     where
         C: Signed,
