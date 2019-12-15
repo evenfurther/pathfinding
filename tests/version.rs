@@ -9,10 +9,15 @@ fn check_version() {
         .expect("no version line found in README.md");
     let version = line.split('"').collect::<Vec<_>>()[1];
     assert!(
-        VERSION.starts_with(version),
+        trim(VERSION).starts_with(&trim(version)),
         format!(
-            "Version in README.md ({}) is not compatible with Cargo.toml ({})",
-            version, VERSION
+            "Version in README.md ({} - seen as {}) is not compatible with Cargo.toml ({} - seen as {})",
+            version, trim(version), VERSION, trim(VERSION),
         )
     );
+}
+
+// Keep at most two components (major/minor).
+fn trim(version: &str) -> String {
+    version.split('.').take(2).collect::<Vec<_>>().join(".")
 }
