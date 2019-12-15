@@ -355,3 +355,17 @@ fn edges() {
         ]
     );
 }
+
+#[test]
+fn distance() {
+    let mut g = Grid::new(10, 10);
+    assert_eq!(g.distance(&(2, 3), &(7, 5)), 7);
+    assert_eq!(g.distance(&(7, 5), &(2, 3)), 7);
+    assert_eq!(g.distance(&(3, 2), &(5, 7)), 7);
+    assert_eq!(g.distance(&(5, 7), &(3, 2)), 7);
+    g.enable_diagonal_mode();
+    assert_eq!(g.distance(&(2, 3), &(7, 5)), 5);
+    assert_eq!(g.distance(&(7, 5), &(2, 3)), 5);
+    assert_eq!(g.distance(&(3, 2), &(5, 7)), 5);
+    assert_eq!(g.distance(&(5, 7), &(3, 2)), 5);
+}

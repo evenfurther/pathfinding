@@ -308,6 +308,19 @@ impl Grid {
     pub fn iter(&self) -> GridIterator<'_> {
         self.into_iter()
     }
+
+    /// Distance between two potential vertices. If diagonal mode is
+    /// enabled, this is the maximum of both coordinates difference.
+    /// If diagonal mode is disabled, this is the Manhattan distance.
+    #[must_use]
+    pub fn distance(&self, a: &(usize, usize), b: &(usize, usize)) -> usize {
+        let (dx, dy) = (absdiff(a.0, b.0), absdiff(a.1, b.1));
+        if self.diagonal_mode {
+            dx.max(dy)
+        } else {
+            dx + dy
+        }
+    }
 }
 
 impl FromIterator<(usize, usize)> for Grid {
