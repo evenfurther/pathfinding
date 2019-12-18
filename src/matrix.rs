@@ -5,6 +5,7 @@ use num_traits::Signed;
 use std::error::Error;
 use std::fmt;
 use std::ops::{Deref, DerefMut, Index, IndexMut, Neg, Range};
+use std::slice::{Iter, IterMut};
 
 /// Matrix of an arbitrary type. Data are stored consecutively in
 /// memory, by rows. Raw data can be accessed using `as_ref()`
@@ -406,6 +407,18 @@ impl<C> Matrix<C> {
     pub fn indices(&self) -> impl Iterator<Item = (usize, usize)> {
         let columns = self.columns;
         (0..self.rows).flat_map(move |r| (0..columns).map(move |c| (r, c)))
+    }
+
+    /// Return an iterator on values, first row first.
+    #[must_use]
+    pub fn values(&self) -> Iter<C> {
+        self.data.iter()
+    }
+
+    /// Return a mutable iterator on values, first row first.
+    #[must_use]
+    pub fn values_mut(&mut self) -> IterMut<C> {
+        self.data.iter_mut()
     }
 }
 
