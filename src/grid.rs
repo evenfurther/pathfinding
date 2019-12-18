@@ -252,7 +252,7 @@ impl Grid {
 
     /// Iterate over edges.
     #[must_use]
-    pub fn edges(&self) -> EdgesIterator<'_> {
+    pub fn edges(&self) -> EdgesIterator {
         EdgesIterator {
             grid: &self,
             x: 0,
@@ -305,7 +305,7 @@ impl Grid {
 
     /// Iterate over vertices.
     #[must_use]
-    pub fn iter(&self) -> GridIterator<'_> {
+    pub fn iter(&self) -> GridIterator {
         self.into_iter()
     }
 
