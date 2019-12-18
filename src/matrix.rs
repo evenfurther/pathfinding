@@ -401,6 +401,12 @@ impl<C> Matrix<C> {
     pub fn iter(&self) -> RowIterator<C> {
         (&self).into_iter()
     }
+
+    /// Return an iterator on the Matrix indices, first row first.
+    pub fn indices(&self) -> impl Iterator<Item = (usize, usize)> {
+        let columns = self.columns;
+        (0..self.rows).flat_map(move |r| (0..columns).map(move |c| (r, c)))
+    }
 }
 
 impl<'a, C> Index<&'a (usize, usize)> for Matrix<C> {

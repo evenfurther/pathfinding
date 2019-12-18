@@ -339,3 +339,12 @@ fn into_iter() {
         assert_eq!(c.iter().sum::<u32>(), 3);
     }
 }
+
+#[test]
+fn indices() {
+    let m = matrix![[0, 1, 2], [2, 1, 0]];
+    assert_eq!(
+        m.indices().collect::<Vec<_>>(),
+        vec![(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
+    )
+}
