@@ -346,5 +346,24 @@ fn indices() {
     assert_eq!(
         m.indices().collect::<Vec<_>>(),
         vec![(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
-    )
+    );
+}
+
+#[test]
+fn values() {
+    let m = matrix![[0, 1, 2], [2, 1, 0]];
+    assert_eq!(
+        m.values().cloned().collect::<Vec<_>>(),
+        vec![0, 1, 2, 2, 1, 0]
+    );
+}
+
+#[test]
+fn values_mut() {
+    let mut m = matrix![[0, 1, 2], [2, 1, 0]];
+    *m.values_mut().nth(3).unwrap() = 5;
+    let mut iter = m.values_mut();
+    iter.next();
+    *iter.next().unwrap() = 4;
+    assert_eq!(m, matrix![[0, 4, 2], [5, 1, 0]]);
 }
