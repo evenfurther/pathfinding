@@ -3,7 +3,7 @@ mod ex1 {
     use lazy_static::lazy_static;
     use pathfinding::prelude::*;
 
-    fn successors(node: &u8) -> Vec<(u8, usize)> {
+    fn successors(node: &u8) -> impl Iterator<Item = (u8, usize)> {
         lazy_static! {
             static ref SUCCESSORS: Vec<Vec<(u8, usize)>> = vec![
                 vec![(1, 7), (2, 7), (3, 6)],
@@ -17,7 +17,7 @@ mod ex1 {
                 vec![],
             ];
         }
-        SUCCESSORS[*node as usize].clone()
+        SUCCESSORS[*node as usize].iter().cloned()
     }
 
     fn expected(target: u8) -> Option<(Vec<u8>, usize)> {

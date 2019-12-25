@@ -89,11 +89,15 @@ impl Game {
         self.positions == GOAL.positions
     }
 
-    fn successors(&self) -> Vec<(Game, u8)> {
+    // Here we try to illustrate that we can return an iterator without building a Vec.
+    // However, since the successors are the current board with the hole moved one
+    // position, we need to build a clone of the current board that will be reused in
+    // this iterator.
+    fn successors(&self) -> impl Iterator<Item = (Game, u8)> {
+        let game = self.clone();
         SUCCESSORS[self.hole_idx as usize]
             .iter()
-            .map(|&n| (self.switch(n), 1))
-            .collect()
+            .map(move |&n| (game.switch(n), 1))
     }
 
     fn is_solvable(&self) -> bool {
