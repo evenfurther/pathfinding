@@ -2,7 +2,6 @@
 //! algorithm](https://en.wikipedia.org/wiki/Iterative_deepening_A*).
 
 use num_traits::Zero;
-use std::hash::Hash;
 
 /// Compute a shortest path using the [IDA* search
 /// algorithm](https://en.wikipedia.org/wiki/Iterative_deepening_A*).
@@ -77,7 +76,7 @@ pub fn idastar<N, C, FN, IN, FH, FS>(
     mut success: FS,
 ) -> Option<(Vec<N>, C)>
 where
-    N: Eq + Hash + Clone,
+    N: Eq + Clone,
     C: Zero + Ord + Copy,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
@@ -122,7 +121,7 @@ fn search<N, C, FN, IN, FH, FS>(
     success: &mut FS,
 ) -> Path<N, C>
 where
-    N: Eq + Hash + Clone,
+    N: Eq + Clone,
     C: Zero + Ord + Copy,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
