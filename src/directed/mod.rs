@@ -12,7 +12,6 @@ pub mod strongly_connected_components;
 pub mod topological_sort;
 
 use indexmap::IndexMap;
-use itertools;
 use std::hash::Hash;
 
 fn reverse_path<N, V, F>(parents: &IndexMap<N, V>, mut parent: F, start: usize) -> Vec<N>
