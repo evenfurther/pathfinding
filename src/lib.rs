@@ -1,5 +1,11 @@
 #![deny(missing_docs)]
 //! This crate implements several pathfinding, flow, and graph algorithms.
+//!
+//! Several algorithms require that the numerical types used to describe
+//! edges weights implement `Ord`. If you wish to use Rust builtin
+//! floating-point types (such as `f32`) which implement `PartialOrd`
+//! in this context, you can wrap them into compliant types using the
+//! [ordered-float](https://crates.io/crates/ordered-float) crate.
 
 pub use num_traits;
 
