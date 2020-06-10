@@ -93,7 +93,7 @@ where
 {
     let mut to_see = BinaryHeap::new();
     to_see.push(SmallestCostHolder {
-        estimated_cost: heuristic(start),
+        estimated_cost: Zero::zero(),
         cost: Zero::zero(),
         index: 0,
     });
@@ -184,7 +184,7 @@ where
     let mut min_cost = None;
     let mut sinks = HashSet::new();
     to_see.push(SmallestCostHolder {
-        estimated_cost: heuristic(start),
+        estimated_cost: Zero::zero(),
         cost: Zero::zero(),
         index: 0,
     });
