@@ -1,7 +1,8 @@
 //! Find a topological order in a directed graph if one exists.
 
+use std::collections::hash_map::RandomState;
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::hash::Hash;
+use std::hash::{BuildHasher, Hash};
 use std::mem;
 
 /// Find a topological order in a directed graph if one exists.
@@ -149,20 +150,43 @@ where
 #[allow(clippy::type_complexity)]
 pub fn topological_sort_into_groups<N, FN, IN>(
     nodes: &[N],
-    mut successors: FN,
+    successors: FN,
 ) -> Result<Vec<Vec<N>>, (Vec<Vec<N>>, Vec<N>)>
 where
     N: Eq + Hash + Clone,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
+    topological_sort_into_groups_with_hasher(nodes, successors, RandomState::default())
+}
+
+/// A version of `topological_sort_into_groups` which will use the given hash builder to hash
+/// nodes.
+///
+/// This enables the use of a deterministic hasher to produce a deterministic sort.
+#[allow(clippy::type_complexity)]
+pub fn topological_sort_into_groups_with_hasher<N, FN, IN, S>(
+    nodes: &[N],
+    mut successors: FN,
+    hasher: S,
+) -> Result<Vec<Vec<N>>, (Vec<Vec<N>>, Vec<N>)>
+where
+    N: Eq + Hash + Clone,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+    S: BuildHasher + Clone,
+{
     if nodes.is_empty() {
         return Ok(Vec::new());
     }
-    let mut succs_map = HashMap::<N, HashSet<N>>::with_capacity(nodes.len());
-    let mut preds_map = HashMap::<N, usize>::with_capacity(nodes.len());
+    let mut succs_map =
+        HashMap::<N, HashSet<N, S>, S>::with_capacity_and_hasher(nodes.len(), hasher.clone());
+    let mut preds_map =
+        HashMap::<N, usize, S>::with_capacity_and_hasher(nodes.len(), hasher.clone());
     for node in nodes.iter() {
-        succs_map.insert(node.clone(), successors(node).into_iter().collect());
+        let mut succ_set = HashSet::with_hasher(hasher.clone());
+        succ_set.extend(successors(node).into_iter());
+        succs_map.insert(node.clone(), succ_set);
         preds_map.insert(node.clone(), 0);
     }
     for succs in succs_map.values() {
