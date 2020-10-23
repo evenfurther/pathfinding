@@ -14,6 +14,7 @@ pub mod topological_sort;
 use indexmap::IndexMap;
 use std::hash::Hash;
 
+#[allow(clippy::needless_collect)]
 fn reverse_path<N, V, F>(parents: &IndexMap<N, V>, mut parent: F, start: usize) -> Vec<N>
 where
     N: Eq + Hash + Clone,
@@ -26,6 +27,7 @@ where
         })
     })
     .collect::<Vec<&N>>();
-
+    // Collecting the going through the vector is needed to revert the path because the
+    // unfold iterator is not double-ended due to its iterative nature.
     path.into_iter().rev().cloned().collect()
 }
