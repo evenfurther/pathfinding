@@ -6,12 +6,13 @@ use std::mem;
 
 /// Find a topological order in a directed graph if one exists.
 ///
-/// - `nodes` is a collection of nodes.
-/// - `successors` returns a list of successors for a given node.
+/// - `roots` is a collection of nodes that ought to be explored.
+/// - `successors` returns a list of successors for a given node, including possibly
+///    nodes that were not present in `roots`.
 ///
-/// The function returns either `Ok` with an acceptable topological order,
-/// or `Err` with a node belonging to a cycle. In the latter case, the
-/// strongly connected set can then be found using the
+/// The function returns either `Ok` with an acceptable topological order of nodes
+/// given as roots or discovered, or `Err` with a node belonging to a cycle. In the
+/// latter case, the strongly connected set can then be found using the
 /// [`strongly_connected_component`](super::strongly_connected_components::strongly_connected_component)
 /// function, or if only one of the loops is needed the [`bfs_loop`][super::bfs::bfs_loop] function
 /// can be used instead to identify one of the shortest loops involving this node.
@@ -19,7 +20,7 @@ use std::mem;
 /// # Examples
 ///
 /// We will sort integers from 1 to 9, each integer having its two immediate
-/// greater numbers as successors:
+/// greater numbers as successors, starting with two roots 5 and 1:
 ///
 /// ```
 /// use pathfinding::prelude::topological_sort;
@@ -32,7 +33,7 @@ use std::mem;
 ///   }
 /// }
 ///
-/// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5], successors);
+/// let sorted = topological_sort(&[5, 1], successors);
 /// assert_eq!(sorted, Ok(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]));
 /// ```
 ///
@@ -52,7 +53,7 @@ use std::mem;
 ///   }
 /// }
 ///
-/// let sorted = topological_sort(&[3, 7, 1, 4, 2, 9, 8, 6, 5], successors);
+/// let sorted = topological_sort(&[5, 1], successors);
 /// assert!(sorted.is_err());
 ///
 /// // Let's assume that the returned node is 8 (it can be any node which is part
@@ -68,22 +69,22 @@ use std::mem;
 /// set.sort();
 /// assert_eq!(set, vec![7, 8, 9]);
 /// ```
-pub fn topological_sort<N, FN, IN>(nodes: &[N], mut successors: FN) -> Result<Vec<N>, N>
+pub fn topological_sort<N, FN, IN>(roots: &[N], mut successors: FN) -> Result<Vec<N>, N>
 where
     N: Eq + Hash + Clone,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
-    let mut unmarked: HashSet<N> = nodes.iter().cloned().collect::<HashSet<_>>();
-    let mut marked = HashSet::with_capacity(nodes.len());
+    let mut marked = HashSet::with_capacity(roots.len());
     let mut temp = HashSet::new();
-    let mut sorted = VecDeque::with_capacity(nodes.len());
-    while let Some(node) = unmarked.iter().cloned().next() {
+    let mut sorted = VecDeque::with_capacity(roots.len());
+    let mut roots: HashSet<N> = roots.iter().cloned().collect::<HashSet<_>>();
+    while let Some(node) = roots.iter().cloned().next() {
         temp.clear();
         visit(
             &node,
             &mut successors,
-            &mut unmarked,
+            &mut roots,
             &mut marked,
             &mut temp,
             &mut sorted,
@@ -130,15 +131,16 @@ where
 /// rather than producing a single ordering of nodes, this function partitions
 /// the nodes into groups: the first group contains all nodes with no
 /// dependencies, the second group contains all nodes whose only dependencies
-/// are in the first group, and so on.  Concatenating the groups produces a
+/// are in the first group, and so on. Concatenating the groups produces a
 /// valid topological sort regardless of how the nodes within each group are
-/// reordered.  No guarantees are made about the order of nodes within each
-/// group.
+/// reordered. No guarantees are made about the order of nodes within each
+/// group. Also, the list of `nodes` must be exhaustive, new nodes must not be
+/// returned by the `successors` function.
 ///
 /// The function returns either `Ok` with a valid list of groups, or `Err` with
 /// a (groups, remaining) tuple containing a (possibly empty) partial list of
 /// groups, and a list of remaining nodes that could not be grouped due to
-/// cycles.  In the error case, the strongly connected set(s) can then be found
+/// cycles. In the error case, the strongly connected set(s) can then be found
 /// using the
 /// [`strongly_connected_components`](super::strongly_connected_components::strongly_connected_components)
 /// function on the list of remaining nodes.
