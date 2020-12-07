@@ -3,7 +3,7 @@
 
 use indexmap::map::Entry::Vacant;
 use indexmap::IndexMap;
-use std::collections::VecDeque;
+use std::collections::{HashSet, VecDeque};
 use std::hash::Hash;
 use std::usize;
 
@@ -125,4 +125,82 @@ where
     IN: IntoIterator<Item = N>,
 {
     bfs_core(start, successors, |n| n == start, false)
+}
+
+/// Visit all nodes that are reachable from a start node. The node will be visited
+/// in BFS order, starting from the `start` node and following the order returned
+/// by the `successors` function.
+///
+/// # Examples
+///
+/// The iterator stops when there are no new nodes to visit:
+///
+/// ```
+/// use pathfinding::prelude::bfs_reach;
+///
+/// let all_nodes = bfs_reach(3, |_| (1..=5)).collect::<Vec<_>>();
+/// assert_eq!(all_nodes, vec![3, 1, 2, 4, 5]);
+/// ```
+///
+/// The iterator can be used as a generator. Here are for examples
+/// the multiples of 2 and 3 (although not in natural order but in
+/// the order they are discovered by the BFS algorithm):
+///
+/// ```
+/// use pathfinding::prelude::bfs_reach;
+///
+/// let mut it = bfs_reach(1, |&n| vec![n*2, n*3]).skip(1);
+/// assert_eq!(it.next(), Some(2));  // 1*2
+/// assert_eq!(it.next(), Some(3));  // 1*3
+/// assert_eq!(it.next(), Some(4));  // (1*2)*2
+/// assert_eq!(it.next(), Some(6));  // (1*2)*3
+/// // (1*3)*2 == 6 which has been seen already
+/// assert_eq!(it.next(), Some(9));  // (1*3)*3
+/// assert_eq!(it.next(), Some(8));  // ((1*2)*2)*2
+/// assert_eq!(it.next(), Some(12)); // ((1*2)*2)*3
+/// ```
+pub fn bfs_reach<N, FN, IN>(start: N, successors: FN) -> BfsReachable<N, FN>
+where
+    N: Eq + Hash + Clone,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+{
+    let (mut to_see, mut seen) = (VecDeque::new(), HashSet::new());
+    to_see.push_back(start.clone());
+    seen.insert(start);
+    BfsReachable {
+        to_see,
+        seen,
+        successors,
+    }
+}
+
+/// Struct returned by [`bfs_reach`](crate::directed::bfs::bfs_reach).
+pub struct BfsReachable<N, FN> {
+    to_see: VecDeque<N>,
+    seen: HashSet<N>,
+    successors: FN,
+}
+
+impl<N, FN, IN> Iterator for BfsReachable<N, FN>
+where
+    N: Eq + Hash + Clone,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+{
+    type Item = N;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(n) = self.to_see.pop_front() {
+            for s in (self.successors)(&n) {
+                if !self.seen.contains(&s) {
+                    self.to_see.push_back(s.clone());
+                    self.seen.insert(s);
+                }
+            }
+            Some(n)
+        } else {
+            None
+        }
+    }
 }
