@@ -397,6 +397,63 @@ impl<C> Matrix<C> {
             })
     }
 
+    /// Return an iterator of cells in a given direction starting from
+    /// a given cell. Any direction (including with values greater than 1) can be
+    /// given. The starting cell is not included in the results.
+    ///
+    /// # Examples
+    ///
+    /// Starting from square `(1, 1)` in a 8×8 chessboard, move like a knight
+    /// by steps of two rows down and one column right:
+    ///
+    /// ```
+    /// let m = Matrix::new_square(8, '.');
+    /// assert_eq!(m.in_direction(&(1, 1), (2, 1)).collect(),
+    ///            vec![(3, 2), (5, 3), (7, 4)]);
+    /// ```
+    ///
+    /// Starting from square `(3, 2)` in the same chessboard, move diagonally in
+    /// the North-West direction:
+    ///
+    /// ```
+    /// let m = Matrix::new_square(8, '.');
+    /// assert_eq!(m.in_direction(&(3, 2), directions::NW).collect(),
+    ///            vec![(2, 1), (1, 0)]);
+    /// ```
+    pub fn in_direction(
+        &self,
+        index: &(usize, usize),
+        direction: (isize, isize),
+    ) -> impl Iterator<Item = (usize, usize)> {
+        let iterations: usize = if (direction.0 == 0 && direction.1 == 0)
+            || index.0 >= self.rows
+            || index.1 >= self.columns
+        {
+            0
+        } else {
+            let max_r = match direction.0.signum() {
+                -1 => (index.0 / direction.0.abs() as usize),
+                1 => ((self.rows - index.0 - 1) / direction.0 as usize),
+                0 => std::usize::MAX,
+                _ => unreachable!(),
+            };
+            let max_c = match direction.1.signum() {
+                -1 => (index.1 / direction.1.abs() as usize),
+                1 => ((self.columns - index.1 - 1) / direction.1 as usize),
+                0 => std::usize::MAX,
+                _ => unreachable!(),
+            };
+            max_c.min(max_r)
+        };
+        let index = *index;
+        (1..=iterations).map(move |i| {
+            (
+                (index.0 as isize + i as isize * direction.0) as usize,
+                (index.1 as isize + i as isize * direction.1) as usize,
+            )
+        })
+    }
+
     /// Return an iterator on rows of the matrix.
     #[must_use]
     pub fn iter(&self) -> RowIterator<C> {
@@ -537,4 +594,37 @@ impl<'a, C> IntoIterator for &'a Matrix<C> {
             row: 0,
         }
     }
+}
+
+/// Directions usable for [`Matrix::in_direction()`] second argument.
+pub mod directions {
+    /// East
+    pub const E: (isize, isize) = (0, 1);
+
+    /// South
+    pub const S: (isize, isize) = (1, 0);
+
+    /// West
+    pub const W: (isize, isize) = (0, -1);
+
+    /// North
+    pub const N: (isize, isize) = (-1, 0);
+
+    /// North-East
+    pub const NE: (isize, isize) = (-1, 1);
+
+    /// South-East
+    pub const SE: (isize, isize) = (1, 1);
+
+    /// North-West
+    pub const NW: (isize, isize) = (-1, -1);
+
+    /// South-West
+    pub const SW: (isize, isize) = (1, -1);
+
+    /// Four main directions
+    pub const DIRECTIONS_4: [(isize, isize); 4] = [E, S, W, N];
+
+    /// Eight main directions with diagonals
+    pub const DIRECTIONS_8: [(isize, isize); 8] = [NE, E, SE, S, SW, W, NW, N];
 }

@@ -367,3 +367,49 @@ fn values_mut() {
     *iter.next().unwrap() = 4;
     assert_eq!(m, matrix![[0, 4, 2], [5, 1, 0]]);
 }
+
+#[test]
+fn in_direction() {
+    let m = Matrix::new_square(8, 0);
+    assert_eq!(m.in_direction(&(1, 1), (0, 0)).collect::<Vec<_>>(), vec![]);
+    assert_eq!(
+        m.in_direction(&(10, 10), (0, 0)).collect::<Vec<_>>(),
+        vec![]
+    );
+    assert_eq!(
+        m.in_direction(&(10, 10), (-1, -1)).collect::<Vec<_>>(),
+        vec![]
+    );
+    assert_eq!(
+        m.in_direction(&(4, 4), (-2, 0)).collect::<Vec<_>>(),
+        vec![(2, 4), (0, 4)]
+    );
+    assert_eq!(
+        m.in_direction(&(4, 4), (-3, 0)).collect::<Vec<_>>(),
+        vec![(1, 4)]
+    );
+    assert_eq!(
+        m.in_direction(&(4, 4), (2, 0)).collect::<Vec<_>>(),
+        vec![(6, 4)]
+    );
+    assert_eq!(
+        m.in_direction(&(4, 4), (3, 0)).collect::<Vec<_>>(),
+        vec![(7, 4)]
+    );
+    assert_eq!(
+        m.in_direction(&(4, 4), (0, -2)).collect::<Vec<_>>(),
+        vec![(4, 2), (4, 0)]
+    );
+    assert_eq!(
+        m.in_direction(&(4, 4), (0, -3)).collect::<Vec<_>>(),
+        vec![(4, 1)]
+    );
+    assert_eq!(
+        m.in_direction(&(4, 4), (0, 2)).collect::<Vec<_>>(),
+        vec![(4, 6)]
+    );
+    assert_eq!(
+        m.in_direction(&(4, 4), (0, 3)).collect::<Vec<_>>(),
+        vec![(4, 7)]
+    );
+}
