@@ -47,6 +47,16 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           override: true
       - uses: actions-rs/cargo@v1
+        name: Test documentation in debug mode
+        with:
+          command: test
+          args: --doc
+      - uses: actions-rs/cargo@v1
+        name: Test documentation in release mode
+        with:
+          command: test
+          args: --doc --release
+      - uses: actions-rs/cargo@v1
         name: Test in debug mode
         with:
           command: test
