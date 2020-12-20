@@ -407,8 +407,9 @@ impl<C> Matrix<C> {
     /// by steps of two rows down and one column right:
     ///
     /// ```
+    /// use pathfinding::prelude::Matrix;
     /// let m = Matrix::new_square(8, '.');
-    /// assert_eq!(m.in_direction(&(1, 1), (2, 1)).collect(),
+    /// assert_eq!(m.in_direction(&(1, 1), (2, 1)).collect::<Vec<_>>(),
     ///            vec![(3, 2), (5, 3), (7, 4)]);
     /// ```
     ///
@@ -416,8 +417,9 @@ impl<C> Matrix<C> {
     /// the North-West direction:
     ///
     /// ```
+    /// use pathfinding::prelude::{Matrix, directions};
     /// let m = Matrix::new_square(8, '.');
-    /// assert_eq!(m.in_direction(&(3, 2), directions::NW).collect(),
+    /// assert_eq!(m.in_direction(&(3, 2), directions::NW).collect::<Vec<_>>(),
     ///            vec![(2, 1), (1, 0)]);
     /// ```
     pub fn in_direction(
