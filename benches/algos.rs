@@ -229,7 +229,7 @@ fn bench_separate_components(c: &mut Criterion) {
                 component.shuffle(&mut rng);
                 let mut subcomponents = Vec::new();
                 while !component.is_empty() {
-                    let cut = rng.gen_range(0, component.len());
+                    let cut = rng.gen_range(0..component.len());
                     let mut subcomponent = component.drain(cut..).collect_vec();
                     if !component.is_empty() {
                         subcomponent.push(component[0]);
