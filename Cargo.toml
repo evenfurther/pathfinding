@@ -23,7 +23,7 @@ criterion = "0.3.0"
 lazy_static = "1.2.0"
 movingai = "1.0.0"
 noisy_float = "0.1.9"
-rand = "0.7.0"
+rand = "0.8.0"
 rand_xorshift = "0.2.0"
 # Not a real dependency, but needed since crossbeam-utils 0.6.5
 # does not compile anymore as of 2020-04-29.
