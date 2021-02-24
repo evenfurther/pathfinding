@@ -16,6 +16,7 @@ use super::bfs::bfs;
 use crate::matrix::Matrix;
 
 /// Type alias for Edmonds-Karp result.
+#[allow(clippy::upper_case_acronyms)]
 pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 
 /// Compute the maximum flow that can go through a directed graph using the
