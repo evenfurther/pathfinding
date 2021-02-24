@@ -10,10 +10,8 @@ fn check_version() {
     let version = line.split('"').collect::<Vec<_>>()[1];
     assert!(
         trim(VERSION).starts_with(&trim(version)),
-        format!(
-            "Version in README.md ({} - seen as {}) is not compatible with Cargo.toml ({} - seen as {})",
-            version, trim(version), VERSION, trim(VERSION),
-        )
+        "Version in README.md ({} - seen as {}) is not compatible with Cargo.toml ({} - seen as {})",
+        version, trim(version), VERSION, trim(VERSION),
     );
 }
 
