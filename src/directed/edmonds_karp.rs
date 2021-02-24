@@ -7,9 +7,10 @@
 //! take advantage of computations already performed on unchanged or augmented
 //! edges.
 
+use indexmap::IndexSet;
 use itertools::iproduct;
 use num_traits::{Bounded, Signed, Zero};
-use std::collections::{BTreeMap, HashMap, VecDeque};
+use std::collections::{BTreeMap, VecDeque};
 use std::hash::Hash;
 
 use super::bfs::bfs;
@@ -34,7 +35,7 @@ pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 /// Note that the capacity type `C` must be signed as the algorithm has to deal with
 /// negative residual capacities.
 ///
-/// By creating an `EdmondsKarp` structure, it is possible to adjust the capacities
+/// By creating an [EdmondsKarp]() structure, it is possible to adjust the capacities
 /// after computing the maximum flow and rerun the algorithm without starting from
 /// scratch. This function is a helper function that remaps the `N` node type to
 /// appropriate indices.
@@ -51,13 +52,18 @@ where
 {
     // Build a correspondence between N and 0..vertices.len() so that we can
     // work with matrices more easily.
-    let size = vertices.len();
-    let reverse = (0..size)
-        .map(|i| (vertices[i], i))
-        .collect::<HashMap<_, _>>();
-    let mut capacities = EK::new(size, reverse[source], reverse[sink]);
+    let reverse = vertices.iter().collect::<IndexSet<_>>();
+    let mut capacities = EK::new(
+        vertices.len(),
+        reverse.get_index_of(source).unwrap(),
+        reverse.get_index_of(sink).unwrap(),
+    );
     for ((from, to), capacity) in caps {
-        capacities.set_capacity(reverse[&from], reverse[&to], capacity);
+        capacities.set_capacity(
+            reverse.get_index_of(&from).unwrap(),
+            reverse.get_index_of(&to).unwrap(),
+            capacity,
+        );
     }
     let (paths, max) = capacities.augment();
     (
