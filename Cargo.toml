@@ -41,5 +41,9 @@ harness = false
 name = "movingai"
 harness = false
 
+[[bench]]
+name = "edmondskarp"
+harness = false
+
 [badges]
 travis-ci = { repository = "samueltardieu/pathfinding" }
