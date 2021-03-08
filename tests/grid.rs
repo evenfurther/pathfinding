@@ -37,11 +37,11 @@ fn diagonal_mode() {
     g.fill();
     assert_eq!(g.iter().count(), 9);
     let mut ns = g.neighbours(&(1, 1));
-    ns.sort();
+    ns.sort_unstable();
     assert_eq!(ns, vec![(0, 1), (1, 0), (1, 2), (2, 1)]);
     g.enable_diagonal_mode();
     let mut ns = g.neighbours(&(1, 1));
-    ns.sort();
+    ns.sort_unstable();
     assert_eq!(
         ns,
         vec![
@@ -57,7 +57,7 @@ fn diagonal_mode() {
     );
     g.disable_diagonal_mode();
     let mut ns = g.neighbours(&(1, 1));
-    ns.sort();
+    ns.sort_unstable();
     assert_eq!(ns, vec![(0, 1), (1, 0), (1, 2), (2, 1)]);
 }
 
@@ -82,7 +82,7 @@ fn resize() {
     assert!(!g.resize(10, 10));
     assert_eq!(g.vertices_len(), 4);
     let mut ns = g.neighbours(&(1, 1));
-    ns.sort();
+    ns.sort_unstable();
     assert_eq!(ns, vec![(0, 1), (1, 0)]);
     for _ in 0..2 {
         let ns = g.neighbours(&(1, 1));
@@ -171,9 +171,9 @@ fn iterators() {
             g.invert();
         }
         let mut ns1 = g.iter().collect_vec();
-        ns1.sort();
+        ns1.sort_unstable();
         let mut ns2 = g.into_iter().collect_vec();
-        ns2.sort();
+        ns2.sort_unstable();
         assert_eq!(ns1, ns2);
     }
 }
@@ -312,7 +312,7 @@ fn edges() {
     let mut g = Grid::new(2, 2);
     g.fill();
     let mut edges = g.edges().collect::<Vec<_>>();
-    edges.sort();
+    edges.sort_unstable();
     assert_eq!(
         edges,
         vec![
@@ -324,7 +324,7 @@ fn edges() {
     );
     g.enable_diagonal_mode();
     let mut edges = g.edges().collect::<Vec<_>>();
-    edges.sort();
+    edges.sort_unstable();
     assert_eq!(
         edges,
         vec![
@@ -340,7 +340,7 @@ fn edges() {
     g.fill();
     g.remove_vertex(&(1, 1));
     let mut edges = g.edges().collect::<Vec<_>>();
-    edges.sort();
+    edges.sort_unstable();
     assert_eq!(
         edges,
         vec![

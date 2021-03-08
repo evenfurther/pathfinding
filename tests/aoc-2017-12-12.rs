@@ -24,7 +24,7 @@ fn method1() {
         .collect::<HashMap<_, _>>();
     let all_nodes = pipes.keys().cloned().collect::<Vec<_>>();
     let components = connected_components(&all_nodes, |&n| {
-        pipes.get(&n).cloned().unwrap_or_else(|| vec![])
+        pipes.get(&n).cloned().unwrap_or_else(Vec::new)
     });
     assert_eq!(152, components[component_index(&components)[&0]].len());
     assert_eq!(186, components.len());
