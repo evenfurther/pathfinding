@@ -56,20 +56,21 @@ fn complexity() {
 // Wrapper around topological_sort_into_groups that sorts each group (since
 // topological_sort_into_groups makes no guarantees about node order within
 // each group).
+#[allow(clippy::clippy::type_complexity)]
 fn tsig(succs: &[&[usize]]) -> Result<Vec<Vec<usize>>, (Vec<Vec<usize>>, Vec<usize>)> {
     let nodes: Vec<usize> = (0..succs.len()).collect();
     match topological_sort_into_groups(&nodes, |&n| succs[n].iter().cloned()) {
         Ok(mut groups) => {
             for group in groups.iter_mut() {
-                group.sort();
+                group.sort_unstable();
             }
             Ok(groups)
         }
         Err((mut groups, mut remaining)) => {
             for group in groups.iter_mut() {
-                group.sort();
+                group.sort_unstable();
             }
-            remaining.sort();
+            remaining.sort_unstable();
             Err((groups, remaining))
         }
     }

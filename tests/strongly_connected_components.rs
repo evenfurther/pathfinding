@@ -62,7 +62,7 @@ fn all_scc() {
     let mut c = strongly_connected_components(&(0..15).collect::<Vec<_>>(), successors)
         .into_iter()
         .map(|mut v| {
-            v.sort();
+            v.sort_unstable();
             v
         })
         .collect::<Vec<_>>();
@@ -76,7 +76,7 @@ fn some_scc() {
         let mut c = strongly_connected_components_from(&start, successors)
             .into_iter()
             .map(|mut v| {
-                v.sort();
+                v.sort_unstable();
                 v
             })
             .collect::<Vec<_>>();
@@ -108,7 +108,7 @@ fn some_scc() {
 fn individual_scc() {
     for n in 0..=15 {
         let mut c = strongly_connected_component(&n, successors);
-        c.sort();
+        c.sort_unstable();
         assert_eq!(c, SCC[&n]);
     }
 }

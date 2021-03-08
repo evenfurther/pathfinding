@@ -92,7 +92,7 @@ fn larger_separate_components() {
                     component.push(node);
                 }
             }
-            component.sort();
+            component.sort_unstable();
             assert!(
                 !component.is_empty(),
                 "component is empty, rng seed needs changing"
@@ -100,7 +100,7 @@ fn larger_separate_components() {
             component
         })
         .collect_vec();
-    components.sort_by_key(|c| c[0]);
+    components.sort_unstable_by_key(|c| c[0]);
     let mut groups = components
         .iter()
         .flat_map(|component| {
@@ -143,7 +143,7 @@ fn larger_separate_components() {
             if group.is_empty() {
                 None
             } else {
-                group.sort();
+                group.sort_unstable();
                 Some(group)
             }
         })

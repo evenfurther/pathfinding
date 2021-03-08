@@ -213,7 +213,7 @@ fn bench_separate_components(c: &mut Criterion) {
                         component.push(node);
                     }
                 }
-                component.sort();
+                component.sort_unstable();
                 assert!(
                     !component.is_empty(),
                     "component is empty, rng seed needs changing"

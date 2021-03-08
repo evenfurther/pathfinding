@@ -295,7 +295,7 @@ fn neighbours() {
         for c in 0..3 {
             for &diagonal in &[false, true] {
                 let mut neighbours = m.neighbours(&(r, c), diagonal).collect::<Vec<_>>();
-                neighbours.sort();
+                neighbours.sort_unstable();
                 let mut manual = Vec::new();
                 for rr in 0..3 {
                     for cc in 0..3 {

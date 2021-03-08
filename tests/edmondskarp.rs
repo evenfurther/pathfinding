@@ -18,7 +18,10 @@ fn successors_wikipedia() -> Vec<((char, char), i32)> {
             ("FG", 9),
         ]
         .into_iter()
-        .map(|(s, c)| ((s.chars().nth(0).unwrap(), s.chars().nth(1).unwrap()), c)),
+        .map(|(s, c)| {
+            let mut name = s.chars();
+            ((name.next().unwrap(), name.next().unwrap()), c)
+        }),
     )
     .collect()
 }

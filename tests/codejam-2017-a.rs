@@ -43,7 +43,7 @@ fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut dyn BufRead) -> Result<String
         for v in dice.clone() {
             values.entry(v).or_insert_with(HashSet::new).insert(d);
         }
-        dice.sort();
+        dice.sort_unstable();
         dices.push(dice);
     }
     let mut groups: Vec<Vec<usize>> = Vec::new();
