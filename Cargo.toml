@@ -22,7 +22,7 @@ indexmap = "1.0.2"
 criterion = { version = "0.3.4", features = ["html_reports"] }
 lazy_static = "1.2.0"
 movingai = "1.0.0"
-noisy_float = "0.1.9"
+noisy_float = "0.2.0"
 rand = "0.8.0"
 rand_xorshift = "0.3.0"
 # Not a real dependency, but needed since crossbeam-utils 0.6.5
