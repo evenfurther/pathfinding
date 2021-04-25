@@ -22,6 +22,7 @@ The algorithms are generic over their arguments.
 - [IDDFS][IDDFS]: explore longer and longer paths in an unweighted graph at the cost of multiple similar examinations.
 - [strongly connected components][Strongly connected components]: find strongly connected components in a directed graph.
 - [topological sorting][Topological sorting]: find an acceptable topological order in a directed graph.
+- [Yen][Yen]: find k-shortests paths using dijkstra.
 
 ### Undirected graphs
 
@@ -105,3 +106,4 @@ This repository use the imperative mode in commit messages, such as "Add IDDFS",
 [Rust]: https://rust-lang.org/
 [Strongly connected components]: https://en.wikipedia.org/wiki/Strongly_connected_component
 [Topological sorting]: https://en.wikipedia.org/wiki/Topological_sorting
+[Yen]: https://en.wikipedia.org/wiki/Yen's_algorithm
