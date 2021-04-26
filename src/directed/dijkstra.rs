@@ -69,7 +69,18 @@ use super::reverse_path;
 ///                       |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
-pub fn dijkstra<N, C, FN, IN, FS>(start: &N, successors: FN, success: FS) -> Option<(Vec<N>, C)>
+pub fn dijkstra<N, C, FN, IN, FS>(start: &N, mut successors: FN, mut success: FS) -> Option<(Vec<N>, C)>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+    FS: FnMut(&N) -> bool,
+{
+    dijkstra_internal(start, &mut successors, &mut success)
+}
+
+pub(crate) fn dijkstra_internal<N, C, FN, IN, FS>(start: &N, successors: &mut FN, success: &mut FS) -> Option<(Vec<N>, C)>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
@@ -127,8 +138,8 @@ where
 /// of the reachable targets.
 pub fn dijkstra_partial<N, C, FN, IN, FS>(
     start: &N,
-    successors: FN,
-    stop: FS,
+    mut successors: FN,
+    mut stop: FS,
 ) -> (HashMap<N, (N, C)>, Option<N>)
 where
     N: Eq + Hash + Clone,
@@ -137,7 +148,7 @@ where
     IN: IntoIterator<Item = (N, C)>,
     FS: FnMut(&N) -> bool,
 {
-    let (parents, reached) = run_dijkstra(start, successors, stop);
+    let (parents, reached) = run_dijkstra(start, &mut successors, &mut stop);
     (
         parents
             .iter()
@@ -150,8 +161,8 @@ where
 
 fn run_dijkstra<N, C, FN, IN, FS>(
     start: &N,
-    mut successors: FN,
-    mut stop: FS,
+    successors: &mut FN,
+    stop: &mut FS,
 ) -> (IndexMap<N, (usize, C)>, Option<usize>)
 where
     N: Eq + Hash + Clone,
