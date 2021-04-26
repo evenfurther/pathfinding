@@ -22,7 +22,7 @@ The algorithms are generic over their arguments.
 - [IDDFS][IDDFS]: explore longer and longer paths in an unweighted graph at the cost of multiple similar examinations.
 - [strongly connected components][Strongly connected components]: find strongly connected components in a directed graph.
 - [topological sorting][Topological sorting]: find an acceptable topological order in a directed graph.
-- [Yen][Yen]: find k-shortests paths using dijkstra.
+- [Yen][Yen]: find k-shortest paths using Dijkstra.
 
 ### Undirected graphs
 

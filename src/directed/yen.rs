@@ -160,16 +160,15 @@ where
             };
 
             // Let us find the spur path from the spur node to the sink using.
-            if let Some((spur_path, _)) = dijkstra_internal(spur_node, &mut filtered_successor, &mut success) {
-                let nodes = make_path(Vec::from(root_path), spur_path);
+            if let Some((spur_path, _)) =
+                dijkstra_internal(spur_node, &mut filtered_successor, &mut success)
+            {
+                let nodes: Vec<N> = root_path.iter().cloned().chain(spur_path).collect();
                 // If we have found the same path before, we will not add it.
                 if !visited.contains(&hash(&nodes)) {
                     // Since we don't know the root_path cost, we need to recalculate.
                     let cost = make_cost(&nodes, &mut successors);
-                    let path = Path {
-                        nodes,
-                        cost,
-                    };
+                    let path = Path { nodes, cost };
                     // Mark as visited
                     visited.insert(hash(&path.nodes));
                     // Build a min-heap
@@ -186,36 +185,22 @@ where
     Some(routes)
 }
 
-#[inline]
 fn hash<N: Eq + Hash + Clone>(nodes: &[N]) -> u64 {
     let mut hs = DefaultHasher::new();
     nodes.hash(&mut hs);
     hs.finish()
 }
 
-#[inline]
-fn make_path<N: Eq + Hash + Clone>(a: Vec<N>, b: Vec<N>) -> Vec<N> {
-    let mut p = a;
-    p.extend(b);
-    p
-}
-
-#[inline]
 fn make_cost<N, FN, IN, C>(nodes: &[N], successors: &mut FN) -> C
 where
-    N: Eq + Hash + Clone,
-    C: Zero + Ord + Copy,
+    N: Eq,
+    C: Zero,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
 {
     let mut cost = C::zero();
-    if nodes.is_empty() {
-        return cost;
-    }
-
     for edge in nodes.windows(2) {
-        let ns = successors(&edge[0]);
-        for (n, c) in ns {
+        for (n, c) in successors(&edge[0]) {
             if n == edge[1] {
                 cost = cost + c;
             }
