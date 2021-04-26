@@ -9,7 +9,7 @@ use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 use std::iter::FromIterator;
 
-use super::dijkstra::dijkstra;
+use super::dijkstra::dijkstra_internal;
 
 /// A representation of a path.
 #[derive(Eq, PartialEq, Debug)]
@@ -111,18 +111,18 @@ where
 
 pub fn yen<N, C, FN, IN, FS>(
     start: &N,
-    successors: FN,
-    success: FS,
+    mut successors: FN,
+    mut success: FS,
     k: usize,
 ) -> Option<Vec<Path<N, C>>>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
-    FN: Fn(&N) -> IN + Copy,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
-    FS: Fn(&N) -> bool + Copy,
+    FS: FnMut(&N) -> bool,
 {
-    let (n, c) = dijkstra(start, successors, success)?;
+    let (n, c) = dijkstra_internal(start, &mut successors, &mut success)?;
 
     let mut visited = HashSet::new();
     // A vector containing our paths.
@@ -150,7 +150,7 @@ where
             let filtered_nodes: HashSet<&N> = HashSet::from_iter(root_path);
             // We are creating a new successor function that will not return the
             // filtered edges and nodes that routes already used.
-            let filtered_successor = |n: &N| {
+            let mut filtered_successor = |n: &N| {
                 successors(n)
                     .into_iter()
                     .filter(|(n2, _)| {
@@ -160,12 +160,12 @@ where
             };
 
             // Let us find the spur path from the spur node to the sink using.
-            if let Some((spur_path, _)) = dijkstra(spur_node, filtered_successor, success) {
+            if let Some((spur_path, _)) = dijkstra_internal(spur_node, &mut filtered_successor, &mut success) {
                 let nodes = make_path(Vec::from(root_path), spur_path);
                 // If we have found the same path before, we will not add it.
                 if !visited.contains(&hash(&nodes)) {
                     // Since we don't know the root_path cost, we need to recalculate.
-                    let cost = make_cost(&nodes, successors);
+                    let cost = make_cost(&nodes, &mut successors);
                     let path = Path {
                         nodes,
                         cost,
@@ -201,11 +201,11 @@ fn make_path<N: Eq + Hash + Clone>(a: Vec<N>, b: Vec<N>) -> Vec<N> {
 }
 
 #[inline]
-fn make_cost<N, FN, IN, C>(nodes: &[N], successors: FN) -> C
+fn make_cost<N, FN, IN, C>(nodes: &[N], successors: &mut FN) -> C
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
-    FN: Fn(&N) -> IN + Copy,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
 {
     let mut cost = C::zero();
