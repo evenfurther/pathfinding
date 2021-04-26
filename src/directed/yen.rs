@@ -69,7 +69,7 @@ where
 /// https://en.wikipedia.org/wiki/Yen's_algorithm#Example for a visualization.
 ///
 /// ```
-/// use pathfinding::prelude::{Path, yen};
+/// use pathfinding::prelude::yen;
 /// let paths = yen(
 ///     &'c',
 ///     |c| match c {
