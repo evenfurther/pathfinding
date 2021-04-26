@@ -69,7 +69,11 @@ use super::reverse_path;
 ///                       |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
-pub fn dijkstra<N, C, FN, IN, FS>(start: &N, mut successors: FN, mut success: FS) -> Option<(Vec<N>, C)>
+pub fn dijkstra<N, C, FN, IN, FS>(
+    start: &N,
+    mut successors: FN,
+    mut success: FS,
+) -> Option<(Vec<N>, C)>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
@@ -80,7 +84,11 @@ where
     dijkstra_internal(start, &mut successors, &mut success)
 }
 
-pub(crate) fn dijkstra_internal<N, C, FN, IN, FS>(start: &N, successors: &mut FN, success: &mut FS) -> Option<(Vec<N>, C)>
+pub(crate) fn dijkstra_internal<N, C, FN, IN, FS>(
+    start: &N,
+    successors: &mut FN,
+    success: &mut FS,
+) -> Option<(Vec<N>, C)>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,

@@ -3,10 +3,9 @@
 use num_traits::Zero;
 use std::cmp::Ordering;
 use std::cmp::Reverse;
-use std::collections::hash_map::DefaultHasher;
 use std::collections::BinaryHeap;
 use std::collections::HashSet;
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 use std::iter::FromIterator;
 
 use super::dijkstra::dijkstra_internal;
@@ -165,12 +164,12 @@ where
             {
                 let nodes: Vec<N> = root_path.iter().cloned().chain(spur_path).collect();
                 // If we have found the same path before, we will not add it.
-                if !visited.contains(&hash(&nodes)) {
+                if !visited.contains(&nodes) {
                     // Since we don't know the root_path cost, we need to recalculate.
                     let cost = make_cost(&nodes, &mut successors);
                     let path = Path { nodes, cost };
                     // Mark as visited
-                    visited.insert(hash(&path.nodes));
+                    visited.insert(path.nodes.clone());
                     // Build a min-heap
                     k_routes.push(Reverse(path));
                 }
@@ -183,12 +182,6 @@ where
 
     routes.sort();
     Some(routes)
-}
-
-fn hash<N: Eq + Hash + Clone>(nodes: &[N]) -> u64 {
-    let mut hs = DefaultHasher::new();
-    nodes.hash(&mut hs);
-    hs.finish()
 }
 
 fn make_cost<N, FN, IN, C>(nodes: &[N], successors: &mut FN) -> C
