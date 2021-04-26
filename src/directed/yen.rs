@@ -164,7 +164,7 @@ where
         }
     }
 
-    routes.sort();
+    routes.sort_unstable();
     routes
         .into_iter()
         .map(|Path { nodes, cost }| (nodes, cost))
