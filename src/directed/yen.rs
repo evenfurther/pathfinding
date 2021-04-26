@@ -52,8 +52,7 @@ where
 /// algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).success
 ///
 /// The `k`-shortest paths starting from `start` up to a node for which `success` returns `true`
-/// are computed along with their total cost. The result is return as a vector of (path, cost)
-/// wrapped in `Some`. In case no paths were found, `None` is returned.
+/// are computed along with their total cost. The result is return as a vector of (path, cost).
 ///
 /// - `start` is the starting node.
 /// - `successors` returns a list of successors for a given node, along with the cost of moving from
@@ -62,7 +61,8 @@ where
 /// - `k` is the amount of paths requests, including the shortest one.
 ///
 /// The returned paths comprises both the start and the end node and are ordered by their costs
-/// starting with the lowest cost.
+/// starting with the lowest cost. If there exist less paths than requested, only the existing
+/// ones (if any) are returned.
 ///
 /// # Example
 /// We will search the 3 shortest paths from node C to node H. See
@@ -70,7 +70,7 @@ where
 ///
 /// ```
 /// use pathfinding::prelude::{Path, yen};
-/// let result = yen(
+/// let paths = yen(
 ///     &'c',
 ///     |c| match c {
 ///         'c' => vec![('d', 3), ('e', 2)],
@@ -83,8 +83,7 @@ where
 ///         },
 ///         |c| *c == 'h',
 ///     2);
-///     assert!(result.is_some());
-///     let paths = result.unwrap();
+///     assert_eq!(paths.len(), 3);
 ///     assert_eq!(paths[0], (vec!['c', 'e', 'f', 'h'], 5));
 ///     assert_eq!(paths[1], (vec!['c', 'e', 'g', 'h'], 7));
 ///     assert_eq!(paths[2], (vec!['c', 'd', 'f', 'h'], 8));
@@ -95,7 +94,7 @@ pub fn yen<N, C, FN, IN, FS>(
     mut successors: FN,
     mut success: FS,
     k: usize,
-) -> Option<Vec<(Vec<N>, C)>>
+) -> Vec<(Vec<N>, C)>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
@@ -103,7 +102,10 @@ where
     IN: IntoIterator<Item = (N, C)>,
     FS: FnMut(&N) -> bool,
 {
-    let (n, c) = dijkstra_internal(start, &mut successors, &mut success)?;
+    let (n, c) = match dijkstra_internal(start, &mut successors, &mut success) {
+        Some(x) => x,
+        None => return vec![],
+    };
 
     let mut visited = HashSet::new();
     // A vector containing our paths.
@@ -163,12 +165,10 @@ where
     }
 
     routes.sort();
-    Some(
-        routes
-            .into_iter()
-            .map(|Path { nodes, cost }| (nodes, cost))
-            .collect(),
-    )
+    routes
+        .into_iter()
+        .map(|Path { nodes, cost }| (nodes, cost))
+        .collect()
 }
 
 fn make_cost<N, FN, IN, C>(nodes: &[N], successors: &mut FN) -> C
@@ -211,9 +211,7 @@ mod tests {
             |c| *c == 'h',
             2,
         );
-        assert!(result.is_some());
 
-        let result = result.unwrap();
         assert_eq!(result.len(), 3);
         assert_eq!(result[0], (vec!['c', 'e', 'f', 'h'], 5));
         assert_eq!(result[1], (vec!['c', 'e', 'g', 'h'], 7));
@@ -238,9 +236,7 @@ mod tests {
             |c| *c == 'h',
             10,
         );
-        assert!(result.is_some());
 
-        let result = result.unwrap();
         // we asked for 10 but the graph can only produce 7
         assert_eq!(result.len(), 7);
     }
@@ -263,7 +259,7 @@ mod tests {
             2,
         );
 
-        assert!(result.is_none());
+        assert!(result.is_empty());
     }
 
     /// Test that we support loops
@@ -279,8 +275,6 @@ mod tests {
             2,
         );
 
-        assert!(result.is_some());
-        let paths = result.unwrap();
-        assert_eq!(paths, vec![(vec!['c'], 0)]);
+        assert_eq!(result, vec![(vec!['c'], 0)]);
     }
 }
