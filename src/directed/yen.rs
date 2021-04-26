@@ -12,11 +12,11 @@ use super::dijkstra::dijkstra_internal;
 
 /// A representation of a path.
 #[derive(Eq, PartialEq, Debug)]
-pub struct Path<N: Eq + Hash + Clone, C: Zero + Ord + Copy> {
+struct Path<N: Eq + Hash + Clone, C: Zero + Ord + Copy> {
     /// The nodes along the path
-    pub nodes: Vec<N>,
+    nodes: Vec<N>,
     /// The total cost of the path
-    pub cost: C,
+    cost: C,
 }
 
 impl<N, C> PartialOrd for Path<N, C>
