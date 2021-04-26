@@ -52,7 +52,7 @@ where
 /// algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).success
 ///
 /// The `k`-shortest paths starting from `start` up to a node for which `success` returns `true`
-/// are computed along with their total cost. The result is return as a vector `Path` objects
+/// are computed along with their total cost. The result is return as a vector of (path, cost)
 /// wrapped in `Some`. In case no paths were found, `None` is returned.
 ///
 /// - `start` is the starting node.
@@ -85,27 +85,9 @@ where
 ///     2);
 ///     assert!(result.is_some());
 ///     let paths = result.unwrap();
-///     assert_eq!(
-///         paths[0],
-///         Path {
-///             nodes: vec!['c', 'e', 'f', 'h'],
-///             cost: 5
-///         }
-///     );
-///     assert_eq!(
-///         paths[1],
-///         Path {
-///             nodes: vec!['c', 'e', 'g', 'h'],
-///             cost: 7
-///         }
-///     );
-///     assert_eq!(
-///         paths[2],
-///         Path {
-///             nodes: vec!['c', 'd', 'f', 'h'],
-///             cost: 8
-///         }
-///     );
+///     assert_eq!(paths[0], (vec!['c', 'e', 'f', 'h'], 5));
+///     assert_eq!(paths[1], (vec!['c', 'e', 'g', 'h'], 7));
+///     assert_eq!(paths[2], (vec!['c', 'd', 'f', 'h'], 8));
 /// ```
 
 pub fn yen<N, C, FN, IN, FS>(
@@ -113,7 +95,7 @@ pub fn yen<N, C, FN, IN, FS>(
     mut successors: FN,
     mut success: FS,
     k: usize,
-) -> Option<Vec<Path<N, C>>>
+) -> Option<Vec<(Vec<N>, C)>>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
@@ -181,7 +163,12 @@ where
     }
 
     routes.sort();
-    Some(routes)
+    Some(
+        routes
+            .into_iter()
+            .map(|Path { nodes, cost }| (nodes, cost))
+            .collect(),
+    )
 }
 
 fn make_cost<N, FN, IN, C>(nodes: &[N], successors: &mut FN) -> C
@@ -228,27 +215,9 @@ mod tests {
 
         let result = result.unwrap();
         assert_eq!(result.len(), 3);
-        assert_eq!(
-            result[0],
-            Path {
-                nodes: vec!['c', 'e', 'f', 'h'],
-                cost: 5
-            }
-        );
-        assert_eq!(
-            result[1],
-            Path {
-                nodes: vec!['c', 'e', 'g', 'h'],
-                cost: 7
-            }
-        );
-        assert_eq!(
-            result[2],
-            Path {
-                nodes: vec!['c', 'd', 'f', 'h'],
-                cost: 8
-            }
-        );
+        assert_eq!(result[0], (vec!['c', 'e', 'f', 'h'], 5));
+        assert_eq!(result[1], (vec!['c', 'e', 'g', 'h'], 7));
+        assert_eq!(result[2], (vec!['c', 'd', 'f', 'h'], 8));
     }
 
     /// Tests that we correctly return fewer routes when
@@ -297,7 +266,7 @@ mod tests {
         assert!(result.is_none());
     }
 
-    /// Test that we return None in case there is no solution
+    /// Test that we support loops
     #[test]
     fn single_node() {
         let result = yen(
@@ -312,7 +281,6 @@ mod tests {
 
         assert!(result.is_some());
         let paths = result.unwrap();
-        assert_eq!(paths[0].nodes.len(), 1);
-        assert_eq!(paths[0].nodes[0], 'c');
+        assert_eq!(paths, vec![(vec!['c'], 0)]);
     }
 }
