@@ -70,6 +70,7 @@ where
 ///
 /// ```
 /// use pathfinding::prelude::yen;
+/// // Find 3 shortest paths from 'c' to 'h'
 /// let paths = yen(
 ///     &'c',
 ///     |c| match c {
@@ -82,7 +83,7 @@ where
 ///         _ => panic!(""),
 ///         },
 ///         |c| *c == 'h',
-///     2);
+///     3);
 ///     assert_eq!(paths.len(), 3);
 ///     assert_eq!(paths[0], (vec!['c', 'e', 'f', 'h'], 5));
 ///     assert_eq!(paths[1], (vec!['c', 'e', 'g', 'h'], 7));
@@ -112,7 +113,7 @@ where
     let mut routes = vec![Path { nodes: n, cost: c }];
     // A min-heap to store our lowest-cost route candidate
     let mut k_routes = BinaryHeap::new();
-    for ki in 0..k {
+    for ki in 0..(k - 1) {
         if routes.len() <= ki {
             // We have no more routes to explore
             break;

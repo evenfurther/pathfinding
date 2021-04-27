@@ -16,7 +16,7 @@ fn simple() {
             _ => panic!(""),
         },
         |c| *c == 'h',
-        2,
+        3,
     );
 
     assert_eq!(result.len(), 3);
