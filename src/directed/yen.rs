@@ -1,5 +1,5 @@
-//! Compute a shortest path using the [Dijkstra search
-//! algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
+//! Compute k-shortest paths using [Yen's search
+//! algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).
 use num_traits::Zero;
 use std::cmp::Ordering;
 use std::cmp::Reverse;
@@ -49,7 +49,7 @@ where
     }
 }
 /// Compute the k-shortest paths using the [Yen's search
-/// algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).success
+/// algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).
 ///
 /// The `k`-shortest paths starting from `start` up to a node for which `success` returns `true`
 /// are computed along with their total cost. The result is return as a vector of (path, cost).
@@ -60,7 +60,7 @@ where
 /// - `success` checks weather the goal has been reached.
 /// - `k` is the amount of paths requests, including the shortest one.
 ///
-/// The returned paths comprises both the start and the end node and are ordered by their costs
+/// The returned paths include both the start and the end node and are ordered by their costs
 /// starting with the lowest cost. If there exist less paths than requested, only the existing
 /// ones (if any) are returned.
 ///
@@ -70,6 +70,7 @@ where
 ///
 /// ```
 /// use pathfinding::prelude::yen;
+/// // Find 3 shortest paths from 'c' to 'h'
 /// let paths = yen(
 ///     &'c',
 ///     |c| match c {
@@ -82,11 +83,23 @@ where
 ///         _ => panic!(""),
 ///         },
 ///         |c| *c == 'h',
+/// 3);
+/// assert_eq!(paths.len(), 3);
+/// assert_eq!(paths[0], (vec!['c', 'e', 'f', 'h'], 5));
+/// assert_eq!(paths[1], (vec!['c', 'e', 'g', 'h'], 7));
+/// assert_eq!(paths[2], (vec!['c', 'd', 'f', 'h'], 8));
+///
+/// // An example of a graph that has no path from 'c' to 'h'.
+/// let empty = yen(
+///     &'c',
+///     |c| match c {
+///         'c' => vec![('d', 3)],
+///         'd' => vec![],
+///         _ => panic!(""),
+///     },
+///     |c| *c == 'h',
 ///     2);
-///     assert_eq!(paths.len(), 3);
-///     assert_eq!(paths[0], (vec!['c', 'e', 'f', 'h'], 5));
-///     assert_eq!(paths[1], (vec!['c', 'e', 'g', 'h'], 7));
-///     assert_eq!(paths[2], (vec!['c', 'd', 'f', 'h'], 8));
+/// assert!(empty.is_empty());
 /// ```
 
 pub fn yen<N, C, FN, IN, FS>(
@@ -112,7 +125,7 @@ where
     let mut routes = vec![Path { nodes: n, cost: c }];
     // A min-heap to store our lowest-cost route candidate
     let mut k_routes = BinaryHeap::new();
-    for ki in 0..k {
+    for ki in 0..(k - 1) {
         if routes.len() <= ki {
             // We have no more routes to explore
             break;
