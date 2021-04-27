@@ -83,11 +83,23 @@ where
 ///         _ => panic!(""),
 ///         },
 ///         |c| *c == 'h',
-///     3);
-///     assert_eq!(paths.len(), 3);
-///     assert_eq!(paths[0], (vec!['c', 'e', 'f', 'h'], 5));
-///     assert_eq!(paths[1], (vec!['c', 'e', 'g', 'h'], 7));
-///     assert_eq!(paths[2], (vec!['c', 'd', 'f', 'h'], 8));
+/// 3);
+/// assert_eq!(paths.len(), 3);
+/// assert_eq!(paths[0], (vec!['c', 'e', 'f', 'h'], 5));
+/// assert_eq!(paths[1], (vec!['c', 'e', 'g', 'h'], 7));
+/// assert_eq!(paths[2], (vec!['c', 'd', 'f', 'h'], 8));
+///
+/// // An example of a graph that has no path from 'c' to 'h'.
+/// let empty = yen(
+///     &'c',
+///     |c| match c {
+///         'c' => vec![('d', 3)],
+///         'd' => vec![],
+///         _ => panic!(""),
+///     },
+///     |c| *c == 'h',
+///     2);
+/// assert!(empty.is_empty());
 /// ```
 
 pub fn yen<N, C, FN, IN, FS>(
