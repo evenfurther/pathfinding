@@ -28,6 +28,7 @@ pub mod prelude {
     pub use crate::directed::iddfs::*;
     pub use crate::directed::strongly_connected_components::*;
     pub use crate::directed::topological_sort::*;
+    pub use crate::directed::yen::*;
     pub use crate::grid::*;
     pub use crate::kuhn_munkres::*;
     pub use crate::matrix::*;

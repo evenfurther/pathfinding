@@ -10,6 +10,7 @@ pub mod idastar;
 pub mod iddfs;
 pub mod strongly_connected_components;
 pub mod topological_sort;
+pub mod yen;
 
 use indexmap::IndexMap;
 use std::hash::Hash;
