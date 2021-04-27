@@ -1,5 +1,5 @@
-//! Compute a shortest path using the [Dijkstra search
-//! algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
+//! Compute k-shortest paths using [Yen's search
+//! algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).
 use num_traits::Zero;
 use std::cmp::Ordering;
 use std::cmp::Reverse;
