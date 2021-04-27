@@ -49,7 +49,7 @@ where
     }
 }
 /// Compute the k-shortest paths using the [Yen's search
-/// algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).success
+/// algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).
 ///
 /// The `k`-shortest paths starting from `start` up to a node for which `success` returns `true`
 /// are computed along with their total cost. The result is return as a vector of (path, cost).
@@ -60,7 +60,7 @@ where
 /// - `success` checks weather the goal has been reached.
 /// - `k` is the amount of paths requests, including the shortest one.
 ///
-/// The returned paths comprises both the start and the end node and are ordered by their costs
+/// The returned paths include both the start and the end node and are ordered by their costs
 /// starting with the lowest cost. If there exist less paths than requested, only the existing
 /// ones (if any) are returned.
 ///
