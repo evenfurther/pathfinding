@@ -2,12 +2,12 @@
 //! algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
 
 use indexmap::map::Entry::Vacant;
-use indexmap::IndexMap;
 use std::collections::{HashSet, VecDeque};
 use std::hash::Hash;
 use std::usize;
 
 use super::reverse_path;
+use crate::directed::FxIndexMap;
 
 /// Compute a shortest path using the [breadth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
@@ -90,7 +90,7 @@ where
         return Some(vec![start.clone()]);
     }
     let mut to_see = VecDeque::new();
-    let mut parents: IndexMap<N, usize> = IndexMap::new();
+    let mut parents: FxIndexMap<N, usize> = FxIndexMap::default();
     to_see.push_back(0);
     parents.insert(start.clone(), usize::max_value());
     while let Some(i) = to_see.pop_front() {
