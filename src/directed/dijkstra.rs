@@ -2,7 +2,6 @@
 //! algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
 
 use indexmap::map::Entry::{Occupied, Vacant};
-use indexmap::IndexMap;
 use num_traits::Zero;
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
@@ -10,6 +9,7 @@ use std::hash::Hash;
 use std::usize;
 
 use super::reverse_path;
+use crate::directed::FxIndexMap;
 
 /// Compute a shortest path using the [Dijkstra search
 /// algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
@@ -171,7 +171,7 @@ fn run_dijkstra<N, C, FN, IN, FS>(
     start: &N,
     successors: &mut FN,
     stop: &mut FS,
-) -> (IndexMap<N, (usize, C)>, Option<usize>)
+) -> (FxIndexMap<N, (usize, C)>, Option<usize>)
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
@@ -184,7 +184,7 @@ where
         cost: Zero::zero(),
         index: 0,
     });
-    let mut parents: IndexMap<N, (usize, C)> = IndexMap::new();
+    let mut parents: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
     parents.insert(start.clone(), (usize::max_value(), Zero::zero()));
     let mut target_reached = None;
     while let Some(SmallestHolder { cost, index }) = to_see.pop() {

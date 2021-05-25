@@ -13,10 +13,13 @@ pub mod topological_sort;
 pub mod yen;
 
 use indexmap::IndexMap;
-use std::hash::Hash;
+use rustc_hash::FxHasher;
+use std::hash::{BuildHasherDefault, Hash};
+
+type FxIndexMap<K, V> = IndexMap<K, V, BuildHasherDefault<FxHasher>>;
 
 #[allow(clippy::needless_collect)]
-fn reverse_path<N, V, F>(parents: &IndexMap<N, V>, mut parent: F, start: usize) -> Vec<N>
+fn reverse_path<N, V, F>(parents: &FxIndexMap<N, V>, mut parent: F, start: usize) -> Vec<N>
 where
     N: Eq + Hash + Clone,
     F: FnMut(&V) -> usize,
