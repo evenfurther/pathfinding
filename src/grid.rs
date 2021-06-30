@@ -124,7 +124,7 @@ impl Grid {
     /// Remove a vertex. Return `true` if the vertex did previously exist
     /// and has been removed.
     pub fn remove_vertex(&mut self, vertex: &(usize, usize)) -> bool {
-        if !self.is_inside(&vertex) {
+        if !self.is_inside(vertex) {
             return false;
         }
         let r = if self.dense {
@@ -254,7 +254,7 @@ impl Grid {
     #[must_use]
     pub fn edges(&self) -> EdgesIterator {
         EdgesIterator {
-            grid: &self,
+            grid: self,
             x: 0,
             y: 0,
             i: 0,

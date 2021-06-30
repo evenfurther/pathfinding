@@ -459,7 +459,7 @@ impl<C> Matrix<C> {
     /// Return an iterator on rows of the matrix.
     #[must_use]
     pub fn iter(&self) -> RowIterator<C> {
-        (&self).into_iter()
+        self.into_iter()
     }
 
     /// Return an iterator on the Matrix indices, first row first.
