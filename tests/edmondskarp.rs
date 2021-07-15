@@ -3,26 +3,24 @@ use std::collections::HashMap;
 
 /// Return a list of edges with their capacities.
 fn successors_wikipedia() -> Vec<((char, char), i32)> {
-    Box::new(
-        vec![
-            ("AB", 3),
-            ("AD", 3),
-            ("BC", 4),
-            ("CA", 3),
-            ("CD", 1),
-            ("CE", 2),
-            ("DE", 2),
-            ("DF", 6),
-            ("EB", 1),
-            ("EG", 1),
-            ("FG", 9),
-        ]
-        .into_iter()
-        .map(|(s, c)| {
-            let mut name = s.chars();
-            ((name.next().unwrap(), name.next().unwrap()), c)
-        }),
-    )
+    vec![
+        ("AB", 3),
+        ("AD", 3),
+        ("BC", 4),
+        ("CA", 3),
+        ("CD", 1),
+        ("CE", 2),
+        ("DE", 2),
+        ("DF", 6),
+        ("EB", 1),
+        ("EG", 1),
+        ("FG", 9),
+    ]
+    .into_iter()
+    .map(|(s, c)| {
+        let mut name = s.chars();
+        ((name.next().unwrap(), name.next().unwrap()), c)
+    })
     .collect()
 }
 
