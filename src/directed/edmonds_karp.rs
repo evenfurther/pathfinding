@@ -323,10 +323,10 @@ impl<C: Copy + Eq + Zero + Signed + Bounded + Ord> SparseCapacity<C> {
     fn set_value(data: &mut BTreeMap<usize, BTreeMap<usize, C>>, from: usize, to: usize, value: C) {
         let to_remove = {
             let sub = data.entry(from).or_insert_with(BTreeMap::new);
-            if value != Zero::zero() {
-                sub.insert(to, value);
-            } else {
+            if value == Zero::zero() {
                 sub.remove(&to);
+            } else {
+                sub.insert(to, value);
             }
             sub.is_empty()
         };

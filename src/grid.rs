@@ -366,20 +366,19 @@ impl Iterator for GridIntoIterator {
             loop {
                 if self.y == self.grid.height {
                     return None;
+                }
+                let r = if self.grid.has_vertex(&(self.x, self.y)) {
+                    Some((self.x, self.y))
                 } else {
-                    let r = if self.grid.has_vertex(&(self.x, self.y)) {
-                        Some((self.x, self.y))
-                    } else {
-                        None
-                    };
-                    self.x += 1;
-                    if self.x == self.grid.width {
-                        self.x = 0;
-                        self.y += 1;
-                    }
-                    if r.is_some() {
-                        return r;
-                    }
+                    None
+                };
+                self.x += 1;
+                if self.x == self.grid.width {
+                    self.x = 0;
+                    self.y += 1;
+                }
+                if r.is_some() {
+                    return r;
                 }
             }
         } else {
@@ -417,20 +416,19 @@ impl<'a> Iterator for GridIterator<'a> {
             loop {
                 if self.y == self.grid.height {
                     return None;
+                }
+                let r = if self.grid.has_vertex(&(self.x, self.y)) {
+                    Some((self.x, self.y))
                 } else {
-                    let r = if self.grid.has_vertex(&(self.x, self.y)) {
-                        Some((self.x, self.y))
-                    } else {
-                        None
-                    };
-                    self.x += 1;
-                    if self.x == self.grid.width {
-                        self.x = 0;
-                        self.y += 1;
-                    }
-                    if r.is_some() {
-                        return r;
-                    }
+                    None
+                };
+                self.x += 1;
+                if self.x == self.grid.width {
+                    self.x = 0;
+                    self.y += 1;
+                }
+                if r.is_some() {
+                    return r;
                 }
             }
         } else {
