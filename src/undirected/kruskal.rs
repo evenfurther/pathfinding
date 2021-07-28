@@ -60,11 +60,11 @@ where
     edges.into_iter().filter_map(move |(a, b, w)| {
         let ra = find(&mut parents, a);
         let rb = find(&mut parents, b);
-        if ra != rb {
+        if ra == rb {
+            None
+        } else {
             union(&mut parents, &mut ranks, ra, rb);
             Some((a, b, w))
-        } else {
-            None
         }
     })
 }
