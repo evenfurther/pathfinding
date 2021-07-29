@@ -391,6 +391,40 @@ impl<C> Matrix<C> {
             .filter(move |&(rr, cc)| (rr != r || cc != c) && (diagonals || rr == r || cc == c))
     }
 
+    /// Return the next cells in a given direction starting from
+    /// a given cell. Any direction (including with values greater than 1) can be
+    /// given. `(0, 0)` is not a valid direction.
+    ///
+    /// # Examples
+    ///
+    /// Starting from square `(1, 1)` in a 8×8 chessboard, move like a knight
+    /// by steps of two rows down and one column right:
+    ///
+    /// ```
+    /// use pathfinding::prelude::Matrix;
+    /// let m = Matrix::new_square(8, '.');
+    /// assert_eq!(m.move_in_direction(&(1, 1), (2, 1)), Some((3, 2)));
+    /// ```
+    #[must_use]
+    #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+    pub fn move_in_direction(
+        &self,
+        index: &(usize, usize),
+        direction: (isize, isize),
+    ) -> Option<(usize, usize)> {
+        let &(row, col) = index;
+        if row >= self.rows || col >= self.columns || direction == (0, 0) {
+            return None;
+        }
+        let (new_row, new_col) = (row as isize + direction.0, col as isize + direction.1);
+        if new_row < 0 || new_col < 0 {
+            return None;
+        }
+        let (new_row, new_col) = (new_row as usize, new_col as usize);
+        (new_row < self.rows && new_col < self.columns)
+            .then(|| (new_row as usize, new_col as usize))
+    }
+
     /// Return an iterator of cells in a given direction starting from
     /// a given cell. Any direction (including with values greater than 1) can be
     /// given. The starting cell is not included in the results.
@@ -416,38 +450,28 @@ impl<C> Matrix<C> {
     /// assert_eq!(m.in_direction(&(3, 2), directions::NW).collect::<Vec<_>>(),
     ///            vec![(2, 1), (1, 0)]);
     /// ```
-    #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+    ///
+    /// Collect a list of cells while avoiding keeping a reference onto the
+    /// matrix itself:
+    ///
+    /// ```
+    /// use pathfinding::prelude::{Matrix, directions};
+    /// let mut m = Matrix::new_square(8, '.');
+    /// let cells = m.in_direction(&(3, 2), directions::NW).collect::<Vec<_>>();
+    /// for cell in cells {
+    ///   m[&cell] = '+';
+    /// }
+    /// ```
     pub fn in_direction(
         &self,
         index: &(usize, usize),
         direction: (isize, isize),
-    ) -> impl Iterator<Item = (usize, usize)> {
-        let iterations: usize = if (direction.0 == 0 && direction.1 == 0)
-            || index.0 >= self.rows
-            || index.1 >= self.columns
-        {
-            0
-        } else {
-            let max_r = match direction.0.signum() {
-                -1 => (index.0 / direction.0.abs() as usize),
-                1 => ((self.rows - index.0 - 1) / direction.0 as usize),
-                0 => std::usize::MAX,
-                _ => unreachable!(),
-            };
-            let max_c = match direction.1.signum() {
-                -1 => (index.1 / direction.1.abs() as usize),
-                1 => ((self.columns - index.1 - 1) / direction.1 as usize),
-                0 => std::usize::MAX,
-                _ => unreachable!(),
-            };
-            max_c.min(max_r)
-        };
-        let index = *index;
-        (1..=iterations).map(move |i| {
-            (
-                (index.0 as isize + i as isize * direction.0) as usize,
-                (index.1 as isize + i as isize * direction.1) as usize,
-            )
+    ) -> impl Iterator<Item = (usize, usize)> + '_ {
+        itertools::unfold(*index, move |current| {
+            self.move_in_direction(current, direction).map(|next| {
+                *current = next;
+                next
+            })
         })
     }
 
