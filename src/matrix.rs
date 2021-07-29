@@ -1,9 +1,12 @@
 //! Matrix of an arbitrary type and utilities to rotate, transpose, etc.
 
+use crate::utils::uint_sqrt;
 use itertools::iproduct;
+use itertools::Itertools;
 use num_traits::Signed;
 use std::error::Error;
 use std::fmt;
+use std::ops::RangeInclusive;
 use std::ops::{Deref, DerefMut, Index, IndexMut, Neg, Range};
 use std::slice::{Iter, IterMut};
 
@@ -207,18 +210,18 @@ impl<C> Matrix<C> {
     /// and so on. An error is returned if the number of values is not a
     /// square number.
     pub fn square_from_vec(values: Vec<C>) -> Result<Self, MatrixFormatError> {
-        let size = (values.len() as f32).sqrt().round() as usize;
-        if size * size != values.len() {
-            return Err(MatrixFormatError {
+        if let Some(size) = uint_sqrt(values.len()) {
+            Self::from_vec(size, size, values)
+        } else {
+            Err(MatrixFormatError {
                 message: format!("length of vector ({}) is not a square number", values.len()),
-            });
+            })
         }
-        Self::from_vec(size, size, values)
     }
 
     /// Create new empty matrix with a predefined number of columns.
     /// This is useful to gradually build the matrix and extend it
-    /// later using [`extend`][Matrix::extend] and does not require
+    /// later using [`extend`](Matrix::extend) and does not require
     /// a filler element compared to [`Matrix::new`].
     #[must_use]
     pub fn new_empty(columns: usize) -> Self {
@@ -254,23 +257,23 @@ impl<C> Matrix<C> {
         let mut rows = rows.into_iter();
         if let Some(first_row) = rows.next() {
             let mut data = first_row.into_iter().collect::<Vec<_>>();
-            let ncols = data.len();
-            let mut nrows = 1;
+            let number_of_columns = data.len();
+            let mut number_of_rows = 1;
             for (i, row) in rows.enumerate() {
-                nrows += 1;
+                number_of_rows += 1;
                 data.extend(row);
-                if nrows * ncols != data.len() {
+                if number_of_rows * number_of_columns != data.len() {
                     return Err(MatrixFormatError {
                         message: format!(
                             "data for row {} (starting at 0) has len {} instead of expected {}",
                             i + 1,
-                            data.len() - (nrows - 1) * ncols,
-                            ncols
+                            data.len() - (number_of_rows - 1) * number_of_columns,
+                            number_of_columns
                         ),
                     });
                 }
             }
-            Self::from_vec(nrows, ncols, data)
+            Self::from_vec(number_of_rows, number_of_columns, data)
         } else {
             Ok(Self::new_empty(0))
         }
@@ -371,30 +374,55 @@ impl<C> Matrix<C> {
     ///
     /// This function panics if the matrix is not square.
     pub fn rotate_ccw(&mut self, times: usize) {
-        self.rotate_cw(4 - (times % 4))
+        self.rotate_cw(4 - (times % 4));
     }
 
     /// Return an iterator on neighbours of a given matrix cell, with or
     /// without considering diagonals.
     pub fn neighbours(
         &self,
-        index: &(usize, usize),
+        &(r, c): &(usize, usize),
         diagonals: bool,
     ) -> impl Iterator<Item = (usize, usize)> {
-        let &(r, c) = index;
-        let min_dr = if r == 0 { 0 } else { -1 };
-        let max_dr = if r == self.rows - 1 { 0 } else { 1 };
-        let min_dc = if c == 0 { 0 } else { -1 };
-        let max_dc = if c == self.columns - 1 { 0 } else { 1 };
-        (min_dc..=max_dc)
-            .flat_map(move |dc| (min_dr..=max_dr).map(move |dr| (dr, dc)))
-            .filter_map(move |(dr, dc)| {
-                if (diagonals && dr != 0 && dc != 0) || dr.abs() + dc.abs() == 1 {
-                    Some(((r as isize + dr) as usize, (c as isize + dc) as usize))
-                } else {
-                    None
-                }
-            })
+        let row_range = RangeInclusive::new(r.saturating_sub(1), (self.rows - 1).min(r + 1));
+        let col_range = RangeInclusive::new(c.saturating_sub(1), (self.columns - 1).min(c + 1));
+        row_range
+            .cartesian_product(col_range)
+            .filter(move |&(rr, cc)| (rr != r || cc != c) && (diagonals || rr == r || cc == c))
+    }
+
+    /// Return the next cells in a given direction starting from
+    /// a given cell. Any direction (including with values greater than 1) can be
+    /// given. `(0, 0)` is not a valid direction.
+    ///
+    /// # Examples
+    ///
+    /// Starting from square `(1, 1)` in a 8×8 chessboard, move like a knight
+    /// by steps of two rows down and one column right:
+    ///
+    /// ```
+    /// use pathfinding::prelude::Matrix;
+    /// let m = Matrix::new_square(8, '.');
+    /// assert_eq!(m.move_in_direction(&(1, 1), (2, 1)), Some((3, 2)));
+    /// ```
+    #[must_use]
+    #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+    pub fn move_in_direction(
+        &self,
+        index: &(usize, usize),
+        direction: (isize, isize),
+    ) -> Option<(usize, usize)> {
+        let &(row, col) = index;
+        if row >= self.rows || col >= self.columns || direction == (0, 0) {
+            return None;
+        }
+        let (new_row, new_col) = (row as isize + direction.0, col as isize + direction.1);
+        if new_row < 0 || new_col < 0 {
+            return None;
+        }
+        let (new_row, new_col) = (new_row as usize, new_col as usize);
+        (new_row < self.rows && new_col < self.columns)
+            .then(|| (new_row as usize, new_col as usize))
     }
 
     /// Return an iterator of cells in a given direction starting from
@@ -422,37 +450,28 @@ impl<C> Matrix<C> {
     /// assert_eq!(m.in_direction(&(3, 2), directions::NW).collect::<Vec<_>>(),
     ///            vec![(2, 1), (1, 0)]);
     /// ```
+    ///
+    /// Collect a list of cells while avoiding keeping a reference onto the
+    /// matrix itself:
+    ///
+    /// ```
+    /// use pathfinding::prelude::{Matrix, directions};
+    /// let mut m = Matrix::new_square(8, '.');
+    /// let cells = m.in_direction(&(3, 2), directions::NW).collect::<Vec<_>>();
+    /// for cell in cells {
+    ///   m[&cell] = '+';
+    /// }
+    /// ```
     pub fn in_direction(
         &self,
         index: &(usize, usize),
         direction: (isize, isize),
-    ) -> impl Iterator<Item = (usize, usize)> {
-        let iterations: usize = if (direction.0 == 0 && direction.1 == 0)
-            || index.0 >= self.rows
-            || index.1 >= self.columns
-        {
-            0
-        } else {
-            let max_r = match direction.0.signum() {
-                -1 => (index.0 / direction.0.abs() as usize),
-                1 => ((self.rows - index.0 - 1) / direction.0 as usize),
-                0 => std::usize::MAX,
-                _ => unreachable!(),
-            };
-            let max_c = match direction.1.signum() {
-                -1 => (index.1 / direction.1.abs() as usize),
-                1 => ((self.columns - index.1 - 1) / direction.1 as usize),
-                0 => std::usize::MAX,
-                _ => unreachable!(),
-            };
-            max_c.min(max_r)
-        };
-        let index = *index;
-        (1..=iterations).map(move |i| {
-            (
-                (index.0 as isize + i as isize * direction.0) as usize,
-                (index.1 as isize + i as isize * direction.1) as usize,
-            )
+    ) -> impl Iterator<Item = (usize, usize)> + '_ {
+        itertools::unfold(*index, move |current| {
+            self.move_in_direction(current, direction).map(|next| {
+                *current = next;
+                next
+            })
         })
     }
 

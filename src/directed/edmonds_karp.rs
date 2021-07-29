@@ -35,7 +35,7 @@ pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
 /// Note that the capacity type `C` must be signed as the algorithm has to deal with
 /// negative residual capacities.
 ///
-/// By creating an [EdmondsKarp]() structure, it is possible to adjust the capacities
+/// By creating an [`EdmondsKarp`]() structure, it is possible to adjust the capacities
 /// after computing the maximum flow and rerun the algorithm without starting from
 /// scratch. This function is a helper function that remaps the `N` node type to
 /// appropriate indices.
@@ -231,7 +231,7 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
             to_see.push_back(source);
             while let Some(node) = to_see.pop_front() {
                 let capacity_so_far = path_capacity[node];
-                for (successor, residual) in self.residual_successors(node).iter().cloned() {
+                for (successor, residual) in self.residual_successors(node).iter().copied() {
                     if successor == source || parents[successor].is_some() {
                         continue;
                     }
@@ -337,7 +337,7 @@ impl<C: Copy + Eq + Zero + Signed + Bounded + Ord> SparseCapacity<C> {
 
     fn get_value(data: &BTreeMap<usize, BTreeMap<usize, C>>, from: usize, to: usize) -> C {
         data.get(&from)
-            .and_then(|ns| ns.get(&to).cloned())
+            .and_then(|ns| ns.get(&to).copied())
             .unwrap_or_else(Zero::zero)
     }
 }

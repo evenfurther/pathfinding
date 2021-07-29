@@ -155,7 +155,7 @@ where
     for (node, extra, _) in neighbs {
         path.push(node);
         match search(path, cost + extra, bound, successors, heuristic, success) {
-            found @ Path::Found(_, _) => return found,
+            found_path @ Path::Found(_, _) => return found_path,
             Path::Minimum(m) => match min {
                 None => min = Some(m),
                 Some(n) if m < n => min = Some(m),

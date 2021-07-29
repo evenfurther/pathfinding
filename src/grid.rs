@@ -439,7 +439,7 @@ impl<'a> Iterator for GridIterator<'a> {
                     self.x += 1;
                     v
                 })
-                .cloned()
+                .copied()
         }
     }
 }

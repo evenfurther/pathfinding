@@ -14,7 +14,7 @@ use std::mem;
 /// given as roots or discovered, or `Err` with a node belonging to a cycle. In the
 /// latter case, the strongly connected set can then be found using the
 /// [`strongly_connected_component`](super::strongly_connected_components::strongly_connected_component)
-/// function, or if only one of the loops is needed the [`bfs_loop`][super::bfs::bfs_loop] function
+/// function, or if only one of the loops is needed the [`bfs_loop`](super::bfs::bfs_loop) function
 /// can be used instead to identify one of the shortest loops involving this node.
 ///
 /// # Examples
