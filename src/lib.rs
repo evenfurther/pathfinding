@@ -1,4 +1,9 @@
 #![deny(missing_docs)]
+#![allow(clippy::non_ascii_literal)]
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::missing_panics_doc)]
+
 //! This crate implements several pathfinding, flow, and graph algorithms.
 //!
 //! Several algorithms require that the numerical types used to describe

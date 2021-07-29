@@ -384,7 +384,7 @@ impl<N: Clone + Eq + Hash> Iterator for AstarSolution<N> {
             .current
             .iter()
             .rev()
-            .map(|v| v.last().cloned().unwrap())
+            .map(|v| v.last().copied().unwrap())
             .map(|i| self.node(i).clone())
             .collect::<Vec<_>>();
         self.next_vec();

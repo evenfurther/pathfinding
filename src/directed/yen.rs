@@ -66,7 +66,7 @@ where
 ///
 /// # Example
 /// We will search the 3 shortest paths from node C to node H. See
-/// https://en.wikipedia.org/wiki/Yen's_algorithm#Example for a visualization.
+/// <https://en.wikipedia.org/wiki/Yen's_algorithm#Example> for a visualization.
 ///
 /// ```
 /// use pathfinding::prelude::yen;
@@ -138,7 +138,7 @@ where
             let root_path = &previous[0..i];
 
             let mut filtered_edges = HashSet::new();
-            for path in routes.iter() {
+            for path in &routes {
                 if &path.nodes[0..i] == root_path && path.nodes.len() > i + 1 {
                     filtered_edges.insert((&path.nodes[i], &path.nodes[i + 1]));
                 }
