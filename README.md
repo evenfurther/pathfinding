@@ -34,6 +34,12 @@ The algorithms are generic over their arguments.
 - [Kuhn-Munkres][Kuhn-Munkres] (Hungarian algorithm): find the maximum (or minimum) matching
 in a weighted bipartite graph.
 
+### Miscellaneous structures
+
+- A `Grid` type representing a rectangular grid in which vertices can be added or removed,
+  with automatic creation of edges between adjacent vertices.
+- A `Matrix` type to store data of arbitrary types, with neighbour-aware methods.
+
 ## Using this crate
 
 In your `Cargo.toml`, put:
@@ -74,6 +80,14 @@ static GOAL: Pos = Pos(4, 6);
 let result = bfs(&Pos(1, 1), |p| p.successors(), |p| *p == GOAL);
 assert_eq!(result.expect("no path found").len(), 5);
 ```
+
+## Note
+
+Several algorithms require that the numerical types used to describe
+edges weights implement `Ord`. If you wish to use Rust builtin
+floating-point types (such as `f32`) which implement `PartialOrd`
+in this context, you can wrap them into compliant types using the
+[ordered-float](https://crates.io/crates/ordered-float) crate.
 
 ## License
 
