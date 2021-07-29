@@ -3,14 +3,7 @@
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::missing_errors_doc)]
 #![allow(clippy::missing_panics_doc)]
-
-//! This crate implements several pathfinding, flow, and graph algorithms.
-//!
-//! Several algorithms require that the numerical types used to describe
-//! edges weights implement `Ord`. If you wish to use Rust builtin
-//! floating-point types (such as `f32`) which implement `PartialOrd`
-//! in this context, you can wrap them into compliant types using the
-//! [ordered-float](https://crates.io/crates/ordered-float) crate.
+#![doc = include_str!("../README.md")]
 
 pub use num_traits;
 
