@@ -1,3 +1,4 @@
 sign-commit = true
+sign-tag = true
 pre-release-replacements = [{file = "README.md", search="pathfinding = \".*\"", replace="pathfinding = \"{{version}}\"", exactly = 1}]
-dev-version-ext = "pre"
+dev-version = true
