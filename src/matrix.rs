@@ -535,15 +535,14 @@ macro_rules! matrix {
         m.extend(&$a).unwrap();
         m
     }};
-    ($a:expr, $($b: expr),+) => {{
+    ($a:expr, $($b: expr),+$(,)?) => {{
         let mut m = matrix!($a);
         let mut r = 0;
         $(
             m.extend(&$b).unwrap();
         )+
         m
-    }};
-    ($a:expr, $($b: expr),+, ) => (matrix!($a, $($b),+))
+    }}
 }
 
 /// Format error encountered while attempting to build a Matrix.
