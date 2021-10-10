@@ -114,10 +114,34 @@ where
 /// from the node to the successor.
 ///
 /// The result is a map where every reachable node (not including `start`) is associated with
-/// an optimal parent node and a cost.
+/// an optimal parent node and a cost from the start node.
 ///
 /// The [`build_path`] function can be used to build a full path from the starting point to one
 /// of the reachable targets.
+///
+/// # Example
+///
+/// We use a graph of integer nodes from 1 to 9, each node leading to its double and the value
+/// after it with a cost of 10 at every step.
+///
+/// ```
+/// use pathfinding::prelude::dijkstra_all;
+///
+/// fn successors(&n: &u32) -> Vec<(u32, usize)> {
+///   if n <= 4 { vec![(n*2, 10), (n*2+1, 10)] } else { vec![] }
+/// }
+///
+/// let reachables = dijkstra_all(&1, successors);
+/// assert_eq!(reachables.len(), 8);
+/// assert_eq!(reachables[&2], (1, 10));  // 1 -> 2
+/// assert_eq!(reachables[&3], (1, 10));  // 1 -> 3
+/// assert_eq!(reachables[&4], (2, 20));  // 1 -> 2 -> 4
+/// assert_eq!(reachables[&5], (2, 20));  // 1 -> 2 -> 5
+/// assert_eq!(reachables[&6], (3, 20));  // 1 -> 3 -> 6
+/// assert_eq!(reachables[&7], (3, 20));  // 1 -> 3 -> 7
+/// assert_eq!(reachables[&8], (4, 30));  // 1 -> 2 -> 4 -> 8
+/// assert_eq!(reachables[&9], (4, 30));  // 1 -> 2 -> 4 -> 9
+/// ```
 pub fn dijkstra_all<N, C, FN, IN>(start: &N, successors: FN) -> HashMap<N, (N, C)>
 where
     N: Eq + Hash + Clone,
@@ -139,8 +163,8 @@ where
 ///   A `true` return value will stop the algorithm.
 ///
 /// The result is a map where every node examined before the algorithm stopped (not including
-/// `start`) is associated with an optimal parent node and a cost, as well as the node which
-/// caused the algorithm to stop if any.
+/// `start`) is associated with an optimal parent node and a cost from the start node, as well
+/// as the node which caused the algorithm to stop if any.
 ///
 /// The [`build_path`] function can be used to build a full path from the starting point to one
 /// of the reachable targets.
