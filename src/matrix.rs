@@ -529,20 +529,20 @@ impl<C> DerefMut for Matrix<C> {
 /// ```
 #[macro_export]
 macro_rules! matrix {
+    () => { compile_error!("a matrix requires at least one row") };
     ($a:expr) => {{
         let mut m = pathfinding::matrix::Matrix::new_empty($a.len());
         m.extend(&$a).unwrap();
         m
     }};
-    ($a:expr, $($b: expr),+) => {{
+    ($a:expr, $($b: expr),+$(,)?) => {{
         let mut m = matrix!($a);
         let mut r = 0;
         $(
             m.extend(&$b).unwrap();
         )+
         m
-    }};
-    ($a:expr, $($b: expr),+, ) => (matrix!($a, $($b),+))
+    }}
 }
 
 /// Format error encountered while attempting to build a Matrix.
