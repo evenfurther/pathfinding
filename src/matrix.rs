@@ -529,6 +529,7 @@ impl<C> DerefMut for Matrix<C> {
 /// ```
 #[macro_export]
 macro_rules! matrix {
+    () => { compile_error!("a matrix requires at least one row") };
     ($a:expr) => {{
         let mut m = pathfinding::matrix::Matrix::new_empty($a.len());
         m.extend(&$a).unwrap();

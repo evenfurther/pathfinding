@@ -289,6 +289,14 @@ fn matrix_macro_inconsistent_panic() {
 }
 
 #[test]
+fn macro_trailing_comma() {
+    // A trailing comma must be accepted
+    let m1 = matrix!([1, 2, 3], [4, 5, 6]);
+    let m2 = matrix!([1, 2, 3], [4, 5, 6],);
+    assert_eq!(m1, m2);
+}
+
+#[test]
 fn neighbours() {
     let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
     for r in 0..3 {
