@@ -244,6 +244,20 @@ where
 ///
 /// If the `parents` map contains a loop, this function will attempt to build
 /// a path of infinite length and panic when memory is exhausted.
+///
+/// # Example
+///
+/// We will use a `parents` map to indicate that each integer from 2 to 100
+/// parent is its integer half (2 -> 1, 3 -> 1, 4 -> 2, etc.)
+///
+/// ```
+/// use pathfinding::prelude::build_path;
+///
+/// let parents = (2..=100).map(|n| (n, (n/2, 1))).collect();
+/// assert_eq!(vec![1, 2, 4, 9, 18], build_path(&18, &parents));
+/// assert_eq!(vec![1], build_path(&1, &parents));
+/// assert_eq!(vec![101], build_path(&101, &parents));
+/// ```
 #[allow(clippy::implicit_hasher)]
 pub fn build_path<N, C>(target: &N, parents: &HashMap<N, (N, C)>) -> Vec<N>
 where
