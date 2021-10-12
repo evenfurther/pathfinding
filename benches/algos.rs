@@ -64,11 +64,7 @@ fn corner_to_corner_bfs(c: &mut Criterion) {
     c.bench_function("corner_to_corner_bfs", |b| {
         b.iter(|| {
             assert_ne!(
-                bfs(
-                    &Pt::new(0, 0),
-                    |n| successors(n),
-                    |n| n.x == 64 && n.y == 64,
-                ),
+                bfs(&Pt::new(0, 0), successors, |n| n.x == 64 && n.y == 64,),
                 None
             )
         })
@@ -79,7 +75,7 @@ fn corner_to_corner_dfs(c: &mut Criterion) {
     c.bench_function("corner_to_corner_dfs", |b| {
         b.iter(|| {
             assert_ne!(
-                dfs(Pt::new(0, 0), |n| successors(n), |n| n.x == 64 && n.y == 64),
+                dfs(Pt::new(0, 0), successors, |n| n.x == 64 && n.y == 64),
                 None
             )
         })
@@ -137,7 +133,7 @@ fn corner_to_corner_iddfs(c: &mut Criterion) {
     c.bench_function("corner_to_corner_iddfs", |b| {
         b.iter(|| {
             assert_ne!(
-                iddfs(Pt::new(0, 0), |n| successors(n), |n| n.x == 5 && n.y == 5,),
+                iddfs(Pt::new(0, 0), successors, |n| n.x == 5 && n.y == 5,),
                 None
             )
         })
@@ -162,7 +158,7 @@ fn no_path_astar(c: &mut Criterion) {
 
 fn no_path_bfs(c: &mut Criterion) {
     c.bench_function("no_path_bfs", |b| {
-        b.iter(|| assert_eq!(bfs(&Pt::new(2, 3), |n| successors(n), |_| false), None))
+        b.iter(|| assert_eq!(bfs(&Pt::new(2, 3), successors, |_| false), None))
     });
 }
 
