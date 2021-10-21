@@ -10,7 +10,7 @@ version = "2.2.3-pre"
 authors = ["Samuel Tardieu <sam@rfc1149.net>"]
 categories = ["algorithms"]
 readme = "README.md"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 fixedbitset = "0.4.0"
