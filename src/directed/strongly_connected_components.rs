@@ -8,11 +8,9 @@
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
-struct Params<N, FN, IN>
+struct Params<N, FN>
 where
-    N: Clone + Hash + Eq,
-    FN: FnMut(&N) -> IN,
-    IN: IntoIterator<Item = N>,
+    N: Hash + Eq,
 {
     preorders: HashMap<N, Option<usize>>,
     c: usize,
@@ -23,7 +21,7 @@ where
     scca: HashSet<N>,
 }
 
-impl<N, FN, IN> Params<N, FN, IN>
+impl<N, FN, IN> Params<N, FN>
 where
     N: Clone + Hash + Eq,
     FN: FnMut(&N) -> IN,
@@ -45,7 +43,7 @@ where
     }
 }
 
-fn recurse_onto<N, FN, IN>(v: &N, params: &mut Params<N, FN, IN>)
+fn recurse_onto<N, FN, IN>(v: &N, params: &mut Params<N, FN>)
 where
     N: Clone + Hash + Eq,
     FN: FnMut(&N) -> IN,
