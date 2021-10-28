@@ -38,9 +38,9 @@ fn get_and_redirect(table: &mut Vec<usize>, mut idx: usize) -> usize {
 /// such a structure by creating a group for every vertex containing
 /// the vertex itself and its immediate neighbours.
 #[must_use]
-pub fn separate_components<N>(groups: &[Vec<N>]) -> (HashMap<N, usize>, Vec<usize>)
+pub fn separate_components<N>(groups: &[Vec<N>]) -> (HashMap<&N, usize>, Vec<usize>)
 where
-    N: Clone + Hash + Eq,
+    N: Hash + Eq,
 {
     let mut table = (0..groups.len()).collect_vec();
     let mut indices = HashMap::new();
@@ -49,7 +49,7 @@ where
             table[group_index] = usize::max_value();
         }
         for element in group {
-            match indices.entry(element.clone()) {
+            match indices.entry(element) {
                 Occupied(e) => {
                     table[group_index] = get_and_redirect(&mut table, *e.get());
                     group_index = table[group_index];
