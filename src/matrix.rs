@@ -25,12 +25,10 @@ pub struct Matrix<C> {
 impl<C: Clone> Matrix<C> {
     /// Create new matrix with an initial value.
     pub fn new(rows: usize, columns: usize, value: C) -> Self {
-        let mut v = Vec::with_capacity(rows * columns);
-        v.resize(rows * columns, value);
         Self {
             rows,
             columns,
-            data: v,
+            data: vec![value; rows * columns],
         }
     }
 
