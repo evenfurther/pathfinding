@@ -280,6 +280,8 @@ fn matrix_macro() {
             i += 1;
         }
     }
+    let other_m = matrix![0, 1, 2; 3, 4, 5];
+    assert_eq!(m, other_m);
 }
 
 #[test]
@@ -289,11 +291,23 @@ fn matrix_macro_inconsistent_panic() {
 }
 
 #[test]
+#[should_panic]
+fn matrix_macro_inconsistent_panic_2() {
+    matrix![0, 1, 2; 3, 4];
+}
+
+#[test]
 fn macro_trailing_comma() {
     // A trailing comma must be accepted
     let m1 = matrix!([1, 2, 3], [4, 5, 6]);
     let m2 = matrix!([1, 2, 3], [4, 5, 6],);
     assert_eq!(m1, m2);
+    let m3 = matrix!(1, 2, 3; 4, 5, 6,);
+    assert_eq!(m1, m3);
+    let m4 = matrix!(1, 2, 3; 4, 5, 6;);
+    assert_eq!(m1, m4);
+    let m5 = matrix!(1, 2, 3; 4, 5, 6,;);
+    assert_eq!(m1, m5);
 }
 
 #[test]
