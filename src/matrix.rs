@@ -238,14 +238,12 @@ impl<C> Matrix<C> {
     /// ```
     /// use pathfinding::matrix::*;
     ///
-    /// # fn main() -> Result<(), MatrixFormatError> {
     /// let input = "abc\ndef";
     /// let matrix = Matrix::from_rows(input.lines().map(|l| l.chars()))?;
     /// assert_eq!(matrix.rows, 2);
     /// assert_eq!(matrix.columns, 3);
     /// assert_eq!(matrix[&(1, 1)], 'e');
-    /// # Ok(())
-    /// # }
+    /// # Ok::<_, MatrixFormatError>(())
     /// ```
     pub fn from_rows<IR, IC>(rows: IR) -> Result<Self, MatrixFormatError>
     where
