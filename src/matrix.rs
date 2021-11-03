@@ -507,7 +507,10 @@ impl<C> DerefMut for Matrix<C> {
 
 /// The matrix! macro allows the declaration of a Matrix from static data.
 /// All rows must have the same number of columns. The data will be copied
-/// into the matrix.
+/// into the matrix. There exist two forms:
+///
+/// - `matrix![(row1, row2, …, rowN)]`, each row being an array
+/// - `matrix![r1c1, r1c2, …, r1cN; r2c1, …,r2cN; …; rNc1, …, rNcN]`
 ///
 /// # Panics
 ///
@@ -518,27 +521,27 @@ impl<C> DerefMut for Matrix<C> {
 /// ```
 /// use pathfinding::matrix;
 ///
-/// let m = matrix![[10, 20, 30], [40, 50, 60]];
+/// let m1 = matrix![[10, 20, 30], [40, 50, 60]];
+/// assert_eq!(m1.columns, 3);
+/// assert_eq!(m1.rows, 2);
 ///
-/// assert_eq!(m.columns, 3);
-/// assert_eq!(m.rows, 2);
+/// let m2 = matrix![10, 20, 30; 40, 50, 60];
+/// assert_eq!(m1, m2);
 /// ```
 #[macro_export]
 macro_rules! matrix {
     () => { compile_error!("a matrix requires at least one row") };
-    ($a:expr) => {{
+    ($a:expr $(, $b: expr)*$(,)?) => {{
         let mut m = pathfinding::matrix::Matrix::new_empty($a.len());
         m.extend(&$a).unwrap();
+        $(
+            m.extend(&$b).expect("all rows must have the same width");
+        )*
         m
     }};
-    ($a:expr, $($b: expr),+$(,)?) => {{
-        let mut m = matrix!($a);
-        let mut r = 0;
-        $(
-            m.extend(&$b).unwrap();
-        )+
-        m
-    }}
+    ($($($a:expr),+$(,)?);+$(;)?) => {
+        matrix![$([$($a),+]),+]
+    };
 }
 
 /// Format error encountered while attempting to build a Matrix.
