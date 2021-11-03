@@ -139,7 +139,7 @@ where
 
             let mut filtered_edges = HashSet::new();
             for path in &routes {
-                if &path.nodes[0..i] == root_path && path.nodes.len() > i + 1 {
+                if path.nodes.len() > i + 1 && &path.nodes[0..i] == root_path {
                     filtered_edges.insert((&path.nodes[i], &path.nodes[i + 1]));
                 }
             }
