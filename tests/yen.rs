@@ -84,3 +84,27 @@ fn single_node() {
 
     assert_eq!(result, vec![(vec!['c'], 0)]);
 }
+
+/// Test that we don't panic if an alternative path is more than two nodes longer than a previous one.
+#[test]
+fn longer_alternative_path() {
+    let result = yen(
+        &'c',
+        |c| match c {
+            'c' => vec![('d', 1), ('h', 1)],
+            'd' => vec![('e', 1)],
+            'e' => vec![('f', 1)],
+            'f' => vec![('g', 1), ('h', 1)],
+            'g' => vec![('h', 1)],
+            'h' => vec![],
+            _ => panic!(""),
+        },
+        |c| *c == 'h',
+        3,
+    );
+
+    assert_eq!(result.len(), 3);
+    assert_eq!(result[0], (vec!['c', 'h'], 1));
+    assert_eq!(result[1], (vec!['c', 'd', 'e', 'f', 'h'], 4));
+    assert_eq!(result[2], (vec!['c', 'd', 'e', 'f', 'g', 'h'], 5));
+}
