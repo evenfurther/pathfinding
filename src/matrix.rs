@@ -6,7 +6,6 @@ use itertools::Itertools;
 use num_traits::Signed;
 use std::error::Error;
 use std::fmt;
-use std::ops::RangeInclusive;
 use std::ops::{Deref, DerefMut, Index, IndexMut, Neg, Range};
 use std::slice::{Iter, IterMut};
 
@@ -24,7 +23,18 @@ pub struct Matrix<C> {
 
 impl<C: Clone> Matrix<C> {
     /// Create new matrix with an initial value.
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the number of rows is greater than 0
+    /// and the number of columns is 0. If you need to build a matrix
+    /// column by column, build it row by row and call transposition
+    /// or rotation functions on it.
     pub fn new(rows: usize, columns: usize, value: C) -> Self {
+        assert!(
+            rows == 0 || columns > 0,
+            "unable to create a matrix with empty rows"
+        );
         Self {
             rows,
             columns,
@@ -125,6 +135,10 @@ impl<C: Clone> Matrix<C> {
     /// Return a copy of the matrix after transposition.
     #[must_use]
     pub fn transposed(&self) -> Self {
+        assert!(
+            self.rows != 0 || self.columns == 0,
+            "this operation would create a matrix with empty rows"
+        );
         Self {
             rows: self.columns,
             columns: self.rows,
@@ -136,8 +150,13 @@ impl<C: Clone> Matrix<C> {
 
     /// Extend the matrix in place by adding one full row. An error
     /// is returned if the row does not have the expected number of
-    /// elements.
+    /// elements or if an empty row is passed.
     pub fn extend(&mut self, row: &[C]) -> Result<(), MatrixFormatError> {
+        if row.is_empty() {
+            return Err(MatrixFormatError {
+                message: "adding an empty row is not allowed".to_owned(),
+            });
+        }
         if self.columns != row.len() {
             return Err(MatrixFormatError {
                 message: format!(
@@ -193,6 +212,11 @@ impl<C> Matrix<C> {
         columns: usize,
         values: Vec<C>,
     ) -> Result<Self, MatrixFormatError> {
+        if rows != 0 && columns == 0 {
+            return Err(MatrixFormatError {
+                message: "creating a matrix with empty rows is not allowed".to_owned(),
+            });
+        }
         if rows * columns != values.len() {
             return Err(MatrixFormatError { message: format!("length of vector does not correspond to announced dimensions ({} instead of {}×{}={})", values.len(), rows, columns, rows*columns)});
         }
@@ -230,10 +254,17 @@ impl<C> Matrix<C> {
         }
     }
 
+    /// Check if the matrix is empty.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.rows == 0
+    }
+
     /// Create a matrix from something convertible to an iterator on rows,
     /// each row being convertible to an iterator on columns.
     ///
-    /// An error will be returned if length of rows differ.
+    /// An error will be returned if length of rows differ or if empty rows
+    /// are added.
     ///
     /// ```
     /// use pathfinding::matrix::*;
@@ -374,14 +405,25 @@ impl<C> Matrix<C> {
     }
 
     /// Return an iterator on neighbours of a given matrix cell, with or
-    /// without considering diagonals.
+    /// without considering diagonals. The neighbours list is determined
+    /// at the time of calling this method and will not change even if new
+    /// rows are added between the method call and the iterator consumption.
+    ///
+    /// This function returns an empty iterator if the reference position does
+    /// not correspond to an existing matrix element.
     pub fn neighbours(
         &self,
         (r, c): (usize, usize),
         diagonals: bool,
     ) -> impl Iterator<Item = (usize, usize)> {
-        let row_range = RangeInclusive::new(r.saturating_sub(1), (self.rows - 1).min(r + 1));
-        let col_range = RangeInclusive::new(c.saturating_sub(1), (self.columns - 1).min(c + 1));
+        let (row_range, col_range) = if r < self.rows && c < self.columns {
+            (
+                r.saturating_sub(1)..(self.rows).min(r + 2),
+                c.saturating_sub(1)..(self.columns).min(c + 2),
+            )
+        } else {
+            (0..0, 0..0)
+        };
         row_range
             .cartesian_product(col_range)
             .filter(move |&(rr, cc)| (rr != r || cc != c) && (diagonals || rr == r || cc == c))
@@ -455,7 +497,9 @@ impl<C> Matrix<C> {
         self.into_iter()
     }
 
-    /// Return an iterator on the Matrix indices, first row first.
+    /// Return an iterator on the Matrix indices, first row first. The values are
+    /// computed when this method is called and will not change even if new rows are
+    /// added before the iterator is consumed.
     pub fn indices(&self) -> impl Iterator<Item = (usize, usize)> {
         let columns = self.columns;
         (0..self.rows).flat_map(move |r| (0..columns).map(move |c| (r, c)))
@@ -510,7 +554,7 @@ where
     IC: IntoIterator<Item = C>,
 {
     fn from_iter<T: IntoIterator<Item = IC>>(iter: T) -> Self {
-        Matrix::from_rows(iter).expect("unable to build matrix from irregular iterator")
+        Matrix::from_rows(iter).unwrap()
     }
 }
 
@@ -520,6 +564,7 @@ where
 ///
 /// - `matrix![(row1, row2, …, rowN)]`, each row being an array
 /// - `matrix![r1c1, r1c2, …, r1cN; r2c1, …,r2cN; …; rNc1, …, rNcN]`
+/// - `matrix![]` creates an empty matrix with a column size of 0
 ///
 /// # Panics
 ///
@@ -539,7 +584,9 @@ where
 /// ```
 #[macro_export]
 macro_rules! matrix {
-    () => { compile_error!("a matrix requires at least one row") };
+    () => {
+        pathfinding::matrix::Matrix::new_empty(0)
+    };
     ($a:expr $(, $b: expr)*$(,)?) => {{
         let mut m = pathfinding::matrix::Matrix::new_empty($a.len());
         m.extend(&$a).unwrap();
