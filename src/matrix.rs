@@ -242,7 +242,7 @@ impl<C> Matrix<C> {
     /// let matrix = Matrix::from_rows(input.lines().map(|l| l.chars()))?;
     /// assert_eq!(matrix.rows, 2);
     /// assert_eq!(matrix.columns, 3);
-    /// assert_eq!(matrix[&(1, 1)], 'e');
+    /// assert_eq!(matrix[(1, 1)], 'e');
     /// # Ok::<_, MatrixFormatError>(())
     /// ```
     pub fn from_rows<IR, IC>(rows: IR) -> Result<Self, MatrixFormatError>
@@ -287,7 +287,7 @@ impl<C> Matrix<C> {
     ///
     /// This function panics if the coordinates do not designated a cell.
     #[must_use]
-    pub fn idx(&self, i: &(usize, usize)) -> usize {
+    pub fn idx(&self, i: (usize, usize)) -> usize {
         assert!(
             i.0 < self.rows,
             "trying to access row {} (max {})",
@@ -474,17 +474,17 @@ impl<C> Matrix<C> {
     }
 }
 
-impl<'a, C> Index<&'a (usize, usize)> for Matrix<C> {
+impl<C> Index<(usize, usize)> for Matrix<C> {
     type Output = C;
 
     #[must_use]
-    fn index(&self, index: &'a (usize, usize)) -> &C {
+    fn index(&self, index: (usize, usize)) -> &C {
         &self.data[self.idx(index)]
     }
 }
 
-impl<'a, C> IndexMut<&'a (usize, usize)> for Matrix<C> {
-    fn index_mut(&mut self, index: &'a (usize, usize)) -> &mut C {
+impl<C> IndexMut<(usize, usize)> for Matrix<C> {
+    fn index_mut(&mut self, index: (usize, usize)) -> &mut C {
         let i = self.idx(index);
         &mut self.data[i]
     }
