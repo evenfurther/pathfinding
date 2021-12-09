@@ -1,9 +1,11 @@
 //! Matrix of an arbitrary type and utilities to rotate, transpose, etc.
 
+use crate::directed::bfs::bfs_reach;
 use crate::utils::uint_sqrt;
 use itertools::iproduct;
 use itertools::Itertools;
 use num_traits::Signed;
+use std::collections::BTreeSet;
 use std::error::Error;
 use std::fmt;
 use std::ops::{Deref, DerefMut, Index, IndexMut, Neg, Range};
@@ -515,6 +517,27 @@ impl<C> Matrix<C> {
     #[must_use]
     pub fn values_mut(&mut self) -> IterMut<C> {
         self.data.iter_mut()
+    }
+
+    /// Return a set of the indices reachable from a candidate starting point
+    /// and for which the given predicate is valid. This can be used for example
+    /// to implement a flood-filling algorithm. Since the indices are collected
+    /// into a vector, they can later be used without keeping a reference on the
+    /// matrix itself, e.g., to modify the matrix.
+    pub fn reachable<P>(
+        &self,
+        start: (usize, usize),
+        diagonals: bool,
+        mut predicate: P,
+    ) -> BTreeSet<(usize, usize)>
+    where
+        P: FnMut((usize, usize)) -> bool,
+        P: Copy,
+    {
+        bfs_reach(start, move |&n| {
+            self.neighbours(n, diagonals).filter(move |&n| predicate(n))
+        })
+        .collect()
     }
 }
 
