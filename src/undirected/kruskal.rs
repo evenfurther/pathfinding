@@ -72,24 +72,24 @@ where
 /// Find a minimum-spanning-tree. From a collection of
 /// weighted edges, return a vector of edges forming
 /// a minimum-spanning-tree.
-pub fn kruskal<N, C>(edges: &[(N, N, C)]) -> impl Iterator<Item = (N, N, C)>
+pub fn kruskal<N, C>(edges: &[(N, N, C)]) -> impl Iterator<Item = (&N, &N, C)>
 where
-    N: Clone + Hash + Eq,
+    N: Hash + Eq,
     C: Clone + Ord,
 {
     let mut nodes = IndexSet::new();
     let edges = edges
         .iter()
         .map(|&(ref a, ref b, ref w)| {
-            let ia = nodes.insert_full(a.clone()).0;
-            let ib = nodes.insert_full(b.clone()).0;
+            let ia = nodes.insert_full(a).0;
+            let ib = nodes.insert_full(b).0;
             (ia, ib, w.clone())
         })
         .collect::<Vec<_>>();
     kruskal_indices(nodes.len(), &edges).map(move |(ia, ib, w)| {
         (
-            nodes.get_index(ia).unwrap().clone(),
-            nodes.get_index(ib).unwrap().clone(),
+            <&N>::clone(nodes.get_index(ia).unwrap()),
+            <&N>::clone(nodes.get_index(ib).unwrap()),
             w,
         )
     })
