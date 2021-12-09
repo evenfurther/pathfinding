@@ -345,6 +345,24 @@ fn from_rows() {
 }
 
 #[test]
+fn from_iter() {
+    let m = (1..3)
+        .map(|n| (1..5).map(move |x| x * n))
+        .collect::<Matrix<_>>();
+    assert_eq!(m.rows, 2);
+    assert_eq!(m.columns, 4);
+    assert_eq!(m.to_vec(), vec![1, 2, 3, 4, 2, 4, 6, 8]);
+}
+
+#[test]
+#[should_panic]
+fn from_iter_error() {
+    let _ = (1..3)
+        .map(|n| (1..n).map(move |x| x * n))
+        .collect::<Matrix<_>>();
+}
+
+#[test]
 fn iter() {
     let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
     let mut i = m.iter();
