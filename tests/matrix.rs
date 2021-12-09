@@ -41,6 +41,12 @@ fn from_vec_error() {
 }
 
 #[test]
+#[should_panic]
+fn new_empty_row_panic() {
+    let _ = Matrix::new(1, 0, 42);
+}
+
+#[test]
 fn to_vec() {
     let mut m = Matrix::new(2, 2, 0usize);
     m[(0, 0)] = 0;
@@ -155,6 +161,24 @@ fn non_square_rotate() {
 }
 
 #[test]
+#[should_panic]
+fn no_rows_rotated_cw_panic() {
+    let _ = Matrix::<u32>::new_empty(10).rotated_cw(1);
+}
+
+#[test]
+#[should_panic]
+fn no_rows_rotated_ccw_panic() {
+    let _ = Matrix::<u32>::new_empty(10).rotated_ccw(1);
+}
+
+#[test]
+fn no_rows_rotated_twice() {
+    let _ = Matrix::<u32>::new_empty(10).rotated_cw(2);
+    let _ = Matrix::<u32>::new_empty(10).rotated_ccw(2);
+}
+
+#[test]
 fn flip() {
     let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3]).unwrap();
     let m2 = Matrix::square_from_vec(vec![1, 0, 3, 2]).unwrap();
@@ -174,6 +198,12 @@ fn transpose() {
     let m2 = Matrix::from_vec(3, 2, vec![0, 3, 1, 4, 2, 5]).unwrap();
     assert_eq!(m1.transposed(), m2);
     assert_eq!(m2.transposed(), m1);
+}
+
+#[test]
+#[should_panic]
+fn no_rows_transposed_panic() {
+    let _ = Matrix::<u32>::new_empty(10).transposed();
 }
 
 fn sum(slice: &[usize]) -> usize {
@@ -262,10 +292,15 @@ fn empty_extend() {
 }
 
 #[test]
-#[should_panic]
-fn extend_bad_size_panic() {
+fn extend_bad_size_error() {
     let mut m = Matrix::new_empty(3);
-    m.extend(&[0, 1]).unwrap();
+    assert!(m.extend(&[0, 1]).is_err());
+}
+
+#[test]
+fn extend_empty_row_error() {
+    let mut m: Matrix<u32> = matrix![];
+    assert!(m.extend(&[]).is_err());
 }
 
 #[test]
@@ -332,6 +367,16 @@ fn neighbours() {
             }
         }
     }
+}
+
+#[test]
+fn empty_neighbours() {
+    let m: Matrix<u32> = matrix![];
+    assert_eq!(m.neighbours((0, 0), false).collect::<Vec<_>>(), vec![]);
+    assert_eq!(m.neighbours((0, 0), true).collect::<Vec<_>>(), vec![]);
+    let m = Matrix::new(10, 10, 42);
+    assert_eq!(m.neighbours((10, 10), false).collect::<Vec<_>>(), vec![]);
+    assert_eq!(m.neighbours((10, 10), true).collect::<Vec<_>>(), vec![]);
 }
 
 #[test]

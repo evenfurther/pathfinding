@@ -1,11 +1,3 @@
-error: a matrix requires at least one row
- --> tests/ui/matrix.rs:5:13
-  |
-5 |     let _ = matrix!();
-  |             ^^^^^^^^^
-  |
-  = note: this error originates in the macro `matrix` (in Nightly builds, run with -Z macro-backtrace for more info)
-
 error: no rules expected the token `,`
  --> tests/ui/matrix.rs:7:21
   |
