@@ -49,7 +49,7 @@ impl Grid {
     /// is located outside the grid.
     #[inline]
     #[must_use]
-    pub fn is_inside(&self, vertex: &(usize, usize)) -> bool {
+    pub fn is_inside(&self, vertex: (usize, usize)) -> bool {
         vertex.0 < self.width && vertex.1 < self.height
     }
 
@@ -70,10 +70,10 @@ impl Grid {
     pub fn resize(&mut self, width: usize, height: usize) -> bool {
         let mut truncated = false;
         if width < self.width {
-            truncated |= iproduct!(width..self.width, 0..self.height).any(|c| self.has_vertex(&c));
+            truncated |= iproduct!(width..self.width, 0..self.height).any(|c| self.has_vertex(c));
         }
         if height < self.height {
-            truncated |= iproduct!(0..self.width, height..self.height).any(|c| self.has_vertex(&c));
+            truncated |= iproduct!(0..self.width, height..self.height).any(|c| self.has_vertex(c));
         }
         self.exclusions.retain(|&(x, y)| x < width && y < height);
         if self.dense {
@@ -109,7 +109,7 @@ impl Grid {
     /// Add a new vertex. Return `true` if the vertex did not previously
     /// exist and has been added.
     pub fn add_vertex(&mut self, vertex: (usize, usize)) -> bool {
-        if !self.is_inside(&vertex) {
+        if !self.is_inside(vertex) {
             return false;
         }
         let r = if self.dense {
@@ -123,14 +123,14 @@ impl Grid {
 
     /// Remove a vertex. Return `true` if the vertex did previously exist
     /// and has been removed.
-    pub fn remove_vertex(&mut self, vertex: &(usize, usize)) -> bool {
+    pub fn remove_vertex(&mut self, vertex: (usize, usize)) -> bool {
         if !self.is_inside(vertex) {
             return false;
         }
         let r = if self.dense {
-            self.exclusions.insert(*vertex)
+            self.exclusions.insert(vertex)
         } else {
-            self.exclusions.remove(vertex)
+            self.exclusions.remove(&vertex)
         };
         self.rebalance();
         r
@@ -235,13 +235,13 @@ impl Grid {
 
     /// Check if a vertex is present.
     #[must_use]
-    pub fn has_vertex(&self, vertex: &(usize, usize)) -> bool {
-        self.is_inside(vertex) && (self.exclusions.contains(vertex) ^ self.dense)
+    pub fn has_vertex(&self, vertex: (usize, usize)) -> bool {
+        self.is_inside(vertex) && (self.exclusions.contains(&vertex) ^ self.dense)
     }
 
     /// Check if an edge is present.
     #[must_use]
-    pub fn has_edge(&self, v1: &(usize, usize), v2: &(usize, usize)) -> bool {
+    pub fn has_edge(&self, v1: (usize, usize), v2: (usize, usize)) -> bool {
         if !self.has_vertex(v1) || !self.has_vertex(v2) {
             return false;
         }
@@ -265,11 +265,11 @@ impl Grid {
     /// from the grid, an empty list is returned. Only existing vertices will
     /// be returned.
     #[must_use]
-    pub fn neighbours(&self, vertex: &(usize, usize)) -> Vec<(usize, usize)> {
+    pub fn neighbours(&self, vertex: (usize, usize)) -> Vec<(usize, usize)> {
         if !self.has_vertex(vertex) {
             return vec![];
         }
-        let &(x, y) = vertex;
+        let (x, y) = vertex;
         let mut candidates = Vec::with_capacity(8);
         if x > 0 {
             candidates.push((x - 1, y));
@@ -299,7 +299,7 @@ impl Grid {
         if y + 1 < self.height {
             candidates.push((x, y + 1));
         }
-        candidates.retain(|v| self.has_vertex(v));
+        candidates.retain(|&v| self.has_vertex(v));
         candidates
     }
 
@@ -313,7 +313,7 @@ impl Grid {
     /// enabled, this is the maximum of both coordinates difference.
     /// If diagonal mode is disabled, this is the Manhattan distance.
     #[must_use]
-    pub fn distance(&self, a: &(usize, usize), b: &(usize, usize)) -> usize {
+    pub fn distance(&self, a: (usize, usize), b: (usize, usize)) -> usize {
         let (dx, dy) = (absdiff(a.0, b.0), absdiff(a.1, b.1));
         if self.diagonal_mode {
             dx.max(dy)
@@ -367,7 +367,7 @@ impl Iterator for GridIntoIterator {
                 if self.y == self.grid.height {
                     return None;
                 }
-                let r = if self.grid.has_vertex(&(self.x, self.y)) {
+                let r = if self.grid.has_vertex((self.x, self.y)) {
                     Some((self.x, self.y))
                 } else {
                     None
@@ -417,7 +417,7 @@ impl<'a> Iterator for GridIterator<'a> {
                 if self.y == self.grid.height {
                     return None;
                 }
-                let r = if self.grid.has_vertex(&(self.x, self.y)) {
+                let r = if self.grid.has_vertex((self.x, self.y)) {
                     Some((self.x, self.y))
                 } else {
                     None
@@ -491,7 +491,7 @@ impl<'a> Iterator for EdgesIterator<'a> {
                     self.y += 1;
                 }
             }
-            if self.grid.has_edge(&(x, y), &other) {
+            if self.grid.has_edge((x, y), other) {
                 return Some(((x, y), other));
             }
         }
@@ -502,7 +502,7 @@ impl fmt::Debug for Grid {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for y in 0..self.height {
             for x in 0..self.width {
-                write!(f, "{}", if self.has_vertex(&(x, y)) { '#' } else { '.' })?;
+                write!(f, "{}", if self.has_vertex((x, y)) { '#' } else { '.' })?;
             }
             if y != self.height - 1 {
                 writeln!(f)?;
