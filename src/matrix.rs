@@ -159,8 +159,8 @@ impl<C: Copy> Matrix<C> {
     /// Replace a slice of the current matrix with the content of another one.
     /// Only the relevant cells will be extracted if the slice goes outside the
     /// original matrix.
-    pub fn set_slice(&mut self, pos: &(usize, usize), slice: &Self) {
-        let &(ref row, ref column) = pos;
+    pub fn set_slice(&mut self, pos: (usize, usize), slice: &Self) {
+        let (row, column) = pos;
         let height = (self.rows - row).min(slice.rows);
         let width = (self.columns - column).min(slice.columns);
         for r in 0..height {
@@ -377,7 +377,7 @@ impl<C> Matrix<C> {
     /// without considering diagonals.
     pub fn neighbours(
         &self,
-        &(r, c): &(usize, usize),
+        (r, c): (usize, usize),
         diagonals: bool,
     ) -> impl Iterator<Item = (usize, usize)> {
         let row_range = RangeInclusive::new(r.saturating_sub(1), (self.rows - 1).min(r + 1));
@@ -399,12 +399,12 @@ impl<C> Matrix<C> {
     /// ```
     /// use pathfinding::prelude::Matrix;
     /// let m = Matrix::new_square(8, '.');
-    /// assert_eq!(m.move_in_direction(&(1, 1), (2, 1)), Some((3, 2)));
+    /// assert_eq!(m.move_in_direction((1, 1), (2, 1)), Some((3, 2)));
     /// ```
     #[must_use]
     pub fn move_in_direction(
         &self,
-        index: &(usize, usize),
+        index: (usize, usize),
         direction: (isize, isize),
     ) -> Option<(usize, usize)> {
         move_in_direction(index, direction, self.rows, self.columns)
@@ -422,7 +422,7 @@ impl<C> Matrix<C> {
     /// ```
     /// use pathfinding::prelude::Matrix;
     /// let m = Matrix::new_square(8, '.');
-    /// assert_eq!(m.in_direction(&(1, 1), (2, 1)).collect::<Vec<_>>(),
+    /// assert_eq!(m.in_direction((1, 1), (2, 1)).collect::<Vec<_>>(),
     ///            vec![(3, 2), (5, 3), (7, 4)]);
     /// ```
     ///
@@ -432,17 +432,17 @@ impl<C> Matrix<C> {
     /// ```
     /// use pathfinding::prelude::{Matrix, directions};
     /// let m = Matrix::new_square(8, '.');
-    /// assert_eq!(m.in_direction(&(3, 2), directions::NW).collect::<Vec<_>>(),
+    /// assert_eq!(m.in_direction((3, 2), directions::NW).collect::<Vec<_>>(),
     ///            vec![(2, 1), (1, 0)]);
     /// ```
     pub fn in_direction(
         &self,
-        index: &(usize, usize),
+        index: (usize, usize),
         direction: (isize, isize),
     ) -> impl Iterator<Item = (usize, usize)> {
         let (rows, columns) = (self.rows, self.columns);
-        itertools::unfold(*index, move |current| {
-            move_in_direction(current, direction, rows, columns).map(|next| {
+        itertools::unfold(index, move |current| {
+            move_in_direction(*current, direction, rows, columns).map(|next| {
                 *current = next;
                 next
             })
@@ -639,12 +639,12 @@ pub mod directions {
 #[must_use]
 #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
 fn move_in_direction(
-    index: &(usize, usize),
+    index: (usize, usize),
     direction: (isize, isize),
     rows: usize,
     columns: usize,
 ) -> Option<(usize, usize)> {
-    let &(row, col) = index;
+    let (row, col) = index;
     if row >= rows || col >= columns || direction == (0, 0) {
         return None;
     }
