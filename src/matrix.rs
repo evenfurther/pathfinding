@@ -505,6 +505,15 @@ impl<C> DerefMut for Matrix<C> {
     }
 }
 
+impl<C, IC> FromIterator<IC> for Matrix<C>
+where
+    IC: IntoIterator<Item = C>,
+{
+    fn from_iter<T: IntoIterator<Item = IC>>(iter: T) -> Self {
+        Matrix::from_rows(iter).expect("unable to build matrix from irregular iterator")
+    }
+}
+
 /// The matrix! macro allows the declaration of a Matrix from static data.
 /// All rows must have the same number of columns. The data will be copied
 /// into the matrix. There exist two forms:
