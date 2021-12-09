@@ -39,7 +39,7 @@ impl<C: Copy> Weights<C> for Matrix<C> {
 
     #[must_use]
     fn at(&self, row: usize, col: usize) -> C {
-        self[&(row, col)]
+        self[(row, col)]
     }
 
     #[must_use]

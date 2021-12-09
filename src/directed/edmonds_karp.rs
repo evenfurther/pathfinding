@@ -371,7 +371,7 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
         let mut result = Self::new(size, source, sink);
         for from in 0..size {
             for to in 0..size {
-                let capacity = capacities[&(from, to)];
+                let capacity = capacities[(from, to)];
                 if capacity > Zero::zero() {
                     result.set_capacity(from, to, capacity);
                 }
@@ -514,11 +514,11 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
     }
 
     fn residual_capacity(&self, from: usize, to: usize) -> C {
-        self.residuals[&(from, to)]
+        self.residuals[(from, to)]
     }
 
     fn flow(&self, from: usize, to: usize) -> C {
-        self.flows[&(from, to)]
+        self.flows[(from, to)]
     }
 
     fn flows(&self) -> Vec<((usize, usize), C)> {
@@ -535,14 +535,14 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
     }
 
     fn add_flow(&mut self, from: usize, to: usize, capacity: C) {
-        self.flows[&(from, to)] = self.flows[&(from, to)] + capacity;
-        self.flows[&(to, from)] = self.flows[&(to, from)] - capacity;
-        self.residuals[&(from, to)] = self.residuals[&(from, to)] - capacity;
-        self.residuals[&(to, from)] = self.residuals[&(to, from)] + capacity;
+        self.flows[(from, to)] = self.flows[(from, to)] + capacity;
+        self.flows[(to, from)] = self.flows[(to, from)] - capacity;
+        self.residuals[(from, to)] = self.residuals[(from, to)] - capacity;
+        self.residuals[(to, from)] = self.residuals[(to, from)] + capacity;
     }
 
     fn add_residual_capacity(&mut self, from: usize, to: usize, capacity: C) {
-        self.residuals[&(from, to)] = self.residual_capacity(from, to) + capacity;
+        self.residuals[(from, to)] = self.residual_capacity(from, to) + capacity;
     }
 
     fn flows_from(&self, from: usize) -> Vec<usize> {

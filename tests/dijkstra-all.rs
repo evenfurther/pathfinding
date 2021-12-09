@@ -7,7 +7,7 @@ fn build_network(size: usize) -> Matrix<usize> {
     for a in 0..size {
         for b in 0..size {
             if rng.gen_ratio(2, 3) {
-                network[&(a, b)] = rng.gen::<u16>() as usize;
+                network[(a, b)] = rng.gen::<u16>() as usize;
             }
         }
     }
@@ -17,7 +17,7 @@ fn build_network(size: usize) -> Matrix<usize> {
 fn neighbours(network: Matrix<usize>) -> impl FnMut(&usize) -> Vec<(usize, usize)> {
     move |&a| {
         (0..network.rows)
-            .filter_map(|b| match network[&(a, b)] {
+            .filter_map(|b| match network[(a, b)] {
                 0 => None,
                 p => Some((b, p)),
             })
