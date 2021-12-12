@@ -397,6 +397,20 @@ fn reachable() {
 }
 
 #[test]
+fn bounds_test() {
+    let mut m = matrix![[0, 1, 2], [3, 4, 5]];
+    assert!(m.within_bounds((1, 2)));
+    assert!(!m.within_bounds((1, 3)));
+    assert!(!m.within_bounds((2, 2)));
+
+    assert_eq!(m.get((1, 0)), Some(&3));
+    assert_eq!(m.get((3, 0)), None);
+
+    assert_eq!(m.get_mut((1, 0)), Some(&mut 3));
+    assert_eq!(m.get_mut((3, 0)), None);
+}
+
+#[test]
 fn from_rows() {
     let m = Matrix::from_rows((1..3).map(|n| (1..5).map(move |x| x * n))).unwrap();
     assert_eq!(m.rows, 2);

@@ -316,9 +316,19 @@ impl<C> Matrix<C> {
 
     /// Index in raw data of a given position.
     ///
+    /// # Safety
+    ///
+    /// This function returns a meaningless result if the
+    /// coordinates do not designate a cell.
+    pub unsafe fn idx_unchecked(&self, i: (usize, usize)) -> usize {
+        i.0 * self.columns + i.1
+    }
+
+    /// Index in raw data of a given position.
+    ///
     /// # Panics
     ///
-    /// This function panics if the coordinates do not designated a cell.
+    /// This function panics if the coordinates do not designate a cell.
     #[must_use]
     pub fn idx(&self, i: (usize, usize)) -> usize {
         assert!(
@@ -333,7 +343,29 @@ impl<C> Matrix<C> {
             i.1,
             self.columns - 1
         );
-        i.0 * self.columns + i.1
+        unsafe { self.idx_unchecked(i) }
+    }
+
+    /// Check if the coordinates designate a matrix cell.
+    #[must_use]
+    pub fn within_bounds(&self, (row, column): (usize, usize)) -> bool {
+        row < self.rows && column < self.columns
+    }
+
+    /// Access an element if the coordinates designate a matrix cell.
+    #[must_use]
+    pub fn get(&self, i: (usize, usize)) -> Option<&C> {
+        self.within_bounds(i)
+            .then(|| &self.data[unsafe { self.idx_unchecked(i) }])
+    }
+
+    /// Mutably access an element if the coordinates designate a matrix cell.
+    #[must_use]
+    pub fn get_mut(&mut self, i: (usize, usize)) -> Option<&mut C> {
+        self.within_bounds(i).then(|| {
+            let idx = unsafe { self.idx_unchecked(i) };
+            &mut self.data[idx]
+        })
     }
 
     /// Flip the matrix around the vertical axis.
@@ -531,10 +563,9 @@ impl<C> Matrix<C> {
         mut predicate: P,
     ) -> BTreeSet<(usize, usize)>
     where
-        P: FnMut((usize, usize)) -> bool,
-        P: Copy,
+        P: FnMut((usize, usize)) -> bool + Copy,
     {
-        bfs_reach(start, move |&n| {
+        bfs_reach(start, |&n| {
             self.neighbours(n, diagonals).filter(move |&n| predicate(n))
         })
         .collect()
