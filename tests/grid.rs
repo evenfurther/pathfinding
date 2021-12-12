@@ -273,6 +273,26 @@ fn add_borders_flat() {
 }
 
 #[test]
+fn reachable() {
+    let mut g = vec![(1, 7), (1, 8), (3, 4), (2, 7), (0, 6)]
+        .into_iter()
+        .collect::<Grid>();
+    assert_eq!(g.reachable((1, 8), |_| true).len(), 3);
+    assert_eq!(
+        g.reachable((1, 8), |_| true)
+            .into_iter()
+            .collect::<Vec<_>>(),
+        vec![(1, 7), (1, 8), (2, 7)]
+    );
+    assert_eq!(g.reachable((3, 4), |_| true).len(), 1);
+    assert_eq!(g.reachable((0, 8), |_| true).len(), 1);
+    g.enable_diagonal_mode();
+    assert_eq!(g.reachable((1, 8), |_| true).len(), 4);
+    assert_eq!(g.reachable((3, 4), |_| true).len(), 1);
+    assert_eq!(g.reachable((0, 8), |_| true).len(), 1);
+}
+
+#[test]
 fn remove_borders() {
     let mut g = Grid::new(3, 4);
     g.fill();

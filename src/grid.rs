@@ -1,8 +1,10 @@
 //! Rectangular grid in which vertices can be added or removed, with or
 //! without diagonal links.
 
+use crate::directed::bfs::bfs_reach;
 use indexmap::IndexSet;
 use itertools::iproduct;
+use std::collections::BTreeSet;
 use std::fmt;
 use std::iter::FromIterator;
 
@@ -301,6 +303,23 @@ impl Grid {
         }
         candidates.retain(|&v| self.has_vertex(v));
         candidates
+    }
+
+    /// Return a set of the indices reachable from a candidate starting point
+    /// and for which the given predicate is valid. This can be used for example
+    /// to implement a flood-filling algorithm. Since the indices are collected
+    /// into a vector, they can later be used without keeping a reference on the
+    /// matrix itself, e.g., to modify the grid.
+    pub fn reachable<P>(&self, start: (usize, usize), mut predicate: P) -> BTreeSet<(usize, usize)>
+    where
+        P: FnMut((usize, usize)) -> bool + Copy,
+    {
+        bfs_reach(start, |&n| {
+            self.neighbours(n)
+                .into_iter()
+                .filter(move |&n| predicate(n))
+        })
+        .collect()
     }
 
     /// Iterate over vertices.
