@@ -20,6 +20,10 @@ use super::utils::absdiff;
 /// or as a collection of absent vertices, depending on the density of
 /// the grid. The switch between both representations is done automatically
 /// when vertices are added or removed, or when the grid is resized.
+///
+/// `Grid` implements `Debug` and represents the content using `#` and `.`
+/// characters. Alternate block characters can be selected by using the
+/// alternate debug format (`{:#?}`).
 pub struct Grid {
     /// The grid width.
     pub width: usize,
@@ -519,9 +523,10 @@ impl<'a> Iterator for EdgesIterator<'a> {
 
 impl fmt::Debug for Grid {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let (present, absent) = [('#', '.'), ('▓', '░')][f.alternate() as usize];
         for y in 0..self.height {
             for x in 0..self.width {
-                write!(f, "{}", if self.has_vertex((x, y)) { '#' } else { '.' })?;
+                write!(f, "{}", [absent, present][self.has_vertex((x, y)) as usize])?;
             }
             if y != self.height - 1 {
                 writeln!(f)?;
