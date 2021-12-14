@@ -22,8 +22,27 @@ use super::utils::absdiff;
 /// when vertices are added or removed, or when the grid is resized.
 ///
 /// `Grid` implements `Debug` and represents the content using `#` and `.`
-/// characters. Alternate block characters can be selected by using the
-/// alternate debug format (`{:#?}`).
+/// characters. Alternate block characters `▓` and `░` can be selected by
+/// using the alternate debug format (`{:#?}`):
+///
+/// ```
+/// use pathfinding::prelude::Grid;
+///
+/// let mut g = Grid::new(3, 4);
+/// g.add_borders();
+///
+/// assert_eq!(&format!("{:?}", g), "\
+/// ####
+/// #.#
+/// #.#
+/// ####");
+///
+/// assert_eq!(&format!("{:#?}", g), "\
+/// ▓▓▓
+/// ▓░▓
+/// ▓░▓
+/// ▓▓▓");
+/// ```
 pub struct Grid {
     /// The grid width.
     pub width: usize,
