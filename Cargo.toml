@@ -19,6 +19,7 @@ num-traits = "0.2.6"
 indexmap = "1.7.0"
 rustc-hash = "1.1.0"
 integer-sqrt = "0.1.5"
+thiserror = "1.0.30"
 
 [dev-dependencies]
 criterion = { version = "0.3.4", features = ["html_reports"] }

@@ -6,10 +6,9 @@ use itertools::iproduct;
 use itertools::Itertools;
 use num_traits::Signed;
 use std::collections::BTreeSet;
-use std::error::Error;
-use std::fmt;
 use std::ops::{Deref, DerefMut, Index, IndexMut, Neg, Range};
 use std::slice::{Iter, IterMut};
+use thiserror::Error;
 
 /// Matrix of an arbitrary type. Data are stored consecutively in
 /// memory, by rows. Raw data can be accessed using `as_ref()`
@@ -64,9 +63,9 @@ impl<C: Clone> Matrix<C> {
         columns: Range<usize>,
     ) -> Result<Self, MatrixFormatError> {
         if rows.end > self.rows || columns.end > self.columns {
-            return Err(MatrixFormatError {
-                message: "slice far end points outside the matrix".to_owned(),
-            });
+            return Err(MatrixFormatError(
+                "slice far end points outside the matrix".to_owned(),
+            ));
         }
         let height = rows.end - rows.start;
         let width = columns.end - columns.start;
@@ -155,18 +154,16 @@ impl<C: Clone> Matrix<C> {
     /// elements or if an empty row is passed.
     pub fn extend(&mut self, row: &[C]) -> Result<(), MatrixFormatError> {
         if row.is_empty() {
-            return Err(MatrixFormatError {
-                message: "adding an empty row is not allowed".to_owned(),
-            });
+            return Err(MatrixFormatError(
+                "adding an empty row is not allowed".to_owned(),
+            ));
         }
         if self.columns != row.len() {
-            return Err(MatrixFormatError {
-                message: format!(
-                    "new row has {} columns intead of expected {}",
-                    row.len(),
-                    self.columns
-                ),
-            });
+            return Err(MatrixFormatError(format!(
+                "new row has {} columns intead of expected {}",
+                row.len(),
+                self.columns
+            )));
         }
         self.rows += 1;
         for e in row {
@@ -215,12 +212,12 @@ impl<C> Matrix<C> {
         values: Vec<C>,
     ) -> Result<Self, MatrixFormatError> {
         if rows != 0 && columns == 0 {
-            return Err(MatrixFormatError {
-                message: "creating a matrix with empty rows is not allowed".to_owned(),
-            });
+            return Err(MatrixFormatError(
+                "creating a matrix with empty rows is not allowed".to_owned(),
+            ));
         }
         if rows * columns != values.len() {
-            return Err(MatrixFormatError { message: format!("length of vector does not correspond to announced dimensions ({} instead of {}×{}={})", values.len(), rows, columns, rows*columns)});
+            return Err(MatrixFormatError ( format!("length of vector does not correspond to announced dimensions ({} instead of {}×{}={})", values.len(), rows, columns, rows*columns)));
         }
         Ok(Self {
             rows,
@@ -237,9 +234,10 @@ impl<C> Matrix<C> {
         if let Some(size) = uint_sqrt(values.len()) {
             Self::from_vec(size, size, values)
         } else {
-            Err(MatrixFormatError {
-                message: format!("length of vector ({}) is not a square number", values.len()),
-            })
+            Err(MatrixFormatError(format!(
+                "length of vector ({}) is not a square number",
+                values.len()
+            )))
         }
     }
 
@@ -292,14 +290,12 @@ impl<C> Matrix<C> {
                 number_of_rows += 1;
                 data.extend(row);
                 if number_of_rows * number_of_columns != data.len() {
-                    return Err(MatrixFormatError {
-                        message: format!(
-                            "data for row {} (starting at 0) has len {} instead of expected {}",
-                            i + 1,
-                            data.len() - (number_of_rows - 1) * number_of_columns,
-                            number_of_columns
-                        ),
-                    });
+                    return Err(MatrixFormatError(format!(
+                        "data for row {} (starting at 0) has len {} instead of expected {}",
+                        i + 1,
+                        data.len() - (number_of_rows - 1) * number_of_columns,
+                        number_of_columns
+                    )));
                 }
             }
             Self::from_vec(number_of_rows, number_of_columns, data)
@@ -655,18 +651,9 @@ macro_rules! matrix {
 }
 
 /// Format error encountered while attempting to build a Matrix.
-#[derive(Debug)]
-pub struct MatrixFormatError {
-    message: String,
-}
-
-impl Error for MatrixFormatError {}
-
-impl fmt::Display for MatrixFormatError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "matrix format error: {}", self.message)
-    }
-}
+#[derive(Debug, Error)]
+#[error("matrix format error: {}", .0)]
+pub struct MatrixFormatError(String);
 
 /// Row iterator returned by `iter()` on a matrix.
 pub struct RowIterator<'a, C> {
