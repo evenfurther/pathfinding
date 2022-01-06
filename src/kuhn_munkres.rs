@@ -11,15 +11,19 @@ use std::iter::Sum;
 /// Adjacency matrix for weights.
 pub trait Weights<C> {
     /// Return the number of rows.
+    #[must_use]
     fn rows(&self) -> usize;
 
     /// Return the number of columns.
+    #[must_use]
     fn columns(&self) -> usize;
 
     /// Return the element at position.
+    #[must_use]
     fn at(&self, row: usize, col: usize) -> C;
 
     /// Return the negated weights.
+    #[must_use]
     fn neg(&self) -> Self
     where
         Self: Sized,
@@ -27,22 +31,18 @@ pub trait Weights<C> {
 }
 
 impl<C: Copy> Weights<C> for Matrix<C> {
-    #[must_use]
     fn rows(&self) -> usize {
         self.rows
     }
 
-    #[must_use]
     fn columns(&self) -> usize {
         self.columns
     }
 
-    #[must_use]
     fn at(&self, row: usize, col: usize) -> C {
         self[(row, col)]
     }
 
-    #[must_use]
     fn neg(&self) -> Self
     where
         C: Signed,
