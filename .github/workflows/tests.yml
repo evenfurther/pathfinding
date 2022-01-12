@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - run: sh tests/check-msrv-consistency.sh
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -29,7 +30,7 @@ jobs:
     needs: check
     strategy:
       matrix:
-        toolchain: [stable, beta, nightly]
+        toolchain: [stable, beta, nightly, 1.56]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2

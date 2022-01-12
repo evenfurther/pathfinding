@@ -1,5 +1,5 @@
 status = [
   "Check", "Rustfmt", "Clippy", "Test with minimal versions",
-  "Test suite (stable)", "Test suite (beta)", "Test suite (nightly)"
+  "Test suite (stable)", "Test suite (beta)", "Test suite (nightly)", "Test suite (1.56)"
 ]
 delete_merged_branches = true
