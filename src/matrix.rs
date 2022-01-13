@@ -160,7 +160,7 @@ impl<C: Clone> Matrix<C> {
         }
         if self.columns != row.len() {
             return Err(MatrixFormatError(format!(
-                "new row has {} columns intead of expected {}",
+                "new row has {} columns instead of expected {}",
                 row.len(),
                 self.columns
             )));
