@@ -23,9 +23,8 @@ fn method1() {
         .map(|l| (l[0], l[1..].to_vec()))
         .collect::<HashMap<_, _>>();
     let all_nodes = pipes.keys().cloned().collect::<Vec<_>>();
-    let components = connected_components(&all_nodes, |&n| {
-        pipes.get(&n).cloned().unwrap_or_else(Vec::new)
-    });
+    let components =
+        connected_components(&all_nodes, |&n| pipes.get(&n).cloned().unwrap_or_default());
     assert_eq!(152, components[component_index(&components)[&0]].len());
     assert_eq!(186, components.len());
 }
