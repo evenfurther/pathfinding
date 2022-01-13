@@ -2,6 +2,8 @@ use lazy_static::lazy_static;
 use pathfinding::prelude::{absdiff, astar, idastar};
 use rand::prelude::*;
 use rand::rngs::OsRng;
+use std::sync::mpsc;
+use std::thread;
 use std::time::Instant;
 
 #[cfg(test)]
@@ -168,30 +170,23 @@ fn main() {
     let b = Game::shuffled();
     println!("{:?}", b);
     assert!(b.is_solvable());
-    let idastar_result = {
-        let before = Instant::now();
-        let result = idastar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
-        let elapsed = before.elapsed();
-        println!(
-            "idastar: {} moves in {}.{:03} seconds",
-            result.1,
-            elapsed.as_secs(),
-            elapsed.subsec_millis()
-        );
-        result
-    };
+    let (tx, rx) = mpsc::sync_channel(1);
+    thread::spawn({
+        let b = b.clone();
+        move || {
+            let start = Instant::now();
+            let result = idastar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
+            println!("idastar: {} moves in {:?}", result.1, start.elapsed(),);
+            tx.send(result.1).unwrap();
+        }
+    });
     let astar_result = {
-        let before = Instant::now();
+        let start = Instant::now();
         let result = astar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
-        let elapsed = before.elapsed();
-        println!(
-            "astar: {} moves in {}.{:03} seconds",
-            result.1,
-            elapsed.as_secs(),
-            elapsed.subsec_millis()
-        );
-        result
+        println!("astar: {} moves in {:?}", result.1, start.elapsed(),);
+        result.1
     };
-    assert_eq!(idastar_result.1, astar_result.1);
-    assert!(idastar_result.1 >= b.weight);
+    let idastar_result = rx.recv().unwrap();
+    assert_eq!(idastar_result, astar_result);
+    assert!(idastar_result >= b.weight);
 }
