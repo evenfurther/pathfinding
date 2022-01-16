@@ -63,9 +63,7 @@ impl<C: Clone> Matrix<C> {
         columns: Range<usize>,
     ) -> Result<Self, MatrixFormatError> {
         if rows.end > self.rows || columns.end > self.columns {
-            return Err(MatrixFormatError(
-                "slice far end points outside the matrix".to_owned(),
-            ));
+            return Err(MatrixFormatError::WrongIndex);
         }
         let height = rows.end - rows.start;
         let width = columns.end - columns.start;
@@ -154,16 +152,10 @@ impl<C: Clone> Matrix<C> {
     /// elements or if an empty row is passed.
     pub fn extend(&mut self, row: &[C]) -> Result<(), MatrixFormatError> {
         if row.is_empty() {
-            return Err(MatrixFormatError(
-                "adding an empty row is not allowed".to_owned(),
-            ));
+            return Err(MatrixFormatError::EmptyRow);
         }
         if self.columns != row.len() {
-            return Err(MatrixFormatError(format!(
-                "new row has {} columns instead of expected {}",
-                row.len(),
-                self.columns
-            )));
+            return Err(MatrixFormatError::WrongLength);
         }
         self.rows += 1;
         for e in row {
@@ -212,12 +204,10 @@ impl<C> Matrix<C> {
         values: Vec<C>,
     ) -> Result<Self, MatrixFormatError> {
         if rows != 0 && columns == 0 {
-            return Err(MatrixFormatError(
-                "creating a matrix with empty rows is not allowed".to_owned(),
-            ));
+            return Err(MatrixFormatError::EmptyRow);
         }
         if rows * columns != values.len() {
-            return Err(MatrixFormatError ( format!("length of vector does not correspond to announced dimensions ({} instead of {}×{}={})", values.len(), rows, columns, rows*columns)));
+            return Err(MatrixFormatError::WrongLength);
         }
         Ok(Self {
             rows,
@@ -234,10 +224,7 @@ impl<C> Matrix<C> {
         if let Some(size) = uint_sqrt(values.len()) {
             Self::from_vec(size, size, values)
         } else {
-            Err(MatrixFormatError(format!(
-                "length of vector ({}) is not a square number",
-                values.len()
-            )))
+            Err(MatrixFormatError::WrongLength)
         }
     }
 
@@ -286,16 +273,11 @@ impl<C> Matrix<C> {
             let mut data = first_row.into_iter().collect::<Vec<_>>();
             let number_of_columns = data.len();
             let mut number_of_rows = 1;
-            for (i, row) in rows.enumerate() {
+            for row in rows {
                 number_of_rows += 1;
                 data.extend(row);
                 if number_of_rows * number_of_columns != data.len() {
-                    return Err(MatrixFormatError(format!(
-                        "data for row {} (starting at 0) has len {} instead of expected {}",
-                        i + 1,
-                        data.len() - (number_of_rows - 1) * number_of_columns,
-                        number_of_columns
-                    )));
+                    return Err(MatrixFormatError::WrongLength);
                 }
             }
             Self::from_vec(number_of_rows, number_of_columns, data)
@@ -652,8 +634,17 @@ macro_rules! matrix {
 
 /// Format error encountered while attempting to build a Matrix.
 #[derive(Debug, Error)]
-#[error("matrix format error: {}", .0)]
-pub struct MatrixFormatError(String);
+pub enum MatrixFormatError {
+    /// Attempt to build a matrix containing an empty row
+    #[error("matrix rows cannot be empty")]
+    EmptyRow,
+    /// Attempt to access elements not inside the matrix
+    #[error("index does not point to data inside the matrix")]
+    WrongIndex,
+    /// Attempt to build a matrix or a row from data with the wrong length
+    #[error("provided data does not correspond to the expected length")]
+    WrongLength,
+}
 
 /// Row iterator returned by `iter()` on a matrix.
 pub struct RowIterator<'a, C> {
