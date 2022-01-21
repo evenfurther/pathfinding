@@ -79,7 +79,7 @@ where
     let mut temp = HashSet::new();
     let mut sorted = VecDeque::with_capacity(roots.len());
     let mut roots: HashSet<N> = roots.iter().cloned().collect::<HashSet<_>>();
-    while let Some(node) = roots.iter().cloned().next() {
+    while let Some(node) = roots.iter().next().cloned() {
         temp.clear();
         visit(
             &node,
