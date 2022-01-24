@@ -3,6 +3,7 @@
 
 use std::collections::HashSet;
 use std::hash::Hash;
+use std::iter::FusedIterator;
 
 /// Compute a path using the [depth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Depth-first_search).
@@ -159,4 +160,12 @@ where
             None
         }
     }
+}
+
+impl<N, FN, IN> FusedIterator for DfsReachable<N, FN>
+where
+    N: Eq + Hash + Clone,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+{
 }

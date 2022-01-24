@@ -492,6 +492,18 @@ fn into_iter() {
 }
 
 #[test]
+fn into_iter_is_fused() {
+    let m = matrix![[0, 1, 2], [2, 1, 0], [1, 0, 2]];
+    let mut it = m.iter();
+    for _ in 0..3 {
+        assert!(it.next().is_some());
+    }
+    for _ in 0..3 {
+        assert!(it.next().is_none());
+    }
+}
+
+#[test]
 fn indices() {
     let m = matrix![[0, 1, 2], [2, 1, 0]];
     assert_eq!(

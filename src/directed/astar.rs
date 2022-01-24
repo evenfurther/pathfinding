@@ -6,6 +6,7 @@ use num_traits::Zero;
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashSet};
 use std::hash::Hash;
+use std::iter::FusedIterator;
 use std::usize;
 
 use super::reverse_path;
@@ -392,3 +393,5 @@ impl<N: Clone + Eq + Hash> Iterator for AstarSolution<N> {
         Some(path)
     }
 }
+
+impl<N: Clone + Eq + Hash> FusedIterator for AstarSolution<N> {}

@@ -4,6 +4,7 @@
 use indexmap::map::Entry::Vacant;
 use std::collections::{HashSet, VecDeque};
 use std::hash::Hash;
+use std::iter::FusedIterator;
 use std::usize;
 
 use super::reverse_path;
@@ -203,4 +204,12 @@ where
             None
         }
     }
+}
+
+impl<N, FN, IN> FusedIterator for BfsReachable<N, FN>
+where
+    N: Eq + Hash + Clone,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+{
 }
