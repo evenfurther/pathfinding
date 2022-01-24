@@ -31,6 +31,41 @@ fn one_point_grid() {
 }
 
 #[test]
+fn grid_iter_is_fused() {
+    let mut g = Grid::new(1, 1);
+    g.fill();
+    let mut it = g.iter();
+    assert!(it.next().is_some());
+    for _ in 0..3 {
+        assert!(it.next().is_none());
+    }
+}
+
+#[test]
+fn grid_into_iter_is_fused() {
+    let mut g = Grid::new(1, 1);
+    g.fill();
+    let mut it = g.into_iter();
+    assert!(it.next().is_some());
+    for _ in 0..3 {
+        assert!(it.next().is_none());
+    }
+}
+
+#[test]
+fn grid_edges_iter_is_fused() {
+    let mut g = Grid::new(2, 2);
+    g.fill();
+    let mut it = g.edges();
+    for _ in 0..4 {
+        assert!(it.next().is_some());
+    }
+    for _ in 0..3 {
+        assert!(it.next().is_none());
+    }
+}
+
+#[test]
 fn diagonal_mode() {
     let mut g = Grid::new(3, 3);
     assert_eq!(g.iter().count(), 0);

@@ -6,7 +6,7 @@ use indexmap::IndexSet;
 use itertools::iproduct;
 use std::collections::BTreeSet;
 use std::fmt;
-use std::iter::FromIterator;
+use std::iter::{FromIterator, FusedIterator};
 
 use super::utils::absdiff;
 
@@ -429,6 +429,8 @@ impl Iterator for GridIntoIterator {
     }
 }
 
+impl FusedIterator for GridIntoIterator {}
+
 impl IntoIterator for Grid {
     type Item = (usize, usize);
     type IntoIter = GridIntoIterator;
@@ -486,6 +488,8 @@ impl<'a> Iterator for GridIterator<'a> {
     }
 }
 
+impl<'a> FusedIterator for GridIterator<'a> {}
+
 impl<'a> IntoIterator for &'a Grid {
     type Item = (usize, usize);
     type IntoIter = GridIterator<'a>;
@@ -539,6 +543,8 @@ impl<'a> Iterator for EdgesIterator<'a> {
         }
     }
 }
+
+impl<'a> FusedIterator for EdgesIterator<'a> {}
 
 impl fmt::Debug for Grid {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

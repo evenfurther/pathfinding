@@ -89,6 +89,28 @@ mod ex1 {
         assert_eq!(bfs_loop(&2, successors), Some(vec![2, 5, 1, 0, 2]));
         assert_eq!(bfs_loop(&8, successors), None);
     }
+
+    #[test]
+    fn bfs_reach_is_fused() {
+        let mut it = bfs_reach(1, |&n| vec![n * 2, n * 3].into_iter().filter(|&x| x < 15)).skip(1);
+        for _ in 0..7 {
+            assert!(it.next().is_some());
+        }
+        for _ in 0..3 {
+            assert!(it.next().is_none());
+        }
+    }
+
+    #[test]
+    fn dfs_reach_is_fused() {
+        let mut it = dfs_reach(1, |&n| vec![n * 2, n * 3].into_iter().filter(|&x| x < 15)).skip(1);
+        for _ in 0..7 {
+            assert!(it.next().is_some());
+        }
+        for _ in 0..3 {
+            assert!(it.next().is_none());
+        }
+    }
 }
 
 mod ex2 {
@@ -192,6 +214,19 @@ mod ex2 {
             .iter()
             .all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx])));
         assert_eq!(counter, 18);
+    }
+
+    #[test]
+    fn astar_bag_iter_is_fused() {
+        const GOAL: (usize, usize) = (7, 3);
+        let (mut it, _) =
+            astar_bag(&(2, 3), successors, |n| distance(n, &GOAL), |n| n == &GOAL).unwrap();
+        for _ in 0..3 {
+            assert!(it.next().is_some());
+        }
+        for _ in 0..3 {
+            assert!(it.next().is_none());
+        }
     }
 
     #[test]

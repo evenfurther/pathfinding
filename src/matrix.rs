@@ -7,6 +7,7 @@ use itertools::iproduct;
 use itertools::Itertools;
 use num_traits::Signed;
 use std::collections::BTreeSet;
+use std::iter::FusedIterator;
 use std::ops::{Deref, DerefMut, Index, IndexMut, Neg, Range};
 use std::slice::{Iter, IterMut};
 use thiserror::Error;
@@ -725,6 +726,8 @@ impl<'a, C> Iterator for RowIterator<'a, C> {
         }
     }
 }
+
+impl<'a, C> FusedIterator for RowIterator<'a, C> {}
 
 impl<'a, C> IntoIterator for &'a Matrix<C> {
     type IntoIter = RowIterator<'a, C>;
