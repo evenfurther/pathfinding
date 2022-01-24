@@ -573,3 +573,20 @@ fn in_direction() {
         vec![(4, 7)]
     );
 }
+
+#[test]
+fn uninit() {
+    struct NonClonable(usize);
+    let mut mat = Matrix::<NonClonable>::new_uninit(3, 3);
+    for row in 0..mat.rows {
+        for column in 0..mat.columns {
+            mat[(row, column)].write(NonClonable(3 * row + column));
+        }
+    }
+    let mat = unsafe { mat.assume_init() };
+    for row in 0..mat.rows {
+        for column in 0..mat.columns {
+            assert_eq!(mat[(row, column)].0, row * 3 + column);
+        }
+    }
+}
