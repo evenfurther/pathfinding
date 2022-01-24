@@ -1,8 +1,6 @@
-#![deny(missing_docs)]
+#![forbid(missing_docs)]
 #![allow(clippy::non_ascii_literal)]
 #![allow(clippy::module_name_repetitions)]
-#![allow(clippy::missing_errors_doc)]
-#![allow(clippy::missing_panics_doc)]
 #![doc = include_str!("../README.md")]
 
 pub use num_traits;
