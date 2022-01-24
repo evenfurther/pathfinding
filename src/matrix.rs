@@ -8,6 +8,7 @@ use itertools::Itertools;
 use num_traits::Signed;
 use std::collections::BTreeSet;
 use std::iter::FusedIterator;
+use std::mem::MaybeUninit;
 use std::ops::{Deref, DerefMut, Index, IndexMut, Neg, Range};
 use std::slice::{Iter, IterMut};
 use thiserror::Error;
@@ -216,6 +217,20 @@ impl<C> Matrix<C> {
             columns,
             data: values,
         })
+    }
+
+    /// Construct a new Matrix with uninitialized content.
+    pub fn new_uninit(rows: usize, columns: usize) -> Matrix<MaybeUninit<C>> {
+        let data_len = rows * columns;
+        let mut data = Vec::with_capacity(data_len);
+        unsafe {
+            data.set_len(data_len);
+        }
+        Matrix {
+            rows,
+            columns,
+            data,
+        }
     }
 
     /// Create new square matrix from vector values. The first value
@@ -605,6 +620,23 @@ impl<C> Matrix<C> {
             self.neighbours(n, diagonals).filter(move |&n| predicate(n))
         })
         .collect()
+    }
+}
+
+impl<C> Matrix<MaybeUninit<C>> {
+    /// Convert to `Matrix<C>`.
+    ///
+    /// # Safety
+    ///
+    /// As with [`MaybeUninit::assume_init()`], it is up to the caller to guarantee
+    /// that the value really is in an initialized state. Calling this when the content
+    /// is not yet fully initialized causes immediate undefined behavior.
+    pub unsafe fn assume_init(self) -> Matrix<C> {
+        Matrix {
+            rows: self.rows,
+            columns: self.columns,
+            data: std::mem::transmute(self.data),
+        }
     }
 }
 
