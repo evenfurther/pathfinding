@@ -10,7 +10,7 @@ use std::usize;
 /// Lookup entries until we get the same value as the index, with
 /// path halving. Adding a new entry to the table consists
 /// into pushing the table length.
-fn get_and_redirect(table: &mut Vec<usize>, mut idx: usize) -> usize {
+fn get_and_redirect(table: &mut [usize], mut idx: usize) -> usize {
     while idx != table[idx] {
         table[idx] = table[table[idx]];
         idx = table[idx];
