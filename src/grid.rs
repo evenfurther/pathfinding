@@ -560,3 +560,12 @@ impl fmt::Debug for Grid {
         Ok(())
     }
 }
+
+impl PartialEq for Grid {
+    fn eq(&self, other: &Self) -> bool {
+        self.vertices_len() == other.vertices_len()
+            && self.iter().zip(other.iter()).all(|(a, b)| a == b)
+    }
+}
+
+impl Eq for Grid {}

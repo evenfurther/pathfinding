@@ -470,3 +470,34 @@ fn debug() {
         )
     );
 }
+
+#[test]
+fn test_equality() {
+    let g = [
+        (0, 0),
+        (1, 0),
+        (2, 0),
+        (3, 0),
+        (4, 0),
+        (0, 1),
+        (4, 1),
+        (0, 2),
+        (4, 2),
+        (0, 3),
+        (4, 3),
+        (0, 4),
+        (1, 4),
+        (2, 4),
+        (3, 4),
+        (4, 4),
+    ]
+    .into_iter()
+    .collect::<Grid>();
+    assert_eq!(g, g);
+    let mut g2 = g.clone();
+    assert_eq!(g, g2);
+    g2.remove_vertex((0, 0));
+    assert_ne!(g, g2);
+    g2.add_vertex((0, 0));
+    assert_eq!(g, g2);
+}
