@@ -1,14 +1,14 @@
 //! Rectangular grid in which vertices can be added or removed, with or
 //! without diagonal links.
 
+use super::matrix::Matrix;
+use super::utils::absdiff;
 use crate::directed::bfs::bfs_reach;
 use indexmap::IndexSet;
 use itertools::iproduct;
 use std::collections::BTreeSet;
 use std::fmt;
 use std::iter::{FromIterator, FusedIterator};
-
-use super::utils::absdiff;
 
 #[derive(Clone)]
 /// Representation of a rectangular grid in which vertices can be added
@@ -560,3 +560,30 @@ impl fmt::Debug for Grid {
         Ok(())
     }
 }
+
+impl From<&Matrix<bool>> for Grid {
+    fn from(matrix: &Matrix<bool>) -> Self {
+        let mut grid = Grid::new(matrix.columns, matrix.rows);
+        for ((r, c), &v) in matrix.indices().zip(matrix.values()) {
+            if v {
+                grid.add_vertex((c, r));
+            }
+        }
+        grid
+    }
+}
+
+impl From<Matrix<bool>> for Grid {
+    fn from(matrix: Matrix<bool>) -> Self {
+        Grid::from(&matrix)
+    }
+}
+
+impl PartialEq for Grid {
+    fn eq(&self, other: &Self) -> bool {
+        self.vertices_len() == other.vertices_len()
+            && self.iter().zip(other.iter()).all(|(a, b)| a == b)
+    }
+}
+
+impl Eq for Grid {}

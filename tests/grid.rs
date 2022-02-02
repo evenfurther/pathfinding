@@ -470,3 +470,48 @@ fn debug() {
         )
     );
 }
+
+#[test]
+fn from_matrix() {
+    let m = pathfinding::prelude::Matrix::square_from_vec(vec![
+        true, true, true, false, false, false, true, false, true,
+    ])
+    .unwrap();
+    let g = Grid::from(&m);
+    let g2 = Grid::from(m);
+    assert_eq!(g, g2);
+    let mut vertices = g.into_iter().collect::<Vec<_>>();
+    vertices.sort_unstable();
+    assert_eq!(vertices, vec![(0, 0), (0, 2), (1, 0), (2, 0), (2, 2)]);
+}
+
+#[test]
+fn test_equality() {
+    let g = [
+        (0, 0),
+        (1, 0),
+        (2, 0),
+        (3, 0),
+        (4, 0),
+        (0, 1),
+        (4, 1),
+        (0, 2),
+        (4, 2),
+        (0, 3),
+        (4, 3),
+        (0, 4),
+        (1, 4),
+        (2, 4),
+        (3, 4),
+        (4, 4),
+    ]
+    .into_iter()
+    .collect::<Grid>();
+    assert_eq!(g, g);
+    let mut g2 = g.clone();
+    assert_eq!(g, g2);
+    g2.remove_vertex((0, 0));
+    assert_ne!(g, g2);
+    g2.add_vertex((0, 0));
+    assert_eq!(g, g2);
+}

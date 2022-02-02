@@ -166,6 +166,19 @@ impl<C: Clone> Matrix<C> {
         }
         Ok(())
     }
+
+    /// Transform the matrix into another matrix with the same shape
+    /// after applying a transforming function to every elements.
+    pub fn map<O, F>(self, transform: F) -> Matrix<O>
+    where
+        F: FnMut(C) -> O,
+    {
+        Matrix {
+            rows: self.rows,
+            columns: self.columns,
+            data: self.data.into_iter().map(transform).collect(),
+        }
+    }
 }
 
 impl<C: Copy> Matrix<C> {

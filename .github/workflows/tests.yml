@@ -3,7 +3,6 @@ on:
     branches:
       - staging
       - trying
-  pull_request:
 
 name: Continuous integration
 
