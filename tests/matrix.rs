@@ -590,3 +590,19 @@ fn uninit() {
         }
     }
 }
+
+#[test]
+fn map() {
+    let m = Matrix::new(3, 3, 10);
+    let m = m.map({
+        let mut counter = 0;
+        move |x| {
+            counter += 1;
+            x + counter
+        }
+    });
+    assert_eq!(
+        m,
+        Matrix::square_from_vec(vec![11, 12, 13, 14, 15, 16, 17, 18, 19]).unwrap()
+    );
+}
