@@ -472,6 +472,20 @@ fn debug() {
 }
 
 #[test]
+fn from_matrix() {
+    let m = pathfinding::prelude::Matrix::square_from_vec(vec![
+        true, true, true, false, false, false, true, false, true,
+    ])
+    .unwrap();
+    let g = Grid::from(&m);
+    let g2 = Grid::from(m);
+    assert_eq!(g, g2);
+    let mut vertices = g.into_iter().collect::<Vec<_>>();
+    vertices.sort_unstable();
+    assert_eq!(vertices, vec![(0, 0), (0, 2), (1, 0), (2, 0), (2, 2)]);
+}
+
+#[test]
 fn test_equality() {
     let g = [
         (0, 0),
