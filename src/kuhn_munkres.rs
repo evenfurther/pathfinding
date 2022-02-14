@@ -128,7 +128,6 @@ where
                         y = yy;
                     }
                 }
-                debug_assert!(s.contains(x));
                 // If some slack has been found, remove it from x nodes in the
                 // alternating path, and add it to y nodes in the alternating path.
                 // The slack of y nodes outside the alternating path will be reduced
@@ -145,7 +144,6 @@ where
                         }
                     }
                 }
-                debug_assert!(lx[x] + ly[y] == weights.at(x, y));
                 // Add (x, y) to the alternating path.
                 alternating[y] = Some(x);
                 if yx[y].is_none() {
@@ -155,7 +153,6 @@ where
                 // This y node had a predecessor, add it to the set of x nodes
                 // in the augmenting path.
                 let x = yx[y].unwrap();
-                debug_assert!(!s.contains(x));
                 s.insert(x);
                 // Update slack because of the added vertex in s might contain a
                 // greater slack than with previously inserted x nodes in the augmenting
