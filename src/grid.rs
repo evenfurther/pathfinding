@@ -452,7 +452,7 @@ pub struct GridIterator<'a> {
     y: usize,
 }
 
-impl<'a> Iterator for GridIterator<'a> {
+impl Iterator for GridIterator<'_> {
     type Item = (usize, usize);
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -488,7 +488,7 @@ impl<'a> Iterator for GridIterator<'a> {
     }
 }
 
-impl<'a> FusedIterator for GridIterator<'a> {}
+impl FusedIterator for GridIterator<'_> {}
 
 impl<'a> IntoIterator for &'a Grid {
     type Item = (usize, usize);
@@ -512,7 +512,7 @@ pub struct EdgesIterator<'a> {
     i: usize,
 }
 
-impl<'a> Iterator for EdgesIterator<'a> {
+impl Iterator for EdgesIterator<'_> {
     type Item = ((usize, usize), (usize, usize));
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -544,7 +544,7 @@ impl<'a> Iterator for EdgesIterator<'a> {
     }
 }
 
-impl<'a> FusedIterator for EdgesIterator<'a> {}
+impl FusedIterator for EdgesIterator<'_> {}
 
 impl fmt::Debug for Grid {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
