@@ -740,7 +740,7 @@ impl<'a, C> Iterator for RowIterator<'a, C> {
     }
 }
 
-impl<'a, C> FusedIterator for RowIterator<'a, C> {}
+impl<C> FusedIterator for RowIterator<'_, C> {}
 
 impl<'a, C> IntoIterator for &'a Matrix<C> {
     type IntoIter = RowIterator<'a, C>;
