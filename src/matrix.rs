@@ -3,8 +3,7 @@
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
 use crate::utils::uint_sqrt;
-use itertools::iproduct;
-use itertools::Itertools;
+use itertools::{iproduct, Itertools};
 use num_traits::Signed;
 use std::collections::BTreeSet;
 use std::iter::FusedIterator;
@@ -547,7 +546,7 @@ impl<C> Matrix<C> {
     /// Return a set of the indices reachable from a candidate starting point
     /// and for which the given predicate is valid. This can be used for example
     /// to implement a flood-filling algorithm. Since the indices are collected
-    /// into a vector, they can later be used without keeping a reference on the
+    /// into a collection, they can later be used without keeping a reference on the
     /// matrix itself, e.g., to modify the matrix.
     ///
     /// This method calls the [`bfs_reachable()`](`Self::bfs_reachable`) method to
@@ -563,7 +562,7 @@ impl<C> Matrix<C> {
         predicate: P,
     ) -> BTreeSet<(usize, usize)>
     where
-        P: FnMut((usize, usize)) -> bool + Copy,
+        P: FnMut((usize, usize)) -> bool,
     {
         self.bfs_reachable(start, diagonals, predicate)
     }
@@ -571,7 +570,7 @@ impl<C> Matrix<C> {
     /// Return a set of the indices reachable from a candidate starting point
     /// and for which the given predicate is valid. This can be used for example
     /// to implement a flood-filling algorithm. Since the indices are collected
-    /// into a vector, they can later be used without keeping a reference on the
+    /// into a collection, they can later be used without keeping a reference on the
     /// matrix itself, e.g., to modify the matrix.
     ///
     /// The search is done using a breadth first search (BFS) algorithm.
@@ -586,10 +585,12 @@ impl<C> Matrix<C> {
         mut predicate: P,
     ) -> BTreeSet<(usize, usize)>
     where
-        P: FnMut((usize, usize)) -> bool + Copy,
+        P: FnMut((usize, usize)) -> bool,
     {
         bfs_reach(start, |&n| {
-            self.neighbours(n, diagonals).filter(move |&n| predicate(n))
+            self.neighbours(n, diagonals)
+                .filter(|&n| predicate(n))
+                .collect::<Vec<_>>()
         })
         .collect()
     }
@@ -612,10 +613,12 @@ impl<C> Matrix<C> {
         mut predicate: P,
     ) -> BTreeSet<(usize, usize)>
     where
-        P: FnMut((usize, usize)) -> bool + Copy,
+        P: FnMut((usize, usize)) -> bool,
     {
         dfs_reach(start, |&n| {
-            self.neighbours(n, diagonals).filter(move |&n| predicate(n))
+            self.neighbours(n, diagonals)
+                .filter(|&n| predicate(n))
+                .collect::<Vec<_>>()
         })
         .collect()
     }
