@@ -1,4 +1,12 @@
 
+n.n.n / 2022-03-11
+==================
+
+  * Introduce `Grid::{bfs,dfs}_reachable()` and `deprecate Grid::reachable()`
+  * Remove `Copy` bound on predicate of `Matrix::{bfs,dfs}_reachable()`
+  * Use anonymous lifetimes when appropriate
+  * Add example for `kuhn_munkres()`
+
 v3.0.10 / 2022-02-14
 ====================
 
