@@ -4,6 +4,7 @@
 use super::matrix::Matrix;
 use super::utils::absdiff;
 use crate::directed::bfs::bfs_reach;
+use crate::directed::dfs::dfs_reach;
 use indexmap::IndexSet;
 use itertools::iproduct;
 use std::collections::BTreeSet;
@@ -331,16 +332,74 @@ impl Grid {
     /// Return a set of the indices reachable from a candidate starting point
     /// and for which the given predicate is valid. This can be used for example
     /// to implement a flood-filling algorithm. Since the indices are collected
-    /// into a vector, they can later be used without keeping a reference on the
+    /// into a collection, they can later be used without keeping a reference on the
     /// matrix itself, e.g., to modify the grid.
-    pub fn reachable<P>(&self, start: (usize, usize), mut predicate: P) -> BTreeSet<(usize, usize)>
+    ///
+    /// This method calls the [`bfs_reachable()`](`Self::bfs_reachable`) method to
+    /// do its work.
+    #[deprecated(
+        since = "3.0.11",
+        note = "Use `bfs_reachable()` or `dfs_reachable()` methods instead"
+    )]
+    pub fn reachable<P>(&self, start: (usize, usize), predicate: P) -> BTreeSet<(usize, usize)>
     where
-        P: FnMut((usize, usize)) -> bool + Copy,
+        P: FnMut((usize, usize)) -> bool,
+    {
+        self.bfs_reachable(start, predicate)
+    }
+
+    /// Return a set of the indices reachable from a candidate starting point
+    /// and for which the given predicate is valid using BFS. This can be used for example
+    /// to implement a flood-filling algorithm. Since the indices are collected
+    /// into a collection, they can later be used without keeping a reference on the
+    /// matrix itself, e.g., to modify the grid.
+    ///
+    /// The search is done using a breadth first search (BFS) algorithm.
+    ///
+    /// # See also
+    ///
+    /// The [`dfs_reachable()`](`Self::dfs_reachable`) performs a DFS search instead.
+    pub fn bfs_reachable<P>(
+        &self,
+        start: (usize, usize),
+        mut predicate: P,
+    ) -> BTreeSet<(usize, usize)>
+    where
+        P: FnMut((usize, usize)) -> bool,
     {
         bfs_reach(start, |&n| {
             self.neighbours(n)
                 .into_iter()
-                .filter(move |&n| predicate(n))
+                .filter(|&n| predicate(n))
+                .collect::<Vec<_>>()
+        })
+        .collect()
+    }
+
+    /// Return a set of the indices reachable from a candidate starting point
+    /// and for which the given predicate is valid using BFS. This can be used for example
+    /// to implement a flood-filling algorithm. Since the indices are collected
+    /// into a collection, they can later be used without keeping a reference on the
+    /// matrix itself, e.g., to modify the grid.
+    ///
+    /// The search is done using a depth first search (DFS) algorithm.
+    ///
+    /// # See also
+    ///
+    /// The [`bfs_reachable()`](`Self::bfs_reachable`) performs a BFS search instead.
+    pub fn dfs_reachable<P>(
+        &self,
+        start: (usize, usize),
+        mut predicate: P,
+    ) -> BTreeSet<(usize, usize)>
+    where
+        P: FnMut((usize, usize)) -> bool,
+    {
+        dfs_reach(start, |&n| {
+            self.neighbours(n)
+                .into_iter()
+                .filter(|&n| predicate(n))
+                .collect::<Vec<_>>()
         })
         .collect()
     }
