@@ -1,5 +1,5 @@
 
-n.n.n / 2022-03-11
+v3.0.11 / 2022-03-11
 ==================
 
   * Introduce `Grid::{bfs,dfs}_reachable()` and `deprecate Grid::reachable()`
