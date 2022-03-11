@@ -415,6 +415,33 @@ fn bfs_reachable() {
 }
 
 #[test]
+fn bfs_reachable_mut() {
+    let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+
+    let mut counter = 0;
+    let indices = m.bfs_reachable((1, 0), false, |n| {
+        counter += 1;
+        m[n] % 4 != 0
+    });
+    assert_eq!(
+        indices.into_iter().collect::<Vec<_>>(),
+        vec![(1, 0), (2, 0), (2, 1)]
+    );
+    assert_eq!(counter, 8);
+
+    let mut counter = 0;
+    let indices = m.bfs_reachable((1, 0), true, |n| {
+        counter += 1;
+        m[n] % 4 != 0
+    });
+    assert_eq!(
+        indices.into_iter().collect::<Vec<_>>(),
+        vec![(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)]
+    );
+    assert_eq!(counter, 26);
+}
+
+#[test]
 fn dfs_reachable() {
     let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
 
@@ -429,6 +456,33 @@ fn dfs_reachable() {
         indices.into_iter().collect::<Vec<_>>(),
         vec![(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)]
     );
+}
+
+#[test]
+fn dfs_reachable_mut() {
+    let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+
+    let mut counter = 0;
+    let indices = m.dfs_reachable((1, 0), false, |n| {
+        counter += 1;
+        m[n] % 4 != 0
+    });
+    assert_eq!(
+        indices.into_iter().collect::<Vec<_>>(),
+        vec![(1, 0), (2, 0), (2, 1)]
+    );
+    assert_eq!(counter, 8);
+
+    let mut counter = 0;
+    let indices = m.dfs_reachable((1, 0), true, |n| {
+        counter += 1;
+        m[n] % 4 != 0
+    });
+    assert_eq!(
+        indices.into_iter().collect::<Vec<_>>(),
+        vec![(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)]
+    );
+    assert_eq!(counter, 26);
 }
 
 #[test]
