@@ -532,13 +532,11 @@ impl<C> Matrix<C> {
     }
 
     /// Return an iterator on values, first row first.
-    #[must_use]
     pub fn values(&self) -> Iter<C> {
         self.data.iter()
     }
 
     /// Return a mutable iterator on values, first row first.
-    #[must_use]
     pub fn values_mut(&mut self) -> IterMut<C> {
         self.data.iter_mut()
     }
