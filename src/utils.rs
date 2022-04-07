@@ -18,6 +18,7 @@ use num_traits::{PrimInt, Unsigned};
 /// assert_eq!(absdiff(17u32, 4u32), 13u32);
 /// ```
 #[inline]
+#[deprecated = "Use `abs_diff()` method available since Rust 1.60"]
 pub fn absdiff<T>(x: T, y: T) -> T
 where
     T: Sub<Output = T> + PartialOrd,

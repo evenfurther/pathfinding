@@ -37,14 +37,14 @@ use std::usize;
 /// The first version uses an explicit type `Pos` on which the required traits are derived.
 ///
 /// ```
-/// use pathfinding::prelude::{absdiff, fringe};
+/// use pathfinding::prelude::fringe;
 ///
 /// #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 /// struct Pos(i32, i32);
 ///
 /// impl Pos {
 ///   fn distance(&self, other: &Pos) -> u32 {
-///     (absdiff(self.0, other.0) + absdiff(self.1, other.1)) as u32
+///     (self.0.abs_diff(other.0) + self.1.abs_diff(other.1)) as u32
 ///   }
 ///
 ///   fn successors(&self) -> Vec<(Pos, u32)> {
@@ -67,14 +67,14 @@ use std::usize;
 /// and is thus shorter.
 ///
 /// ```
-/// use pathfinding::prelude::{absdiff, fringe};
+/// use pathfinding::prelude::fringe;
 ///
 /// static GOAL: (i32, i32) = (4, 6);
 /// let result = fringe(&(1, 1),
 ///                     |&(x, y)| vec![(x+1,y+2), (x+1,y-2), (x-1,y+2), (x-1,y-2),
 ///                                    (x+2,y+1), (x+2,y-1), (x-2,y+1), (x-2,y-1)]
 ///                                .into_iter().map(|p| (p, 1)),
-///                     |&(x, y)| (absdiff(x, GOAL.0) + absdiff(y, GOAL.1)) / 3,
+///                     |&(x, y)| (GOAL.0.abs_diff(x) + GOAL.1.abs_diff(y)) / 3,
 ///                     |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```

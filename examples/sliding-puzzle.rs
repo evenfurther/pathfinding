@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use pathfinding::prelude::{absdiff, astar, idastar};
+use pathfinding::prelude::{astar, idastar};
 use rand::prelude::*;
 use rand::rngs::OsRng;
 use std::sync::mpsc;
@@ -84,7 +84,7 @@ impl Game {
             Self::x(self.positions[idx as usize]),
             Self::y(self.positions[idx as usize]),
         );
-        absdiff(actual_x, correct_x) + absdiff(actual_y, correct_y)
+        actual_x.abs_diff(correct_x) + actual_y.abs_diff(correct_y)
     }
 
     fn solved(&self) -> bool {
