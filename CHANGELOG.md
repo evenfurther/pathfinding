@@ -1,4 +1,11 @@
 
+n.n.n / 2022-04-13
+==================
+
+  * Add two algorithms (Floyd and Brent) to detect cycles
+  * Deprecate absdiff() in favor of Rust 1.60 abs_diff()
+  * Remove double must-use
+
 v3.0.11 / 2022-03-11
 ==================
 
