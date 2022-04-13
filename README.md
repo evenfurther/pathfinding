@@ -48,7 +48,7 @@ In your `Cargo.toml`, put:
 
 ``` ini
 [dependencies]
-pathfinding = "3.0.11"
+pathfinding = "3.0.12"
 ```
 
 You can then pull your preferred algorithm (BFS in this example) using:

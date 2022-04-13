@@ -1,5 +1,5 @@
 
-n.n.n / 2022-04-13
+v3.0.12 / 2022-04-13
 ==================
 
   * Add two algorithms (Floyd and Brent) to detect cycles
