@@ -14,9 +14,11 @@ The algorithms are generic over their arguments.
 
 - [A*][A*]: find the shortest path in a weighted graph using an heuristic to guide the process.
 - [BFS][BFS]: explore nearest successors first, then widen the search.
+- [Brent][Brent]: find a cycle in an infinite sequence.
 - [DFS][DFS]: explore a graph by going as far as possible, then backtrack.
 - [Dijkstra][Dijkstra]: find the shortest path in a weighted graph.
 - [Edmonds Karp][Edmonds Karp]: find the maximum flow in a weighted graph.
+- [Floyd][Floyd]: find a cycle in an infinite sequence.
 - [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
 - [IDA*][IDA*]: explore longer and longer paths in a weighted graph at the cost of multiple similar examinations.
 - [IDDFS][IDDFS]: explore longer and longer paths in an unweighted graph at the cost of multiple similar examinations.
@@ -110,10 +112,12 @@ This repository use the imperative mode in commit messages, such as "Add IDDFS",
 
 [A*]: https://en.wikipedia.org/wiki/A*_search_algorithm
 [BFS]: https://en.wikipedia.org/wiki/Breadth-first_search
+[Brent]: https://en.wikipedia.org/wiki/Cycle_detection#Brent's_algorithm
 [Connected components]: https://en.wikipedia.org/wiki/Connected_component_(graph_theory)
 [DFS]: https://en.wikipedia.org/wiki/Depth-first_search
 [Dijkstra]: https://en.wikipedia.org/wiki/Dijkstra's_algorithm
 [Edmonds Karp]: https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm
+[Floyd]: https://en.wikipedia.org/wiki/Cycle_detection#Floyd's_tortoise_and_hare
 [Fringe]: https://en.wikipedia.org/wiki/Fringe_search
 [Kruskal]: https://en.wikipedia.org/wiki/Kruskal's_algorithm
 [IDA*]: https://en.wikipedia.org/wiki/Iterative_deepening_A*
