@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use pathfinding::{matrix, matrix::Matrix, utils::absdiff};
+use pathfinding::{matrix, matrix::Matrix};
 
 #[test]
 fn sm() {
@@ -356,8 +356,8 @@ fn neighbours() {
                 let mut manual = Vec::new();
                 for rr in 0..3 {
                     for cc in 0..3 {
-                        let dr = absdiff(r, rr);
-                        let dc = absdiff(c, cc);
+                        let dr = r.abs_diff(rr);
+                        let dc = c.abs_diff(cc);
                         if dr + dc == 1 || (diagonal && dr == 1 && dc == 1) {
                             manual.push((rr, cc));
                         }

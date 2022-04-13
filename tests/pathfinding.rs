@@ -150,7 +150,7 @@ mod ex2 {
     }
 
     fn distance(&(x1, y1): &(usize, usize), &(x2, y2): &(usize, usize)) -> usize {
-        absdiff(x1, x2) + absdiff(y1, y2)
+        x1.abs_diff(x2) + y1.abs_diff(y2)
     }
 
     #[test]

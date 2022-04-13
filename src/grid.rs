@@ -2,7 +2,6 @@
 //! without diagonal links.
 
 use super::matrix::Matrix;
-use super::utils::absdiff;
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
 use indexmap::IndexSet;
@@ -271,8 +270,8 @@ impl Grid {
         if !self.has_vertex(v1) || !self.has_vertex(v2) {
             return false;
         }
-        let x = absdiff(v1.0, v2.0);
-        let y = absdiff(v1.1, v2.1);
+        let x = v1.0.abs_diff(v2.0);
+        let y = v1.1.abs_diff(v2.1);
         x + y == 1 || (x == 1 && y == 1 && self.diagonal_mode)
     }
 
@@ -415,7 +414,7 @@ impl Grid {
     /// If diagonal mode is disabled, this is the Manhattan distance.
     #[must_use]
     pub fn distance(&self, a: (usize, usize), b: (usize, usize)) -> usize {
-        let (dx, dy) = (absdiff(a.0, b.0), absdiff(a.1, b.1));
+        let (dx, dy) = (a.0.abs_diff(b.0), a.1.abs_diff(b.1));
         if self.diagonal_mode {
             dx.max(dy)
         } else {
