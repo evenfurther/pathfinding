@@ -198,10 +198,8 @@ where
         ..
     }) = to_see.pop()
     {
-        if let Some(min_cost) = min_cost {
-            if estimated_cost > min_cost {
-                break;
-            }
+        if matches!(min_cost, Some(min_cost) if estimated_cost > min_cost) {
+            break;
         }
         let successors = {
             let (node, &(_, c)) = parents.get_index(index).unwrap();
