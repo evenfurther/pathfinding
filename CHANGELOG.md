@@ -1,4 +1,10 @@
 
+n.n.n / 2022-06-16
+==================
+
+  * Document possibility of looping endlessly in kuhn_munkres related functions
+  * Use matches!() to simplify expression
+
 v3.0.12 / 2022-04-13
 ==================
 
