@@ -111,7 +111,10 @@ impl<C: Copy> Weights<C> for Matrix<C> {
 /// # Panics
 ///
 /// This function panics if the number of rows is larger than the number of
-/// columns.
+/// columns, or if the total assignments weight overflows or underflows.
+///
+/// Also, using indefinite values such as positive or negative infinity or
+/// NaN can cause this function to loop endlessly.
 pub fn kuhn_munkres<C, W>(weights: &W) -> (C, Vec<usize>)
 where
     C: Bounded + Sum<C> + Signed + Zero + Ord + Copy,
@@ -248,7 +251,10 @@ where
 /// # Panics
 ///
 /// This function panics if the number of rows is larger than the number of
-/// columns.
+/// columns, or if the total assignments weight overflows or underflows.
+///
+/// Also, using indefinite values such as positive or negative infinity or
+/// NaN can cause this function to loop endlessly.
 pub fn kuhn_munkres_min<C, W>(weights: &W) -> (C, Vec<usize>)
 where
     C: Bounded + Sum<C> + Zero + Signed + Ord + Copy,
