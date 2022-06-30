@@ -50,5 +50,5 @@ where
     T: PrimInt + Unsigned,
 {
     let root = n.integer_sqrt();
-    (n == root * root).then(|| root)
+    (n == root * root).then_some(root)
 }
