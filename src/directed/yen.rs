@@ -172,8 +172,13 @@ where
                 }
             }
         }
-        if let Some(k_route) = k_routes.pop() {
-            routes.push(k_route.0);
+        while let Some(k_route) = k_routes.pop() {
+            if k_route.0.cost > routes[ki].cost {
+                // Pick the route with the smallest cost
+                // that is bigger than the last cost.
+                routes.push(k_route.0);
+                break;
+            }
         }
     }
 

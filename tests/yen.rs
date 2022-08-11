@@ -44,8 +44,8 @@ fn ask_more_than_exist() {
         10,
     );
 
-    // we asked for 10 but the graph can only produce 7
-    assert_eq!(result.len(), 7);
+    // we asked for 10 but the graph can only produce 4
+    assert_eq!(result.len(), 4);
 }
 
 /// Test that we return None in case there is no solution
