@@ -23,7 +23,7 @@ integer-sqrt = "0.1.5"
 thiserror = "1.0.30"
 
 [dev-dependencies]
-criterion = { version = "0.3.4", features = ["html_reports"] }
+criterion = { version = "0.4.0", features = ["html_reports"] }
 lazy_static = "1.2.0"
 movingai = "1.0.0"
 noisy_float = "0.2.0"
