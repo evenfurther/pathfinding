@@ -1,4 +1,14 @@
 
+n.n.n / 2022-10-03
+==================
+
+  * Use into_keys() where appropriate
+  * Add fake regex dev dependency
+  * Use boolean::then_some()
+  * Update criterion requirement from 0.3.4 to 0.4.0
+  * Optimize Yen's algorithm
+  * Routes are already sorted by cost and path len
+
 v3.0.13 / 2022-06-16
 ==================
 
