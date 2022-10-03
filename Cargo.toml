@@ -11,7 +11,7 @@ authors = ["Samuel Tardieu <sam@rfc1149.net>"]
 categories = ["algorithms"]
 readme = "README.md"
 edition = "2021"
-rust-version = "1.60.0"
+rust-version = "1.62.1"
 
 [dependencies]
 fixedbitset = "0.4.0"
@@ -23,7 +23,7 @@ integer-sqrt = "0.1.5"
 thiserror = "1.0.30"
 
 [dev-dependencies]
-criterion = { version = "0.3.4", features = ["html_reports"] }
+criterion = { version = "0.4.0", features = ["html_reports"] }
 lazy_static = "1.2.0"
 movingai = "1.0.0"
 noisy_float = "0.2.0"
@@ -32,6 +32,9 @@ rand_xorshift = "0.3.0"
 # Not a real dependency, but needed since crossbeam-utils 0.6.5
 # does not compile anymore as of 2020-04-29.
 rayon = "1.3.0"
+# Not a real dependency, but needed since criterion 0.4.0
+# does not compile anymore as of 2022-10-03.
+regex = "1.6.0"
 trybuild = "1.0.49"
 
 [[bench]]

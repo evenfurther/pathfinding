@@ -806,5 +806,5 @@ fn move_in_direction(
         return None;
     }
     let (new_row, new_col) = (new_row as usize, new_col as usize);
-    (new_row < rows && new_col < columns).then(|| (new_row as usize, new_col as usize))
+    (new_row < rows && new_col < columns).then_some((new_row as usize, new_col as usize))
 }
