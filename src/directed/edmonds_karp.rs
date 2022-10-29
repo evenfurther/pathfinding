@@ -274,27 +274,26 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
             return;
         }
         while capacity > Zero::zero() {
-            if let Some(path) = bfs(&from, |&n| self.flows_from(n).into_iter(), |&n| n == to) {
-                let path = path
-                    .clone()
-                    .into_iter()
-                    .zip(path.into_iter().skip(1))
-                    .collect::<Vec<_>>();
-                let mut max_cancelable = path
-                    .iter()
-                    .map(|&(src, dst)| self.flow(src, dst))
-                    .max()
-                    .unwrap();
-                if max_cancelable > capacity {
-                    max_cancelable = capacity;
-                }
-                for (src, dst) in path {
-                    self.add_flow(dst, src, max_cancelable);
-                }
-                capacity = capacity - max_cancelable;
-            } else {
+            let Some(path) = bfs(&from, |&n| self.flows_from(n).into_iter(), |&n| n == to) else {
                 unreachable!("no flow to cancel");
+            };
+            let path = path
+                .clone()
+                .into_iter()
+                .zip(path.into_iter().skip(1))
+                .collect::<Vec<_>>();
+            let mut max_cancelable = path
+                .iter()
+                .map(|&(src, dst)| self.flow(src, dst))
+                .max()
+                .unwrap();
+            if max_cancelable > capacity {
+                max_cancelable = capacity;
             }
+            for (src, dst) in path {
+                self.add_flow(dst, src, max_cancelable);
+            }
+            capacity = capacity - max_cancelable;
         }
     }
 }

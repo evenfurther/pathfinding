@@ -235,11 +235,10 @@ impl<C> Matrix<C> {
     /// and so on. An error is returned if the number of values is not a
     /// square number.
     pub fn square_from_vec(values: Vec<C>) -> Result<Self, MatrixFormatError> {
-        if let Some(size) = uint_sqrt(values.len()) {
-            Self::from_vec(size, size, values)
-        } else {
-            Err(MatrixFormatError::WrongLength)
-        }
+        let Some(size) = uint_sqrt(values.len()) else {
+            return Err(MatrixFormatError::WrongLength);
+        };
+        Self::from_vec(size, size, values)
     }
 
     /// Create new empty matrix with a predefined number of columns.
