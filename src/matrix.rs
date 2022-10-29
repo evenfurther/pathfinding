@@ -728,16 +728,10 @@ impl<'a, C> Iterator for RowIterator<'a, C> {
     type Item = &'a [C];
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.row < self.matrix.rows {
-            let r = Some(
-                &self.matrix.data
-                    [self.row * self.matrix.columns..(self.row + 1) * self.matrix.columns],
-            );
+        (self.row < self.matrix.rows).then(|| {
             self.row += 1;
-            r
-        } else {
-            None
-        }
+            &self.matrix.data[(self.row - 1) * self.matrix.columns..self.row * self.matrix.columns]
+        })
     }
 }
 

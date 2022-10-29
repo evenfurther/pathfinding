@@ -343,10 +343,7 @@ impl<N: Clone + Eq + Hash> AstarSolution<N> {
         loop {
             let ps = match self.current.last() {
                 None => self.sinks.clone(),
-                Some(last) => {
-                    let &top = last.last().unwrap();
-                    self.parents(top).clone()
-                }
+                Some(last) => self.parents(*last.last().unwrap()).clone(),
             };
             if ps.is_empty() {
                 break;

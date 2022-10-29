@@ -51,11 +51,7 @@ where
     FS: FnMut(&N) -> bool,
 {
     let mut path = vec![start];
-    if step(&mut path, &mut successors, &mut success) {
-        Some(path)
-    } else {
-        None
-    }
+    step(&mut path, &mut successors, &mut success).then_some(path)
 }
 
 fn step<N, FN, IN, FS>(path: &mut Vec<N>, successors: &mut FN, success: &mut FS) -> bool
@@ -146,19 +142,16 @@ where
     type Item = N;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(n) = self.to_see.pop() {
-            let mut to_insert = Vec::new();
-            for s in (self.successors)(&n) {
-                if !self.seen.contains(&s) {
-                    to_insert.push(s.clone());
-                    self.seen.insert(s);
-                }
+        let n = self.to_see.pop()?;
+        let mut to_insert = Vec::new();
+        for s in (self.successors)(&n) {
+            if !self.seen.contains(&s) {
+                to_insert.push(s.clone());
+                self.seen.insert(s);
             }
-            self.to_see.extend(to_insert.into_iter().rev());
-            Some(n)
-        } else {
-            None
         }
+        self.to_see.extend(to_insert.into_iter().rev());
+        Some(n)
     }
 }
 

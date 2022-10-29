@@ -139,13 +139,7 @@ mod ex2 {
     fn successors(&(x, y): &(usize, usize)) -> Vec<((usize, usize), usize)> {
         vec![(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
             .into_iter()
-            .filter_map(|(nx, ny)| {
-                if OPEN[ny][nx] {
-                    Some(((nx, ny), 1))
-                } else {
-                    None
-                }
-            })
+            .filter_map(|(nx, ny)| OPEN[ny][nx].then_some(((nx, ny), 1)))
             .collect()
     }
 
