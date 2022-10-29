@@ -391,7 +391,7 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
     fn residual_successors(&self, from: usize) -> Vec<(usize, C)> {
         self.residuals.get(&from).map_or_else(Vec::new, |ns| {
             ns.iter()
-                .filter_map(|(&n, &c)| if c > Zero::zero() { Some((n, c)) } else { None })
+                .filter_map(|(&n, &c)| (c > Zero::zero()).then_some((n, c)))
                 .collect()
         })
     }
@@ -409,13 +409,8 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
             .clone()
             .into_iter()
             .flat_map(|(k, vs)| {
-                vs.into_iter().filter_map(move |(v, c)| {
-                    if c > Zero::zero() {
-                        Some(((k, v), c))
-                    } else {
-                        None
-                    }
-                })
+                vs.into_iter()
+                    .filter_map(move |(v, c)| (c > Zero::zero()).then_some(((k, v), c)))
             })
             .collect()
     }
@@ -436,7 +431,7 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
     fn flows_from(&self, n: usize) -> Vec<usize> {
         self.flows.get(&n).map_or_else(Vec::new, |ns| {
             ns.iter()
-                .filter_map(|(&o, &c)| if c > Zero::zero() { Some(o) } else { None })
+                .filter_map(|(&o, &c)| (c > Zero::zero()).then_some(o))
                 .collect()
         })
     }
@@ -504,11 +499,7 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
         (0..self.common.size)
             .filter_map(|n| {
                 let residual = self.residual_capacity(from, n);
-                if residual > Zero::zero() {
-                    Some((n, residual))
-                } else {
-                    None
-                }
+                (residual > Zero::zero()).then_some((n, residual))
             })
             .collect()
     }
@@ -525,11 +516,7 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
         iproduct!(0..self.size(), 0..self.size())
             .filter_map(|(from, to)| {
                 let flow = self.flow(from, to);
-                if flow > Zero::zero() {
-                    Some(((from, to), flow))
-                } else {
-                    None
-                }
+                (flow > Zero::zero()).then_some(((from, to), flow))
             })
             .collect()
     }
