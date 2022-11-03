@@ -2,7 +2,6 @@ use lazy_static::lazy_static;
 use pathfinding::prelude::{astar, idastar};
 use rand::prelude::*;
 use rand::rngs::OsRng;
-use std::sync::mpsc;
 use std::thread;
 use std::time::Instant;
 
@@ -170,14 +169,13 @@ fn main() {
     let b = Game::shuffled();
     println!("{:?}", b);
     assert!(b.is_solvable());
-    let (tx, rx) = mpsc::sync_channel(1);
-    thread::spawn({
+    let idastar_handle = thread::spawn({
         let b = b.clone();
         move || {
             let start = Instant::now();
             let result = idastar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
             println!("idastar: {} moves in {:?}", result.1, start.elapsed(),);
-            tx.send(result.1).unwrap();
+            result.1
         }
     });
     let astar_result = {
@@ -186,7 +184,7 @@ fn main() {
         println!("astar: {} moves in {:?}", result.1, start.elapsed(),);
         result.1
     };
-    let idastar_result = rx.recv().unwrap();
+    let idastar_result = idastar_handle.join().unwrap();
     assert_eq!(idastar_result, astar_result);
     assert!(idastar_result >= b.weight);
 }
