@@ -51,8 +51,7 @@ impl<C: Clone> Matrix<C> {
 
     /// Fill with a known value.
     pub fn fill(&mut self, value: C) {
-        self.data.clear();
-        self.data.resize(self.rows * self.columns, value);
+        self.data.fill(value);
     }
 
     /// Return a copy of a sub-matrix, or return an error if the
