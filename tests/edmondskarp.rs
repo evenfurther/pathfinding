@@ -51,7 +51,7 @@ fn wikipedia_example<EK: EdmondsKarp<i32>>() {
         &"ABCDEFGH".chars().collect::<Vec<_>>(),
         &'A',
         &'G',
-        successors_wikipedia()
+        successors_wikipedia(),
     );
     check_wikipedia_result(flow);
     let source_set: HashSet<char> = cut.0.into_iter().collect();
@@ -194,17 +194,19 @@ fn str_to_graph(desc: &str) -> (Vec<usize>, Vec<((usize, usize), isize)>) {
         .lines()
         .skip(1)
         .enumerate()
-        .map(|(from, line)| line
-            .split_whitespace()
-            .skip(1)
-            .map(|item| item.parse::<isize>())
-            .enumerate()
-            .filter(|(_, result)| result.is_ok())
-            .map(|(to, result)| ((from, to), result.unwrap()))
-            .collect::<Vec<((usize, usize), isize)>>())
+        .map(|(from, line)| {
+            line.split_whitespace()
+                .skip(1)
+                .map(|item| item.parse::<isize>())
+                .enumerate()
+                .filter(|(_, result)| result.is_ok())
+                .map(|(to, result)| ((from, to), result.unwrap()))
+                .collect::<Vec<((usize, usize), isize)>>()
+        })
         .reduce(|mut accum, mut item| {
             accum.append(&mut item);
-            accum})
+            accum
+        })
         .unwrap();
     (vertices, edges)
 }
