@@ -1,5 +1,5 @@
 use pathfinding::directed::edmonds_karp::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 /// Return a list of edges with their capacities.
 fn successors_wikipedia() -> Vec<((char, char), i32)> {
@@ -46,6 +46,17 @@ fn wikipedia_example<EK: EdmondsKarp<i32>>() {
         &'G',
         successors_wikipedia(),
     ));
+    // Run the test again, now with the min cut part.
+    let (flow, cut) = edmonds_karp_mincut::<_, _, _, EK>(
+        &"ABCDEFGH".chars().collect::<Vec<_>>(),
+        &'A',
+        &'G',
+        successors_wikipedia()
+    );
+    check_wikipedia_result(flow);
+    let source_set: HashSet<char> = cut.0.into_iter().collect();
+    let ref_set = HashSet::from(['A', 'B', 'C', 'E']);
+    assert_eq!(source_set.difference(&ref_set).count(), 0);
 }
 
 #[test]
@@ -168,4 +179,80 @@ fn unknown_source() {
 #[should_panic]
 fn unknown_sink() {
     edmonds_karp_dense(&[1, 2, 3], &1, &4, Vec::<((i32, i32), i32)>::new());
+}
+
+fn str_to_graph(desc: &str) -> (Vec<usize>, Vec<((usize, usize), isize)>) {
+    let vertices = desc
+        .lines()
+        .next()
+        .unwrap()
+        .split_whitespace()
+        .enumerate()
+        .map(|(i, _)| i)
+        .collect();
+    let edges: Vec<((usize, usize), isize)> = desc
+        .lines()
+        .skip(1)
+        .enumerate()
+        .map(|(from, line)| line
+            .split_whitespace()
+            .skip(1)
+            .map(|item| item.parse::<isize>())
+            .enumerate()
+            .filter(|(_, result)| result.is_ok())
+            .map(|(to, result)| ((from, to), result.unwrap()))
+            .collect::<Vec<((usize, usize), isize)>>())
+        .reduce(|mut accum, mut item| {
+            accum.append(&mut item);
+            accum})
+        .unwrap();
+    (vertices, edges)
+}
+
+#[test]
+fn mincut_basic() {
+    let graph_str = "  0 1 2 3 4 5\n\
+                     0 . 5 . 6 . .\n\
+                     1 . . 4 . 7 .\n\
+                     2 . . . 6 . 1\n\
+                     3 4 . 4 . . .\n\
+                     4 . . . . . 6\n\
+                     5 5 . . 5 . .\n";
+    let (vertices, edges) = str_to_graph(graph_str);
+    let (_, mincut) = edmonds_karp_mincut_dense(
+        &vertices,
+        &vertices[0],
+        &vertices.last().unwrap(),
+        edges.into_iter(),
+    );
+    assert_eq!(
+        mincut.0.into_iter().collect::<HashSet<_>>(),
+        HashSet::from([0, 2, 3]),
+    );
+    assert_eq!(mincut.1, 6);
+}
+
+#[test]
+fn mincut_wikipedia() {
+    let graph_str = "  0  1  2  3  4  5  6  7 \n\
+                     0 .  10 .  5  .  15 .  . \n\
+                     1 .  .  9  4  15 .  .  . \n\
+                     2 .  .  .  .  15 .  .  10\n\
+                     3 .  2  .  .  8  4  .  . \n\
+                     4 .  .  .  .  .  .  15 10\n\
+                     5 .  .  .  .  .  .  16 . \n\
+                     6 .  .  .  6  .  .  .  10\n\
+                     7 .  .  .  .  .  .  .  . \n";
+    let (vertices, edges) = str_to_graph(graph_str);
+    let (_, mincut) = edmonds_karp_mincut_dense(
+        &vertices,
+        &vertices[0],
+        &vertices.last().unwrap(),
+        edges.into_iter(),
+    );
+    assert_eq!(
+        mincut.0.into_iter().collect::<HashSet<_>>(),
+        HashSet::from([0, 1, 3, 4, 5, 6]),
+    );
+    assert_eq!(mincut.1, 29);
 }

@@ -12,13 +12,18 @@ use itertools::iproduct;
 use num_traits::{Bounded, Signed, Zero};
 use std::collections::{BTreeMap, VecDeque};
 use std::hash::Hash;
+// use std::collections::HashMap;
 
 use super::bfs::bfs;
 use crate::matrix::Matrix;
 
-/// Type alias for Edmonds-Karp result.
+/// Type alias for Edmonds-Karp maximum flow result.
 #[allow(clippy::upper_case_acronyms)]
 pub type EKFlows<N, C> = (Vec<((N, N), C)>, C);
+
+/// Type alias for Edmonds-Karp minimum cut result.
+#[allow(clippy::upper_case_acronyms)]
+pub type EKCut<N, C> = (Vec<N>, C);
 
 /// Compute the maximum flow that can go through a directed graph using the
 /// [Edmonds Karp algorithm](https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm).
@@ -98,6 +103,107 @@ where
     IC: IntoIterator<Item = ((N, N), C)>,
 {
     edmonds_karp::<N, C, IC, SparseCapacity<C>>(vertices, source, sink, caps)
+}
+
+/// Compute the maximum flow and the minimal cut of a directed graph using the
+/// [Edmonds Karp algorithm](https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm).
+///
+///
+/// A maximum flow going from `source` to `sink` will be computed, and the various
+/// flow values along with the total will be returned.
+///
+/// - `vertices` is the collection of vertices in the graph.
+/// - `source` is the source node (the origin of the flow).
+/// - `sink` is the sink node (the target of the flow).
+/// - `caps` is an iterator-like object describing the positive capacities between the
+///   nodes.
+///
+/// Note that the capacity type `C` must be signed as the algorithm has to deal with
+/// negative residual capacities.
+///
+/// The minimum cut from 'source' to 'sink' will be computed and the vertices in the
+/// 'source' part of the cut returned.
+///
+/// By creating an [`EdmondsKarp`]() structure, it is possible to adjust the capacities
+/// after computing the maximum flow and rerun the algorithm without starting from
+/// scratch. This function is a helper function that remaps the `N` node type to
+/// appropriate indices.
+///
+/// # Panics
+///
+/// This function panics if `source` or `sink` is not found in `vertices`.
+pub fn edmonds_karp_mincut<N, C, IC, EK>(
+    vertices: &[N],
+    source: &N,
+    sink: &N,
+    caps: IC,
+) -> (EKFlows<N, C>, EKCut<N, C>)
+where
+    N: Eq + Hash + Copy,
+    C: Zero + Bounded + Signed + Ord + Copy,
+    IC: IntoIterator<Item = ((N, N), C)>,
+    EK: EdmondsKarp<C>,
+{
+    // Build a correspondence between N and 0..vertices.len() so that we can
+    // work with matrices more easily.
+    let reverse = vertices.iter().collect::<IndexSet<_>>();
+    let mut capacities = EK::new(
+        vertices.len(),
+        reverse.get_index_of(source).unwrap(),
+        reverse.get_index_of(sink).unwrap(),
+    );
+    for ((from, to), capacity) in caps {
+        capacities.set_capacity(
+            reverse.get_index_of(&from).unwrap(),
+            reverse.get_index_of(&to).unwrap(),
+            capacity,
+        );
+    }
+    let (paths, max) = capacities.augment();
+    let (cut, min) = capacities.mincut();
+    (
+        (
+            paths
+                .into_iter()
+                .map(|((a, b), c)| ((vertices[a], vertices[b]), c))
+                .collect(),
+            max,
+        ),
+        (
+            cut.into_iter().map(|a| vertices[a]).collect::<Vec<N>>(),
+            min,
+        ),
+    )
+}
+
+/// Helper for the `edmonds_karp` function using an adjacency matrix for dense graphs.
+pub fn edmonds_karp_mincut_dense<N, C, IC>(
+    vertices: &[N],
+    source: &N,
+    sink: &N,
+    caps: IC,
+) -> (EKFlows<N, C>, EKCut<N, C>)
+where
+    N: Eq + Hash + Copy,
+    C: Zero + Bounded + Signed + Ord + Copy,
+    IC: IntoIterator<Item = ((N, N), C)>,
+{
+    edmonds_karp_mincut::<N, C, IC, DenseCapacity<C>>(vertices, source, sink, caps)
+}
+
+/// Helper for the `edmonds_karp` function using adjacency maps for sparse graphs.
+pub fn edmonds_karp_mincut_sparse<N, C, IC>(
+    vertices: &[N],
+    source: &N,
+    sink: &N,
+    caps: IC,
+) -> (EKFlows<N, C>, EKCut<N, C>)
+where
+    N: Eq + Hash + Copy,
+    C: Zero + Bounded + Signed + Ord + Copy,
+    IC: IntoIterator<Item = ((N, N), C)>,
+{
+    edmonds_karp_mincut::<N, C, IC, SparseCapacity<C>>(vertices, source, sink, caps)
 }
 
 /// Representation of capacity and flow data.
@@ -218,6 +324,22 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
 
     /// Compute the maximum flow.
     fn augment(&mut self) -> EKFlows<usize, C> {
+        self.update_flows();
+        if self.detailed_flows() {
+            (self.flows(), self.total_capacity())
+        } else {
+            (Vec::new(), self.total_capacity())
+        }
+    }
+
+    /// Compute the minumum cut.
+    fn mincut(&mut self) -> EKCut<usize, C> {
+        let source_nodes = self.update_flows();
+        (source_nodes, self.total_capacity())
+    }
+
+    /// Internal: update flows until maximum-flow / minimum-cut is reached.
+    fn update_flows(&mut self) -> Vec<usize> {
         let size = self.size();
         let source = self.source();
         let sink = self.sink();
@@ -226,10 +348,13 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
         let mut path_capacity = Vec::with_capacity(size);
         path_capacity.resize(size, C::max_value());
         let mut to_see = VecDeque::new();
+        let mut seen = vec![];
         'augment: loop {
             to_see.clear();
             to_see.push_back(source);
+            seen.clear();
             while let Some(node) = to_see.pop_front() {
+                seen.push(node);
                 let capacity_so_far = path_capacity[node];
                 for (successor, residual) in self.residual_successors(node).iter().copied() {
                     if successor == source || parents[successor].is_some() {
@@ -261,11 +386,7 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
             }
             break;
         }
-        if self.detailed_flows() {
-            (self.flows(), self.total_capacity())
-        } else {
-            (Vec::new(), self.total_capacity())
-        }
+        seen
     }
 
     /// Internal: cancel a flow capacity between two nodes.
