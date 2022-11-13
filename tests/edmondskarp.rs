@@ -1,5 +1,5 @@
 use pathfinding::directed::edmonds_karp::*;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 /// Return a list of edges with their capacities.
 fn successors_wikipedia() -> Vec<((char, char), i32)> {
@@ -25,9 +25,9 @@ fn successors_wikipedia() -> Vec<((char, char), i32)> {
 }
 
 fn check_wikipedia_result(flows: EKFlows<char, i32>) {
-    let (caps, total) = flows;
+    let (caps, total, mut cut) = flows;
     assert_eq!(caps.len(), 8);
-    let caps = caps.into_iter().collect::<HashMap<(char, char), i32>>();
+    let caps = HashMap::<(char, char), i32>::from_iter(caps);
     assert_eq!(caps[&('A', 'B')], 2);
     assert_eq!(caps[&('A', 'D')], 3);
     assert_eq!(caps[&('B', 'C')], 2);
@@ -37,6 +37,8 @@ fn check_wikipedia_result(flows: EKFlows<char, i32>) {
     assert_eq!(caps[&('E', 'G')], 1);
     assert_eq!(caps[&('F', 'G')], 4);
     assert_eq!(total, 5);
+    cut.sort_unstable();
+    assert_eq!(cut, vec![(('A', 'D'), 3), (('C', 'D'), 1), (('E', 'G'), 1)]);
 }
 
 fn wikipedia_example<EK: EdmondsKarp<i32>>() {
@@ -46,17 +48,6 @@ fn wikipedia_example<EK: EdmondsKarp<i32>>() {
         &'G',
         successors_wikipedia(),
     ));
-    // Run the test again, now with the min cut part.
-    let (flow, cut) = edmonds_karp_mincut::<_, _, _, EK>(
-        &"ABCDEFGH".chars().collect::<Vec<_>>(),
-        &'A',
-        &'G',
-        successors_wikipedia(),
-    );
-    check_wikipedia_result(flow);
-    let source_set: HashSet<char> = cut.0.into_iter().collect();
-    let ref_set = HashSet::from(['A', 'B', 'C', 'E']);
-    assert_eq!(source_set.difference(&ref_set).count(), 0);
 }
 
 #[test]
@@ -74,16 +65,16 @@ fn wikipedia_progressive_example<EK: EdmondsKarp<i32>>() {
     let size = successors.len();
     let mut ek = EK::new(size, 0, 6);
     for ((from, to), cap) in successors {
-        let (_, total) = ek.augment();
+        let (_, total, _) = ek.augment();
         assert!(total < 5);
         ek.set_capacity(from as usize - 65, to as usize - 65, cap);
     }
-    let (caps, total) = ek.augment();
-    let caps = caps
-        .into_iter()
-        .map(|((from, to), cap)| (((from + 65) as u8 as char, (to + 65) as u8 as char), cap))
-        .collect::<Vec<_>>();
-    check_wikipedia_result((caps, total));
+    let (caps, total, flows) = ek.augment();
+    let mkletter = |d| char::from_u32(d as u32 + 65).unwrap();
+    let mkedge = |((a, b), c)| ((mkletter(a), mkletter(b)), c);
+    let caps = caps.into_iter().map(mkedge).collect::<Vec<_>>();
+    let flows = flows.into_iter().map(mkedge).collect();
+    check_wikipedia_result((caps, total, flows));
 }
 
 #[test]
@@ -97,7 +88,7 @@ fn wikipedia_progressive_example_sparse() {
 }
 
 fn disconnected<EK: EdmondsKarp<isize>>() {
-    let (caps, total) = edmonds_karp::<_, _, _, EK>(
+    let (caps, total, _) = edmonds_karp::<_, _, _, EK>(
         &['A', 'B'],
         &'A',
         &'B',
@@ -181,80 +172,58 @@ fn unknown_sink() {
     edmonds_karp_dense(&[1, 2, 3], &1, &4, Vec::<((i32, i32), i32)>::new());
 }
 
-fn str_to_graph(desc: &str) -> (Vec<usize>, Vec<((usize, usize), isize)>) {
-    let vertices = desc
-        .lines()
-        .next()
-        .unwrap()
-        .split_whitespace()
-        .enumerate()
-        .map(|(i, _)| i)
-        .collect();
-    let edges: Vec<((usize, usize), isize)> = desc
+fn str_to_graph(desc: &str) -> (Vec<usize>, Vec<Edge<usize, isize>>) {
+    let vertices = Vec::from_iter(0..desc.lines().count() - 1);
+    let edges = desc
         .lines()
         .skip(1)
         .enumerate()
-        .map(|(from, line)| {
+        .flat_map(|(from, line)| {
             line.split_whitespace()
                 .skip(1)
-                .map(|item| item.parse::<isize>())
                 .enumerate()
-                .filter(|(_, result)| result.is_ok())
-                .map(|(to, result)| ((from, to), result.unwrap()))
-                .collect::<Vec<((usize, usize), isize)>>()
+                .filter_map(|(to, cap)| Some(((from, to), cap.parse().ok()?)))
+                .collect::<Vec<_>>()
         })
-        .reduce(|mut accum, mut item| {
-            accum.append(&mut item);
-            accum
-        })
-        .unwrap();
+        .collect();
     (vertices, edges)
 }
 
 #[test]
 fn mincut_basic() {
-    let graph_str = "  0 1 2 3 4 5\n\
-                     0 . 5 . 6 . .\n\
-                     1 . . 4 . 7 .\n\
-                     2 . . . 6 . 1\n\
-                     3 4 . 4 . . .\n\
-                     4 . . . . . 6\n\
-                     5 5 . . 5 . .\n";
-    let (vertices, edges) = str_to_graph(graph_str);
-    let (_, mincut) = edmonds_karp_mincut_dense(
-        &vertices,
-        &vertices[0],
-        &vertices.last().unwrap(),
-        edges.into_iter(),
+    let (vertices, edges) = str_to_graph(
+        "  0 1 2 3 4 5
+         0 . 5 . 6 . .
+         1 . . 4 . 7 .
+         2 . . . 6 . 1
+         3 4 . 4 . . .
+         4 . . . . . 6
+         5 5 . . 5 . .",
     );
-    assert_eq!(
-        mincut.0.into_iter().collect::<HashSet<_>>(),
-        HashSet::from([0, 2, 3]),
-    );
-    assert_eq!(mincut.1, 6);
+    let (_, cap, mut mincut) =
+        edmonds_karp_dense(&vertices, &vertices[0], vertices.last().unwrap(), edges);
+    mincut.sort_unstable();
+    assert_eq!((mincut, cap), (vec![((0, 1), 5), ((2, 5), 1)], 6));
 }
 
 #[test]
 fn mincut_wikipedia() {
-    let graph_str = "  0  1  2  3  4  5  6  7 \n\
-                     0 .  10 .  5  .  15 .  . \n\
-                     1 .  .  9  4  15 .  .  . \n\
-                     2 .  .  .  .  15 .  .  10\n\
-                     3 .  2  .  .  8  4  .  . \n\
-                     4 .  .  .  .  .  .  15 10\n\
-                     5 .  .  .  .  .  .  16 . \n\
-                     6 .  .  .  6  .  .  .  10\n\
-                     7 .  .  .  .  .  .  .  . \n";
-    let (vertices, edges) = str_to_graph(graph_str);
-    let (_, mincut) = edmonds_karp_mincut_dense(
-        &vertices,
-        &vertices[0],
-        &vertices.last().unwrap(),
-        edges.into_iter(),
+    let (vertices, edges) = str_to_graph(
+        "  0  1  2  3  4  5  6  7
+         0 .  10 .  5  .  15 .  .
+         1 .  .  9  4  15 .  .  .
+         2 .  .  .  .  15 .  .  10
+         3 .  2  .  .  8  4  .  .
+         4 .  .  .  .  .  .  15 10
+         5 .  .  .  .  .  .  16 .
+         6 .  .  .  6  .  .  .  10
+         7 .  .  .  .  .  .  .  . ",
     );
+    let (_, cap, mut mincut) =
+        edmonds_karp_dense(&vertices, &vertices[0], vertices.last().unwrap(), edges);
+    mincut.sort_unstable();
     assert_eq!(
-        mincut.0.into_iter().collect::<HashSet<_>>(),
-        HashSet::from([0, 1, 3, 4, 5, 6]),
-    );
-    assert_eq!(mincut.1, 29);
+        (mincut, cap),
+        (vec![((1, 2), 9), ((4, 7), 10), ((6, 7), 10)], 29)
+    )
 }

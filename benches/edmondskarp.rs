@@ -26,7 +26,7 @@ fn successors_wikipedia() -> Vec<((char, char), i32)> {
 }
 
 fn check_wikipedia_result(flows: EKFlows<char, i32>) {
-    let (caps, total) = flows;
+    let (caps, total, _cuts) = flows;
     assert_eq!(caps.len(), 8);
     let caps = caps.into_iter().collect::<HashMap<(char, char), i32>>();
     assert_eq!(caps[&('A', 'B')], 2);

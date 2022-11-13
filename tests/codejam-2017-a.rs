@@ -74,7 +74,7 @@ fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut dyn BufRead) -> Result<String
             let dice_offset = value_offset + group.len();
             let size = dice_offset + subdices.len();
             let mut ek = EK::new(size, 0, 1);
-            ek.omit_detailed_flows();
+            ek.omit_details();
             // Set capacity 1 between each value and the dice holding this value.
             let smallest_value = group[0];
             for &value in &group {
@@ -96,7 +96,7 @@ fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut dyn BufRead) -> Result<String
             let mut ei = 1;
             let mut max = 0;
             loop {
-                let (_, n) = ek.augment();
+                let (_, n, _) = ek.augment();
                 let n = n as usize;
                 if n > max {
                     max = n;
