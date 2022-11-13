@@ -86,12 +86,12 @@ assert_eq!(result.expect("no path found").len(), 5);
 ## Note
 
 Several algorithms require that the numerical types used to describe
-edges weights implement `Ord`. If you wish to use Rust builtin
-floating-point types (such as `f32`) which implement `PartialOrd`
+edge weights implement `Ord`. If you wish to use Rust built-in
+floating-point types (such as `f32`) that implement `PartialOrd`
 in this context, you can wrap them into compliant types using the
 [ordered-float](https://crates.io/crates/ordered-float) crate.
 
-The minimum supported Rust version (MSRV) is Rust 1.62.1.
+The minimum supported Rust version (MSRV) is Rust 1.65.0.
 
 ## License
 
