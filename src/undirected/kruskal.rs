@@ -53,8 +53,7 @@ where
     C: Clone + Ord,
 {
     let mut parents = (0..number_of_nodes).collect::<Vec<_>>();
-    let mut ranks = Vec::with_capacity(number_of_nodes);
-    ranks.resize(number_of_nodes, 1);
+    let mut ranks = vec![1; number_of_nodes];
     let mut edges = edges.to_vec();
     edges.sort_unstable_by(|a, b| a.2.cmp(&b.2));
     edges.into_iter().filter_map(move |(a, b, w)| {
