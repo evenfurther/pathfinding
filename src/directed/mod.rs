@@ -2,6 +2,7 @@
 
 pub mod astar;
 pub mod bfs;
+pub mod count_paths;
 pub mod dfs;
 pub mod dijkstra;
 pub mod edmonds_karp;
