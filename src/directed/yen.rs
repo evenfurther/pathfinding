@@ -115,10 +115,7 @@ where
     IN: IntoIterator<Item = (N, C)>,
     FS: FnMut(&N) -> bool,
 {
-    let (n, c) = match dijkstra_internal(start, &mut successors, &mut success) {
-        Some(x) => x,
-        None => return vec![],
-    };
+    let Some((n, c)) = dijkstra_internal(start, &mut successors, &mut success) else { return vec![]; };
 
     let mut visited = HashSet::new();
     // A vector containing our paths.
@@ -126,8 +123,8 @@ where
     // A min-heap to store our lowest-cost route candidate
     let mut k_routes = BinaryHeap::new();
     for ki in 0..(k - 1) {
-        if routes.len() <= ki {
-            // We have no more routes to explore
+        if routes.len() <= ki || routes.len() == k {
+            // We have no more routes to explore, or we have found enough.
             break;
         }
         // Take the most recent route to explore new spurs.
@@ -173,11 +170,23 @@ where
             }
         }
         if let Some(k_route) = k_routes.pop() {
-            routes.push(k_route.0);
+            let route = k_route.0;
+            let cost = route.cost;
+            routes.push(route);
+            // If we have other potential best routes with the same cost, we can insert
+            // them in the found routes since we will not find a better alternative.
+            while routes.len() < k {
+                let Some(k_route) = k_routes.peek() else { break; };
+                if k_route.0.cost == cost {
+                    let k_route = k_routes.pop().unwrap();
+                    routes.push(k_route.0);
+                } else {
+                    break; // Other routes have higher cost
+                }
+            }
         }
     }
 
-    routes.sort_unstable();
     routes
         .into_iter()
         .map(|Path { nodes, cost }| (nodes, cost))

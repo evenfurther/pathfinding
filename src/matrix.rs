@@ -51,8 +51,7 @@ impl<C: Clone> Matrix<C> {
 
     /// Fill with a known value.
     pub fn fill(&mut self, value: C) {
-        self.data.clear();
-        self.data.resize(self.rows * self.columns, value);
+        self.data.fill(value);
     }
 
     /// Return a copy of a sub-matrix, or return an error if the
@@ -235,11 +234,10 @@ impl<C> Matrix<C> {
     /// and so on. An error is returned if the number of values is not a
     /// square number.
     pub fn square_from_vec(values: Vec<C>) -> Result<Self, MatrixFormatError> {
-        if let Some(size) = uint_sqrt(values.len()) {
-            Self::from_vec(size, size, values)
-        } else {
-            Err(MatrixFormatError::WrongLength)
-        }
+        let Some(size) = uint_sqrt(values.len()) else {
+            return Err(MatrixFormatError::WrongLength);
+        };
+        Self::from_vec(size, size, values)
     }
 
     /// Create new empty matrix with a predefined number of columns.
@@ -728,16 +726,10 @@ impl<'a, C> Iterator for RowIterator<'a, C> {
     type Item = &'a [C];
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.row < self.matrix.rows {
-            let r = Some(
-                &self.matrix.data
-                    [self.row * self.matrix.columns..(self.row + 1) * self.matrix.columns],
-            );
+        (self.row < self.matrix.rows).then(|| {
             self.row += 1;
-            r
-        } else {
-            None
-        }
+            &self.matrix.data[(self.row - 1) * self.matrix.columns..self.row * self.matrix.columns]
+        })
     }
 }
 
@@ -806,5 +798,5 @@ fn move_in_direction(
         return None;
     }
     let (new_row, new_col) = (new_row as usize, new_col as usize);
-    (new_row < rows && new_col < columns).then(|| (new_row as usize, new_col as usize))
+    (new_row < rows && new_col < columns).then_some((new_row, new_col))
 }

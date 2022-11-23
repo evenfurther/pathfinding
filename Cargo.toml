@@ -6,33 +6,36 @@ keywords = ["shortest-path", "astar", "dijkstra", "flow", "graph"]
 license = "Apache-2.0/MIT"
 homepage = "https://rfc1149.net/devel/pathfinding.html"
 documentation = "https://docs.rs/pathfinding/"
-version = "3.0.14-alpha.0"
+version = "3.0.15-alpha.0"
 authors = ["Samuel Tardieu <sam@rfc1149.net>"]
 categories = ["algorithms"]
 readme = "README.md"
 edition = "2021"
-rust-version = "1.60.0"
+rust-version = "1.65.0"
 
 [dependencies]
-fixedbitset = "0.4.0"
-itertools = "0.10.0"
-num-traits = "0.2.6"
-indexmap = "1.7.0"
+fixedbitset = "0.4.2"
+itertools = "0.10.5"
+num-traits = "0.2.15"
+indexmap = "1.9.1"
 rustc-hash = "1.1.0"
 integer-sqrt = "0.1.5"
-thiserror = "1.0.30"
+thiserror = "1.0.37"
 
 [dev-dependencies]
-criterion = { version = "0.3.4", features = ["html_reports"] }
-lazy_static = "1.2.0"
-movingai = "1.0.0"
+criterion = { version = "0.4.0", features = ["html_reports"] }
+lazy_static = "1.4.0"
+movingai = "1.2.0"
 noisy_float = "0.2.0"
-rand = "0.8.0"
+rand = "0.8.5"
 rand_xorshift = "0.3.0"
 # Not a real dependency, but needed since crossbeam-utils 0.6.5
 # does not compile anymore as of 2020-04-29.
-rayon = "1.3.0"
-trybuild = "1.0.49"
+rayon = "1.5.3"
+# Not a real dependency, but needed since criterion 0.4.0
+# does not compile anymore as of 2022-10-03.
+regex = "1.6.0"
+trybuild = "1.0.71"
 
 [[bench]]
 name = "algos"

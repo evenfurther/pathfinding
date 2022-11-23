@@ -140,12 +140,10 @@ where
         let mut neighbs = successors(start)
             .into_iter()
             .filter_map(|(n, c)| {
-                if path.contains(&n) {
-                    None
-                } else {
+                (!path.contains(&n)).then(|| {
                     let h = heuristic(&n);
-                    Some((n, c, c + h))
-                }
+                    (n, c, c + h)
+                })
             })
             .collect::<Vec<_>>();
         neighbs.sort_unstable_by_key(|&(_, _, c)| c);
@@ -165,8 +163,5 @@ where
         }
         path.pop();
     }
-    match min {
-        Some(m) => Path::Minimum(m),
-        None => Path::Impossible,
-    }
+    min.map(Path::Minimum).unwrap_or(Path::Impossible)
 }

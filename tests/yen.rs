@@ -45,7 +45,10 @@ fn ask_more_than_exist() {
     );
 
     // we asked for 10 but the graph can only produce 7
-    assert_eq!(result.len(), 7);
+    assert_eq!(
+        result.iter().map(|&(_, c)| c).collect::<Vec<_>>(),
+        vec![5, 7, 8, 8, 8, 11, 11]
+    );
 }
 
 /// Test that we return None in case there is no solution

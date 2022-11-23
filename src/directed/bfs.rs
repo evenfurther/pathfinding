@@ -192,17 +192,14 @@ where
     type Item = N;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(n) = self.to_see.pop_front() {
-            for s in (self.successors)(&n) {
-                if !self.seen.contains(&s) {
-                    self.to_see.push_back(s.clone());
-                    self.seen.insert(s);
-                }
+        let n = self.to_see.pop_front()?;
+        for s in (self.successors)(&n) {
+            if !self.seen.contains(&s) {
+                self.to_see.push_back(s.clone());
+                self.seen.insert(s);
             }
-            Some(n)
-        } else {
-            None
         }
+        Some(n)
     }
 }
 

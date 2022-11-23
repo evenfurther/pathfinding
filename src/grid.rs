@@ -467,11 +467,7 @@ impl Iterator for GridIntoIterator {
                 if self.y == self.grid.height {
                     return None;
                 }
-                let r = if self.grid.has_vertex((self.x, self.y)) {
-                    Some((self.x, self.y))
-                } else {
-                    None
-                };
+                let r = (self.grid.has_vertex((self.x, self.y))).then_some((self.x, self.y));
                 self.x += 1;
                 if self.x == self.grid.width {
                     self.x = 0;
@@ -519,11 +515,7 @@ impl Iterator for GridIterator<'_> {
                 if self.y == self.grid.height {
                     return None;
                 }
-                let r = if self.grid.has_vertex((self.x, self.y)) {
-                    Some((self.x, self.y))
-                } else {
-                    None
-                };
+                let r = (self.grid.has_vertex((self.x, self.y))).then_some((self.x, self.y));
                 self.x += 1;
                 if self.x == self.grid.width {
                     self.x = 0;
