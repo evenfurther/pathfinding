@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use pathfinding::directed::count_paths::count_paths;
 
 #[test]
@@ -8,20 +7,17 @@ fn part2() {
         .map(|x| x.parse().unwrap())
         .collect();
 
-    adapters.sort();
+    adapters.sort_unstable();
 
-    dbg!(&adapters);
-
-    let last = adapters[adapters.len() - 1];
+    let &last = adapters.last().unwrap();
 
     let n = count_paths(
         0,
         |&x| {
             adapters
                 .iter()
+                .filter(move |&&y| y > x && y <= x + 3)
                 .copied()
-                .filter(|&y| y > x && y <= x + 3)
-                .collect_vec()
         },
         |&x| x == last,
     );

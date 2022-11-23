@@ -1,47 +1,45 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use itertools::Itertools;
 use pathfinding::directed::count_paths::count_paths;
 
-fn input() -> HashMap<String, Vec<String>> {
-    let input = include_str!("aoc-2021-12.txt");
-    let mut map: HashMap<String, Vec<String>> = HashMap::new();
+fn input(input: &str) -> HashMap<&str, Vec<&str>> {
+    let mut map: HashMap<&str, Vec<&str>> = HashMap::new();
     for line in input.lines() {
         let (a, b) = line.split_once('-').unwrap();
-        map.entry(a.to_string()).or_default().push(b.to_string());
-        map.entry(b.to_string()).or_default().push(a.to_string());
+        map.entry(a).or_default().push(b);
+        map.entry(b).or_default().push(a);
     }
     map
 }
 
 #[derive(PartialEq, Eq, Hash, Clone)]
-struct State {
-    current: String,
-    small_caves: Vec<String>,
+struct State<'a> {
+    current: &'a str,
+    small_caves: Vec<&'a str>,
     small_cave_twice: bool,
 }
 
 fn solve(small_cave_twice: bool) -> usize {
-    let map = input();
+    let map = input(include_str!("aoc-2021-12.txt"));
 
     count_paths(
         State {
-            current: "start".to_string(),
+            current: "start",
             small_caves: Vec::new(),
             small_cave_twice,
         },
         |c| {
             map[&c.current]
                 .iter()
-                .filter(|x| x != &"start" && (!c.small_caves.contains(x) || c.small_cave_twice))
+                .filter(|&&x| x != "start" && (!c.small_caves.contains(&x) || c.small_cave_twice))
                 .map(move |x| State {
-                    current: x.to_string(),
+                    current: x,
                     small_caves: c
                         .small_caves
                         .iter()
                         .cloned()
-                        .chain([x.to_string()])
-                        .filter(|x| x.chars().next().unwrap().is_lowercase())
+                        .chain((x.as_bytes()[0] >= b'a').then_some(*x))
                         .collect(),
                     small_cave_twice: c.small_cave_twice && !c.small_caves.contains(x),
                 })

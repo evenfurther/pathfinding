@@ -4,42 +4,46 @@ use std::hash::Hash;
 
 use rustc_hash::FxHashMap;
 
-fn internal<
-    T: Eq + Hash + Clone,
-    FN: FnMut(&T) -> IN,
-    IN: IntoIterator<Item = T>,
-    FS: FnMut(&T) -> bool,
->(
+fn cached_count_paths<T, FN, IN, FS>(
     start: T,
     successors: &mut FN,
     success: &mut FS,
     cache: &mut FxHashMap<T, usize>,
-) -> usize {
-    if success(&start) {
-        return 1;
-    }
-
+) -> usize
+where
+    T: Eq + Hash,
+    FN: FnMut(&T) -> IN,
+    IN: IntoIterator<Item = T>,
+    FS: FnMut(&T) -> bool,
+{
     if let Some(&n) = cache.get(&start) {
         return n;
     }
 
-    let mut count = 0;
-    for successor in successors(&start) {
-        count += internal(successor.clone(), successors, success, cache);
-    }
+    let count = if success(&start) {
+        1
+    } else {
+        successors(&start)
+            .into_iter()
+            .map(|successor| cached_count_paths(successor, successors, success, cache))
+            .sum()
+    };
 
     cache.insert(start, count);
 
     count
 }
 
-/// Count the total number of possible paths to reach a destination.
+/// Count the total number of possible paths to reach a destination. There must be no loops
+/// in the graph, or the function will overflow its stack.
 ///
 /// # Example
 ///
 /// On a 8x8 board, find the total paths from the bottom-left square to the top-right square.
 ///
 /// ```
+/// use pathfinding::prelude::count_paths;
+///
 /// let n = count_paths(
 ///     (0, 0),
 ///     |&(x, y)| {
@@ -51,17 +55,14 @@ fn internal<
 /// );
 /// assert_eq!(n, 3432);
 /// ```
-pub fn count_paths<
-    T: Eq + Hash + Clone,
+pub fn count_paths<T, FN, IN, FS>(start: T, mut successors: FN, mut success: FS) -> usize
+where
+    T: Eq + Hash,
     FN: FnMut(&T) -> IN,
     IN: IntoIterator<Item = T>,
     FS: FnMut(&T) -> bool,
->(
-    start: T,
-    mut successors: FN,
-    mut success: FS,
-) -> usize {
-    internal(
+{
+    cached_count_paths(
         start,
         &mut successors,
         &mut success,

@@ -18,6 +18,7 @@ pub mod prelude {
     pub use crate::cycle_detection::*;
     pub use crate::directed::astar::*;
     pub use crate::directed::bfs::*;
+    pub use crate::directed::count_paths::*;
     pub use crate::directed::dfs::*;
     pub use crate::directed::dijkstra::*;
     pub use crate::directed::edmonds_karp::*;
