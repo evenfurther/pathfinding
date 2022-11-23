@@ -1,5 +1,7 @@
 #[test]
 fn ui() {
-    let t = trybuild::TestCases::new();
-    t.compile_fail("tests/ui/*.rs");
+    if std::env::var("TOOLCHAIN").as_deref() != Ok("nightly") {
+        let t = trybuild::TestCases::new();
+        t.compile_fail("tests/ui/*.rs");
+    }
 }

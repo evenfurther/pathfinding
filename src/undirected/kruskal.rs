@@ -79,7 +79,7 @@ where
     let mut nodes = IndexSet::new();
     let edges = edges
         .iter()
-        .map(|&(ref a, ref b, ref w)| {
+        .map(|(a, b, w)| {
             let ia = nodes.insert_full(a).0;
             let ib = nodes.insert_full(b).0;
             (ia, ib, w.clone())

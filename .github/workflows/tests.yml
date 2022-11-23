@@ -62,11 +62,15 @@ jobs:
         with:
           command: test
           args: --tests --benches
+        env:
+          TOOLCHAIN: ${{ matrix.toolchain }}
       - uses: actions-rs/cargo@v1
         name: Test in release mode
         with:
           command: test
           args: --release --tests --benches
+        env:
+          TOOLCHAIN: ${{ matrix.toolchain }}
 
   test-minimal-versions:
     name: Test with minimal versions
@@ -90,6 +94,12 @@ jobs:
           override: true
       - run: cargo update -Zminimal-versions
         name: Set dependencies to the minimal version allowed
+      - uses: actions-rs/toolchain@v1
+        name: Install Rust toolchain
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
       - uses: actions-rs/cargo@v1
         name: Test with minimal version dependencies
         with:
