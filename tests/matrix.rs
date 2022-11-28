@@ -380,24 +380,6 @@ fn empty_neighbours() {
 }
 
 #[test]
-#[allow(deprecated)]
-fn reachable() {
-    let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
-
-    let indices = m.reachable((1, 0), false, |n| m[n] % 4 != 0);
-    assert_eq!(
-        indices.into_iter().collect::<Vec<_>>(),
-        vec![(1, 0), (2, 0), (2, 1)]
-    );
-
-    let indices = m.reachable((1, 0), true, |n| m[n] % 4 != 0);
-    assert_eq!(
-        indices.into_iter().collect::<Vec<_>>(),
-        vec![(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)]
-    );
-}
-
-#[test]
 fn bfs_reachable() {
     let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
 

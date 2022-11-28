@@ -1,34 +1,7 @@
 //! Miscellaneous utilities
 
 use integer_sqrt::IntegerSquareRoot;
-use std::ops::Sub;
-
 use num_traits::{PrimInt, Unsigned};
-
-/// Compute the absolute difference between two values.
-///
-/// # Example
-///
-/// The absolute difference between 4 and 17 as unsigned values will be 13.
-///
-/// ```
-/// use pathfinding::utils::absdiff;
-///
-/// assert_eq!(absdiff(4u32, 17u32), 13u32);
-/// assert_eq!(absdiff(17u32, 4u32), 13u32);
-/// ```
-#[inline]
-#[deprecated = "Use `abs_diff()` method available since Rust 1.60"]
-pub fn absdiff<T>(x: T, y: T) -> T
-where
-    T: Sub<Output = T> + PartialOrd,
-{
-    if x < y {
-        y - x
-    } else {
-        x - y
-    }
-}
 
 /// Return the square root of `n` if `n` is square, `None` otherwise.
 ///
