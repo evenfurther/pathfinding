@@ -169,22 +169,25 @@ fn main() {
     let b = Game::shuffled();
     println!("{:?}", b);
     assert!(b.is_solvable());
-    let idastar_handle = thread::spawn({
-        let b = b.clone();
-        move || {
-            let start = Instant::now();
-            let result = idastar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
-            println!("idastar: {} moves in {:?}", result.1, start.elapsed(),);
-            result.1
-        }
+    let start = Instant::now();
+    let (astar_result, idastar_result) = thread::scope(|s| {
+        let idastar_handle = s.spawn({
+            || {
+                let result = idastar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
+                println!("idastar: {} moves in {:.3?}", result.1, start.elapsed(),);
+                result.1
+            }
+        });
+        (
+            {
+                let result = astar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
+                println!("astar: {} moves in {:.3?}", result.1, start.elapsed(),);
+                result.1
+            },
+            idastar_handle.join().unwrap(),
+        )
     });
-    let astar_result = {
-        let start = Instant::now();
-        let result = astar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
-        println!("astar: {} moves in {:?}", result.1, start.elapsed(),);
-        result.1
-    };
-    let idastar_result = idastar_handle.join().unwrap();
+    println!("Total execution time: {:.3?}", start.elapsed());
     assert_eq!(idastar_result, astar_result);
     assert!(idastar_result >= b.weight);
 }
