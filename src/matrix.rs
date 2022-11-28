@@ -2,7 +2,7 @@
 
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
-use crate::utils::uint_sqrt;
+use crate::utils::{in_direction, move_in_direction, uint_sqrt};
 use itertools::{iproduct, Itertools};
 use num_traits::Signed;
 use std::collections::BTreeSet;
@@ -470,10 +470,10 @@ impl<C> Matrix<C> {
     #[must_use]
     pub fn move_in_direction(
         &self,
-        index: (usize, usize),
+        start: (usize, usize),
         direction: (isize, isize),
     ) -> Option<(usize, usize)> {
-        move_in_direction(index, direction, self.rows, self.columns)
+        move_in_direction(start, direction, (self.rows, self.columns))
     }
 
     /// Return an iterator of cells in a given direction starting from
@@ -503,16 +503,10 @@ impl<C> Matrix<C> {
     /// ```
     pub fn in_direction(
         &self,
-        index: (usize, usize),
+        start: (usize, usize),
         direction: (isize, isize),
     ) -> impl Iterator<Item = (usize, usize)> {
-        let (rows, columns) = (self.rows, self.columns);
-        itertools::unfold(index, move |current| {
-            move_in_direction(*current, direction, rows, columns).map(|next| {
-                *current = next;
-                next
-            })
-        })
+        in_direction(start, direction, (self.rows, self.columns))
     }
 
     /// Return an iterator on rows of the matrix.
@@ -755,24 +749,4 @@ pub mod directions {
 
     /// Eight main directions with diagonals
     pub const DIRECTIONS_8: [(isize, isize); 8] = [NE, E, SE, S, SW, W, NW, N];
-}
-
-#[must_use]
-#[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
-fn move_in_direction(
-    index: (usize, usize),
-    direction: (isize, isize),
-    rows: usize,
-    columns: usize,
-) -> Option<(usize, usize)> {
-    let (row, col) = index;
-    if row >= rows || col >= columns || direction == (0, 0) {
-        return None;
-    }
-    let (new_row, new_col) = (row as isize + direction.0, col as isize + direction.1);
-    if new_row < 0 || new_col < 0 {
-        return None;
-    }
-    let (new_row, new_col) = (new_row as usize, new_col as usize);
-    (new_row < rows && new_col < columns).then_some((new_row, new_col))
 }
