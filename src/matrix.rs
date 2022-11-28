@@ -245,7 +245,7 @@ impl<C> Matrix<C> {
     /// later using [`extend`](Matrix::extend) and does not require
     /// a filler element compared to [`Matrix::new`].
     #[must_use]
-    pub fn new_empty(columns: usize) -> Self {
+    pub const fn new_empty(columns: usize) -> Self {
         Self {
             rows: 0,
             columns,
@@ -255,7 +255,7 @@ impl<C> Matrix<C> {
 
     /// Check if the matrix is empty.
     #[must_use]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.rows == 0
     }
 
@@ -300,7 +300,7 @@ impl<C> Matrix<C> {
 
     /// Check if a matrix is a square one.
     #[must_use]
-    pub fn is_square(&self) -> bool {
+    pub const fn is_square(&self) -> bool {
         self.rows == self.columns
     }
 
@@ -310,7 +310,7 @@ impl<C> Matrix<C> {
     ///
     /// This function returns a meaningless result if the
     /// coordinates do not designate a cell.
-    pub unsafe fn idx_unchecked(&self, i: (usize, usize)) -> usize {
+    pub const unsafe fn idx_unchecked(&self, i: (usize, usize)) -> usize {
         i.0 * self.columns + i.1
     }
 
@@ -338,7 +338,7 @@ impl<C> Matrix<C> {
 
     /// Check if the coordinates designate a matrix cell.
     #[must_use]
-    pub fn within_bounds(&self, (row, column): (usize, usize)) -> bool {
+    pub const fn within_bounds(&self, (row, column): (usize, usize)) -> bool {
         row < self.rows && column < self.columns
     }
 
