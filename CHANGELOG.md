@@ -1,4 +1,4 @@
-n.n.n / 2022-11-30
+v4.0.0 / 2022-11-30
 ==================
 
   * Add move_in_direction and in_direction to utils
