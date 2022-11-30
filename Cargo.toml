@@ -13,6 +13,14 @@ readme = "README.md"
 edition = "2021"
 rust-version = "1.65.0"
 
+[package.metadata.release]
+sign-commit = true
+sign-tag = true
+pre-release-replacements = [
+    {file = "README.md", search = "pathfinding = \".*\"", replace = "pathfinding = \"{{version}}\"", exactly = 1},
+    {file = "CHANGELOG.md", search = "n\\.n\\.n", replace = "{{tag_name}}", exactly = 1}
+]
+
 [dependencies]
 fixedbitset = "0.4.2"
 itertools = "0.10.5"
