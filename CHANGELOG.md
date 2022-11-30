@@ -1,4 +1,15 @@
 
+n.n.n / 2022-11-30
+==================
+
+  * Add move_in_direction and in_direction to utils
+  * Make some function const
+  * Cleanups
+  * Count paths
+  * Add minimum_cut capability to EdmondsKarp
+  * Bump MSRV to 1.65.0
+  * Update dependencies
+
 v3.0.14 / 2022-10-03
 ==================
 
