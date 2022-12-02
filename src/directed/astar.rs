@@ -78,6 +78,7 @@ use crate::directed::FxIndexMap;
 ///                    |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
+#[allow(clippy::missing_panics_doc)]
 pub fn astar<N, C, FN, IN, FH, FS>(
     start: &N,
     mut successors: FN,
@@ -102,7 +103,7 @@ where
     parents.insert(start.clone(), (usize::max_value(), Zero::zero()));
     while let Some(SmallestCostHolder { cost, index, .. }) = to_see.pop() {
         let successors = {
-            let (node, &(_, c)) = parents.get_index(index).unwrap();
+            let (node, &(_, c)) = parents.get_index(index).unwrap(); // Cannot fail
             if success(node) {
                 let path = reverse_path(&parents, |&(p, _)| p, index);
                 return Some((path, cost));
@@ -167,6 +168,7 @@ where
 ///
 /// Each path comprises both the start and an end node. Note that while every path shares the same
 /// start node, different paths may have different end nodes.
+#[allow(clippy::missing_panics_doc)]
 pub fn astar_bag<N, C, FN, IN, FH, FS>(
     start: &N,
     mut successors: FN,
@@ -202,7 +204,7 @@ where
             break;
         }
         let successors = {
-            let (node, &(_, c)) = parents.get_index(index).unwrap();
+            let (node, &(_, c)) = parents.get_index(index).unwrap(); // Cannot fail
             if success(node) {
                 min_cost = Some(cost);
                 sinks.insert(index);

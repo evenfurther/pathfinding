@@ -78,6 +78,7 @@ use std::usize;
 ///                     |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
+#[allow(clippy::missing_panics_doc)]
 pub fn fringe<N, C, FN, IN, FH, FS>(
     start: &N,
     mut successors: FN,
@@ -106,7 +107,7 @@ where
         let mut fmin = C::max_value();
         while let Some(i) = now.pop_front() {
             let (g, successors) = {
-                let (node, &(_, g)) = parents.get_index(i).unwrap();
+                let (node, &(_, g)) = parents.get_index(i).unwrap(); // Cannot fail
                 let f = g + heuristic(node);
                 if f > flimit {
                     if f < fmin {

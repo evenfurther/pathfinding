@@ -178,7 +178,7 @@ where
             while routes.len() < k {
                 let Some(k_route) = k_routes.peek() else { break; };
                 if k_route.0.cost == cost {
-                    let k_route = k_routes.pop().unwrap();
+                    let Some(k_route) = k_routes.pop() else { break; }; // Cannot break
                     routes.push(k_route.0);
                 } else {
                     break; // Other routes have higher cost

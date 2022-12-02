@@ -163,5 +163,5 @@ where
         }
         path.pop();
     }
-    min.map(Path::Minimum).unwrap_or(Path::Impossible)
+    min.map_or(Path::Impossible, Path::Minimum)
 }
