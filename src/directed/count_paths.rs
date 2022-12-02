@@ -66,6 +66,6 @@ where
         start,
         &mut successors,
         &mut success,
-        &mut Default::default(),
+        &mut FxHashMap::default(),
     )
 }

@@ -168,6 +168,7 @@ where
 ///
 /// The [`build_path`] function can be used to build a full path from the starting point to one
 /// of the reachable targets.
+#[allow(clippy::missing_panics_doc)]
 pub fn dijkstra_partial<N, C, FN, IN, FS>(
     start: &N,
     mut successors: FN,
@@ -185,7 +186,7 @@ where
         parents
             .iter()
             .skip(1)
-            .map(|(n, (p, c))| (n.clone(), (parents.get_index(*p).unwrap().0.clone(), *c)))
+            .map(|(n, (p, c))| (n.clone(), (parents.get_index(*p).unwrap().0.clone(), *c))) // unwrap() cannot fail
             .collect(),
         reached.map(|i| parents.get_index(i).unwrap().0.clone()),
     )

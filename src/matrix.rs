@@ -54,8 +54,12 @@ impl<C: Clone> Matrix<C> {
         self.data.fill(value);
     }
 
-    /// Return a copy of a sub-matrix, or return an error if the
-    /// ranges are outside the original matrix.
+    /// Return a copy of a sub-matrix.
+    ///
+    /// # Errors
+    ///
+    /// [`MatrixFormatError::WrongIndex`] if the ranges
+    /// are outside the original matrix.
     #[allow(clippy::needless_pass_by_value)]
     pub fn slice(
         &self,
@@ -132,6 +136,11 @@ impl<C: Clone> Matrix<C> {
     }
 
     /// Return a copy of the matrix after transposition.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if the transposed matrix would end
+    /// up with empty rows.
     #[must_use]
     pub fn transposed(&self) -> Self {
         assert!(
@@ -147,9 +156,13 @@ impl<C: Clone> Matrix<C> {
         }
     }
 
-    /// Extend the matrix in place by adding one full row. An error
-    /// is returned if the row does not have the expected number of
-    /// elements or if an empty row is passed.
+    /// Extend the matrix in place by adding one full row.
+    ///
+    /// # Errors
+    ///
+    /// - [`MatrixFormatError::WrongLength`] if the row does not have
+    /// the expected number of elements.
+    /// - [`MatrixFormatError::EmptyRow`] if an empty row is passed.
     pub fn extend(&mut self, row: &[C]) -> Result<(), MatrixFormatError> {
         if row.is_empty() {
             return Err(MatrixFormatError::EmptyRow);
@@ -209,18 +222,24 @@ impl<C: Clone + Signed> Neg for Matrix<C> {
 impl<C> Matrix<C> {
     /// Create new matrix from vector values. The first value
     /// will be assigned to index (0, 0), the second one to index (0, 1),
-    /// and so on. An error is returned instead if data length does not
-    /// correspond to the announced size.
+    /// and so on.
+    ///
+    /// # Errors
+    ///
+    /// - [`MatrixFormatError::WrongLength`] if the data length does not
+    /// correspond to the announced size
+    /// - [`MatrixFormatError::EmptyRow`] if the matrix would contain
+    /// an empty row
     pub fn from_vec(
         rows: usize,
         columns: usize,
         values: Vec<C>,
     ) -> Result<Self, MatrixFormatError> {
-        if rows != 0 && columns == 0 {
-            return Err(MatrixFormatError::EmptyRow);
-        }
         if rows * columns != values.len() {
             return Err(MatrixFormatError::WrongLength);
+        }
+        if rows != 0 && columns == 0 {
+            return Err(MatrixFormatError::EmptyRow);
         }
         Ok(Self {
             rows,
@@ -231,8 +250,12 @@ impl<C> Matrix<C> {
 
     /// Create new square matrix from vector values. The first value
     /// will be assigned to index (0, 0), the second one to index (0, 1),
-    /// and so on. An error is returned if the number of values is not a
-    /// square number.
+    /// and so on.
+    ///
+    /// # Errors
+    ///
+    /// [`MatrixFormatError::WrongLength`] if the number of values is not a
+    /// square number or if `values` is empty.
     pub fn square_from_vec(values: Vec<C>) -> Result<Self, MatrixFormatError> {
         let Some(size) = uint_sqrt(values.len()) else {
             return Err(MatrixFormatError::WrongLength);
@@ -262,8 +285,12 @@ impl<C> Matrix<C> {
     /// Create a matrix from something convertible to an iterator on rows,
     /// each row being convertible to an iterator on columns.
     ///
-    /// An error will be returned if length of rows differ or if empty rows
-    /// are added.
+    /// # Errors
+    ///
+    /// [`MatrixFormatError::WrongLength`] if length of rows differ or
+    /// the rows are empty.
+    ///
+    /// # Example
     ///
     /// ```
     /// use pathfinding::matrix::*;
@@ -310,6 +337,7 @@ impl<C> Matrix<C> {
     ///
     /// This function returns a meaningless result if the
     /// coordinates do not designate a cell.
+    #[must_use]
     pub const unsafe fn idx_unchecked(&self, i: (usize, usize)) -> usize {
         i.0 * self.columns + i.1
     }

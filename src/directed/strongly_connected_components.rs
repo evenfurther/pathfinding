@@ -104,12 +104,14 @@ where
 ///
 /// The function returns the strongly connected component containing the node,
 /// which is guaranteed to contain at least `node`.
+#[allow(clippy::missing_panics_doc)]
 pub fn strongly_connected_component<N, FN, IN>(node: &N, successors: FN) -> Vec<N>
 where
     N: Clone + Hash + Eq,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
+    // The unwrap() cannot fail as there will always be at least one group.
     strongly_connected_components_from(node, successors)
         .pop()
         .unwrap()
