@@ -1,3 +1,10 @@
+
+n.n.n / 2022-12-12
+==================
+
+  * Improve bfs performance
+  * Add documentation for possible errors and panics
+
 v4.0.0 / 2022-11-30
 ==================
 
