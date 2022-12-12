@@ -2,13 +2,11 @@
 //! algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
 
 use indexmap::map::Entry::Vacant;
-use std::collections::{HashSet, VecDeque};
 use std::hash::Hash;
 use std::iter::FusedIterator;
 use std::usize;
 
-use super::reverse_path;
-use crate::directed::FxIndexMap;
+use super::{reverse_path, FxIndexMap, FxIndexSet};
 
 /// Compute a shortest path using the [breadth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
@@ -164,11 +162,10 @@ where
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
-    let (mut to_see, mut seen) = (VecDeque::new(), HashSet::new());
-    to_see.push_back(start.clone());
+    let mut seen = FxIndexSet::default();
     seen.insert(start);
     BfsReachable {
-        to_see,
+        i: 0,
         seen,
         successors,
     }
@@ -176,8 +173,8 @@ where
 
 /// Struct returned by [`bfs_reach`](crate::directed::bfs::bfs_reach).
 pub struct BfsReachable<N, FN> {
-    to_see: VecDeque<N>,
-    seen: HashSet<N>,
+    i: usize,
+    seen: FxIndexSet<N>,
     successors: FN,
 }
 
@@ -190,13 +187,11 @@ where
     type Item = N;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let n = self.to_see.pop_front()?;
+        let n = self.seen.get_index(self.i)?.clone();
         for s in (self.successors)(&n) {
-            if !self.seen.contains(&s) {
-                self.to_see.push_back(s.clone());
-                self.seen.insert(s);
-            }
+            self.seen.insert(s);
         }
+        self.i += 1;
         Some(n)
     }
 }
