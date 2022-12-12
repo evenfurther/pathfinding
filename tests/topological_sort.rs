@@ -23,12 +23,7 @@ fn order() {
     .unwrap();
     for (i, &vi) in sorted.iter().enumerate() {
         for &vj in sorted.iter().skip(i + 1) {
-            assert!(
-                vi % vj != 0,
-                "{} is located after {} and divides it",
-                vj,
-                vi
-            );
+            assert!(vi % vj != 0, "{vj} is located after {vi} and divides it");
         }
     }
 }

@@ -163,7 +163,7 @@ fn test() {
 
 fn main() {
     let b = Game::shuffled();
-    println!("{:?}", b);
+    println!("{b:?}");
     assert!(b.is_solvable());
     let start = Instant::now();
     let (astar_result, idastar_result) = thread::scope(|s| {

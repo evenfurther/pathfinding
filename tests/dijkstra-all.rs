@@ -38,40 +38,29 @@ fn all_paths() {
                 if start == target {
                     assert!(
                         !paths.contains_key(&target),
-                        "path {} -> {} is present in {:?}",
-                        start,
-                        target,
-                        network
+                        "path {start} -> {target} is present in {network:?}"
                     );
                 } else {
                     assert!(
                         paths.contains_key(&target),
-                        "path {} -> {} is not found in {:?}",
-                        start,
-                        target,
-                        network
+                        "path {start} -> {target} is not found in {network:?}"
                     );
                     assert_eq!(
                         cost, paths[&target].1,
-                        "cost differ in path {} -> {} in {:?}",
-                        start, target, network
+                        "cost differ in path {start} -> {target} in {network:?}"
                     );
                     let other_path = build_path(&target, &paths);
                     // There might be several paths, but we know that internally we use the
                     // same algorithm so the comparaison holds.
                     assert_eq!(
                         path, other_path,
-                        "path {} -> {} differ in {:?}: {:?} vs {:?}",
-                        start, target, network, path, other_path
+                        "path {start} -> {target} differ in {network:?}: {path:?} vs {other_path:?}"
                     );
                 }
             } else {
                 assert!(
                     !paths.contains_key(&target),
-                    "path {} -> {} is present in {:?}",
-                    start,
-                    target,
-                    network
+                    "path {start} -> {target} is present in {network:?}"
                 );
             }
         }
@@ -95,25 +84,20 @@ fn partial_paths() {
                 dijkstra(&start, neighbours(network.clone()), |&n| n == target).unwrap();
             assert_eq!(
                 cost, dcost,
-                "costs {} -> {} differ in {:?}",
-                start, target, network
+                "costs {start} -> {target} differ in {network:?}"
             );
             let other_path = build_path(&target, &paths);
             // There might be several paths, but we know that internally we use the
             // same algorithm so the comparaison holds.
             assert_eq!(
                 path, other_path,
-                "path {} -> {} differ in {:?}: {:?} vs {:?}",
-                start, target, network, path, other_path
+                "path {start} -> {target} differ in {network:?}: {path:?} vs {other_path:?}"
             );
         } else if start != 0 && start <= (SIZE - 1) / 2 {
             for target in 1..(SIZE / start) {
                 assert!(
                     dijkstra(&start, neighbours(network.clone()), |&n| n == target).is_none(),
-                    "path {} -> {} found in {:?}",
-                    start,
-                    target,
-                    network
+                    "path {start} -> {target} found in {network:?}"
                 );
             }
         }

@@ -490,7 +490,7 @@ fn debug() {
     .into_iter()
     .collect::<Grid>();
     assert_eq!(
-        format!("{:?}", g),
+        format!("{g:?}"),
         String::from(
             "\
 #####
@@ -501,7 +501,7 @@ fn debug() {
         )
     );
     assert_eq!(
-        format!("{:#?}", g),
+        format!("{g:#?}"),
         String::from(
             "\
 ▓▓▓▓▓

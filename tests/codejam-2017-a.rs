@@ -124,7 +124,7 @@ fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut dyn BufRead) -> Result<String
         })
         .max()
         .unwrap();
-    Ok(format!("Case #{}: {}", n, answer))
+    Ok(format!("Case #{n}: {answer}"))
 }
 
 fn codejam<EK: EdmondsKarp<i32>>() {
