@@ -90,12 +90,10 @@ where
     if check_first && success(start) {
         return Some(vec![start.clone()]);
     }
-    let mut to_see = VecDeque::new();
+    let mut i = 0;
     let mut parents: FxIndexMap<N, usize> = FxIndexMap::default();
-    to_see.push_back(0);
     parents.insert(start.clone(), usize::max_value());
-    while let Some(i) = to_see.pop_front() {
-        let node = parents.get_index(i).unwrap().0;
+    while let Some((node, _)) = parents.get_index(i) {
         for successor in successors(node) {
             if success(&successor) {
                 let mut path = reverse_path(&parents, |&p| p, i);
@@ -103,10 +101,10 @@ where
                 return Some(path);
             }
             if let Vacant(e) = parents.entry(successor) {
-                to_see.push_back(e.index());
                 e.insert(i);
             }
         }
+        i += 1;
     }
     None
 }
