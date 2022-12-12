@@ -2,13 +2,11 @@
 //! algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
 
 use indexmap::map::Entry::Vacant;
-use std::collections::{HashSet, VecDeque};
 use std::hash::Hash;
 use std::iter::FusedIterator;
 use std::usize;
 
-use super::reverse_path;
-use crate::directed::FxIndexMap;
+use super::{reverse_path, FxIndexMap, FxIndexSet};
 
 /// Compute a shortest path using the [breadth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
@@ -90,12 +88,10 @@ where
     if check_first && success(start) {
         return Some(vec![start.clone()]);
     }
-    let mut to_see = VecDeque::new();
+    let mut i = 0;
     let mut parents: FxIndexMap<N, usize> = FxIndexMap::default();
-    to_see.push_back(0);
     parents.insert(start.clone(), usize::max_value());
-    while let Some(i) = to_see.pop_front() {
-        let node = parents.get_index(i).unwrap().0;
+    while let Some((node, _)) = parents.get_index(i) {
         for successor in successors(node) {
             if success(&successor) {
                 let mut path = reverse_path(&parents, |&p| p, i);
@@ -103,10 +99,10 @@ where
                 return Some(path);
             }
             if let Vacant(e) = parents.entry(successor) {
-                to_see.push_back(e.index());
                 e.insert(i);
             }
         }
+        i += 1;
     }
     None
 }
@@ -166,11 +162,10 @@ where
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
-    let (mut to_see, mut seen) = (VecDeque::new(), HashSet::new());
-    to_see.push_back(start.clone());
+    let mut seen = FxIndexSet::default();
     seen.insert(start);
     BfsReachable {
-        to_see,
+        i: 0,
         seen,
         successors,
     }
@@ -178,8 +173,8 @@ where
 
 /// Struct returned by [`bfs_reach`](crate::directed::bfs::bfs_reach).
 pub struct BfsReachable<N, FN> {
-    to_see: VecDeque<N>,
-    seen: HashSet<N>,
+    i: usize,
+    seen: FxIndexSet<N>,
     successors: FN,
 }
 
@@ -192,13 +187,11 @@ where
     type Item = N;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let n = self.to_see.pop_front()?;
+        let n = self.seen.get_index(self.i)?.clone();
         for s in (self.successors)(&n) {
-            if !self.seen.contains(&s) {
-                self.to_see.push_back(s.clone());
-                self.seen.insert(s);
-            }
+            self.seen.insert(s);
         }
+        self.i += 1;
         Some(n)
     }
 }
