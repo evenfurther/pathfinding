@@ -31,13 +31,13 @@ use std::iter::{FromIterator, FusedIterator};
 /// let mut g = Grid::new(3, 4);
 /// g.add_borders();
 ///
-/// assert_eq!(&format!("{:?}", g), "\
+/// assert_eq!(&format!("{g:?}"), "\
 /// ####
 /// #.#
 /// #.#
 /// ####");
 ///
-/// assert_eq!(&format!("{:#?}", g), "\
+/// assert_eq!(&format!("{g:#?}"), "\
 /// ▓▓▓
 /// ▓░▓
 /// ▓░▓
