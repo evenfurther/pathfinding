@@ -14,6 +14,8 @@ use thiserror::Error;
 /// Matrix of an arbitrary type. Data are stored consecutively in
 /// memory, by rows. Raw data can be accessed using `as_ref()`
 /// or `as_mut()`.
+///
+/// Coordinates within the matrix are represented as (row, column) tuples
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Matrix<C> {
     /// Rows
