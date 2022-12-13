@@ -563,6 +563,11 @@ impl<C> Matrix<C> {
         self.data.iter_mut()
     }
 
+    /// Return an iterator on the Matrix coordinates and values
+    pub fn items(&self) -> impl Iterator<Item = ((usize, usize), &C)> {
+        self.indices().zip(self.values())
+    }
+
     /// Return a set of the indices reachable from a candidate starting point
     /// and for which the given predicate is valid. This can be used for example
     /// to implement a flood-filling algorithm. Since the indices are collected

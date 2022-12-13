@@ -625,3 +625,10 @@ fn map() {
         Matrix::square_from_vec(vec![11, 12, 13, 14, 15, 16, 17, 18, 19]).unwrap()
     );
 }
+
+#[test]
+fn items() {
+    let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+
+    assert_eq!(m.items().find(|&(_, val)| val == &3), Some(((1, 0), &3)));
+}
