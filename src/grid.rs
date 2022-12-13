@@ -16,6 +16,9 @@ use std::iter::{FromIterator, FusedIterator};
 /// By default, only vertical and horizontal edges are created, unless
 /// diagonal mode is enabled.
 ///
+/// The coordinate system is of the form `(x, y)`, where `x` is the column
+/// and `y` is the row. `(0, 0)` corresponds to the top-left corner.
+///
 /// Internally, a Grid is represented either as a collection of vertices
 /// or as a collection of absent vertices, depending on the density of
 /// the grid. The switch between both representations is done automatically
@@ -43,6 +46,18 @@ use std::iter::{FromIterator, FusedIterator};
 /// ▓░▓
 /// ▓▓▓");
 /// ```
+///
+/// One of the ways to build a `Grid` is to start from an iterator of
+/// `(usize, usize)` representing the `(x, y)` coordinates:
+///
+/// ```
+/// use pathfinding::prelude::Grid;
+///
+/// let g = vec![(0, 0), (2, 2), (3, 2)].into_iter().collect::<Grid>();
+/// assert_eq!(format!("{g:?}"), "\
+/// #...
+/// ....
+/// ..##");
 pub struct Grid {
     /// The grid width.
     pub width: usize,
