@@ -1,5 +1,5 @@
 
-n.n.n / 2022-12-14
+v4.1.0 / 2022-12-14
 ==================
 
   * Add Matrix::items() and Matrix::items_mut()
