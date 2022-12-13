@@ -1,4 +1,13 @@
 
+n.n.n / 2022-12-14
+==================
+
+  * Add Matrix::items() and Matrix::items_mut()
+  * Rename Matrix::indices() as Matrix::keys() and deprecate Matrix::indices()
+  * Clarify the ordering of coordinate tuples in Matrix
+  * Add more Grid documentation
+  * Enable clippy pedantic mode by default
+
 v4.0.1 / 2022-12-12
 ==================
 
