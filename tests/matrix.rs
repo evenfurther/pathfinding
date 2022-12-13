@@ -540,10 +540,10 @@ fn into_iter_is_fused() {
 }
 
 #[test]
-fn indices() {
+fn keys() {
     let m = matrix![[0, 1, 2], [2, 1, 0]];
     assert_eq!(
-        m.indices().collect::<Vec<_>>(),
+        m.keys().collect::<Vec<_>>(),
         vec![(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
     );
 }
@@ -631,4 +631,16 @@ fn items() {
     let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
 
     assert_eq!(m.items().find(|&(_, val)| val == &3), Some(((1, 0), &3)));
+}
+
+#[test]
+fn items_mut() {
+    let mut m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+    for ((r, c), v) in m.items_mut() {
+        if r == 2 && c == 1 {
+            *v *= 2;
+        }
+    }
+
+    assert_eq!(&*m, &[0, 1, 2, 3, 4, 5, 6, 14, 8]);
 }

@@ -548,7 +548,15 @@ impl<C> Matrix<C> {
     /// Return an iterator on the Matrix indices, first row first. The values are
     /// computed when this method is called and will not change even if new rows are
     /// added before the iterator is consumed.
+    #[deprecated(since = "4.1.0", note = "use the .keys() method instead")]
     pub fn indices(&self) -> impl Iterator<Item = (usize, usize)> {
+        self.keys()
+    }
+
+    /// Return an iterator on the Matrix indices, first row first. The values are
+    /// computed when this method is called and will not change even if new rows are
+    /// added before the iterator is consumed.
+    pub fn keys(&self) -> impl Iterator<Item = (usize, usize)> {
         let columns = self.columns;
         (0..self.rows).flat_map(move |r| (0..columns).map(move |c| (r, c)))
     }
@@ -563,9 +571,15 @@ impl<C> Matrix<C> {
         self.data.iter_mut()
     }
 
-    /// Return an iterator on the Matrix coordinates and values
+    /// Return an iterator on the Matrix coordinates and values, first row first.
     pub fn items(&self) -> impl Iterator<Item = ((usize, usize), &C)> {
-        self.indices().zip(self.values())
+        self.keys().zip(self.values())
+    }
+
+    /// Return an iterator on the Matrix coordinates and mutable values,
+    /// first row first.
+    pub fn items_mut(&mut self) -> impl Iterator<Item = ((usize, usize), &mut C)> {
+        self.keys().zip(self.values_mut())
     }
 
     /// Return a set of the indices reachable from a candidate starting point
