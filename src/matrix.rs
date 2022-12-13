@@ -578,7 +578,7 @@ impl<C> Matrix<C> {
     ///
     /// # See also
     ///
-    /// The [`dfs_reachable()`](`Self::dfs_reachable`) performs a DFS search instead.
+    /// The [`dfs_reachable()`](`Self::dfs_reachable`) method performs a DFS search instead.
     pub fn bfs_reachable<P>(
         &self,
         start: (usize, usize),
@@ -606,7 +606,7 @@ impl<C> Matrix<C> {
     ///
     /// # See also
     ///
-    /// The [`bfs_reachable()`](`Self::bfs_reachable`) performs a BFS search instead.
+    /// The [`bfs_reachable()`](`Self::bfs_reachable`) method performs a BFS search instead.
     pub fn dfs_reachable<P>(
         &self,
         start: (usize, usize),
