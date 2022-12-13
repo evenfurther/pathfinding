@@ -1,4 +1,5 @@
 #![forbid(missing_docs)]
+#![warn(clippy::pedantic)]
 #![allow(clippy::non_ascii_literal)]
 #![allow(clippy::module_name_repetitions)]
 #![doc = include_str!("../README.md")]
