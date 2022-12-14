@@ -105,6 +105,8 @@ jobs:
         with:
           command: test
           args: --tests --benches
+        env:
+          TOOLCHAIN: stable
 
   fmt:
     name: Rustfmt
