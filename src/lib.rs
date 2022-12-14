@@ -14,6 +14,13 @@ pub mod matrix;
 pub mod undirected;
 pub mod utils;
 
+use indexmap::{IndexMap, IndexSet};
+use rustc_hash::FxHasher;
+use std::hash::BuildHasherDefault;
+
+type FxIndexMap<K, V> = IndexMap<K, V, BuildHasherDefault<FxHasher>>;
+type FxIndexSet<K> = IndexSet<K, BuildHasherDefault<FxHasher>>;
+
 /// Export all public functions and structures for an easy access.
 pub mod prelude {
     pub use crate::cycle_detection::*;

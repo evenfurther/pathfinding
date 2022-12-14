@@ -1,5 +1,8 @@
 //! Algorithms for directed graphs.
 
+use super::FxIndexMap;
+use std::hash::Hash;
+
 pub mod astar;
 pub mod bfs;
 pub mod count_paths;
@@ -12,13 +15,6 @@ pub mod iddfs;
 pub mod strongly_connected_components;
 pub mod topological_sort;
 pub mod yen;
-
-use indexmap::{IndexMap, IndexSet};
-use rustc_hash::FxHasher;
-use std::hash::{BuildHasherDefault, Hash};
-
-type FxIndexMap<K, V> = IndexMap<K, V, BuildHasherDefault<FxHasher>>;
-type FxIndexSet<K> = IndexSet<K, BuildHasherDefault<FxHasher>>;
 
 #[allow(clippy::needless_collect)]
 fn reverse_path<N, V, F>(parents: &FxIndexMap<N, V>, mut parent: F, start: usize) -> Vec<N>
