@@ -147,7 +147,8 @@ impl Grid {
     }
 
     /// Add a new vertex. Return `true` if the vertex did not previously
-    /// exist and has been added.
+    /// exist and has been added. Return `false` if the vertex exists
+    /// already or would be outside the grid.
     pub fn add_vertex(&mut self, vertex: (usize, usize)) -> bool {
         if !self.is_inside(vertex) {
             return false;
