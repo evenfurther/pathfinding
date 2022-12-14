@@ -1,12 +1,12 @@
 //! Compute a shortest path using the [breadth-first search
 //! algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
 
+use super::reverse_path;
+use crate::{FxIndexMap, FxIndexSet};
 use indexmap::map::Entry::Vacant;
 use std::hash::Hash;
 use std::iter::FusedIterator;
 use std::usize;
-
-use super::{reverse_path, FxIndexMap, FxIndexSet};
 
 /// Compute a shortest path using the [breadth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).

@@ -1,15 +1,14 @@
 //! Compute a shortest path using the [Dijkstra search
 //! algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
 
+use super::reverse_path;
+use crate::FxIndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 use std::hash::Hash;
 use std::usize;
-
-use super::reverse_path;
-use crate::directed::FxIndexMap;
 
 /// Compute a shortest path using the [Dijkstra search
 /// algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).

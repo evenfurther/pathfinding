@@ -2,7 +2,7 @@
 //! algorithm](https://en.wikipedia.org/wiki/Fringe_search).
 
 use super::reverse_path;
-use crate::directed::FxIndexMap;
+use crate::FxIndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::{Bounded, Zero};
 use std::collections::VecDeque;

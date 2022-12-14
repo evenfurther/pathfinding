@@ -7,14 +7,12 @@
 //! take advantage of computations already performed on unchanged or augmented
 //! edges.
 
-use indexmap::IndexSet;
+use super::bfs::bfs;
+use crate::{matrix::Matrix, FxIndexSet};
 use itertools::iproduct;
 use num_traits::{Bounded, Signed, Zero};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::hash::Hash;
-
-use super::bfs::bfs;
-use crate::matrix::Matrix;
 
 /// Type alias for Edmonds-Karp maximum flow result.
 #[allow(clippy::upper_case_acronyms)]
@@ -63,7 +61,7 @@ where
 {
     // Build a correspondence between N and 0..vertices.len() so that we can
     // work with matrices more easily.
-    let reverse = vertices.iter().collect::<IndexSet<_>>();
+    let reverse = vertices.iter().collect::<FxIndexSet<_>>();
     let mut capacities = EK::new(
         vertices.len(),
         reverse.get_index_of(source).unwrap(),

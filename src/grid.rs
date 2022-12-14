@@ -4,7 +4,7 @@
 use super::matrix::Matrix;
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
-use indexmap::IndexSet;
+use crate::FxIndexSet;
 use itertools::iproduct;
 use std::collections::BTreeSet;
 use std::fmt;
@@ -68,7 +68,7 @@ pub struct Grid {
     // contains absent vertices. It is false if the grid is empty by default
     // and `exclusions` contains the vertices.
     dense: bool,
-    exclusions: IndexSet<(usize, usize)>,
+    exclusions: FxIndexSet<(usize, usize)>,
 }
 
 impl Grid {
@@ -81,7 +81,7 @@ impl Grid {
             height,
             diagonal_mode: false,
             dense: false,
-            exclusions: IndexSet::new(),
+            exclusions: FxIndexSet::default(),
         }
     }
 

@@ -10,7 +10,7 @@ use std::iter::FusedIterator;
 use std::usize;
 
 use super::reverse_path;
-use crate::directed::FxIndexMap;
+use crate::FxIndexMap;
 
 /// Compute a shortest path using the [A* search
 /// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
