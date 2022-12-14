@@ -1,5 +1,5 @@
 
-n.n.n / 2022-12-14
+v4.1.1 / 2022-12-14
 ==================
 
   * Better performances in Grid, Kruskal and Edmonds-Karp
