@@ -6,9 +6,11 @@ use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
 use crate::FxIndexSet;
 use itertools::iproduct;
+use num_traits::ToPrimitive;
 use std::collections::BTreeSet;
 use std::fmt;
 use std::iter::{FromIterator, FusedIterator};
+use std::ops::Sub;
 
 #[derive(Clone)]
 /// Representation of a rectangular grid in which vertices can be added
@@ -58,6 +60,31 @@ use std::iter::{FromIterator, FusedIterator};
 /// #...
 /// ....
 /// ..##");
+/// ```
+///
+/// To be able to easily use the grid as a visualization tool for
+/// arbitrary types of coordinates, a [`from_coordinates`](Grid::from_coordinates)
+/// method will build a grid and remap the top-left most coordinate as `(0, 0)`:
+///
+/// ```
+/// use pathfinding::prelude::Grid;
+///
+/// let g = Grid::from_coordinates(&[(-16, -15), (-16, -16), (-15, -16)]).unwrap();
+/// assert_eq!(format!("{g:#?}"), "\
+/// ▓▓
+/// ▓░");
+/// ```
+/// Also, the order of lines can be inverted by using the `-` sign modifier while
+/// displaying:
+///
+/// ```
+/// # use pathfinding::prelude::Grid;
+/// #
+/// # let g = Grid::from_coordinates(&[(-16, -15), (-16, -16), (-15, -16)]).unwrap();
+/// assert_eq!(format!("{g:-#?}"), "\
+/// ▓░
+/// ▓▓");
+/// ```
 pub struct Grid {
     /// The grid width.
     pub width: usize,
@@ -418,6 +445,41 @@ impl Grid {
             dx + dy
         }
     }
+
+    /// Build a grid from an arbitrary set of `(x, y)` coordinates. Coordinates will
+    /// be adjusted so that the returned grid is the smallest one containing
+    /// all the points while conserving horizontal and vertical distances
+    /// between them.
+    ///
+    /// This can be used for example to visualize data whose coordinates are
+    /// expressed using a non-usize integer type, such as `(isize, isize)`.
+    ///
+    /// This method returns `None` if any axis of any coordinate cannot be
+    /// represented as an `usize` once the minimum for this axis has been
+    /// subtracted.
+    pub fn from_coordinates<T>(points: &[(T, T)]) -> Option<Self>
+    where
+        T: Ord + Sub<Output = T> + Copy + Default + ToPrimitive,
+    {
+        let (min_x, min_y) = (
+            points
+                .iter()
+                .map(|(x, _)| x)
+                .min()
+                .copied()
+                .unwrap_or_default(),
+            points
+                .iter()
+                .map(|(_, y)| y)
+                .min()
+                .copied()
+                .unwrap_or_default(),
+        );
+        points
+            .iter()
+            .map(|(x, y)| Some(((*x - min_x).to_usize()?, (*y - min_y).to_usize()?)))
+            .collect()
+    }
 }
 
 impl FromIterator<(usize, usize)> for Grid {
@@ -596,7 +658,13 @@ impl FusedIterator for EdgesIterator<'_> {}
 impl fmt::Debug for Grid {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let (present, absent) = [('#', '.'), ('▓', '░')][usize::from(f.alternate())];
-        for y in 0..self.height {
+        let lines: Vec<_> = if f.sign_minus() {
+            (0..self.height).rev().collect()
+        } else {
+            (0..self.height).collect()
+        };
+        let last = *lines.last().unwrap();
+        for y in lines {
             for x in 0..self.width {
                 write!(
                     f,
@@ -604,7 +672,7 @@ impl fmt::Debug for Grid {
                     [absent, present][usize::from(self.has_vertex((x, y)))]
                 )?;
             }
-            if y != self.height - 1 {
+            if y != last {
                 writeln!(f)?;
             }
         }
