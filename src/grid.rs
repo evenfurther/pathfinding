@@ -596,7 +596,13 @@ impl FusedIterator for EdgesIterator<'_> {}
 impl fmt::Debug for Grid {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let (present, absent) = [('#', '.'), ('▓', '░')][usize::from(f.alternate())];
-        for y in 0..self.height {
+        let lines: Vec<_> = if f.sign_minus() {
+            (0..self.height).rev().collect()
+        } else {
+            (0..self.height).collect()
+        };
+        let last = *lines.last().unwrap();
+        for y in lines {
             for x in 0..self.width {
                 write!(
                     f,
@@ -604,7 +610,7 @@ impl fmt::Debug for Grid {
                     [absent, present][usize::from(self.has_vertex((x, y)))]
                 )?;
             }
-            if y != self.height - 1 {
+            if y != last {
                 writeln!(f)?;
             }
         }
