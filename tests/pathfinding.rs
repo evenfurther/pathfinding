@@ -58,11 +58,7 @@ mod ex1 {
     #[test]
     fn dfs_ok() {
         for target in 0..9 {
-            match dfs(
-                1,
-                |n| successors(n).into_iter().map(|(v, _)| v),
-                |&node| node == target,
-            ) {
+            match dfs(1, |n| successors(n).map(|(v, _)| v), |&node| node == target) {
                 None => assert_eq!(expected(target), None, "path not found"),
                 Some(path) => assert!(
                     expected(target).expect("non-existing path found").0.len() <= path.len()
@@ -83,7 +79,7 @@ mod ex1 {
 
     #[test]
     fn bfs_loops() {
-        let successors = |n: &u8| successors(n).into_iter().map(|(n, _)| n);
+        let successors = |n: &u8| successors(n).map(|(n, _)| n);
         assert_eq!(bfs_loop(&0, successors), Some(vec![0, 1, 0]));
         assert_eq!(bfs_loop(&1, successors), Some(vec![1, 0, 1]));
         assert_eq!(bfs_loop(&2, successors), Some(vec![2, 5, 1, 0, 2]));
