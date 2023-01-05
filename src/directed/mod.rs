@@ -22,9 +22,10 @@ where
     N: Eq + Hash + Clone,
     F: FnMut(&V) -> usize,
 {
-    let path = itertools::unfold(start, |i| {
-        parents.get_index(*i).map(|(node, value)| {
-            *i = parent(value);
+    let mut i = start;
+    let path = std::iter::from_fn(|| {
+        parents.get_index(i).map(|(node, value)| {
+            i = parent(value);
             node
         })
     })

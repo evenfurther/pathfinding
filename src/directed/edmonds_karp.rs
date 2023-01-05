@@ -9,7 +9,6 @@
 
 use super::bfs::bfs;
 use crate::{matrix::Matrix, FxIndexSet};
-use itertools::iproduct;
 use num_traits::{Bounded, Signed, Zero};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::hash::Hash;
@@ -546,7 +545,8 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
     }
 
     fn flows(&self) -> Vec<((usize, usize), C)> {
-        iproduct!(0..self.size(), 0..self.size())
+        (0..self.size())
+            .flat_map(|from| (0..self.size()).map(move |to| (from, to)))
             .filter_map(|(from, to)| {
                 let flow = self.flow(from, to);
                 (flow > Zero::zero()).then_some(((from, to), flow))

@@ -3,7 +3,6 @@
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
 use crate::utils::{in_direction, move_in_direction, uint_sqrt};
-use itertools::{iproduct, Itertools};
 use num_traits::Signed;
 use std::collections::BTreeSet;
 use std::iter::FusedIterator;
@@ -152,8 +151,8 @@ impl<C: Clone> Matrix<C> {
         Self {
             rows: self.columns,
             columns: self.rows,
-            data: iproduct!(0..self.columns, 0..self.rows)
-                .map(|(c, r)| self.data[r * self.columns + c].clone())
+            data: (0..self.columns)
+                .flat_map(|c| (0..self.rows).map(move |r| self.data[r * self.columns + c].clone()))
                 .collect(),
         }
     }
@@ -479,7 +478,7 @@ impl<C> Matrix<C> {
             (0..0, 0..0)
         };
         row_range
-            .cartesian_product(col_range)
+            .flat_map(move |r| col_range.clone().map(move |c| (r, c)))
             .filter(move |&(rr, cc)| (rr != r || cc != c) && (diagonals || rr == r || cc == c))
     }
 

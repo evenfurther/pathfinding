@@ -23,7 +23,6 @@ pre-release-replacements = [
 
 [dependencies]
 fixedbitset = "0.4.2"
-itertools = "0.10.5"
 num-traits = "0.2.15"
 indexmap = "1.9.1"
 rustc-hash = "1.1.0"
@@ -32,6 +31,7 @@ thiserror = "1.0.37"
 
 [dev-dependencies]
 criterion = { version = "0.4.0", features = ["html_reports"] }
+itertools = "0.10.5"
 lazy_static = "1.4.0"
 movingai = "1.2.0"
 noisy_float = "0.2.0"
