@@ -76,10 +76,8 @@ pub fn in_direction(
     direction: (isize, isize),
     dimensions: (usize, usize),
 ) -> impl Iterator<Item = (usize, usize)> {
-    itertools::unfold(start, move |current| {
-        move_in_direction(*current, direction, dimensions).map(|next| {
-            *current = next;
-            next
-        })
+    std::iter::successors(Some(start), move |current| {
+        move_in_direction(*current, direction, dimensions)
     })
+    .skip(1)
 }

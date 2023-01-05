@@ -5,7 +5,6 @@ use super::matrix::Matrix;
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
 use crate::FxIndexSet;
-use itertools::iproduct;
 use num_traits::ToPrimitive;
 use std::collections::BTreeSet;
 use std::fmt;
@@ -137,18 +136,24 @@ impl Grid {
     pub fn resize(&mut self, width: usize, height: usize) -> bool {
         let mut truncated = false;
         if width < self.width {
-            truncated |= iproduct!(width..self.width, 0..self.height).any(|c| self.has_vertex(c));
+            truncated |=
+                (width..self.width).any(|c| (0..self.height).any(|r| self.has_vertex((c, r))));
         }
         if height < self.height {
-            truncated |= iproduct!(0..self.width, height..self.height).any(|c| self.has_vertex(c));
+            truncated |=
+                (0..self.width).any(|c| (height..self.height).any(|r| self.has_vertex((c, r))));
         }
         self.exclusions.retain(|&(x, y)| x < width && y < height);
         if self.dense {
-            for vertex in iproduct!(self.width..width, 0..height) {
-                self.exclusions.insert(vertex);
+            for c in self.width..width {
+                for r in 0..height {
+                    self.exclusions.insert((c, r));
+                }
             }
-            for vertex in iproduct!(0..self.width.min(width), self.height..height) {
-                self.exclusions.insert(vertex);
+            for c in 0..self.width.min(width) {
+                for r in self.height..height {
+                    self.exclusions.insert((c, r));
+                }
             }
         }
         self.width = width;
@@ -248,7 +253,8 @@ impl Grid {
 
     fn rebalance(&mut self) {
         if self.exclusions.len() > self.width * self.height / 2 {
-            self.exclusions = iproduct!(0..self.width, 0..self.height)
+            self.exclusions = (0..self.width)
+                .flat_map(|c| (0..self.height).map(move |r| (c, r)))
                 .filter(|v| !self.exclusions.contains(v))
                 .collect();
             self.dense = !self.dense;

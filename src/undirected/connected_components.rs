@@ -1,6 +1,5 @@
 //! Separate components of an undirected graph into disjoint sets.
 
-use itertools::Itertools;
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
@@ -42,7 +41,7 @@ pub fn separate_components<N>(groups: &[Vec<N>]) -> (HashMap<&N, usize>, Vec<usi
 where
     N: Hash + Eq,
 {
-    let mut table = (0..groups.len()).collect_vec();
+    let mut table = (0..groups.len()).collect::<Vec<_>>();
     let mut indices = HashMap::new();
     for (mut group_index, group) in groups.iter().enumerate() {
         if group.is_empty() {
@@ -87,18 +86,26 @@ where
     N: Clone + Hash + Eq,
 {
     let (_, gindices) = separate_components(groups);
-    let gb = gindices
+    let mut gb = gindices
         .into_iter()
         .enumerate()
         .filter(|&(_, n)| n != usize::max_value())
-        .sorted_by(|&(_, n1), &(_, n2)| Ord::cmp(&n1, &n2))
-        .group_by(|&(_, n)| n);
-    gb.into_iter()
-        .map(|(_, gs)| {
-            gs.flat_map(|(i, _)| groups[i].clone())
-                .collect::<HashSet<_>>()
-        })
-        .collect()
+        .collect::<Vec<_>>();
+    gb.sort_unstable_by(|&(_, n1), &(_, n2)| Ord::cmp(&n1, &n2));
+    let mut key = None;
+    let mut res = vec![];
+    for (group_index, k) in gb {
+        if key != Some(k) {
+            res.push(HashSet::default());
+            key = Some(k);
+        }
+        if let Some(set) = res.last_mut() {
+            for item in &groups[group_index] {
+                set.insert(item.clone());
+            }
+        }
+    }
+    res
 }
 
 /// Extract connected components from a graph.
@@ -117,13 +124,8 @@ where
     components(
         &starts
             .iter()
-            .map(|s| {
-                neighbours(s)
-                    .into_iter()
-                    .chain(once(s.clone()))
-                    .collect_vec()
-            })
-            .collect_vec(),
+            .map(|s| neighbours(s).into_iter().chain(once(s.clone())).collect())
+            .collect::<Vec<_>>(),
     )
 }
 
