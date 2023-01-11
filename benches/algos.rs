@@ -1,4 +1,4 @@
-use criterion::*;
+use codspeed_criterion_compat::*;
 use itertools::Itertools;
 use pathfinding::prelude::{
     astar, bfs, dfs, dijkstra, fringe, idastar, iddfs, separate_components,
