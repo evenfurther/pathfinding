@@ -61,5 +61,9 @@ harness = false
 name = "edmondskarp"
 harness = false
 
+[[bench]]
+name = "kuhn_munkres"
+harness = false
+
 [badges]
 travis-ci = { repository = "samueltardieu/pathfinding" }
