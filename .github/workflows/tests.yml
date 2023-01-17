@@ -23,6 +23,13 @@ jobs:
           command: check
           args: --all-targets
 
+  cargo-deny:
+    name: cargo deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: embarkStudios/cargo-deny-action@v1
+
   test:
     name: Test suite
     runs-on: ubuntu-latest
