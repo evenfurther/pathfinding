@@ -1,5 +1,5 @@
 
-n.n.n / 2023-01-17
+v4.2.1 / 2023-01-17
 ==================
 
   * Document that A*/Dijkstra/Fringe/idA* costs must be non-negative
