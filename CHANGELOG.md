@@ -1,4 +1,15 @@
 
+n.n.n / 2023-01-17
+==================
+
+  * Document that A*/Dijkstra/Fringe/idA* costs must be non-negative
+  * Upgrade dependencies
+  * Use new clippy lint name
+  * Add bench for separate_components
+  * Bench Kuhn-Munkres algorithm
+  * Remove itertools dependency
+  * Remove unnecessary .into_iter() in tests
+
 v4.2.0 / 2022-12-25
 ==================
 
