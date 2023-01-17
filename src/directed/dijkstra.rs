@@ -19,7 +19,7 @@ use std::usize;
 ///
 /// - `start` is the starting node.
 /// - `successors` returns a list of successors for a given node, along with the cost for moving
-/// from the node to the successor.
+/// from the node to the successor. This cost must be non-negative.
 /// - `success` checks whether the goal has been reached. It is not a node as some problems require
 /// a dynamic solution instead of a fixed node.
 ///
