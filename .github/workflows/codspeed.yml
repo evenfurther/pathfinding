@@ -1,0 +1,45 @@
+name: CodSpeed Benchmarks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-stable-${{ hashFiles('Cargo.toml') }}
+
+      - uses: actions-rs/toolchain@v1
+        name: Install Rust toolchain
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - uses: baptiste0928/cargo-install@v1
+        name: Install cargo-codspeed (with cache)
+        with:
+          crate: cargo-codspeed
+
+      - uses: actions-rs/cargo@v1
+        name: Build benchmarks
+        with:
+          command: codspeed
+          args: build
+
+      - uses: CodSpeedHQ/action@v1
+        name: Run benchmarks
+        with:
+          run: cargo codspeed run
+
