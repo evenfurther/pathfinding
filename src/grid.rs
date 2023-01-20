@@ -463,6 +463,15 @@ impl Grid {
     /// This method returns `None` if any axis of any coordinate cannot be
     /// represented as an `usize` once the minimum for this axis has been
     /// subtracted.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pathfinding::prelude::Grid;
+    ///
+    /// let grid = Grid::from_coordinates(&[(2, 2), (3, 4)]).unwrap();
+    /// assert_eq!(vec![(0, 0), (1, 2)], grid.iter().collect::<Vec<_>>());
+    /// ```
     pub fn from_coordinates<T>(points: &[(T, T)]) -> Option<Self>
     where
         T: Ord + Sub<Output = T> + Copy + Default + ToPrimitive,
