@@ -105,7 +105,7 @@ before implementing a new feature, in case it is a work in progress already or i
 repository.
 
 In order to pass the continuous integration tests, your code must be formatted using the latest
-`rustfmt` with the nightly rust toolchain (available as the `rustfmt-preview` component of `rustup`).
+`rustfmt` with the nightly rust toolchain, and pass `cargo clippy` and [`pre-commit`](https://pre-commit.com/) checks. Those will run automatically when you submit a pull request.
 
 This repository use the imperative mode in commit messages, such as "Add IDDFS",
 "Fix #xxx". This style is preferred over "Added IDDFS" or "Fixed #xxx".
