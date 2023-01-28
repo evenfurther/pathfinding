@@ -51,7 +51,7 @@ fn all_paths() {
                     );
                     let other_path = build_path(&target, &paths);
                     // There might be several paths, but we know that internally we use the
-                    // same algorithm so the comparaison holds.
+                    // same algorithm so the comparison holds.
                     assert_eq!(
                         path, other_path,
                         "path {start} -> {target} differ in {network:?}: {path:?} vs {other_path:?}"
@@ -88,7 +88,7 @@ fn partial_paths() {
             );
             let other_path = build_path(&target, &paths);
             // There might be several paths, but we know that internally we use the
-            // same algorithm so the comparaison holds.
+            // same algorithm so the comparison holds.
             assert_eq!(
                 path, other_path,
                 "path {start} -> {target} differ in {network:?}: {path:?} vs {other_path:?}"

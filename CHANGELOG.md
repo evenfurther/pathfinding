@@ -14,7 +14,7 @@ v4.2.0 / 2022-12-25
 ==================
 
   * Add Grid::from_coordinates()
-  * Add the possibility to dispay the grid with reversed line order
+  * Add the possibility to display the grid with reversed line order
   * Add more Grid documentation
 
 v4.1.1 / 2022-12-14
