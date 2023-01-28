@@ -6,7 +6,7 @@ use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
 
 fn larger_separate_components() {
-    // Create 100 groups of 100 elements, then randomly splitted
+    // Create 100 groups of 100 elements, then randomly split
     // into sub-groups.
     let mut rng = XorShiftRng::from_seed([
         3, 42, 93, 129, 1, 85, 72, 42, 84, 23, 95, 212, 253, 10, 4, 2,
