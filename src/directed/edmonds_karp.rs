@@ -318,7 +318,7 @@ where
             let mut max_cancelable = path
                 .iter()
                 .map(|&(src, dst)| self.flow(src, dst))
-                .max()
+                .min()
                 .unwrap();
             if max_cancelable > capacity {
                 max_cancelable = capacity;
