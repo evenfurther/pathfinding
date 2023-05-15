@@ -227,3 +227,36 @@ fn mincut_wikipedia() {
         (vec![((1, 2), 9), ((4, 7), 10), ((6, 7), 10)], 29)
     )
 }
+
+#[test]
+fn set_capacity_test() {
+    let n_nodes = 6;
+    let source = 0;
+    let target = 5;
+    let mut ek = DenseCapacity::new(n_nodes, source, target);
+    {
+        ek.set_capacity(0, 1, 2);
+        ek.set_capacity(0, 2, 2);
+        ek.set_capacity(1, 3, 1);
+        ek.set_capacity(1, 4, 1);
+        ek.set_capacity(2, 3, 1);
+        ek.set_capacity(2, 4, 1);
+        ek.set_capacity(3, 5, 4);
+        ek.set_capacity(4, 3, 2);
+    }
+    let (_flows, max_flow_value, _) = ek.augment();
+    assert_eq!(max_flow_value, 4);
+    // reduce capacity from 4 to 2
+    let residual_capacities_non_negative = |ek: &DenseCapacity<i32>| {
+        for v1 in 0..n_nodes {
+            for v2 in 0..n_nodes {
+                let c = ek.residual_capacity(v1, v2);
+                assert!(c >= 0, "residual_capacity({v1}, {v2}) == {c} < 0");
+            }
+        }
+    };
+    ek.set_capacity(3, 5, 2);
+    residual_capacities_non_negative(&ek);
+    ek.augment();
+    residual_capacities_non_negative(&ek);
+}
