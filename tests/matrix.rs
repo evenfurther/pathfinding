@@ -22,6 +22,20 @@ fn sm() {
 }
 
 #[test]
+fn from_fn() {
+    let m = Matrix::from_fn(2, 3, |(row, column)| 10 * row + column);
+    assert_eq!(m.rows, 2);
+    assert_eq!(m.columns, 3);
+    assert!(!m.is_square());
+    assert_eq!(m[(0, 0)], 0);
+    assert_eq!(m[(0, 1)], 1);
+    assert_eq!(m[(0, 2)], 2);
+    assert_eq!(m[(1, 0)], 10);
+    assert_eq!(m[(1, 1)], 11);
+    assert_eq!(m[(1, 2)], 12);
+}
+
+#[test]
 fn from_vec() {
     let m = Matrix::from_vec(2, 3, vec![10, 20, 30, 40, 50, 60]).unwrap();
     assert_eq!(m.rows, 2);

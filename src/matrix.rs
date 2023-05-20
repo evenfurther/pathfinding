@@ -45,6 +45,30 @@ impl<C: Clone> Matrix<C> {
         }
     }
 
+    /// Create new matrix with each cell's initial value given by a
+    /// function of its position.
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the number of rows is greater than 0
+    /// and the number of columns is 0. If you need to build a matrix
+    /// column by column, build it row by row and call transposition
+    /// or rotation functions on it.
+    pub fn from_fn(rows: usize, columns: usize, cb: impl FnMut((usize, usize)) -> C) -> Self {
+        assert!(
+            rows == 0 || columns > 0,
+            "unable to create a matrix with empty rows"
+        );
+        Self {
+            rows,
+            columns,
+            data: (0..rows)
+                .flat_map(move |row| (0..columns).map(move |column| (row, column)))
+                .map(cb)
+                .collect(),
+        }
+    }
+
     /// Create new square matrix with initial value.
     pub fn new_square(size: usize, value: C) -> Self {
         Self::new(size, size, value)
