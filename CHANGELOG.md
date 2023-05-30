@@ -1,4 +1,4 @@
-n.n.n / 2023-05-30
+v4.3.0 / 2023-05-30
 ==================
 
   * Allow creating a Matrix based on a function from position to value
