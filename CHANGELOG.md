@@ -1,3 +1,15 @@
+n.n.n / 2023-05-30
+==================
+
+  * Allow creating a Matrix based on a function from position to value
+  * Make method cancel_flow of edmondskarp only cancel the minimum amount of flow among all edges along a path, instead of the maximum, in order to avoid negative flows
+  * Use sort_unstable_by() instead of sort_unstable_by_key()
+  * New Grid example for from_coordinates() method
+  * Use RemSP and path splitting
+  * Remove optimization which gives worst benchmark results
+  * Integrate CodSpeed
+  * Update criterion requirement from 0.4.0 to 0.5.1
+  * Make Kuhn-Munkres benchmarks reproducible
 
 v4.2.1 / 2023-01-17
 ==================
