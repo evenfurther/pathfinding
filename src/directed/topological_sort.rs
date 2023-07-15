@@ -167,12 +167,12 @@ where
     }
     let mut succs_map = HashMap::<N, HashSet<N>>::with_capacity(nodes.len());
     let mut preds_map = HashMap::<N, usize>::with_capacity(nodes.len());
-    for node in nodes.iter() {
+    for node in nodes {
         succs_map.insert(node.clone(), successors(node).into_iter().collect());
         preds_map.insert(node.clone(), 0);
     }
     for succs in succs_map.values() {
-        for succ in succs.iter() {
+        for succ in succs {
             *preds_map.get_mut(succ).unwrap() += 1; // Cannot fail
         }
     }
