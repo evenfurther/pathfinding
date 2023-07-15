@@ -1,4 +1,4 @@
-use pathfinding::cycle_detection::*;
+use pathfinding::directed::cycle_detection::*;
 
 #[test]
 fn test_floyd() {
