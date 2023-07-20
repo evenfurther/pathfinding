@@ -25,12 +25,7 @@ where
     C: Zero + Ord + Copy,
 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        // Compare costs first, then amount of nodes
-        let cmp = self.cost.partial_cmp(&other.cost);
-        match cmp {
-            Some(Ordering::Equal) => self.nodes.len().partial_cmp(&other.nodes.len()),
-            _ => cmp,
-        }
+        Some(self.cmp(other))
     }
 }
 
