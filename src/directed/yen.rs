@@ -115,7 +115,9 @@ where
     IN: IntoIterator<Item = (N, C)>,
     FS: FnMut(&N) -> bool,
 {
-    let Some((n, c)) = dijkstra_internal(start, &mut successors, &mut success) else { return vec![]; };
+    let Some((n, c)) = dijkstra_internal(start, &mut successors, &mut success) else {
+        return vec![];
+    };
 
     let mut visited = HashSet::new();
     // A vector containing our paths.
@@ -176,9 +178,13 @@ where
             // If we have other potential best routes with the same cost, we can insert
             // them in the found routes since we will not find a better alternative.
             while routes.len() < k {
-                let Some(k_route) = k_routes.peek() else { break; };
+                let Some(k_route) = k_routes.peek() else {
+                    break;
+                };
                 if k_route.0.cost == cost {
-                    let Some(k_route) = k_routes.pop() else { break; }; // Cannot break
+                    let Some(k_route) = k_routes.pop() else {
+                        break; // Cannot break
+                    };
                     routes.push(k_route.0);
                 } else {
                     break; // Other routes have higher cost
