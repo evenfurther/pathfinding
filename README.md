@@ -54,8 +54,6 @@ pathfinding = "4.3.0"
 You can then pull your preferred algorithm (BFS in this example) using:
 
 ``` rust
-extern crate pathfinding;
-
 use pathfinding::prelude::bfs;
 ```
 
@@ -83,7 +81,7 @@ let result = bfs(&Pos(1, 1), |p| p.successors(), |p| *p == GOAL);
 assert_eq!(result.expect("no path found").len(), 5);
 ```
 
-## Note
+## Note on floating-point types
 
 Several algorithms require that the numerical types used to describe
 edge weights implement `Ord`. If you wish to use Rust built-in
