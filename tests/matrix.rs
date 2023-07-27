@@ -25,6 +25,25 @@ fn sm() {
 }
 
 #[test]
+fn index_as_ref() {
+    let mut m = Matrix::new(2, 2, 0usize);
+    m[&(0, 0)] = 0;
+    m[&(0, 1)] = 1;
+    m[&(1, 0)] = 10;
+    m[&(1, 1)] = 11;
+    m[&(0, 1)] = 2;
+    assert_eq!(m[&(0, 0)], 0);
+    assert_eq!(m[&(0, 1)], 2);
+    assert_eq!(m[&(1, 0)], 10);
+    assert_eq!(m[&(1, 1)], 11);
+    m.fill(33);
+    assert_eq!(m[&(0, 0)], 33);
+    assert_eq!(m[&(0, 1)], 33);
+    assert_eq!(m[&(1, 0)], 33);
+    assert_eq!(m[&(1, 1)], 33);
+}
+
+#[test]
 fn from_fn() {
     let m = Matrix::from_fn(2, 3, |(row, column)| 10 * row + column);
     assert_eq!(m.rows, 2);

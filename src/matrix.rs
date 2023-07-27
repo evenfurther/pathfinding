@@ -787,10 +787,25 @@ impl<C> Index<(usize, usize)> for Matrix<C> {
     }
 }
 
+impl<C> Index<&(usize, usize)> for Matrix<C> {
+    type Output = C;
+
+    #[must_use]
+    fn index(&self, index: &(usize, usize)) -> &C {
+        &self[*index]
+    }
+}
+
 impl<C> IndexMut<(usize, usize)> for Matrix<C> {
     fn index_mut(&mut self, index: (usize, usize)) -> &mut C {
         let i = self.idx(index);
         &mut self.data[i]
+    }
+}
+
+impl<C> IndexMut<&(usize, usize)> for Matrix<C> {
+    fn index_mut(&mut self, index: &(usize, usize)) -> &mut C {
+        &mut self[*index]
     }
 }
 
