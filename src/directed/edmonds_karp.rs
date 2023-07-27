@@ -354,7 +354,7 @@ unsafe impl<C: Send> Send for SparseCapacity<C> {}
 impl<C: Copy + Eq + Zero + Signed + Bounded + Ord> SparseCapacity<C> {
     fn set_value(data: &mut BTreeMap<usize, BTreeMap<usize, C>>, from: usize, to: usize, value: C) {
         let to_remove = {
-            let sub = data.entry(from).or_insert_with(BTreeMap::new);
+            let sub = data.entry(from).or_default();
             if value == Zero::zero() {
                 sub.remove(&to);
             } else {

@@ -179,7 +179,8 @@ where
     let mut groups = Vec::<Vec<N>>::new();
     let mut prev_group: Vec<N> = preds_map
         .iter()
-        .filter_map(|(node, &num_preds)| (num_preds == 0).then(|| node.clone()))
+        .filter(|(_, &num_preds)| num_preds == 0)
+        .map(|(node, _)| node.clone())
         .collect();
     if prev_group.is_empty() {
         let remaining: Vec<N> = preds_map.into_keys().collect();
