@@ -1,3 +1,15 @@
+
+n.n.n / 2023-08-02
+==================
+
+  * Move `cycle_detection` module into `directed` and deprecate the former
+  * Update indexmap requirement from 1.9.2 to 2.0.0
+  * Style: use `or_default()` rather than `or_insert_with()` with default value
+  * Style: do not use `bool::then()` in `filter_map()`
+  * Style: make `partial_cmp` use `cmp`
+  * Style: reformat with let/else support
+  * Use codspeed-criterion-compat everywhere, do not require criterion
+
 v4.3.0 / 2023-05-30
 ==================
 
