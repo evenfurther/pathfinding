@@ -1,5 +1,5 @@
 
-n.n.n / 2023-08-02
+v4.3.1 / 2023-08-02
 ==================
 
   * Move `cycle_detection` module into `directed` and deprecate the former
