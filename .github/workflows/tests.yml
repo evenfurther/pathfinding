@@ -46,10 +46,23 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Test documentation in debug mode
         run: cargo test --doc
-      - name: Test documentation in release mode
-        run: cargo test --doc --release
       - name: Test in debug mode
         run: cargo test --tests --benches
+
+  test-release:
+    name: Extra tests in release mode
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout
+      - run: |
+          rustup install --profile minimal nightly
+          rustup default nightly
+        name: Install Rust toolchain
+      - uses: Swatinem/rust-cache@v2
+      - name: Test documentation in release mode
+        run: cargo test --doc --release
       - name: Test in release mode
         run: cargo test --release --tests --benches
 
