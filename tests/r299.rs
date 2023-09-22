@@ -17,7 +17,7 @@ fn add_successor(
     to: &Point,
     cost: usize,
 ) {
-    let entry = n.entry(from.clone()).or_insert_with(Vec::new);
+    let entry = n.entry(from.clone()).or_default();
     entry.push((to.clone(), cost));
 }
 
