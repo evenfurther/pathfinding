@@ -34,7 +34,7 @@ jobs:
     needs: check
     strategy:
       matrix:
-        toolchain: [stable, beta, nightly, 1.65.0]
+        toolchain: [stable, beta, nightly, msrv]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -46,12 +46,19 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('Cargo.toml') }}
+      - name: Determine toolchain version to use
+        run: |
+          if [ ${{ matrix.toolchain }} = msrv ]; then
+            TOOLCHAIN=$(awk -F '"' '/^rust-version =/ {print $2}' < Cargo.toml)
+          else
+            TOOLCHAIN=${{ matrix.toolchain }}
+          fi
+          echo $TOOLCHAIN > rust-toolchain
+          echo "TOOLCHAIN=$TOOLCHAIN" >> "$GITHUB_ENV"
       - uses: actions-rs/toolchain@v1
         name: Install Rust toolchain
         with:
           profile: minimal
-          toolchain: ${{ matrix.toolchain }}
-          override: true
       - uses: actions-rs/cargo@v1
         name: Test documentation in debug mode
         with:
@@ -67,15 +74,11 @@ jobs:
         with:
           command: test
           args: --tests --benches
-        env:
-          TOOLCHAIN: ${{ matrix.toolchain }}
       - uses: actions-rs/cargo@v1
         name: Test in release mode
         with:
           command: test
           args: --release --tests --benches
-        env:
-          TOOLCHAIN: ${{ matrix.toolchain }}
 
   test-minimal-versions:
     name: Test with minimal versions
