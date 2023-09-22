@@ -97,8 +97,8 @@ This code is released under a dual Apache 2.0 / MIT free software license.
 
 ## Contributing
 
-You are welcome to contribute by opening [issues](https://github.com/samueltardieu/pathfinding/issues)
-or submitting [pull requests](https://github.com/samueltardieu/pathfinding/pulls). Please open an issue
+You are welcome to contribute by opening [issues](https://github.com/evenfurther/pathfinding/issues)
+or submitting [pull requests](https://github.com/evenfurther/pathfinding/pulls). Please open an issue
 before implementing a new feature, in case it is a work in progress already or it is fit for this
 repository.
 
