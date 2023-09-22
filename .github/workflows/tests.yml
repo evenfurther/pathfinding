@@ -31,7 +31,6 @@ jobs:
     strategy:
       matrix:
         toolchain: [stable, beta, nightly, msrv]
-      fail-fast: false
     steps:
       - uses: actions/checkout@v4
         name: Checkout
