@@ -27,7 +27,7 @@ num-traits = "0.2.16"
 indexmap = "2.0.0"
 rustc-hash = "1.1.0"
 integer-sqrt = "0.1.5"
-thiserror = "1.0.44"
+thiserror = "1.0.48"
 deprecate-until = "0.1.0"
 
 [dev-dependencies]
@@ -41,7 +41,7 @@ rand_xorshift = "0.3.0"
 # Not a real dependency, but needed since criterion 0.4.0
 # does not compile anymore as of 2022-10-03.
 regex = "1.9.5"
-trybuild = "1.0.82"
+trybuild = "1.0.85"
 
 [[bench]]
 name = "algos"
