@@ -178,6 +178,15 @@ pub struct BfsReachable<N, FN> {
     successors: FN,
 }
 
+impl<N, FN> BfsReachable<N, FN> {
+    /// Return a lower bound on the number of remaining reachable
+    /// nodes. Not all nodes are necessarily known in advance, and
+    /// new reachable nodes may be discovered while using the iterator.
+    pub fn remaining_nodes_low_bound(&self) -> usize {
+        self.seen.len() - self.i
+    }
+}
+
 impl<N, FN, IN> Iterator for BfsReachable<N, FN>
 where
     N: Eq + Hash + Clone,
