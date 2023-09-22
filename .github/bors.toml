@@ -1,5 +1,5 @@
 status = [
   "Check", "cargo deny", "pre-commit", "Rustfmt", "Clippy", "Test with minimal versions",
-  "Test suite (stable)", "Test suite (beta)", "Test suite (nightly)", "Test suite (1.65.0)"
+  "Test suite (stable)", "Test suite (beta)", "Test suite (nightly)", "Test suite (1.70.0)"
 ]
 delete_merged_branches = true

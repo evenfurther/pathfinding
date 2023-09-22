@@ -36,7 +36,7 @@ jobs:
     needs: check
     strategy:
       matrix:
-        toolchain: [stable, beta, nightly, 1.65.0]
+        toolchain: [stable, beta, nightly, 1.70.0]
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
