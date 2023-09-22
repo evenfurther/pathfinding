@@ -1,5 +1,5 @@
 
-n.n.n / 2023-09-22
+v4.3.2 / 2023-09-22
 ==================
 
   * New remaining_low_bounds() method for {Bfs,Dfs}Reachable
