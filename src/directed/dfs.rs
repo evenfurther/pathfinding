@@ -133,6 +133,15 @@ pub struct DfsReachable<N, FN> {
     successors: FN,
 }
 
+impl<N, FN> DfsReachable<N, FN> {
+    /// Return a lower bound on the number of remaining reachable
+    /// nodes. Not all nodes are necessarily known in advance, and
+    /// new reachable nodes may be discovered while using the iterator.
+    pub fn remaining_nodes_low_bound(&self) -> usize {
+        self.to_see.len()
+    }
+}
+
 impl<N, FN, IN> Iterator for DfsReachable<N, FN>
 where
     N: Eq + Hash + Clone,
