@@ -66,6 +66,3 @@ harness = false
 [[bench]]
 name = "separate_components"
 harness = false
-
-[badges]
-travis-ci = { repository = "samueltardieu/pathfinding" }
