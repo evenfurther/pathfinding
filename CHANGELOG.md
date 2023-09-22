@@ -1,4 +1,12 @@
 
+n.n.n / 2023-09-22
+==================
+
+  * New remaining_low_bounds() method for {Bfs,Dfs}Reachable
+  * Migrate to the evenfurther GitHub organization
+  * fix(deps): update rust crate thiserror to 1.0.48
+  * Use or_default() in test
+
 v4.3.1 / 2023-08-02
 ==================
 
