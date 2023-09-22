@@ -11,15 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: sh tests/check-msrv-consistency.sh
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --all-targets
+      - run: |
+          rustup install --profile minimal stable
+          rustup default stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --all-targets
 
   cargo-deny:
     name: cargo deny
@@ -39,44 +35,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         name: Checkout
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('Cargo.toml') }}
-      - name: Determine toolchain version to use
+      - name: Install Rust toolchain
         run: |
           if [ ${{ matrix.toolchain }} = msrv ]; then
-            awk -F '"' '/^rust-version =/ {print $2}' Cargo.toml
+            toolchain=$(awk -F '"' '/^rust-version =/ {print $2}' Cargo.toml)
           else
-            echo ${{ matrix.toolchain }}
-          fi > rust-toolchain
-      - uses: actions-rs/toolchain@v1
-        name: Install Rust toolchain
-        with:
-          profile: minimal
-      - uses: actions-rs/cargo@v1
-        name: Test documentation in debug mode
-        with:
-          command: test
-          args: --doc
-      - uses: actions-rs/cargo@v1
-        name: Test documentation in release mode
-        with:
-          command: test
-          args: --doc --release
-      - uses: actions-rs/cargo@v1
-        name: Test in debug mode
-        with:
-          command: test
-          args: --tests --benches
-      - uses: actions-rs/cargo@v1
-        name: Test in release mode
-        with:
-          command: test
-          args: --release --tests --benches
+            toolchain=${{ matrix.toolchain }}
+          fi
+          rustup install --profile minimal $toolchain
+          rustup default $toolchain
+      - uses: Swatinem/rust-cache@v2
+      - name: Test documentation in debug mode
+        run: cargo test --doc
+      - name: Test documentation in release mode
+        run: cargo test --doc --release
+      - name: Test in debug mode
+        run: cargo test --tests --benches
+      - name: Test in release mode
+        run: cargo test --release --tests --benches
 
   test-minimal-versions:
     name: Test with minimal versions
@@ -85,34 +61,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         name: Checkout
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-nightly-minimal-${{ hashFiles('Cargo.toml') }}
-      - uses: actions-rs/toolchain@v1
-        name: Install Rust toolchain
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-      - run: cargo update -Zminimal-versions
-        name: Set dependencies to the minimal version allowed
-      - uses: actions-rs/toolchain@v1
-        name: Install Rust toolchain
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - uses: actions-rs/cargo@v1
-        name: Test with minimal version dependencies
-        with:
-          command: test
-          args: --tests --benches
-        env:
-          TOOLCHAIN: stable
+      - name: Install nightly (for -Z) and stable Rust toolchains
+        run: |
+          rustup install --profile minimal nightly
+          rustup install --profile minimal stable
+          rustup default stable
+      - name: Set dependencies to the minimal version allowed
+        run: cargo +nightly update -Zminimal-versions
+      - uses: Swatinem/rust-cache@v2
+      - name: Test with minimal version dependencies and stable compiler
+        run: cargo +stable test --tests --benches
 
   fmt:
     name: Rustfmt
@@ -120,16 +78,8 @@ jobs:
     needs: check
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - run: rustup component add rustfmt
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+      - run: rustup install --profile default stable
+      - run: cargo +stable fmt --all -- --check
 
   clippy:
     name: Clippy
@@ -137,17 +87,9 @@ jobs:
     needs: check
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-      - run: rustup component add clippy
-      - uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: -- -D clippy::pedantic
-      - uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all-targets -- -D warnings
+      - run: |
+          rustup install --profile default nightly
+          rustup default nightly
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy -- -D clippy::pedantic
+      - run: cargo clippy --all-targets -- -D warnings
