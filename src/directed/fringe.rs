@@ -151,7 +151,7 @@ where
 }
 
 fn remove<T: Eq>(v: &mut VecDeque<T>, e: &T) -> bool {
-    v.iter().position(|x| x == e).map_or(false, |index| {
+    v.iter().position(|x| x == e).is_some_and(|index| {
         v.remove(index);
         true
     })
