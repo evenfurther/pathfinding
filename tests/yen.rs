@@ -111,3 +111,32 @@ fn longer_alternative_path() {
     assert_eq!(result[1], (vec!['c', 'd', 'e', 'f', 'h'], 4));
     assert_eq!(result[2], (vec!['c', 'd', 'e', 'f', 'g', 'h'], 5));
 }
+
+/// Check that we return all loopless paths
+/// (issue #467)
+#[test]
+fn all_paths() {
+    let mut result = yen(
+        &'a',
+        |c| match c {
+            'a' => vec![('b', 1), ('c', 1), ('d', 1)],
+            'b' => vec![('c', 1), ('d', 1)],
+            'c' => vec![('b', 1), ('d', 1)],
+            'd' => vec![],
+            _ => unreachable!(),
+        },
+        |c| *c == 'd',
+        usize::MAX,
+    );
+    result.sort_unstable();
+    assert_eq!(
+        result,
+        vec![
+            (vec!['a', 'b', 'c', 'd'], 3),
+            (vec!['a', 'b', 'd'], 2),
+            (vec!['a', 'c', 'b', 'd'], 3),
+            (vec!['a', 'c', 'd'], 2),
+            (vec!['a', 'd'], 1),
+        ]
+    );
+}
