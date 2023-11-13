@@ -1,4 +1,14 @@
 
+n.n.n / 2023-11-13
+==================
+
+  * fix(yen): return all loopless paths
+  * chore(cargo deny): fix warning in configuration file
+  * chore(deps): update rust crate indexmap to 2.1.0
+  * chore(deps): update rust crate thiserror to 1.0.50
+  * chore(deps): update rust crate regex to 1.10.2
+  * chore(deps): update rust crate num-traits to 0.2.17
+
 v4.3.2 / 2023-09-22
 ==================
 
