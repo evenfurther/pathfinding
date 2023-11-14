@@ -7,7 +7,7 @@ set -e
 git changelog -n CHANGELOG.md
 changelog=$(mktemp)
 awk '/^n/,/^v/{if(/^ /)print}' < CHANGELOG.md > "$changelog"
-git commit -am "Prepare ChangeLog for next release"
+git commit -am "chore(changelog): prepare for next release"
 echo "Changelog that will be used for this release:"
 echo "---"
 cat "$changelog"
