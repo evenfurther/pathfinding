@@ -17,7 +17,7 @@ use std::hash::Hash;
 #[allow(clippy::upper_case_acronyms)]
 pub type EKFlows<N, C> = (Vec<Edge<N, C>>, C, Vec<Edge<N, C>>);
 
-/// Type alias for representing an edge in a gaph
+/// Type alias for representing an edge in a graph
 pub type Edge<N, C> = ((N, N), C);
 
 /// Compute the maximum flow and the minimal cut of a directed graph using the
