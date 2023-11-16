@@ -97,6 +97,7 @@ fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut dyn BufRead) -> Result<String
             let mut max = 0;
             loop {
                 let (_, n, _) = ek.augment();
+                debug_assert!(n >= 0);
                 let n = n as usize;
                 if n > max {
                     max = n;

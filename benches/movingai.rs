@@ -1,6 +1,6 @@
 // Test with files from https://movingai.com/benchmarks/
 
-use codspeed_criterion_compat::*;
+use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
 use movingai::parser::{parse_map_file, parse_scen_file};
 use movingai::{Coords2D, Map2D};
 use noisy_float::prelude::*;
@@ -32,7 +32,7 @@ pub fn arena(c: &mut Criterion) {
                 .unwrap();
                 assert!(result.1 - r64(scene.optimal_length).abs() <= 1e-4);
             }
-        })
+        });
     });
 }
 

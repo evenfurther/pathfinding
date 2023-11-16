@@ -145,12 +145,12 @@ fn modified<EK: EdmondsKarp<i32>>() {
 
 #[test]
 fn modified_dense() {
-    modified::<DenseCapacity<i32>>()
+    modified::<DenseCapacity<i32>>();
 }
 
 #[test]
 fn modified_sparse() {
-    modified::<SparseCapacity<i32>>()
+    modified::<SparseCapacity<i32>>();
 }
 
 #[test]
@@ -173,7 +173,7 @@ fn unknown_sink() {
 }
 
 fn str_to_graph(desc: &str) -> (Vec<usize>, Vec<Edge<usize, isize>>) {
-    let vertices = Vec::from_iter(0..desc.lines().count() - 1);
+    let vertices = (0..desc.lines().count() - 1).collect();
     let edges = desc
         .lines()
         .skip(1)
@@ -225,7 +225,7 @@ fn mincut_wikipedia() {
     assert_eq!(
         (mincut, cap),
         (vec![((1, 2), 9), ((4, 7), 10), ((6, 7), 10)], 29)
-    )
+    );
 }
 
 #[test]

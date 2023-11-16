@@ -566,7 +566,7 @@ fn keys() {
 fn values() {
     let m = matrix![[0, 1, 2], [2, 1, 0]];
     assert_eq!(
-        m.values().cloned().collect::<Vec<_>>(),
+        m.values().copied().collect::<Vec<_>>(),
         vec![0, 1, 2, 2, 1, 0]
     );
 }

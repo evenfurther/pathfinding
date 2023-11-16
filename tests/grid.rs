@@ -194,8 +194,8 @@ fn iterators() {
             g.fill();
         }
         for _ in 0..1000 {
-            let x = rng.next_u64() as usize % g.width;
-            let y = rng.next_u64() as usize % g.height;
+            let x = rng.next_u32() as usize % g.width;
+            let y = rng.next_u32() as usize % g.height;
             if rng.gen_bool(0.5) {
                 g.add_vertex((x, y));
             } else {

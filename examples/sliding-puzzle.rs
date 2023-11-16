@@ -110,7 +110,7 @@ impl Game {
                 for j in i + 1..LIMIT {
                     let d = self.positions[j];
                     if d != 0 && d < c {
-                        inversions ^= 1
+                        inversions ^= 1;
                     }
                 }
             }
@@ -129,7 +129,7 @@ impl Game {
             hole_idx,
             weight: 0,
         };
-        game.weight = (0..LIMIT as u8)
+        game.weight = (0..u8::try_from(LIMIT).unwrap())
             .filter(|&n| n != game.hole_idx)
             .map(|n| game.distance(n))
             .sum();

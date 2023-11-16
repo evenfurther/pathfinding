@@ -5,6 +5,7 @@ use std::collections::hash_map::HashMap;
 // Tests in this file use the example at
 // https://en.wikipedia.org/wiki/Strongly_connected_component#/media/File:Graph_Condensation.svg
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
 fn successors(n: &usize) -> Vec<usize> {
     match *n {
         0 => vec![2],
@@ -88,17 +89,17 @@ fn some_scc() {
         // Return the first element of each cluster
         c.into_iter().map(|v| v[0]).collect()
     }
-    for &i in [0, 1, 2, 3, 4].iter() {
+    for &i in &[0, 1, 2, 3, 4] {
         assert_eq!(starting_from(i), vec![0, 5, 6, 9, 13, 15]);
     }
     assert_eq!(starting_from(5), vec![5, 6, 13, 15]);
-    for &i in [6, 7, 8].iter() {
+    for &i in &[6, 7, 8] {
         assert_eq!(starting_from(i), vec![6, 15]);
     }
-    for &i in [9, 10, 11, 12].iter() {
+    for &i in &[9, 10, 11, 12] {
         assert_eq!(starting_from(i), vec![9, 13, 15]);
     }
-    for &i in [13, 14].iter() {
+    for &i in &[13, 14] {
         assert_eq!(starting_from(i), vec![13, 15]);
     }
     assert_eq!(starting_from(15), vec![15]);

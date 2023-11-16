@@ -84,7 +84,7 @@ fn larger_separate_components() {
 
 fn bench_separate_components(c: &mut Criterion) {
     c.bench_function("separate_components", |b| {
-        b.iter(larger_separate_components)
+        b.iter(larger_separate_components);
     });
 }
 
