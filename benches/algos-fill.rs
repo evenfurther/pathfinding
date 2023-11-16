@@ -1,7 +1,7 @@
 // This version uses a filler in the Pt structure to increase
 // the cost of cloning a node.
 
-use codspeed_criterion_compat::*;
+use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
 use pathfinding::prelude::{astar, bfs, dfs, dijkstra, fringe, idastar, iddfs};
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -30,16 +30,16 @@ impl Pt {
 fn successors(pt: &Pt) -> Vec<Pt> {
     let mut ret = Vec::with_capacity(4);
     if 0 < pt.x {
-        ret.push(Pt::new(pt.x - 1, pt.y))
+        ret.push(Pt::new(pt.x - 1, pt.y));
     }
     if pt.x < 32 {
-        ret.push(Pt::new(pt.x + 1, pt.y))
+        ret.push(Pt::new(pt.x + 1, pt.y));
     }
     if 0 < pt.y {
-        ret.push(Pt::new(pt.x, pt.y - 1))
+        ret.push(Pt::new(pt.x, pt.y - 1));
     }
     if pt.y < 32 {
-        ret.push(Pt::new(pt.x, pt.y + 1))
+        ret.push(Pt::new(pt.x, pt.y + 1));
     }
     ret
 }
@@ -55,8 +55,8 @@ fn corner_to_corner_astar(c: &mut Criterion) {
                     |n| n.x == 32 && n.y == 32,
                 ),
                 None
-            )
-        })
+            );
+        });
     });
 }
 
@@ -66,8 +66,8 @@ fn corner_to_corner_bfs(c: &mut Criterion) {
             assert_ne!(
                 bfs(&Pt::new(0, 0), successors, |n| n.x == 32 && n.y == 32,),
                 None
-            )
-        })
+            );
+        });
     });
 }
 
@@ -77,8 +77,8 @@ fn corner_to_corner_dfs(c: &mut Criterion) {
             assert_ne!(
                 dfs(Pt::new(0, 0), successors, |n| n.x == 32 && n.y == 32),
                 None
-            )
-        })
+            );
+        });
     });
 }
 
@@ -92,8 +92,8 @@ fn corner_to_corner_dijkstra(c: &mut Criterion) {
                     |n| n.x == 32 && n.y == 32,
                 ),
                 None
-            )
-        })
+            );
+        });
     });
 }
 
@@ -108,8 +108,8 @@ fn corner_to_corner_fringe(c: &mut Criterion) {
                     |n| n.x == 32 && n.y == 32,
                 ),
                 None
-            )
-        })
+            );
+        });
     });
 }
 
@@ -124,8 +124,8 @@ fn corner_to_corner_idastar(c: &mut Criterion) {
                     |n| n.x == 32 && n.y == 32,
                 ),
                 None
-            )
-        })
+            );
+        });
     });
 }
 
@@ -135,8 +135,8 @@ fn corner_to_corner_iddfs(c: &mut Criterion) {
             assert_ne!(
                 iddfs(Pt::new(0, 0), successors, |n| n.x == 5 && n.y == 5,),
                 None
-            )
-        })
+            );
+        });
     });
 }
 
@@ -151,14 +151,14 @@ fn no_path_astar(c: &mut Criterion) {
                     |_| false,
                 ),
                 None
-            )
-        })
+            );
+        });
     });
 }
 
 fn no_path_bfs(c: &mut Criterion) {
     c.bench_function("fill-no_path_bfs", |b| {
-        b.iter(|| assert_eq!(bfs(&Pt::new(2, 3), successors, |_| false), None))
+        b.iter(|| assert_eq!(bfs(&Pt::new(2, 3), successors, |_| false), None));
     });
 }
 
@@ -172,8 +172,8 @@ fn no_path_dijkstra(c: &mut Criterion) {
                     |_| false,
                 ),
                 None
-            )
-        })
+            );
+        });
     });
 }
 
@@ -188,8 +188,8 @@ fn no_path_fringe(c: &mut Criterion) {
                     |_| false,
                 ),
                 None
-            )
-        })
+            );
+        });
     });
 }
 

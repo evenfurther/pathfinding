@@ -1,5 +1,7 @@
 use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
-use pathfinding::directed::edmonds_karp::*;
+use pathfinding::directed::edmonds_karp::{
+    edmonds_karp, DenseCapacity, EKFlows, EdmondsKarp, SparseCapacity,
+};
 use std::collections::HashMap;
 
 /// Return a list of edges with their capacities.
@@ -48,8 +50,8 @@ fn wikipedia_example<EK: EdmondsKarp<i32>>(c: &mut Criterion, id: &str) {
                 &'A',
                 &'G',
                 successors_wikipedia(),
-            ))
-        })
+            ));
+        });
     });
 }
 

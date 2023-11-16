@@ -54,15 +54,15 @@ fn complexity() {
 #[allow(clippy::type_complexity)]
 fn tsig(succs: &[&[usize]]) -> Result<Vec<Vec<usize>>, (Vec<Vec<usize>>, Vec<usize>)> {
     let nodes: Vec<usize> = (0..succs.len()).collect();
-    match topological_sort_into_groups(&nodes, |&n| succs[n].iter().cloned()) {
+    match topological_sort_into_groups(&nodes, |&n| succs[n].iter().copied()) {
         Ok(mut groups) => {
-            for group in groups.iter_mut() {
+            for group in &mut groups {
                 group.sort_unstable();
             }
             Ok(groups)
         }
         Err((mut groups, mut remaining)) => {
-            for group in groups.iter_mut() {
+            for group in &mut groups {
                 group.sort_unstable();
             }
             remaining.sort_unstable();

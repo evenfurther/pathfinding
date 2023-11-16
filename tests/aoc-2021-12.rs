@@ -38,7 +38,7 @@ fn solve(small_cave_twice: bool) -> usize {
                     small_caves: c
                         .small_caves
                         .iter()
-                        .cloned()
+                        .copied()
                         .chain((x.as_bytes()[0] >= b'a').then_some(*x))
                         .collect(),
                     small_cave_twice: c.small_cave_twice && !c.small_caves.contains(x),
