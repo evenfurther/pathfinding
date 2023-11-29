@@ -1,7 +1,4 @@
 #![forbid(missing_docs)]
-#![warn(clippy::pedantic)]
-#![allow(clippy::non_ascii_literal)]
-#![allow(clippy::module_name_repetitions)]
 #![doc = include_str!("../README.md")]
 
 use deprecate_until::deprecate_until;
