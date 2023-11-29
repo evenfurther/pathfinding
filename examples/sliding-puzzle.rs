@@ -1,3 +1,5 @@
+#![allow(clippy::cast_possible_truncation)]
+
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use pathfinding::prelude::{astar, idastar};

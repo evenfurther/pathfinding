@@ -60,6 +60,7 @@ fn wikipedia_example_sparse() {
     wikipedia_example::<SparseCapacity<_>>();
 }
 
+#[allow(clippy::cast_possible_truncation)]
 fn wikipedia_progressive_example<EK: EdmondsKarp<i32>>() {
     let successors = successors_wikipedia();
     let size = successors.len();
@@ -154,20 +155,20 @@ fn modified_sparse() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "source is greater or equal than size")]
 fn empty() {
     let mut ek = DenseCapacity::<i32>::new(0, 0, 0);
     ek.augment();
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "source not found in vertices")]
 fn unknown_source() {
     edmonds_karp_dense(&[1, 2, 3], &0, &3, Vec::<((i32, i32), i32)>::new());
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "sink not found in vertices")]
 fn unknown_sink() {
     edmonds_karp_dense(&[1, 2, 3], &1, &4, Vec::<((i32, i32), i32)>::new());
 }

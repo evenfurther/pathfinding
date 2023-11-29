@@ -1,6 +1,8 @@
 // Problem A from the Google Code Jam finals 2017.
 // https://code.google.com/codejam/contest/dashboard?c=6314486#s=p0&a=0
 
+#![allow(clippy::cast_sign_loss)]
+
 use pathfinding::prelude::*;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::io::prelude::*;
@@ -35,10 +37,10 @@ fn read_ints(file: &mut dyn BufRead) -> Result<Vec<usize>, Error> {
 }
 
 fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut dyn BufRead) -> Result<String, Error> {
-    let ndices = read_ints(file)?[0];
+    let n_dices = read_ints(file)?[0];
     let mut dices = Vec::new();
     let mut values = HashMap::new();
-    for d in 0..ndices {
+    for d in 0..n_dices {
         let mut dice = read_ints(file)?;
         for v in dice.clone() {
             values.entry(v).or_insert_with(HashSet::new).insert(d);

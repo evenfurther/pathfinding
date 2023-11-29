@@ -698,7 +698,10 @@ where
     IC: IntoIterator<Item = C>,
 {
     fn from_iter<T: IntoIterator<Item = IC>>(iter: T) -> Self {
-        Matrix::from_rows(iter).unwrap()
+        match Matrix::from_rows(iter) {
+            Ok(matrix) => matrix,
+            Err(e) => panic!("{e}"),
+        }
     }
 }
 
@@ -735,7 +738,10 @@ macro_rules! matrix {
         let mut m = pathfinding::matrix::Matrix::new_empty($a.len());
         m.extend(&$a).unwrap();
         $(
-            m.extend(&$b).expect("all rows must have the same width");
+            match m.extend(&$b) {
+                Ok(row) => row,
+                Err(_) => panic!("all rows must have the same width"),
+            }
         )*
         m
     }};
