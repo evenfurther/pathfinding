@@ -44,6 +44,10 @@ regex = "1.10.2"
 trybuild = "1.0.85"
 version_check = "0.9.4"
 
+[lints.clippy]
+pedantic = "deny"
+module_name_repetitions = "allow"
+
 [[bench]]
 name = "algos"
 harness = false
