@@ -12,7 +12,7 @@ echo "Changelog that will be used for this release:"
 echo "---"
 cat "$changelog"
 echo "---"
-cargo release --execute "$@"
+cargo release --sign-tag --execute "$@"
 tag=$(git tag --list --sort=-v:refname | head -n 1)
 gh release create $tag -F "$changelog"
 rm "$changelog"
