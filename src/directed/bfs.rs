@@ -171,7 +171,7 @@ where
     }
 }
 
-/// Struct returned by [`bfs_reach`](crate::directed::bfs::bfs_reach).
+/// Struct returned by [`bfs_reach`].
 pub struct BfsReachable<N, FN> {
     i: usize,
     seen: FxIndexSet<N>,
