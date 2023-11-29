@@ -1,6 +1,9 @@
 #![cfg(test)]
 
-use pathfinding::{matrix, matrix::Matrix};
+use pathfinding::{
+    matrix,
+    matrix::{Matrix, MatrixFormatError},
+};
 
 #[test]
 fn sm() {
@@ -55,7 +58,7 @@ fn from_vec_error() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "unable to create a matrix with empty rows")]
 fn new_empty_row_panic() {
     let _ = Matrix::new(1, 0, 42);
 }
@@ -83,15 +86,19 @@ fn square_from_vec() {
 }
 
 #[test]
-#[should_panic]
 fn from_vec_panic() {
-    Matrix::from_vec(2, 3, vec![1, 2, 3]).unwrap();
+    assert!(matches!(
+        Matrix::from_vec(2, 3, vec![1, 2, 3]),
+        Err(MatrixFormatError::WrongLength)
+    ));
 }
 
 #[test]
-#[should_panic]
 fn square_from_vec_panic() {
-    Matrix::square_from_vec(vec![1, 2, 3]).unwrap();
+    assert!(matches!(
+        Matrix::square_from_vec(vec![1, 2, 3]),
+        Err(MatrixFormatError::WrongLength)
+    ));
 }
 
 #[test]
@@ -175,13 +182,13 @@ fn non_square_rotate() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "this operation would create a matrix with empty rows")]
 fn no_rows_rotated_cw_panic() {
     let _ = Matrix::<u32>::new_empty(10).rotated_cw(1);
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "this operation would create a matrix with empty rows")]
 fn no_rows_rotated_ccw_panic() {
     let _ = Matrix::<u32>::new_empty(10).rotated_ccw(1);
 }
@@ -215,7 +222,7 @@ fn transpose() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "this operation would create a matrix with empty rows")]
 fn no_rows_transposed_panic() {
     let _ = Matrix::<u32>::new_empty(10).transposed();
 }
@@ -334,13 +341,13 @@ fn matrix_macro() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "all rows must have the same width")]
 fn matrix_macro_inconsistent_panic() {
     matrix![[0, 1, 2], [3, 4]];
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "all rows must have the same width")]
 fn matrix_macro_inconsistent_panic_2() {
     matrix![0, 1, 2; 3, 4];
 }
@@ -516,7 +523,7 @@ fn from_iter() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "provided data does not correspond to the expected length")]
 fn from_iter_error() {
     let _ = (1..3)
         .map(|n| (1..n).map(move |x| x * n))
