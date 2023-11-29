@@ -1,4 +1,12 @@
 
+n.n.n / 2023-11-29
+==================
+
+  * fix(edmondskarp): better panic messages
+  * fix(matrix): better panic messages
+  * fix(style): apply clippy fixes
+  * fix(doc): typo
+
 v4.3.3 / 2023-11-13
 ==================
 
