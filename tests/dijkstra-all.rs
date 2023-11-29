@@ -80,10 +80,10 @@ fn partial_paths() {
             // We cannot compare other paths since there is no guarantee that the
             // paths variable is up-to-date as the algorithm stopped prematurely.
             let cost = paths[&target].1;
-            let (path, dcost) =
+            let (path, dijkstra_cost) =
                 dijkstra(&start, neighbours(network.clone()), |&n| n == target).unwrap();
             assert_eq!(
-                cost, dcost,
+                cost, dijkstra_cost,
                 "costs {start} -> {target} differ in {network:?}"
             );
             let other_path = build_path(&target, &paths);

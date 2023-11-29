@@ -1,5 +1,7 @@
 // Test with files from https://movingai.com/benchmarks/
 
+#![allow(clippy::cast_precision_loss)]
+
 use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
 use movingai::parser::{parse_map_file, parse_scen_file};
 use movingai::{Coords2D, Map2D};
@@ -11,6 +13,7 @@ fn distance(a: &Coords2D, b: &Coords2D) -> R64 {
     r64((a.0 as f64 - b.0 as f64).hypot(a.1 as f64 - b.1 as f64))
 }
 
+#[allow(clippy::missing_panics_doc)]
 pub fn arena(c: &mut Criterion) {
     c.bench_function("arena", |b| {
         b.iter(|| {
