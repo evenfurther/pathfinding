@@ -28,7 +28,7 @@ indexmap = "2.1.0"
 rustc-hash = "1.1.0"
 integer-sqrt = "0.1.5"
 thiserror = "1.0.50"
-deprecate-until = "0.1.0"
+deprecate-until = "0.1.1"
 
 [dev-dependencies]
 codspeed-criterion-compat = "1.1.0"
