@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use itertools::Itertools;
 use pathfinding::prelude::*;
 use rand::{rngs, Rng};
 
@@ -52,10 +55,7 @@ fn all_paths() {
                     let other_path = build_path(&target, &paths);
                     // There might be several paths, but we know that internally we use the
                     // same algorithm so the comparison holds.
-                    assert_eq!(
-                        path, other_path,
-                        "path {start} -> {target} differ in {network:?}: {path:?} vs {other_path:?}"
-                    );
+                    assert_eq!(path, other_path, "path {start} -> {target} differ in {network:?}: {path:?} vs {other_path:?}");
                 }
             } else {
                 assert!(

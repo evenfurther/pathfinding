@@ -5,6 +5,7 @@ use super::reverse_path;
 use crate::FxIndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
+use rustc_hash::{FxHashMap, FxHashSet};
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 use std::hash::Hash;
@@ -104,9 +105,10 @@ where
     })
 }
 
-/// Determine all reachable nodes from a starting point as well as the minimum cost to
-/// reach them and a possible optimal parent node
-/// using the [Dijkstra search algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
+/// Determine all reachable nodes from a starting point as well as the
+/// minimum cost to reach them and a possible optimal parent node
+/// using the [Dijkstra search
+/// algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
 ///
 /// - `start` is the starting node.
 /// - `successors` returns a list of successors for a given node, along with the cost for moving
@@ -313,5 +315,119 @@ impl<K: Ord> PartialOrd for SmallestHolder<K> {
 impl<K: Ord> Ord for SmallestHolder<K> {
     fn cmp(&self, other: &Self) -> Ordering {
         other.cost.cmp(&self.cost)
+    }
+}
+
+/// Struct returned by [`dijkstra_reach`].
+pub struct DijkstraReachable<N, C, FN> {
+    to_see: BinaryHeap<SmallestHolder<C>>,
+    seen: FxHashSet<usize>,
+    parents: FxIndexMap<N, (usize, C)>,
+    total_costs: FxHashMap<N, C>,
+    successors: FN,
+}
+
+/// Information about a node reached by [`dijkstra_reach`].
+#[derive(Debug, Hash, PartialEq, Eq, Clone)]
+pub struct DijkstraReachableItem<N, C> {
+    /// The node that was reached by [`dijkstra_reach`].
+    pub node: N,
+    /// The previous node that the current node came from.
+    /// If the node is the first node, there will be no parent.
+    pub parent: Option<N>,
+    /// The total cost from the starting node.
+    pub total_cost: C,
+}
+
+impl<N, C, FN, IN> Iterator for DijkstraReachable<N, C, FN>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy + Hash,
+    FN: FnMut(&N, C) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+{
+    type Item = DijkstraReachableItem<N, C>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        while let Some(SmallestHolder { cost, index }) = self.to_see.pop() {
+            if !self.seen.insert(index) {
+                continue;
+            }
+            let item;
+            let successors = {
+                let (node, (parent_index, _)) = self.parents.get_index(index).unwrap();
+                let total_cost = self.total_costs[node];
+                item = Some(DijkstraReachableItem {
+                    node: node.clone(),
+                    parent: self.parents.get_index(*parent_index).map(|x| x.0.clone()),
+                    total_cost,
+                });
+                (self.successors)(node, total_cost)
+            };
+            for (successor, move_cost) in successors {
+                let new_cost = cost + move_cost;
+                let n;
+                match self.parents.entry(successor.clone()) {
+                    Vacant(e) => {
+                        n = e.index();
+                        e.insert((index, new_cost));
+                        self.total_costs.insert(successor.clone(), new_cost);
+                    }
+                    Occupied(mut e) => {
+                        if e.get().1 > new_cost {
+                            n = e.index();
+                            e.insert((index, new_cost));
+                            self.total_costs.insert(successor.clone(), new_cost);
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+
+                self.to_see.push(SmallestHolder {
+                    cost: new_cost,
+                    index: n,
+                });
+            }
+            return item;
+        }
+
+        None
+    }
+}
+
+/// Visit all nodes that are reachable from a start node. The node
+/// will be visited in order of cost, with the closest nodes first.
+///
+/// The `successors` function receives the current node and the best
+/// cost up to this node, and returns an iterator of successors
+/// associated with their move cost.
+pub fn dijkstra_reach<N, C, FN, IN>(start: &N, successors: FN) -> DijkstraReachable<N, C, FN>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: FnMut(&N, C) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+{
+    let mut to_see = BinaryHeap::new();
+    to_see.push(SmallestHolder {
+        cost: Zero::zero(),
+        index: 0,
+    });
+
+    let mut parents: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
+    parents.insert(start.clone(), (usize::max_value(), Zero::zero()));
+
+    let mut total_costs = FxHashMap::default();
+    total_costs.insert(start.clone(), Zero::zero());
+
+    let seen = FxHashSet::default();
+
+    DijkstraReachable {
+        to_see,
+        seen,
+        parents,
+        total_costs,
+        successors,
     }
 }
