@@ -1,5 +1,5 @@
 
-n.n.n / 2023-11-29
+v4.3.4 / 2023-11-29
 ==================
 
   * fix(edmondskarp): better panic messages
