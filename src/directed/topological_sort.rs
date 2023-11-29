@@ -131,15 +131,16 @@ where
 /// - `nodes` is a collection of nodes.
 /// - `successors` returns a list of successors for a given node.
 ///
-/// This function works like [`topological_sort`](self::topological_sort), but
-/// rather than producing a single ordering of nodes, this function partitions
-/// the nodes into groups: the first group contains all nodes with no
-/// dependencies, the second group contains all nodes whose only dependencies
-/// are in the first group, and so on. Concatenating the groups produces a
-/// valid topological sort regardless of how the nodes within each group are
-/// reordered. No guarantees are made about the order of nodes within each
-/// group. Also, the list of `nodes` must be exhaustive, new nodes must not be
-/// returned by the `successors` function.
+/// This function works like [`topological_sort`], but rather than
+/// producing a single ordering of nodes, this function partitions the
+/// nodes into groups: the first group contains all nodes with no
+/// dependencies, the second group contains all nodes whose only
+/// dependencies are in the first group, and so on. Concatenating the
+/// groups produces a valid topological sort regardless of how the
+/// nodes within each group are reordered. No guarantees are made
+/// about the order of nodes within each group. Also, the list of
+/// `nodes` must be exhaustive, new nodes must not be returned by the
+/// `successors` function.
 ///
 /// The function returns a collection of groups if there are no cycles in the
 /// graph and an error otherwise.

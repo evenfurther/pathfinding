@@ -126,7 +126,7 @@ where
     }
 }
 
-/// Struct returned by [`dfs_reach`](crate::directed::dfs::dfs_reach).
+/// Struct returned by [`dfs_reach`].
 pub struct DfsReachable<N, FN> {
     to_see: Vec<N>,
     seen: HashSet<N>,
