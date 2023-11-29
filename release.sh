@@ -4,7 +4,7 @@
 
 set -e
 
-git changelog -n CHANGELOG.md
+nix shell nixpkgs#git-extras -c git-changelog -n CHANGELOG.md
 changelog=$(mktemp)
 awk '/^n/,/^v/{if(/^ /)print}' < CHANGELOG.md > "$changelog"
 git commit -am "chore(changelog): prepare for next release"
