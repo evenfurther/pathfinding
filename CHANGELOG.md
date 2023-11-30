@@ -1,5 +1,5 @@
 
-n.n.n / 2023-11-30
+v4.4.0 / 2023-11-30
 ==================
 
   * feat: new `dijkstra_reach()` function
