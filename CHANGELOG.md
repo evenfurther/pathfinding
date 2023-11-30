@@ -1,4 +1,10 @@
 
+n.n.n / 2023-11-30
+==================
+
+  * feat: new `dijkstra_reach()` function
+  * fix(doc): remove useless explicit links
+
 v4.3.4 / 2023-11-29
 ==================
 
