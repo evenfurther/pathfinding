@@ -38,7 +38,7 @@ jobs:
           command: codspeed
           args: build
 
-      - uses: CodSpeedHQ/action@v1
+      - uses: CodSpeedHQ/action@v2
         name: Run benchmarks
         with:
           run: cargo codspeed run
