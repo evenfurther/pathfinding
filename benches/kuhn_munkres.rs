@@ -1,4 +1,4 @@
-use codspeed_criterion_compat::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use pathfinding::prelude::{kuhn_munkres, Matrix};
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;

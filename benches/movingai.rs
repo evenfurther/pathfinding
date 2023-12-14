@@ -2,7 +2,7 @@
 
 #![allow(clippy::cast_precision_loss)]
 
-use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 use movingai::parser::{parse_map_file, parse_scen_file};
 use movingai::{Coords2D, Map2D};
 use noisy_float::prelude::*;

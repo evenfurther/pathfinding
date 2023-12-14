@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-
-use itertools::Itertools;
 use pathfinding::prelude::*;
 use rand::{rngs, Rng};
 
