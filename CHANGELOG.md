@@ -1,4 +1,11 @@
 
+n.n.n / 2023-12-14
+==================
+
+  * feat(matrix): add swap method
+  * chore(msrv): update minimum required Rust version to 1.70.0
+  * chore: use bool::is_some_and
+
 v4.4.0 / 2023-11-30
 ==================
 
