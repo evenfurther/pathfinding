@@ -1,4 +1,9 @@
 
+n.n.n / 2023-12-14
+==================
+
+  * feat(matrix): implement DoubleEndedIterator for RowIterator
+
 v4.5.0 / 2023-12-14
 ==================
 
