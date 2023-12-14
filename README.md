@@ -89,7 +89,7 @@ floating-point types (such as `f32`) that implement `PartialOrd`
 in this context, you can wrap them into compliant types using the
 [ordered-float](https://crates.io/crates/ordered-float) crate.
 
-The minimum supported Rust version (MSRV) is Rust 1.65.0.
+The minimum supported Rust version (MSRV) is Rust 1.70.0.
 
 ## License
 
