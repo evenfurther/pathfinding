@@ -202,6 +202,28 @@ impl<C: Clone> Matrix<C> {
         Ok(())
     }
 
+    /// Swap two elements of the matrix.
+    ///
+    /// If `a` equals to `b`, it's guaranteed that elements won't change value.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `a` or `b` are out of bounds.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pathfinding::matrix::*;
+    ///
+    /// let mut matrix = Matrix::square_from_vec(vec![1, 2, 10, 20]).unwrap();
+    /// matrix.swap((0, 0), (0, 1));
+    /// assert_eq!(matrix, Matrix::square_from_vec(vec![2, 1, 10, 20]).unwrap());
+    /// ```
+    pub fn swap(&mut self, a: (usize, usize), b: (usize, usize)) {
+        let (a, b) = (self.idx(a), self.idx(b));
+        self.data.swap(a, b);
+    }
+
     /// Transform the matrix into another matrix with the same shape
     /// after applying a transforming function to every elements.
     pub fn map<O, F>(self, transform: F) -> Matrix<O>
