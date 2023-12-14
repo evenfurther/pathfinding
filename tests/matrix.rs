@@ -541,6 +541,14 @@ fn iter() {
 }
 
 #[test]
+fn iter_back() {
+    let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+    let mut forward = m.iter().collect::<Vec<_>>();
+    forward.reverse();
+    assert_eq!(forward, m.iter().rev().collect::<Vec<_>>());
+}
+
+#[test]
 fn into_iter() {
     let m = matrix![[0, 1, 2], [2, 1, 0], [1, 0, 2]];
     for c in &m {

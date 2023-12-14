@@ -803,6 +803,16 @@ impl<'a, C> Iterator for RowIterator<'a, C> {
     }
 }
 
+impl<'a, C> DoubleEndedIterator for RowIterator<'a, C> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        (self.row < self.matrix.rows).then(|| {
+            let row = self.matrix.rows - self.row;
+            self.row += 1;
+            &self.matrix.data[(row - 1) * self.matrix.columns..row * self.matrix.columns]
+        })
+    }
+}
+
 impl<C> FusedIterator for RowIterator<'_, C> {}
 
 impl<'a, C> IntoIterator for &'a Matrix<C> {
