@@ -81,3 +81,25 @@ pub fn in_direction(
     })
     .skip(1)
 }
+
+/// Constrain `value` into `0..upper` by adding or subtracting `upper`
+/// as many times as necessary.
+///
+/// # Examples
+///
+/// ```
+/// use pathfinding::utils::constrain;
+///
+/// assert_eq!(constrain(5, 7), 5);
+/// assert_eq!(constrain(30, 7), 2);
+/// assert_eq!(constrain(-30, 7), 5);
+/// ```
+#[must_use]
+#[allow(clippy::cast_sign_loss)]
+pub const fn constrain(value: isize, upper: usize) -> usize {
+    if value > 0 {
+        value as usize % upper
+    } else {
+        (upper - (-value) as usize % upper) % upper
+    }
+}
