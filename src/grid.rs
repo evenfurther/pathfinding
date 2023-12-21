@@ -4,6 +4,7 @@
 use super::matrix::Matrix;
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
+use crate::utils::constrain;
 use crate::FxIndexSet;
 use num_traits::ToPrimitive;
 use std::collections::BTreeSet;
@@ -494,6 +495,25 @@ impl Grid {
             .iter()
             .map(|(x, y)| Some(((*x - min_x).to_usize()?, (*y - min_y).to_usize()?)))
             .collect()
+    }
+
+    /// Constrain a wrapped-around index so that it falls inside the Grid.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use pathfinding::grid::Grid;
+    ///
+    /// let grid = Grid::new(3, 5);
+    /// assert_eq!(grid.constrain((1, 2)), (1, 2));
+    /// assert_eq!(grid.constrain((10, -53)), (1, 2));
+    /// ```
+    #[must_use]
+    pub const fn constrain(&self, vertex: (isize, isize)) -> (usize, usize) {
+        (
+            constrain(vertex.0, self.width),
+            constrain(vertex.1, self.height),
+        )
     }
 }
 

@@ -2,7 +2,7 @@
 
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
-use crate::utils::{in_direction, move_in_direction, uint_sqrt};
+use crate::utils::{constrain, in_direction, move_in_direction, uint_sqrt};
 use num_traits::Signed;
 use std::collections::BTreeSet;
 use std::iter::FusedIterator;
@@ -409,6 +409,22 @@ impl<C> Matrix<C> {
             self.columns - 1
         );
         unsafe { self.idx_unchecked(i) }
+    }
+
+    /// Constrain a wrapped-around index so that it falls inside the Matrix.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use pathfinding::matrix::Matrix;
+    ///
+    /// let matrix = Matrix::new(3, 5, 0);
+    /// assert_eq!(matrix.constrain((1, 2)), (1, 2));
+    /// assert_eq!(matrix.constrain((10, -53)), (1, 2));
+    /// ```
+    #[must_use]
+    pub const fn constrain(&self, (row, column): (isize, isize)) -> (usize, usize) {
+        (constrain(row, self.rows), constrain(column, self.columns))
     }
 
     /// Check if the coordinates designate a matrix cell.
