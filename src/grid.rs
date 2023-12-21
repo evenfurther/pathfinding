@@ -497,7 +497,8 @@ impl Grid {
             .collect()
     }
 
-    /// Constrain a wrapped-around index so that it falls inside the Grid.
+    /// Constrain a wrapped-around index so that it falls inside the
+    /// grid.
     ///
     /// # Examples
     ///
