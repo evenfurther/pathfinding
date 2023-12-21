@@ -411,7 +411,8 @@ impl<C> Matrix<C> {
         unsafe { self.idx_unchecked(i) }
     }
 
-    /// Constrain a wrapped-around index so that it falls inside the Matrix.
+    /// Constrain a wrapped-around index so that it falls inside the
+    /// matrix.
     ///
     /// # Examples
     ///
