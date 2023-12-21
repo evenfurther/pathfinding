@@ -1,4 +1,11 @@
 
+n.n.n / 2023-12-21
+==================
+
+  * feat(grid): add `Grid::constrain()`
+  * feat(matrix): add `Matrix::constrain()`
+  * feat(utils): add `constrain()`
+
 v4.6.0 / 2023-12-14
 ==================
 
