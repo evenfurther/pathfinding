@@ -1,4 +1,10 @@
 
+n.n.n / 2023-12-22
+==================
+
+  * feat(matrix): add `Matrix::transpose()`
+  * feat(matrix): add `Matrix::column_iter()`
+
 v4.7.0 / 2023-12-21
 ==================
 
