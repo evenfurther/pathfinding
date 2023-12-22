@@ -12,35 +12,33 @@ The algorithms are generic over their arguments.
 
 ### Directed graphs
 
-- [A*][A*]: find the shortest path in a weighted graph using an heuristic to guide the process.
-- [BFS][BFS]: explore nearest successors first, then widen the search.
-- [Brent][Brent]: find a cycle in an infinite sequence.
-- [DFS][DFS]: explore a graph by going as far as possible, then backtrack.
-- [Dijkstra][Dijkstra]: find the shortest path in a weighted graph.
-- [Edmonds Karp][Edmonds Karp]: find the maximum flow in a weighted graph.
-- [Floyd][Floyd]: find a cycle in an infinite sequence.
-- [Fringe][Fringe]: find the shortest path in a weighted graph using an heuristic to guide the process.
-- [IDA*][IDA*]: explore longer and longer paths in a weighted graph at the cost of multiple similar examinations.
-- [IDDFS][IDDFS]: explore longer and longer paths in an unweighted graph at the cost of multiple similar examinations.
-- [strongly connected components][Strongly connected components]: find strongly connected components in a directed graph.
-- [topological sorting][Topological sorting]: find an acceptable topological order in a directed graph.
-- [Yen][Yen]: find k-shortest paths using Dijkstra.
+- [A*](directed/astar/index.html): find the shortest path in a weighted graph using an heuristic to guide the process ([⇒ Wikipedia][A*])
+- [BFS](directed/bfs): explore nearest successors first, then widen the search ([⇒ Wikipedia][BFS])
+- [Brent](directed/cycle_detection/index.html): find a cycle in an infinite sequence ([⇒ Wikipedia][Brent])
+- [DFS](directed/dfs/index.html): explore a graph by going as far as possible, then backtrack ([⇒ Wikipedia][DFS])
+- [Dijkstra](directed/dijkstra/index.html): find the shortest path in a weighted graph ([⇒ Wikipedia][Dijkstra])
+- [Edmonds Karp](directed/edmonds_karp/index.html): find the maximum flow in a weighted graph ([⇒ Wikipedia][Edmonds Karp])
+- [Floyd](directed/cycle_detection/index.html): find a cycle in an infinite sequence ([⇒ Wikipedia][Floyd])
+- [Fringe](directed/fringe/index.html): find the shortest path in a weighted graph using an heuristic to guide the process ([⇒ Wikipedia][Fringe])
+- [IDA*](directed/idastar/index.html): explore longer and longer paths in a weighted graph at the cost of multiple similar examinations ([⇒ Wikipedia][IDA*])
+- [IDDFS](directed/iddfs/index.html): explore longer and longer paths in an unweighted graph at the cost of multiple similar examinations ([⇒ Wikipedia][IDDFS])
+- [strongly connected components](directed/strongly_connected_components/index.html): find strongly connected components in a directed graph ([⇒ Wikipedia][Strongly connected components])
+- [topological sorting](directed/topological_sort/index.html): find an acceptable topological order in a directed graph ([⇒ Wikipedia][Topological sorting])
+- [Yen](directed/yen/index.html): find k-shortest paths using Dijkstra ([⇒ Wikipedia][Yen])
 
 ### Undirected graphs
 
-- [connected components][Connected components]: find disjoint connected sets of vertices.
-- [Kruskal][Kruskal]: find a minimum-spanning-tree.
+- [connected components](undirected/connected_components/index.html): find disjoint connected sets of vertices ([⇒ Wikipedia][Connected components])
+- [Kruskal](undirected/kruskal/index.html): find a minimum-spanning-tree ([⇒ Wikipedia][Kruskal])
 
 ### Matching
 
-- [Kuhn-Munkres][Kuhn-Munkres] (Hungarian algorithm): find the maximum (or minimum) matching
-in a weighted bipartite graph.
+- [Kuhn-Munkres](kuhn_munkres/index.html) (Hungarian algorithm): find the maximum (or minimum) matching in a weighted bipartite graph ([⇒ Wikipedia][Kuhn-Munkres])
 
 ### Miscellaneous structures
 
-- A `Grid` type representing a rectangular grid in which vertices can be added or removed,
-  with automatic creation of edges between adjacent vertices.
-- A `Matrix` type to store data of arbitrary types, with neighbour-aware methods.
+- A [`Grid`](grid/index.html) type representing a rectangular grid in which vertices can be added or removed, with automatic creation of edges between adjacent vertices.
+- A [`Matrix`](matrix/index.html) type to store data of arbitrary types, with neighbour-aware methods.
 
 ## Using this crate
 
