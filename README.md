@@ -105,8 +105,13 @@ repository.
 In order to pass the continuous integration tests, your code must be formatted using the latest
 `rustfmt` with the nightly rust toolchain, and pass `cargo clippy` and [`pre-commit`](https://pre-commit.com/) checks. Those will run automatically when you submit a pull request.
 
-This repository use the imperative mode in commit messages, such as "Add IDDFS",
-"Fix #xxx". This style is preferred over "Added IDDFS" or "Fixed #xxx".
+This repository uses the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) commit message style, such as:
+
+- feat(matrix): add `Matrix::transpose()`
+- fix(tests): remove unused imports
+
+If a pull-request should automatically close an open issue, please
+include "Fix #xxx# or "Close #xxx" in the pull-request cover-letter.
 
 [A*]: https://en.wikipedia.org/wiki/A*_search_algorithm
 [BFS]: https://en.wikipedia.org/wiki/Breadth-first_search
