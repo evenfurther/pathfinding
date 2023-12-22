@@ -1,5 +1,5 @@
 
-n.n.n / 2023-12-22
+v4.8.0 / 2023-12-22
 ==================
 
   * feat(matrix): add `Matrix::transpose()`
