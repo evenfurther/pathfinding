@@ -602,7 +602,7 @@ impl<C> Matrix<C> {
 
     /// Return an iterator on rows of the matrix.
     #[must_use]
-    pub fn iter(&self) -> RowIterator<C> {
+    pub fn iter(&self) -> RowIterator<'_, C> {
         self.into_iter()
     }
 
