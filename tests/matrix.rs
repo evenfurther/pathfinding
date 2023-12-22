@@ -227,6 +227,20 @@ fn no_rows_transposed_panic() {
     let _ = Matrix::<u32>::new_empty(10).transposed();
 }
 
+#[test]
+fn transpose_in_place() {
+    let mut m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+    m.transpose();
+    assert_eq!(m, matrix![[0, 3, 6], [1, 4, 7], [2, 5, 8]]);
+}
+
+#[test]
+#[should_panic(expected = "attempt to transpose a non-square matrix")]
+fn transpose_in_place_panic() {
+    let mut m = matrix![[0, 1, 2], [3, 4, 5]];
+    m.transpose();
+}
+
 fn sum(slice: &[usize]) -> usize {
     slice.iter().sum::<usize>()
 }

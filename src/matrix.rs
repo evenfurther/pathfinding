@@ -712,6 +712,23 @@ impl<C> Matrix<C> {
         })
         .collect()
     }
+
+    /// Transpose a square matrix in place.
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the matrix is not square.
+    pub fn transpose(&mut self) {
+        assert!(
+            self.rows == self.columns,
+            "attempt to transpose a non-square matrix"
+        );
+        for r in 0..self.rows {
+            for c in r + 1..self.columns {
+                self.data.swap(r * self.columns + c, c * self.columns + r);
+            }
+        }
+    }
 }
 
 impl<C> Index<(usize, usize)> for Matrix<C> {
