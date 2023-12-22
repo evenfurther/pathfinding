@@ -557,6 +557,26 @@ fn into_iter() {
 }
 
 #[test]
+fn column_iter() {
+    let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+    let mut i = m.column_iter();
+    assert_eq!(i.next().unwrap(), vec![&0, &3, &6]);
+    assert_eq!(i.next().unwrap(), vec![&1, &4, &7]);
+    assert_eq!(i.next().unwrap(), vec![&2, &5, &8]);
+    assert_eq!(i.next(), None);
+}
+
+#[test]
+fn column_iter_back() {
+    let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+    let mut i = m.column_iter().rev();
+    assert_eq!(i.next().unwrap(), vec![&2, &5, &8]);
+    assert_eq!(i.next().unwrap(), vec![&1, &4, &7]);
+    assert_eq!(i.next().unwrap(), vec![&0, &3, &6]);
+    assert_eq!(i.next(), None);
+}
+
+#[test]
 fn into_iter_is_fused() {
     let m = matrix![[0, 1, 2], [2, 1, 0], [1, 0, 2]];
     let mut it = m.iter();

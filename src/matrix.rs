@@ -607,6 +607,19 @@ impl<C> Matrix<C> {
         self.into_iter()
     }
 
+    /// Return an iterator on content of columns of the matrix.
+    ///
+    /// This operation is more costly than using a row iterator, as it
+    /// requires building vectors of column data which are not stored
+    /// consecutively in memory.
+    #[must_use]
+    pub fn column_iter(&self) -> ColumnIterator<'_, C> {
+        ColumnIterator {
+            matrix: self,
+            column: 0,
+        }
+    }
+
     /// Return an iterator on the Matrix indices, first row first. The values are
     /// computed when this method is called and will not change even if new rows are
     /// added before the iterator is consumed.
@@ -844,6 +857,39 @@ impl<'a, C> IntoIterator for &'a Matrix<C> {
         }
     }
 }
+
+/// Column iterator returned by `column_iter()` on a matrix.
+pub struct ColumnIterator<'a, C> {
+    matrix: &'a Matrix<C>,
+    column: usize,
+}
+
+impl<'a, C> Iterator for ColumnIterator<'a, C> {
+    type Item = Vec<&'a C>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        (self.column < self.matrix.columns).then(|| {
+            self.column += 1;
+            (0..self.matrix.rows)
+                .map(|r| &self.matrix[(r, self.column - 1)])
+                .collect()
+        })
+    }
+}
+
+impl<'a, C> DoubleEndedIterator for ColumnIterator<'a, C> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        (self.column < self.matrix.columns).then(|| {
+            self.column += 1;
+            let column = self.matrix.columns - self.column;
+            (0..self.matrix.rows)
+                .map(|r| &self.matrix[(r, column)])
+                .collect()
+        })
+    }
+}
+
+impl<C> FusedIterator for ColumnIterator<'_, C> {}
 
 /// Directions usable for [`Matrix::in_direction()`] second argument.
 pub mod directions {
