@@ -3,6 +3,7 @@
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
 use crate::utils::{constrain, in_direction, move_in_direction, uint_sqrt};
+use deprecate_until::deprecate_until;
 use num_traits::Signed;
 use std::collections::BTreeSet;
 use std::iter::FusedIterator;
@@ -623,7 +624,11 @@ impl<C> Matrix<C> {
     /// Return an iterator on the Matrix indices, first row first. The values are
     /// computed when this method is called and will not change even if new rows are
     /// added before the iterator is consumed.
-    #[deprecated(since = "4.1.0", note = "use the .keys() method instead")]
+    #[deprecate_until(
+        note = "use the .keys() method instead",
+        since = "4.1.0",
+        remove = "> 4.x"
+    )]
     pub fn indices(&self) -> impl Iterator<Item = (usize, usize)> {
         self.keys()
     }
