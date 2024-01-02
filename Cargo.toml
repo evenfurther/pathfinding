@@ -27,7 +27,7 @@ num-traits = "0.2.17"
 indexmap = "2.1.0"
 rustc-hash = "1.1.0"
 integer-sqrt = "0.1.5"
-thiserror = "1.0.53"
+thiserror = "1.0.55"
 deprecate-until = "0.1.1"
 
 [dev-dependencies]
