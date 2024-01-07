@@ -101,7 +101,13 @@ before implementing a new feature, in case it is a work in progress already or i
 repository.
 
 In order to pass the continuous integration tests, your code must be formatted using the latest
-`rustfmt` with the nightly rust toolchain, and pass `cargo clippy` and [`pre-commit`](https://pre-commit.com/) checks. Those will run automatically when you submit a pull request.
+`rustfmt` with the nightly rust toolchain, and pass `cargo clippy` and [`pre-commit`](https://pre-commit.com/) checks.
+Those will run automatically when you submit a pull request. You can install `pre-commit` to your
+checked out version of the repository by running:
+
+```bash
+$ pre-commit install --hook-type commit-msg
+```
 
 This repository uses the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) commit message style, such as:
 
