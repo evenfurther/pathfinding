@@ -1,4 +1,12 @@
 
+n.n.n / 2024-01-07
+==================
+
+  * fix(yen): revert "Routes are already sorted by cost and path len"
+  * test(yen): add test for checking Yen algorithm output ordering
+  * chore(pre-commit): add conventional commit check
+  * chore: use deprecate_until attribute instead of deprecated
+
 v4.8.0 / 2023-12-22
 ==================
 
