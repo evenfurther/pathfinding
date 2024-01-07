@@ -23,3 +23,9 @@ repos:
     hooks:
       - id: codespell
         args: ['--ignore-words-list', 'crate']
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.0.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat, fix, chore, test]
