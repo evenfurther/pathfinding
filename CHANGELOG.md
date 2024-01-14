@@ -1,4 +1,9 @@
 
+n.n.n / 2024-01-14
+==================
+
+  * fix(dfs_reach): visit nodes in the documented order
+
 v4.8.1 / 2024-01-07
 ==================
 
