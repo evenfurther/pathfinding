@@ -117,11 +117,9 @@ where
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
-    let (to_see, mut seen) = (vec![start.clone()], HashSet::new());
-    seen.insert(start);
     DfsReachable {
-        to_see,
-        seen,
+        to_see: vec![start],
+        visited: HashSet::new(),
         successors,
     }
 }
@@ -129,16 +127,19 @@ where
 /// Struct returned by [`dfs_reach`].
 pub struct DfsReachable<N, FN> {
     to_see: Vec<N>,
-    seen: HashSet<N>,
+    visited: HashSet<N>,
     successors: FN,
 }
 
-impl<N, FN> DfsReachable<N, FN> {
+impl<N, FN> DfsReachable<N, FN>
+where
+    N: Eq + Hash,
+{
     /// Return a lower bound on the number of remaining reachable
     /// nodes. Not all nodes are necessarily known in advance, and
     /// new reachable nodes may be discovered while using the iterator.
     pub fn remaining_nodes_low_bound(&self) -> usize {
-        self.to_see.len()
+        self.to_see.iter().collect::<HashSet<_>>().len()
     }
 }
 
@@ -152,11 +153,14 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         let n = self.to_see.pop()?;
+        if self.visited.contains(&n) {
+            return self.next();
+        }
+        self.visited.insert(n.clone());
         let mut to_insert = Vec::new();
         for s in (self.successors)(&n) {
-            if !self.seen.contains(&s) {
+            if !self.visited.contains(&s) {
                 to_insert.push(s.clone());
-                self.seen.insert(s);
             }
         }
         self.to_see.extend(to_insert.into_iter().rev());
