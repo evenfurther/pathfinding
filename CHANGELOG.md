@@ -1,5 +1,5 @@
 
-n.n.n / 2024-01-14
+v4.8.2 / 2024-01-14
 ==================
 
   * fix(dfs_reach): visit nodes in the documented order
