@@ -27,7 +27,7 @@ jobs:
           toolchain: stable
           override: true
 
-      - uses: baptiste0928/cargo-install@v2
+      - uses: baptiste0928/cargo-install@v3
         name: Install cargo-codspeed (with cache)
         with:
           crate: cargo-codspeed
