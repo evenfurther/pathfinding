@@ -24,7 +24,7 @@ pre-release-replacements = [
 [dependencies]
 fixedbitset = "0.4.2"
 num-traits = "0.2.17"
-indexmap = "2.2.1"
+indexmap = "2.2.2"
 rustc-hash = "1.1.0"
 integer-sqrt = "0.1.5"
 thiserror = "1.0.56"
