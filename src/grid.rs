@@ -187,7 +187,7 @@ impl Grid {
             return false;
         }
         let r = if self.dense {
-            self.exclusions.remove(&vertex)
+            self.exclusions.swap_remove(&vertex)
         } else {
             self.exclusions.insert(vertex)
         };
@@ -204,7 +204,7 @@ impl Grid {
         let r = if self.dense {
             self.exclusions.insert(vertex)
         } else {
-            self.exclusions.remove(&vertex)
+            self.exclusions.swap_remove(&vertex)
         };
         self.rebalance();
         r
@@ -226,7 +226,9 @@ impl Grid {
             return 0;
         }
         let count = if self.dense {
-            self.borders().filter(|v| self.exclusions.remove(v)).count()
+            self.borders()
+                .filter(|v| self.exclusions.swap_remove(v))
+                .count()
         } else {
             self.borders()
                 .filter(|v| self.exclusions.insert(*v))
@@ -246,7 +248,9 @@ impl Grid {
                 .filter(|v| self.exclusions.insert(*v))
                 .count()
         } else {
-            self.borders().filter(|v| self.exclusions.remove(v)).count()
+            self.borders()
+                .filter(|v| self.exclusions.swap_remove(v))
+                .count()
         };
         self.rebalance();
         count
