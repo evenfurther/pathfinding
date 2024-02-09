@@ -71,3 +71,7 @@ harness = false
 [[bench]]
 name = "separate_components"
 harness = false
+
+[[bench]]
+name = "matrices"
+harness = false
