@@ -1,5 +1,5 @@
 
-n.n.n / 2024-02-11
+v4.9.0 / 2024-02-11
 ==================
 
   * feat(matrix): add in-place matrix transposition for non-square matrix
