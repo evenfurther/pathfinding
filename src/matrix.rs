@@ -719,25 +719,7 @@ impl<C> Matrix<C> {
         .collect()
     }
 
-    /// Transpose a square matrix in place.
-    ///
-    /// # Panics
-    ///
-    /// This function panics if the matrix is not square.
-    fn transpose_in_place_square(&mut self) {
-        assert!(
-            self.rows == self.columns,
-            "attempt to transpose a non-square matrix"
-        );
-        for r in 0..self.rows {
-            for c in r + 1..self.columns {
-                self.data.swap(r * self.columns + c, c * self.columns + r);
-            }
-        }
-    }
-
     /// Transposes any matrix in place.
-    /// This is less efficient than `transpose_in_place_square` for square matrices.
     fn transpose_in_place_non_square(&mut self) {
         let m = self.columns;
         let n = self.rows;
@@ -779,14 +761,17 @@ impl<C> Matrix<C> {
 
     /// Transpose a matrix in place.
     ///
-    /// We use two different approaches for square vs. non-square matrices.
     /// For more information refer to
     /// [In-place matrix transposition](https://en.wikipedia.org/wiki/In-place_matrix_transposition).
     pub fn transpose(&mut self) {
         // Transposing square matrices in place is significantly more efficient than non-
         // square matrices, so we handle that special case separately.
         if self.rows == self.columns {
-            self.transpose_in_place_square();
+            for r in 0..self.rows {
+                for c in r + 1..self.columns {
+                    self.data.swap(r * self.columns + c, c * self.columns + r);
+                }
+            }
         } else {
             self.transpose_in_place_non_square();
         }
