@@ -235,10 +235,14 @@ fn transpose_in_place() {
 }
 
 #[test]
-#[should_panic(expected = "attempt to transpose a non-square matrix")]
-fn transpose_in_place_panic() {
+fn transpose_in_place_non_square() {
+    let mut m = matrix![[0, 1, 2]];
+    m.transpose();
+    assert_eq!(m, matrix![[0], [1], [2]]);
+
     let mut m = matrix![[0, 1, 2], [3, 4, 5]];
     m.transpose();
+    assert_eq!(m, matrix![[0, 3], [1, 4], [2, 5]]);
 }
 
 fn sum(slice: &[usize]) -> usize {

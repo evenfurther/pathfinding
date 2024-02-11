@@ -3,6 +3,7 @@
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
 use crate::utils::{constrain, in_direction, move_in_direction, uint_sqrt};
+use bitvec::prelude::bitvec;
 use deprecate_until::deprecate_until;
 use num_traits::Signed;
 use std::collections::BTreeSet;
@@ -723,7 +724,7 @@ impl<C> Matrix<C> {
     /// # Panics
     ///
     /// This function panics if the matrix is not square.
-    pub fn transpose(&mut self) {
+    fn transpose_in_place_square(&mut self) {
         assert!(
             self.rows == self.columns,
             "attempt to transpose a non-square matrix"
@@ -732,6 +733,62 @@ impl<C> Matrix<C> {
             for c in r + 1..self.columns {
                 self.data.swap(r * self.columns + c, c * self.columns + r);
             }
+        }
+    }
+
+    /// Transposes any matrix in place.
+    /// This is less efficient than `transpose_in_place_square` for square matrices.
+    fn transpose_in_place_non_square(&mut self) {
+        let m = self.columns;
+        let n = self.rows;
+
+        // Adjusted cycle length excluding the fixed point at 0, 0
+        let mn1 = m * n - 1;
+
+        // Scratch array for recording visited locations
+        let mut visited = bitvec![0; m * n];
+
+        for s in 1..self.data.len() {
+            if visited[s] {
+                continue;
+            }
+
+            // Identified an unvisited start point in a cycle
+            let mut x = s;
+            loop {
+                // Calculate the next position 'x' for the element to be moved.
+                // If it is in the last position, then there is nothing to do.
+                // Otherwise, calculate the new position using the formula (n * x) % mn1.
+                // This will ensure we visit all positions in a way that eventually visits
+                // and transposes every element, without exceeding the matrix's bounds.
+                x = if x == mn1 { mn1 } else { (n * x) % mn1 };
+                self.data.swap(x, s);
+                visited.set(x, true);
+
+                // Stop when we're back at the start of the cycle
+                if x == s {
+                    break;
+                }
+            }
+        }
+
+        // The matrix is now transposed, so we can swap the rows and columns
+        self.rows = m;
+        self.columns = n;
+    }
+
+    /// Transpose a matrix in place.
+    ///
+    /// We use two different approaches for square vs. non-square matrices.
+    /// For more information refer to
+    /// [In-place matrix transposition](https://en.wikipedia.org/wiki/In-place_matrix_transposition).
+    pub fn transpose(&mut self) {
+        // Transposing square matrices in place is significantly more efficient than non-
+        // square matrices, so we handle that special case separately.
+        if self.rows == self.columns {
+            self.transpose_in_place_square();
+        } else {
+            self.transpose_in_place_non_square();
         }
     }
 }
