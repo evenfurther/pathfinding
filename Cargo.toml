@@ -28,6 +28,7 @@ rustc-hash = "2.0.0"
 integer-sqrt = "0.1.5"
 thiserror = "1.0.63"
 deprecate-until = "0.1.1"
+bitvec-rs = "0.2.1"
 
 [dev-dependencies]
 codspeed-criterion-compat = "2.0.0"

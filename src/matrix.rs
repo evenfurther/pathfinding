@@ -3,6 +3,7 @@
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
 use crate::utils::{constrain, in_direction, move_in_direction, uint_sqrt};
+use bitvec_rs::BitVec;
 use deprecate_until::deprecate_until;
 use num_traits::Signed;
 use std::collections::BTreeSet;
@@ -727,10 +728,10 @@ impl<C> Matrix<C> {
         let mn1 = m * n - 1;
 
         // Scratch array for recording visited locations
-        let mut visited = vec![0u8; (m * n + 7) / 8];
+        let mut visited = BitVec::from_elem(m * n, false);
 
         for s in 1..self.data.len() {
-            if visited[s / 8] & (1 << (s % 8)) != 0 {
+            if visited[s] {
                 continue;
             }
 
@@ -746,7 +747,7 @@ impl<C> Matrix<C> {
                     x = (n * x) % mn1;
                 }
                 self.data.swap(x, s);
-                visited[x / 8] |= 1 << (x % 8);
+                visited.set(x, true);
 
                 // Stop when we're back at the start of the cycle
                 if x == s {
