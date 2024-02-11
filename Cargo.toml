@@ -29,11 +29,7 @@ rustc-hash = "1.1.0"
 integer-sqrt = "0.1.5"
 thiserror = "1.0.56"
 deprecate-until = "0.1.1"
-bitvec = "1.0.1"
-# wyz and tap needed to force minimal compatible versions
-# for bitvec inclusion
-wyz = "0.6.1"
-tap = "1.0.1"
+bitvec-rs = "0.2.1"
 
 [dev-dependencies]
 codspeed-criterion-compat = "1.1.0"
