@@ -10,6 +10,7 @@ use std::io::{self, Cursor};
 use std::num::ParseIntError;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 enum Error {
     Io(io::Error),
     Parse(ParseIntError),
