@@ -45,8 +45,8 @@ trybuild = "1.0.89"
 version_check = "0.9.4"
 
 [lints.clippy]
-pedantic = "deny"
-module_name_repetitions = "allow"
+module_name_repetitions = { level = "allow", priority = 1 }
+pedantic = { level = "deny", priority = 0 }
 
 [[bench]]
 name = "algos"
