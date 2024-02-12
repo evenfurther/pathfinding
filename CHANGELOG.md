@@ -1,4 +1,11 @@
 
+n.n.n / 2024-02-12
+==================
+
+  * fix(README): inline documentation to fix inner links to modules
+  * fix(deps): update rust crate indexmap to 2.2.3
+  * fix(deps): update rust crate thiserror to 1.0.57
+
 v4.9.0 / 2024-02-11
 ==================
 
