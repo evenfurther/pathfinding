@@ -1,5 +1,5 @@
 
-n.n.n / 2024-02-12
+v4.9.1 / 2024-02-12
 ==================
 
   * fix(README): inline documentation to fix inner links to modules
