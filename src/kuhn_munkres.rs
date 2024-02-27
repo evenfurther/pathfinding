@@ -3,8 +3,7 @@
 //! [Kuhn-Munkres algorithm](https://en.wikipedia.org/wiki/Hungarian_algorithm)
 //! (also known as Hungarian algorithm).
 
-use crate::matrix::Matrix;
-use fixedbitset::FixedBitSet;
+use crate::{matrix::Matrix, FxIndexSet};
 use num_traits::{Bounded, Signed, Zero};
 use std::iter::Sum;
 
@@ -139,7 +138,7 @@ where
     let mut ly: Vec<C> = vec![Zero::zero(); ny];
     // s, augmenting, and slack will be reset every time they are reused. augmenting
     // contains Some(prev) when the corresponding node belongs to the augmenting path.
-    let mut s = FixedBitSet::with_capacity(nx);
+    let mut s = FxIndexSet::<usize>::default();
     let mut alternating = Vec::with_capacity(ny);
     let mut slack = vec![Zero::zero(); ny];
     let mut slackx = Vec::with_capacity(ny);
@@ -178,7 +177,7 @@ where
                 // The slack of y nodes outside the alternating path will be reduced
                 // by this minimal slack as well.
                 if delta > Zero::zero() {
-                    for x in s.ones() {
+                    for &x in &s {
                         lx[x] = lx[x] - delta;
                     }
                     for y in 0..ny {
