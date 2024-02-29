@@ -23,7 +23,7 @@ pre-release-replacements = [
 
 [dependencies]
 num-traits = "0.2.18"
-indexmap = "2.2.3"
+indexmap = "2.2.4"
 rustc-hash = "1.1.0"
 integer-sqrt = "0.1.5"
 thiserror = "1.0.57"
