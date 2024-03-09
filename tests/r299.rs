@@ -58,7 +58,7 @@ fn distance(a: &Point, b: &Point) -> usize {
 
 #[test]
 fn main() {
-    let expectations = vec![
+    let expectations = [
         vec![28, 44, 220, 184, 144, 208, 76],
         vec![60, 212, 176, 136, 200, 92],
         vec![252, 216, 176, 240, 36],
