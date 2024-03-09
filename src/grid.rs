@@ -9,7 +9,7 @@ use crate::FxIndexSet;
 use num_traits::ToPrimitive;
 use std::collections::BTreeSet;
 use std::fmt;
-use std::iter::{FromIterator, FusedIterator};
+use std::iter::FusedIterator;
 use std::ops::Sub;
 
 #[derive(Clone)]

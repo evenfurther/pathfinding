@@ -6,7 +6,6 @@ use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 use std::collections::HashSet;
 use std::hash::Hash;
-use std::iter::FromIterator;
 
 use super::dijkstra::dijkstra_internal;
 
