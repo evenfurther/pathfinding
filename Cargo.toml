@@ -39,7 +39,7 @@ rand = "0.8.5"
 rand_xorshift = "0.3.0"
 # Not a real dependency, but needed since criterion 0.4.0
 # does not compile anymore as of 2022-10-03.
-regex = "1.10.3"
+regex = "1.10.4"
 trybuild = "1.0.90"
 version_check = "0.9.4"
 
