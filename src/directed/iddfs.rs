@@ -1,6 +1,10 @@
 //! Compute a shortest path using the [iterative deepening depth-first search
 //! algorithm](https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search).
 
+use std::hash::Hash;
+
+use crate::FxIndexSet;
+
 /// Compute a shortest path using the [iterative deepening depth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search).
 ///
@@ -28,7 +32,7 @@
 /// ```
 /// use pathfinding::prelude::iddfs;
 ///
-/// #[derive(Eq, PartialEq)]
+/// #[derive(Eq, Hash, PartialEq)]
 /// struct Pos(i32, i32);
 ///
 /// impl Pos {
@@ -59,18 +63,19 @@
 /// ```
 pub fn iddfs<N, FN, IN, FS>(start: N, mut successors: FN, mut success: FS) -> Option<Vec<N>>
 where
-    N: Eq,
+    N: Eq + Hash,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
 {
-    let mut path = vec![start];
+    let mut path = FxIndexSet::default();
+    path.insert(start);
 
     let mut current_max_depth: usize = 1;
 
     loop {
         match step(&mut path, &mut successors, &mut success, current_max_depth) {
-            Path::FoundOptimum => return Some(path),
+            Path::FoundOptimum => return Some(Vec::from_iter(path)),
             Path::NoneAtThisDepth => current_max_depth += 1,
             Path::Impossible => return None,
         }
@@ -85,13 +90,13 @@ enum Path {
 }
 
 fn step<N, FN, IN, FS>(
-    path: &mut Vec<N>,
+    path: &mut FxIndexSet<N>,
     successors: &mut FN,
     success: &mut FS,
     depth: usize,
 ) -> Path
 where
-    N: Eq,
+    N: Eq + Hash,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
@@ -107,7 +112,7 @@ where
 
         for n in successors_it {
             if !path.contains(&n) {
-                path.push(n);
+                path.insert(n);
                 match step(path, successors, success, depth - 1) {
                     Path::FoundOptimum => return Path::FoundOptimum,
                     Path::NoneAtThisDepth => best_result = Path::NoneAtThisDepth,
