@@ -5,6 +5,8 @@ use std::collections::HashSet;
 use std::hash::Hash;
 use std::iter::FusedIterator;
 
+use crate::FxIndexSet;
+
 /// Compute a path using the [depth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Depth-first_search).
 ///
@@ -46,18 +48,19 @@ use std::iter::FusedIterator;
 /// ```
 pub fn dfs<N, FN, IN, FS>(start: N, mut successors: FN, mut success: FS) -> Option<Vec<N>>
 where
-    N: Eq,
+    N: Eq + Hash,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
 {
-    let mut path = vec![start];
-    step(&mut path, &mut successors, &mut success).then_some(path)
+    let mut path = FxIndexSet::default();
+    path.insert(start);
+    step(&mut path, &mut successors, &mut success).then_some(Vec::from_iter(path))
 }
 
-fn step<N, FN, IN, FS>(path: &mut Vec<N>, successors: &mut FN, success: &mut FS) -> bool
+fn step<N, FN, IN, FS>(path: &mut FxIndexSet<N>, successors: &mut FN, success: &mut FS) -> bool
 where
-    N: Eq,
+    N: Eq + Hash,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
@@ -68,7 +71,7 @@ where
         let successors_it = successors(path.last().unwrap());
         for n in successors_it {
             if !path.contains(&n) {
-                path.push(n);
+                path.insert(n);
                 if step(path, successors, success) {
                     return true;
                 }
