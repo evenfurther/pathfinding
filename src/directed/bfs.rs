@@ -6,7 +6,6 @@ use crate::{FxIndexMap, FxIndexSet};
 use indexmap::map::Entry::Vacant;
 use std::hash::Hash;
 use std::iter::FusedIterator;
-use std::usize;
 
 /// Compute a shortest path using the [breadth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
@@ -90,7 +89,7 @@ where
     }
     let mut i = 0;
     let mut parents: FxIndexMap<N, usize> = FxIndexMap::default();
-    parents.insert(start.clone(), usize::max_value());
+    parents.insert(start.clone(), usize::MAX);
     while let Some((node, _)) = parents.get_index(i) {
         for successor in successors(node) {
             if success(&successor) {

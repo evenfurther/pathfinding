@@ -3,7 +3,6 @@ use pathfinding::undirected::connected_components::*;
 use rand::prelude::*;
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
-use std::usize;
 
 #[test]
 fn basic_separate_components() {

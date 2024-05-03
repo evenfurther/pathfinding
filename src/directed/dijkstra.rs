@@ -9,7 +9,6 @@ use rustc_hash::{FxHashMap, FxHashSet};
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 use std::hash::Hash;
-use std::usize;
 
 /// Compute a shortest path using the [Dijkstra search
 /// algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
@@ -211,7 +210,7 @@ where
         index: 0,
     });
     let mut parents: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
-    parents.insert(start.clone(), (usize::max_value(), Zero::zero()));
+    parents.insert(start.clone(), (usize::MAX, Zero::zero()));
     let mut target_reached = None;
     while let Some(SmallestHolder { cost, index }) = to_see.pop() {
         let successors = {
@@ -416,7 +415,7 @@ where
     });
 
     let mut parents: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
-    parents.insert(start.clone(), (usize::max_value(), Zero::zero()));
+    parents.insert(start.clone(), (usize::MAX, Zero::zero()));
 
     let mut total_costs = FxHashMap::default();
     total_costs.insert(start.clone(), Zero::zero());

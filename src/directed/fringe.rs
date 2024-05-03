@@ -8,7 +8,6 @@ use num_traits::{Bounded, Zero};
 use std::collections::VecDeque;
 use std::hash::Hash;
 use std::mem;
-use std::usize;
 
 /// Compute a shortest path using the [Fringe search
 /// algorithm](https://en.wikipedia.org/wiki/Fringe_search).
@@ -98,7 +97,7 @@ where
     let mut parents: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
     let mut flimit = heuristic(start);
     now.push_back(0);
-    parents.insert(start.clone(), (usize::max_value(), Zero::zero()));
+    parents.insert(start.clone(), (usize::MAX, Zero::zero()));
 
     loop {
         if now.is_empty() {

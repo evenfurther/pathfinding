@@ -7,7 +7,6 @@ use rand::prelude::SliceRandom;
 use rand::{Rng, RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
-use std::usize;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 struct Pt {

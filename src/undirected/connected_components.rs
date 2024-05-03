@@ -4,7 +4,6 @@ use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::iter::once;
-use std::usize;
 
 fn join(table: &mut [usize], mut rx: usize, mut ry: usize) -> usize {
     while table[rx] != table[ry] {
@@ -66,7 +65,7 @@ where
     let mut indices = HashMap::new();
     for (mut group_index, group) in groups.iter().enumerate() {
         if group.is_empty() {
-            table[group_index] = usize::max_value();
+            table[group_index] = usize::MAX;
         }
         for element in group {
             match indices.entry(element) {
@@ -108,7 +107,7 @@ where
     let mut gb = gindices
         .into_iter()
         .enumerate()
-        .filter(|&(_, n)| n != usize::max_value())
+        .filter(|&(_, n)| n != usize::MAX)
         .collect::<Vec<_>>();
     gb.sort_unstable_by(|&(_, n1), &(_, n2)| Ord::cmp(&n1, &n2));
     let mut key = None;
