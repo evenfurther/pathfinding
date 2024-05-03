@@ -7,7 +7,6 @@ use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashSet};
 use std::hash::Hash;
 use std::iter::FusedIterator;
-use std::usize;
 
 use super::reverse_path;
 use crate::FxIndexMap;
@@ -100,7 +99,7 @@ where
         index: 0,
     });
     let mut parents: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
-    parents.insert(start.clone(), (usize::max_value(), Zero::zero()));
+    parents.insert(start.clone(), (usize::MAX, Zero::zero()));
     while let Some(SmallestCostHolder { cost, index, .. }) = to_see.pop() {
         let successors = {
             let (node, &(_, c)) = parents.get_index(index).unwrap(); // Cannot fail
