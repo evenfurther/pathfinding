@@ -1,4 +1,13 @@
 
+n.n.n / 2024-06-18
+==================
+
+  * feat: replace `FixedBitSet` by `IndexSet` for better performances
+  * chore(deps): update many dependencies for better performances
+  * feat(tests): add new aoc-2023-17 test
+  * fix(tests): do not build useless vector
+  * fix: remove redundant imports
+
 v4.9.1 / 2024-02-12
 ==================
 
