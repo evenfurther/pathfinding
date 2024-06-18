@@ -24,7 +24,7 @@ pre-release-replacements = [
 [dependencies]
 num-traits = "0.2.19"
 indexmap = "2.2.6"
-rustc-hash = "1.1.0"
+rustc-hash = "2.0.0"
 integer-sqrt = "0.1.5"
 thiserror = "1.0.59"
 deprecate-until = "0.1.1"
