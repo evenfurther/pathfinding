@@ -1,5 +1,5 @@
 
-n.n.n / 2024-06-18
+v4.10.0 / 2024-06-18
 ==================
 
   * feat: replace `FixedBitSet` by `IndexSet` for better performances
