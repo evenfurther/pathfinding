@@ -211,7 +211,7 @@ fn no_rows_rotated_twice() {
 }
 
 #[test]
-fn flip() {
+fn flip_square() {
     let m1 = Matrix::square_from_vec(vec![0, 1, 2, 3]).unwrap();
     let m2 = Matrix::square_from_vec(vec![1, 0, 3, 2]).unwrap();
     let m3 = Matrix::square_from_vec(vec![2, 3, 0, 1]).unwrap();
@@ -222,6 +222,15 @@ fn flip() {
     let m3 = Matrix::square_from_vec(vec![6, 7, 8, 3, 4, 5, 0, 1, 2]).unwrap();
     assert_eq!(m1.flipped_lr(), m2);
     assert_eq!(m1.flipped_ud(), m3);
+}
+
+#[test]
+fn flip_non_square() {
+    let m1 = Matrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]).unwrap();
+    let m2 = Matrix::from_vec(2, 3, vec![3, 4, 5, 0, 1, 2]).unwrap();
+    let m3 = Matrix::from_vec(2, 3, vec![2, 1, 0, 5, 4, 3]).unwrap();
+    assert_eq!(m1.flipped_ud(), m2);
+    assert_eq!(m1.flipped_lr(), m3);
 }
 
 #[test]
