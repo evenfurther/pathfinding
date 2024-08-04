@@ -466,6 +466,10 @@ fn empty_neighbours() {
     let m = Matrix::new(10, 10, 42);
     assert_eq!(m.neighbours((10, 10), false).collect::<Vec<_>>(), vec![]);
     assert_eq!(m.neighbours((10, 10), true).collect::<Vec<_>>(), vec![]);
+    assert_eq!(m.neighbours((5, 10), false).collect::<Vec<_>>(), vec![]);
+    assert_eq!(m.neighbours((5, 10), true).collect::<Vec<_>>(), vec![]);
+    assert_eq!(m.neighbours((10, 5), false).collect::<Vec<_>>(), vec![]);
+    assert_eq!(m.neighbours((10, 5), true).collect::<Vec<_>>(), vec![]);
 }
 
 #[test]
