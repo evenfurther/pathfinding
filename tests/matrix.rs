@@ -718,3 +718,12 @@ fn items_mut() {
 
     assert_eq!(&*m, &[0, 1, 2, 3, 4, 5, 6, 14, 8]);
 }
+
+#[test]
+fn is_empty() {
+    let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
+    assert!(!m.is_empty());
+
+    let m: Matrix<i32> = matrix![];
+    assert!(m.is_empty());
+}
