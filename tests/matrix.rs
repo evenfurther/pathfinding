@@ -614,6 +614,16 @@ fn into_iter_is_fused() {
 }
 
 #[test]
+#[allow(deprecated)]
+fn indices() {
+    let m = matrix![[0, 1, 2], [2, 1, 0]];
+    assert_eq!(
+        m.indices().collect::<Vec<_>>(),
+        vec![(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
+    );
+}
+
+#[test]
 fn keys() {
     let m = matrix![[0, 1, 2], [2, 1, 0]];
     assert_eq!(
