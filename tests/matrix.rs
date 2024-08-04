@@ -252,9 +252,30 @@ fn flip_square() {
 
 #[test]
 fn flip_non_square() {
-    let m1 = Matrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]).unwrap();
-    let m2 = Matrix::from_vec(2, 3, vec![3, 4, 5, 0, 1, 2]).unwrap();
-    let m3 = Matrix::from_vec(2, 3, vec![2, 1, 0, 5, 4, 3]).unwrap();
+    let m1 = Matrix::from_vec(
+        4,
+        5,
+        vec![
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        ],
+    )
+    .unwrap();
+    let m2 = Matrix::from_vec(
+        4,
+        5,
+        vec![
+            15, 16, 17, 18, 19, 10, 11, 12, 13, 14, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4,
+        ],
+    )
+    .unwrap();
+    let m3 = Matrix::from_vec(
+        4,
+        5,
+        vec![
+            4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 14, 13, 12, 11, 10, 19, 18, 17, 16, 15,
+        ],
+    )
+    .unwrap();
     assert_eq!(m1.flipped_ud(), m2);
     assert_eq!(m1.flipped_lr(), m3);
 }
@@ -289,6 +310,10 @@ fn transpose_in_place_non_square() {
     let mut m = matrix![[0, 1, 2], [3, 4, 5]];
     m.transpose();
     assert_eq!(m, matrix![[0, 3], [1, 4], [2, 5]]);
+
+    let mut m = matrix![[0, 1], [2, 3], [4, 5], [6, 7], [8, 9]];
+    m.transpose();
+    assert_eq!(m, matrix![[0, 2, 4, 6, 8], [1, 3, 5, 7, 9]]);
 }
 
 #[test]
