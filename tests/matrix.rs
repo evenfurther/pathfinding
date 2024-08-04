@@ -128,6 +128,32 @@ fn square_rotate() {
     assert_eq!(m1.rotated_ccw(1), m4);
     assert_eq!(m1.rotated_ccw(2), m3);
     assert_eq!(m1.rotated_ccw(3), m2);
+
+    let mut m = m1.clone();
+    m.rotate_cw(0);
+    assert_eq!(m, m1);
+    let mut m = m1.clone();
+    m.rotate_cw(1);
+    assert_eq!(m, m2);
+    let mut m = m1.clone();
+    m.rotate_cw(2);
+    assert_eq!(m, m3);
+    let mut m = m1.clone();
+    m.rotate_cw(3);
+    assert_eq!(m, m4);
+    let mut m = m1.clone();
+    m.rotate_ccw(0);
+    assert_eq!(m, m1);
+    let mut m = m1.clone();
+    m.rotate_ccw(1);
+    assert_eq!(m, m4);
+    let mut m = m1.clone();
+    m.rotate_ccw(2);
+    assert_eq!(m, m3);
+    let mut m = m1.clone();
+    m.rotate_ccw(3);
+    assert_eq!(m, m2);
+
     // 0 1 2    6 3 0    8 7 6    2 5 8
     // 3 4 5 => 7 4 1 => 5 4 3 => 1 4 7
     // 6 7 8    8 5 2    2 1 0    0 3 6
@@ -440,6 +466,10 @@ fn empty_neighbours() {
     let m = Matrix::new(10, 10, 42);
     assert_eq!(m.neighbours((10, 10), false).collect::<Vec<_>>(), vec![]);
     assert_eq!(m.neighbours((10, 10), true).collect::<Vec<_>>(), vec![]);
+    assert_eq!(m.neighbours((5, 10), false).collect::<Vec<_>>(), vec![]);
+    assert_eq!(m.neighbours((5, 10), true).collect::<Vec<_>>(), vec![]);
+    assert_eq!(m.neighbours((10, 5), false).collect::<Vec<_>>(), vec![]);
+    assert_eq!(m.neighbours((10, 5), true).collect::<Vec<_>>(), vec![]);
 }
 
 #[test]
