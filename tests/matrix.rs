@@ -54,12 +54,18 @@ fn from_vec() {
 
 #[test]
 fn from_vec_error() {
-    assert!(Matrix::from_vec(2, 3, vec![20, 30, 40, 50, 60]).is_err());
+    assert!(matches!(
+        Matrix::from_vec(2, 3, vec![20, 30, 40, 50, 60]),
+        Err(MatrixFormatError::WrongLength),
+    ));
 }
 
 #[test]
 fn from_vec_empty_row_error() {
-    assert!(Matrix::from_vec(2, 0, Vec::<i32>::new()).is_err());
+    assert!(matches!(
+        Matrix::from_vec(2, 0, Vec::<i32>::new()),
+        Err(MatrixFormatError::EmptyRow),
+    ));
 }
 
 #[test]
@@ -94,7 +100,7 @@ fn square_from_vec() {
 fn from_vec_panic() {
     assert!(matches!(
         Matrix::from_vec(2, 3, vec![1, 2, 3]),
-        Err(MatrixFormatError::WrongLength)
+        Err(MatrixFormatError::WrongLength),
     ));
 }
 
@@ -102,7 +108,7 @@ fn from_vec_panic() {
 fn square_from_vec_panic() {
     assert!(matches!(
         Matrix::square_from_vec(vec![1, 2, 3]),
-        Err(MatrixFormatError::WrongLength)
+        Err(MatrixFormatError::WrongLength),
     ));
 }
 
@@ -293,7 +299,10 @@ fn slice_err() {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
     ])
     .unwrap();
-    assert!(m1.slice(1..3, 2..6).is_err());
+    assert!(matches!(
+        m1.slice(1..3, 2..6),
+        Err(MatrixFormatError::WrongIndex),
+    ));
 }
 
 #[test]
@@ -345,13 +354,16 @@ fn empty_extend() {
 #[test]
 fn extend_bad_size_error() {
     let mut m = Matrix::new_empty(3);
-    assert!(m.extend(&[0, 1]).is_err());
+    assert!(matches!(
+        m.extend(&[0, 1]),
+        Err(MatrixFormatError::WrongLength),
+    ));
 }
 
 #[test]
 fn extend_empty_row_error() {
     let mut m: Matrix<u32> = matrix![];
-    assert!(m.extend(&[]).is_err());
+    assert!(matches!(m.extend(&[]), Err(MatrixFormatError::EmptyRow)));
 }
 
 #[test]
@@ -539,7 +551,7 @@ fn from_rows() {
     assert_eq!(m.columns, 4);
     assert_eq!(m.to_vec(), vec![1, 2, 3, 4, 2, 4, 6, 8]);
     let m = Matrix::from_rows((1..3).map(|n| (1..n).map(move |x| x * n)));
-    assert!(m.is_err());
+    assert!(matches!(m, Err(MatrixFormatError::WrongLength)));
 }
 
 #[test]
