@@ -54,7 +54,18 @@ fn from_vec() {
 
 #[test]
 fn from_vec_error() {
-    assert!(Matrix::from_vec(2, 3, vec![20, 30, 40, 50, 60]).is_err());
+    assert!(matches!(
+        Matrix::from_vec(2, 3, vec![20, 30, 40, 50, 60]),
+        Err(MatrixFormatError::WrongLength),
+    ));
+}
+
+#[test]
+fn from_vec_empty_row_error() {
+    assert!(matches!(
+        Matrix::from_vec(2, 0, Vec::<i32>::new()),
+        Err(MatrixFormatError::EmptyRow),
+    ));
 }
 
 #[test]
@@ -89,7 +100,7 @@ fn square_from_vec() {
 fn from_vec_panic() {
     assert!(matches!(
         Matrix::from_vec(2, 3, vec![1, 2, 3]),
-        Err(MatrixFormatError::WrongLength)
+        Err(MatrixFormatError::WrongLength),
     ));
 }
 
@@ -97,7 +108,7 @@ fn from_vec_panic() {
 fn square_from_vec_panic() {
     assert!(matches!(
         Matrix::square_from_vec(vec![1, 2, 3]),
-        Err(MatrixFormatError::WrongLength)
+        Err(MatrixFormatError::WrongLength),
     ));
 }
 
@@ -279,7 +290,7 @@ fn slice() {
     let m2 = m1.slice(1..3, 2..5).unwrap();
     assert_eq!(m2.rows, 2);
     assert_eq!(m2.columns, 3);
-    assert_eq!(m2.as_ref().to_vec(), [7, 8, 9, 12, 13, 14]);
+    assert_eq!(m2.to_vec(), [7, 8, 9, 12, 13, 14]);
 }
 
 #[test]
@@ -288,7 +299,10 @@ fn slice_err() {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
     ])
     .unwrap();
-    assert!(m1.slice(1..3, 2..6).is_err());
+    assert!(matches!(
+        m1.slice(1..3, 2..6),
+        Err(MatrixFormatError::WrongIndex),
+    ));
 }
 
 #[test]
@@ -300,7 +314,7 @@ fn set_slice() {
     let m2 = Matrix::from_vec(3, 2, vec![10, 20, 30, 40, 50, 60]).unwrap();
     m1.set_slice((2, 3), &m2);
     assert_eq!(
-        m1.as_ref().to_vec(),
+        m1.to_vec(),
         [
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 10, 20, 15, 16, 17, 30, 40, 20, 21, 22, 50,
             60,
@@ -313,7 +327,7 @@ fn set_slice() {
     let m2 = Matrix::from_vec(4, 3, vec![10, 20, 22, 30, 40, 44, 50, 60, 66, 70, 80, 88]).unwrap();
     m1.set_slice((2, 3), &m2);
     assert_eq!(
-        m1.as_ref().to_vec(),
+        m1.to_vec(),
         [
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 10, 20, 15, 16, 17, 30, 40, 20, 21, 22, 50,
             60,
@@ -340,13 +354,16 @@ fn empty_extend() {
 #[test]
 fn extend_bad_size_error() {
     let mut m = Matrix::new_empty(3);
-    assert!(m.extend(&[0, 1]).is_err());
+    assert!(matches!(
+        m.extend(&[0, 1]),
+        Err(MatrixFormatError::WrongLength),
+    ));
 }
 
 #[test]
 fn extend_empty_row_error() {
     let mut m: Matrix<u32> = matrix![];
-    assert!(m.extend(&[]).is_err());
+    assert!(matches!(m.extend(&[]), Err(MatrixFormatError::EmptyRow)));
 }
 
 #[test]
@@ -534,7 +551,7 @@ fn from_rows() {
     assert_eq!(m.columns, 4);
     assert_eq!(m.to_vec(), vec![1, 2, 3, 4, 2, 4, 6, 8]);
     let m = Matrix::from_rows((1..3).map(|n| (1..n).map(move |x| x * n)));
-    assert!(m.is_err());
+    assert!(matches!(m, Err(MatrixFormatError::WrongLength)));
 }
 
 #[test]
@@ -611,6 +628,16 @@ fn into_iter_is_fused() {
     for _ in 0..3 {
         assert!(it.next().is_none());
     }
+}
+
+#[test]
+#[allow(deprecated)]
+fn indices() {
+    let m = matrix![[0, 1, 2], [2, 1, 0]];
+    assert_eq!(
+        m.indices().collect::<Vec<_>>(),
+        vec![(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
+    );
 }
 
 #[test]
