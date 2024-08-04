@@ -338,6 +338,10 @@ fn slice_err() {
         m1.slice(1..3, 2..6),
         Err(MatrixFormatError::WrongIndex),
     ));
+    assert!(matches!(
+        m1.slice(2..6, 1..3),
+        Err(MatrixFormatError::WrongIndex),
+    ));
 }
 
 #[test]
