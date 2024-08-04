@@ -58,6 +58,11 @@ fn from_vec_error() {
 }
 
 #[test]
+fn from_vec_empty_row_error() {
+    assert!(Matrix::from_vec(2, 0, Vec::<i32>::new()).is_err());
+}
+
+#[test]
 #[should_panic(expected = "unable to create a matrix with empty rows")]
 fn new_empty_row_panic() {
     let _ = Matrix::new(1, 0, 42);
