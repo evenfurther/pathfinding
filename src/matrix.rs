@@ -742,7 +742,9 @@ impl<C> Matrix<C> {
                 // Otherwise, calculate the new position using the formula (n * x) % mn1.
                 // This will ensure we visit all positions in a way that eventually visits
                 // and transposes every element, without exceeding the matrix's bounds.
-                x = if x == mn1 { mn1 } else { (n * x) % mn1 };
+                if x != mn1 {
+                    x = (n * x) % mn1;
+                }
                 self.data.swap(x, s);
                 visited[x / 8] |= 1 << (x % 8);
 
