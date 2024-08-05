@@ -4,7 +4,7 @@
 [![Documentation](https://docs.rs/pathfinding/badge.svg)](https://docs.rs/pathfinding)
 [![License: Apache-2.0/MIT](https://img.shields.io/crates/l/pathfinding.svg)](#license)
 
-This crate implements several pathfinding, flow, and graph algorithms in [Rust][Rust]. The algorithms are generic over their arguments. See [the documentation](https://docs.rs/pathfinding) for more information about the various algorithms.
+This crate implements several pathfinding, flow, and graph algorithms in [Rust](https://rust-lang.org/). The algorithms are generic over their arguments. See [the documentation](https://docs.rs/pathfinding) for more information about the various algorithms.
 
 ## Using this crate
 
