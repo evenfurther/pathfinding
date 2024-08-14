@@ -324,7 +324,7 @@ impl<K: Ord> PartialOrd for SmallestCostHolder<K> {
 impl<K: Ord> Ord for SmallestCostHolder<K> {
     fn cmp(&self, other: &Self) -> Ordering {
         match other.estimated_cost.cmp(&self.estimated_cost) {
-            Ordering::Equal => self.cost.cmp(&other.cost),
+            Ordering::Equal => other.cost.cmp(&self.cost),
             s => s,
         }
     }
