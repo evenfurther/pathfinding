@@ -301,6 +301,12 @@ where
         .map(|(solutions, cost)| (solutions.collect(), cost))
 }
 
+/// This structure is used to implement Rust's max-heap as a min-heap
+/// version for A*. The smallest `estimated_cost` (which is the sum of
+/// the `cost` and the heuristic) is preferred. For the same
+/// `estimated_cost`, the highest `cost` will be favored, as it may
+/// indicate that the goal is nearer, thereby requiring fewer
+/// exploration steps.
 struct SmallestCostHolder<K> {
     estimated_cost: K,
     cost: K,
