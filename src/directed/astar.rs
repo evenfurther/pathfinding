@@ -147,9 +147,11 @@ where
 }
 
 /// Compute all shortest paths using the [A* search
-/// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm). Whereas `astar`
-/// (non-deterministic-ally) returns a single shortest path, `astar_bag` returns all shortest paths
-/// (in a non-deterministic order).
+/// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
+
+/// Whereas `astar` (non-deterministic-ally) returns a single shortest
+/// path, `astar_bag` returns all shortest paths (in a
+/// non-deterministic order).
 ///
 /// The shortest paths starting from `start` up to a node for which `success` returns `true` are
 /// computed and returned in an iterator along with the cost (which, by definition, is the same for
@@ -273,9 +275,11 @@ where
 }
 
 /// Compute all shortest paths using the [A* search
-/// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm). Whereas `astar`
-/// (non-deterministic-ally) returns a single shortest path, `astar_bag` returns all shortest paths
-/// (in a non-deterministic order).
+/// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
+
+/// Whereas `astar` (non-deterministic-ally) returns a single shortest
+/// path, `astar_bag` returns all shortest paths (in a
+/// non-deterministic order).
 ///
 /// This is a utility function which collects the results of the `astar_bag` function into a
 /// vector. Most of the time, it is more appropriate to use `astar_bag` directly.

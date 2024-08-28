@@ -7,9 +7,10 @@ use std::iter::FusedIterator;
 
 /// Compute a path using the [depth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Depth-first_search).
-/// The path starts from `start` up to a node for which `success` returns `true` is computed and
-/// returned along with its total cost, in a `Some`. If no path can be found, `None` is returned
-/// instead.
+///
+/// The path starts from `start` up to a node for which `success`
+/// returns `true` is computed and returned along with its total cost,
+/// in a `Some`. If no path can be found, `None` is returned instead.
 ///
 /// - `start` is the starting node.
 /// - `successors` returns a list of successors for a given node, which will be tried in order.
