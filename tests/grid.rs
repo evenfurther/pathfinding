@@ -108,6 +108,8 @@ fn resize() {
     assert_eq!(g.vertices_len(), 9);
     assert!(!g.resize(4, 4));
     assert_eq!(g.vertices_len(), 9);
+    assert!(!g.resize(3, 4));
+    assert_eq!(g.vertices_len(), 9);
     assert!(!g.resize(3, 3));
     assert_eq!(g.vertices_len(), 9);
     assert!(g.resize(2, 2));
@@ -268,6 +270,47 @@ fn neighbours_outside_vertex() {
 }
 
 #[test]
+fn neighbours_of_border() {
+    let sort = |mut v: Vec<(usize, usize)>| {
+        v.sort_unstable();
+        v
+    };
+
+    let mut g = Grid::new(3, 3);
+    assert_eq!(g.neighbours((2, 2)), vec![]);
+    g.enable_diagonal_mode();
+    assert_eq!(g.neighbours((2, 2)), vec![]);
+    g.fill();
+    assert_eq!(sort(g.neighbours((2, 2))), vec![(1, 1), (1, 2), (2, 1)]);
+    g.disable_diagonal_mode();
+    assert_eq!(sort(g.neighbours((2, 2))), vec![(1, 2), (2, 1)]);
+
+    let mut g = Grid::new(3, 3);
+    assert_eq!(g.neighbours((2, 1)), vec![]);
+    g.enable_diagonal_mode();
+    assert_eq!(g.neighbours((2, 1)), vec![]);
+    g.fill();
+    assert_eq!(
+        sort(g.neighbours((2, 1))),
+        vec![(1, 0), (1, 1), (1, 2), (2, 0), (2, 2)]
+    );
+    g.disable_diagonal_mode();
+    assert_eq!(sort(g.neighbours((2, 1))), vec![(1, 1), (2, 0), (2, 2)]);
+
+    let mut g = Grid::new(3, 3);
+    assert_eq!(g.neighbours((1, 2)), vec![]);
+    g.enable_diagonal_mode();
+    assert_eq!(g.neighbours((1, 2)), vec![]);
+    g.fill();
+    assert_eq!(
+        sort(g.neighbours((1, 2))),
+        vec![(0, 1), (0, 2), (1, 1), (2, 1), (2, 2)]
+    );
+    g.disable_diagonal_mode();
+    assert_eq!(sort(g.neighbours((1, 2))), vec![(0, 2), (1, 1), (2, 2)]);
+}
+
+#[test]
 fn totally_empty() {
     let g = Grid::new(0, 0);
     assert_eq!(g.vertices_len(), 0);
@@ -389,6 +432,20 @@ fn remove_borders() {
 #[test]
 fn remove_borders_empty() {
     let mut g = Grid::new(0, 0);
+    assert_eq!(g.vertices_len(), 0);
+    g.fill();
+    assert_eq!(g.vertices_len(), 0);
+    assert_eq!(g.remove_borders(), 0);
+    assert_eq!(g.vertices_len(), 0);
+
+    let mut g = Grid::new(1, 0);
+    assert_eq!(g.vertices_len(), 0);
+    g.fill();
+    assert_eq!(g.vertices_len(), 0);
+    assert_eq!(g.remove_borders(), 0);
+    assert_eq!(g.vertices_len(), 0);
+
+    let mut g = Grid::new(0, 1);
     assert_eq!(g.vertices_len(), 0);
     g.fill();
     assert_eq!(g.vertices_len(), 0);
