@@ -13,6 +13,8 @@ use std::iter::FusedIterator;
 use std::ops::Sub;
 
 #[derive(Clone)]
+/// A rectangular grid.
+///
 /// Representation of a rectangular grid in which vertices can be added
 /// or removed. Edges are automatically created between adjacent vertices.
 /// By default, only vertical and horizontal edges are created, unless
