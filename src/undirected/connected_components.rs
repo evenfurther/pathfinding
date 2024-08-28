@@ -46,12 +46,12 @@ fn find(table: &mut [usize], mut x: usize) -> usize {
 /// This function returns a pair containing:
 ///
 /// - A mapping from every vertex to its set identifier. The set identifiers are
-/// opaque and will not necessarily be compact. However, it is guaranteed that
-/// they will not be greater than the number of groups.
+///   opaque and will not necessarily be compact. However, it is guaranteed that
+///   they will not be greater than the number of groups.
 /// - A mapping from every group to its set identifier, with the identifiers being
-/// the same ones as the ones in the previous mapping. Each group corresponds to
-/// the identifier at the same index, except for empty group whose identifier is
-/// set to `std::usize::MAX`.
+///   the same ones as the ones in the previous mapping. Each group corresponds to
+///   the identifier at the same index, except for empty group whose identifier is
+///   set to `std::usize::MAX`.
 ///
 /// Note that if you have a raw undirected graph, you can build
 /// such a structure by creating a group for every vertex containing

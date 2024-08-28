@@ -19,9 +19,9 @@ use std::hash::Hash;
 ///
 /// - `start` is the starting node.
 /// - `successors` returns a list of successors for a given node, along with the cost for moving
-/// from the node to the successor. This cost must be non-negative.
+///   from the node to the successor. This cost must be non-negative.
 /// - `success` checks whether the goal has been reached. It is not a node as some problems require
-/// a dynamic solution instead of a fixed node.
+///   a dynamic solution instead of a fixed node.
 ///
 /// A node will never be included twice in the path as determined by the `Eq` relationship.
 ///
@@ -111,7 +111,7 @@ where
 ///
 /// - `start` is the starting node.
 /// - `successors` returns a list of successors for a given node, along with the cost for moving
-/// from the node to the successor.
+///   from the node to the successor.
 ///
 /// The result is a map where every reachable node (not including `start`) is associated with
 /// an optimal parent node and a cost from the start node.
@@ -158,7 +158,7 @@ where
 ///
 /// - `start` is the starting node.
 /// - `successors` returns a list of successors for a given node, along with the cost for moving
-/// from the node to the successor.
+///   from the node to the successor.
 /// - `stop` is a function which is called every time a node is examined (including `start`).
 ///   A `true` return value will stop the algorithm.
 ///

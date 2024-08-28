@@ -187,7 +187,7 @@ impl<C: Clone> Matrix<C> {
     /// # Errors
     ///
     /// - [`MatrixFormatError::WrongLength`] if the row does not have
-    /// the expected number of elements.
+    ///   the expected number of elements.
     /// - [`MatrixFormatError::EmptyRow`] if an empty row is passed.
     pub fn extend(&mut self, row: &[C]) -> Result<(), MatrixFormatError> {
         if row.is_empty() {
@@ -275,9 +275,9 @@ impl<C> Matrix<C> {
     /// # Errors
     ///
     /// - [`MatrixFormatError::WrongLength`] if the data length does not
-    /// correspond to the announced size
+    ///   correspond to the announced size
     /// - [`MatrixFormatError::EmptyRow`] if the matrix would contain
-    /// an empty row
+    ///   an empty row
     pub fn from_vec(
         rows: usize,
         columns: usize,
