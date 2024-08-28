@@ -17,7 +17,7 @@ use std::iter::FusedIterator;
 /// - `start` is the starting node.
 /// - `successors` returns a list of successors for a given node.
 /// - `success` checks whether the goal has been reached. It is not a node as some problems require
-/// a dynamic solution instead of a fixed node.
+///   a dynamic solution instead of a fixed node.
 ///
 /// A node will never be included twice in the path as determined by the `Eq` relationship.
 ///
