@@ -5,14 +5,13 @@ use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashSet};
 use std::hash::Hash;
 
-
 /// Find a minimum-spanning-tree. From a collection of
 /// weighted edges, return a vector of edges forming
 /// a minimum-spanning-tree.
 pub fn prim<N, C>(edges: &[(N, N, C)]) -> impl Iterator<Item = (&N, &N, C)>
 where
     N: Hash + Eq + Ord,
-    C: Clone + Ord
+    C: Clone + Ord,
 {
     let mut mst: Vec<(&N, &N, C)> = Vec::new();
     if edges.is_empty() {
