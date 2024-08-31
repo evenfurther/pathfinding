@@ -1,4 +1,13 @@
 
+n.n.n / 2024-08-31
+==================
+
+  * feat(prim): add Prim's algorithm for finding MST
+  * docs(astar): add documentation for SmallestCostHolder
+  * fix(README): Broken link in the README.md
+  * test: add more tests for `Grid` and `Matrix`
+  * fix(cargo-deny): update configuration
+
 v4.10.0 / 2024-06-18
 ==================
 
