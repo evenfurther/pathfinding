@@ -1,5 +1,5 @@
 
-n.n.n / 2024-08-31
+v4.11.0 / 2024-08-31
 ==================
 
   * feat(prim): add Prim's algorithm for finding MST
