@@ -31,6 +31,7 @@
 //!
 //! - [connected components](undirected/connected_components/index.html): find disjoint connected sets of vertices ([⇒ Wikipedia][Connected components])
 //! - [Kruskal](undirected/kruskal/index.html): find a minimum-spanning-tree ([⇒ Wikipedia][Kruskal])
+//! - [Prim](undirected/prim/index.html): find a minimum-spanning-tree ([⇒ Wikipedia][Prim])
 //!
 //! ### Matching
 //!
@@ -84,10 +85,11 @@
 //! [Edmonds Karp]: https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm
 //! [Floyd]: https://en.wikipedia.org/wiki/Cycle_detection#Floyd's_tortoise_and_hare
 //! [Fringe]: https://en.wikipedia.org/wiki/Fringe_search
-//! [Kruskal]: https://en.wikipedia.org/wiki/Kruskal's_algorithm
 //! [IDA*]: https://en.wikipedia.org/wiki/Iterative_deepening_A*
 //! [IDDFS]: https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search
+//! [Kruskal]: https://en.wikipedia.org/wiki/Kruskal's_algorithm
 //! [Kuhn-Munkres]: https://en.wikipedia.org/wiki/Hungarian_algorithm
+//! [Prim]: https://en.wikipedia.org/wiki/Prim's_algorithm
 //! [Rust]: https://rust-lang.org/
 //! [Strongly connected components]: https://en.wikipedia.org/wiki/Strongly_connected_component
 //! [Topological sorting]: https://en.wikipedia.org/wiki/Topological_sorting
