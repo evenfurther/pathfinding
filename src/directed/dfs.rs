@@ -5,6 +5,8 @@ use std::collections::HashSet;
 use std::hash::Hash;
 use std::iter::FusedIterator;
 
+use rustc_hash::{FxHashMap, FxHashSet};
+
 /// Compute a path using the [depth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Depth-first_search).
 ///
@@ -51,34 +53,40 @@ where
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
 {
-    let mut path = vec![start];
-    let mut visited = path.iter().cloned().collect();
-    step(&mut path, &mut successors, &mut success, &mut visited).then_some(path)
-}
-
-fn step<N, FN, IN, FS>(path: &mut Vec<N>, successors: &mut FN, success: &mut FS, visited: &mut HashSet<N>) -> bool
-where
-    N: Clone + Eq + Hash,
-    FN: FnMut(&N) -> IN,
-    IN: IntoIterator<Item = N>,
-    FS: FnMut(&N) -> bool,
-{
-    if success(path.last().unwrap()) {
-        true
-    } else {
-        let successors_it = successors(path.last().unwrap());
-        for n in successors_it {
-            if !visited.contains(&n) {
-                visited.insert(n.clone());
-                path.push(n);
-                if step(path, successors, success, visited) {
-                    return true;
+    let mut to_visit = vec![start];
+    let mut visited = FxHashSet::default();
+    let mut parents = FxHashMap::default();
+    while let Some(node) = to_visit.pop() {
+        if visited.insert(node.clone()) {
+            if success(&node) {
+                return Some(build_path(node, &parents));
+            }
+            for next in successors(&node)
+                .into_iter()
+                .collect::<Vec<_>>()
+                .into_iter()
+                .rev()
+            {
+                if !visited.contains(&next) {
+                    parents.insert(next.clone(), node.clone());
+                    to_visit.push(next);
                 }
-                path.pop();
             }
         }
-        false
     }
+    None
+}
+
+fn build_path<N>(mut node: N, parents: &FxHashMap<N, N>) -> Vec<N>
+where
+    N: Clone + Eq + Hash,
+{
+    let mut path = vec![node.clone()];
+    while let Some(parent) = parents.get(&node).cloned() {
+        path.push(parent.clone());
+        node = parent;
+    }
+    path.into_iter().rev().collect()
 }
 
 /// Visit all nodes that are reachable from a start node. The node will be visited
