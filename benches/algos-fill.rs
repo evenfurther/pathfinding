@@ -27,21 +27,26 @@ impl Pt {
 }
 
 #[inline]
-fn successors(pt: &Pt) -> Vec<Pt> {
+fn successors_limit(pt: &Pt, size: u16) -> Vec<Pt> {
     let mut ret = Vec::with_capacity(4);
     if 0 < pt.x {
         ret.push(Pt::new(pt.x - 1, pt.y));
     }
-    if pt.x < 32 {
+    if pt.x < size {
         ret.push(Pt::new(pt.x + 1, pt.y));
     }
     if 0 < pt.y {
         ret.push(Pt::new(pt.x, pt.y - 1));
     }
-    if pt.y < 32 {
+    if pt.y < size {
         ret.push(Pt::new(pt.x, pt.y + 1));
     }
     ret
+}
+
+#[inline]
+fn successors(pt: &Pt) -> Vec<Pt> {
+    successors_limit(pt, 32)
 }
 
 fn corner_to_corner_astar(c: &mut Criterion) {
@@ -162,6 +167,19 @@ fn no_path_bfs(c: &mut Criterion) {
     });
 }
 
+// We have to restrict the grid to a very small one, as the resources
+// needed to run dfs over all the path combination augment very quickly.
+fn no_path_dfs_restricted(c: &mut Criterion) {
+    c.bench_function("fill-no_path_dfs", |b| {
+        b.iter(|| {
+            assert_eq!(
+                dfs(Pt::new(2, 3), |p| successors_limit(p, 4), |_| false),
+                None
+            )
+        });
+    });
+}
+
 fn no_path_dijkstra(c: &mut Criterion) {
     c.bench_function("fill-no_path_dijkstra", |b| {
         b.iter(|| {
@@ -207,6 +225,7 @@ criterion_group!(
     corner_to_corner_iddfs,
     no_path_astar,
     no_path_bfs,
+    no_path_dfs_restricted,
     no_path_dijkstra,
     no_path_fringe,
 );
