@@ -164,12 +164,7 @@ fn no_path_bfs(c: &mut Criterion) {
 
 fn no_path_dfs(c: &mut Criterion) {
     c.bench_function("fill-no_path_dfs", |b| {
-        b.iter(|| {
-            assert_eq!(
-                dfs(Pt::new(2, 3), successors, |_| false),
-                None
-            )
-        });
+        b.iter(|| assert_eq!(dfs(Pt::new(2, 3), successors, |_| false), None));
     });
 }
 
