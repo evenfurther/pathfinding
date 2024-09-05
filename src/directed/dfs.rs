@@ -46,18 +46,19 @@ use std::iter::FusedIterator;
 /// ```
 pub fn dfs<N, FN, IN, FS>(start: N, mut successors: FN, mut success: FS) -> Option<Vec<N>>
 where
-    N: Eq,
+    N: Clone + Eq + Hash,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
 {
     let mut path = vec![start];
-    step(&mut path, &mut successors, &mut success).then_some(path)
+    let mut visited = path.iter().cloned().collect();
+    step(&mut path, &mut successors, &mut success, &mut visited).then_some(path)
 }
 
-fn step<N, FN, IN, FS>(path: &mut Vec<N>, successors: &mut FN, success: &mut FS) -> bool
+fn step<N, FN, IN, FS>(path: &mut Vec<N>, successors: &mut FN, success: &mut FS, visited: &mut HashSet<N>) -> bool
 where
-    N: Eq,
+    N: Clone + Eq + Hash,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
@@ -67,9 +68,10 @@ where
     } else {
         let successors_it = successors(path.last().unwrap());
         for n in successors_it {
-            if !path.contains(&n) {
+            if !visited.contains(&n) {
+                visited.insert(n.clone());
                 path.push(n);
-                if step(path, successors, success) {
+                if step(path, successors, success, visited) {
                     return true;
                 }
                 path.pop();
