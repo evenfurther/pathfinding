@@ -630,9 +630,8 @@ impl Iterator for GridIterator<'_> {
             self.grid
                 .exclusions
                 .get_index(self.x)
-                .map(|v| {
+                .inspect(|_| {
                     self.x += 1;
-                    v
                 })
                 .copied()
         }
