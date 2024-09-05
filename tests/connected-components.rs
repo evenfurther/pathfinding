@@ -33,7 +33,8 @@ fn empty_separate_components() {
 
 #[test]
 fn basic_components() {
-    let c = components(&[vec![1, 2], vec![3, 4], vec![5, 6], vec![1, 4, 7]]);
+    let mut c = components(&[vec![1, 2], vec![3, 4], vec![5, 6], vec![1, 4, 7]]);
+    c.sort_unstable_by_key(|v| *v.iter().min().unwrap());
     assert_eq!(c.len(), 2);
     assert_eq!(
         c[0].clone().into_iter().sorted().collect_vec(),
@@ -44,7 +45,8 @@ fn basic_components() {
 
 #[test]
 fn empty_components() {
-    let c = components(&[vec![1, 2], vec![3, 4], vec![], vec![1, 4, 7]]);
+    let mut c = components(&[vec![1, 2], vec![3, 4], vec![], vec![1, 4, 7]]);
+    c.sort_unstable_by_key(|v| *v.iter().min().unwrap());
     assert_eq!(c.len(), 1);
     assert_eq!(
         c[0].clone().into_iter().sorted().collect_vec(),
@@ -55,7 +57,7 @@ fn empty_components() {
 #[test]
 fn basic_connected_components() {
     let mut counter = 0;
-    let c = connected_components(&[1, 4], |&n| {
+    let mut c = connected_components(&[1, 4], |&n| {
         counter += 1;
         if n % 2 == 0 {
             vec![2, 4, 6, 8]
@@ -63,6 +65,7 @@ fn basic_connected_components() {
             vec![1, 3, 5, 7]
         }
     });
+    c.sort_unstable_by_key(|v| *v.iter().min().unwrap());
     assert_eq!(c.len(), 2);
     assert_eq!(
         c[0].clone().into_iter().sorted().collect_vec(),
@@ -101,7 +104,7 @@ fn larger_separate_components() {
             component
         })
         .collect_vec();
-    components.sort_unstable_by_key(|c| c[0]);
+    components.sort_unstable_by_key(|v| *v.iter().min().unwrap());
     let mut groups = components
         .iter()
         .flat_map(|component| {
