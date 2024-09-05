@@ -161,6 +161,12 @@ fn no_path_bfs(c: &mut Criterion) {
     });
 }
 
+fn no_path_dfs(c: &mut Criterion) {
+    c.bench_function("no_path_dfs", |b| {
+        b.iter(|| assert_eq!(bfs(&Pt::new(2, 3), successors, |_| false), None));
+    });
+}
+
 fn no_path_dijkstra(c: &mut Criterion) {
     c.bench_function("no_path_dijkstra", |b| {
         b.iter(|| {
@@ -255,6 +261,7 @@ criterion_group!(
     corner_to_corner_iddfs,
     no_path_astar,
     no_path_bfs,
+    no_path_dfs,
     no_path_dijkstra,
     no_path_fringe,
     bench_separate_components,
