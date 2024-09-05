@@ -45,6 +45,7 @@ version_check = "0.9.4"
 
 [lints.clippy]
 module_name_repetitions = { level = "allow", priority = 1 }
+too_long_first_doc_paragraph = { level = "allow", priority = 1 } # Temporary
 pedantic = { level = "deny", priority = 0 }
 
 [[bench]]
