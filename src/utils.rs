@@ -103,3 +103,17 @@ pub const fn constrain(value: isize, upper: usize) -> usize {
         (upper - (-value) as usize % upper) % upper
     }
 }
+
+/// Add while checking for overflow in order to mimic the
+/// behavior of debug mode in release mode.
+///
+/// # Panics
+/// This function panics if the addition causes an overflow.
+#[inline]
+pub(crate) fn checked_add<C>(a: C, b: C) -> C
+    where C: std::ops::Add<C, Output = C> + Ord + Copy,
+{
+    let c = a + b;
+    assert!(c >= a, "attempt to add with overflow");
+    c
+}

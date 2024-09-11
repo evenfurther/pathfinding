@@ -9,6 +9,7 @@ use std::hash::Hash;
 use std::iter::FusedIterator;
 
 use super::reverse_path;
+use crate::utils::checked_add;
 use crate::FxIndexMap;
 
 /// Compute a shortest path using the [A* search
@@ -116,7 +117,7 @@ where
             successors(node)
         };
         for (successor, move_cost) in successors {
-            let new_cost = cost + move_cost;
+            let new_cost = checked_add(cost, move_cost);
             let h; // heuristic(&successor)
             let n; // index for successor
             match parents.entry(successor) {
@@ -137,7 +138,7 @@ where
             }
 
             to_see.push(SmallestCostHolder {
-                estimated_cost: new_cost + h,
+                estimated_cost: checked_add(new_cost, h),
                 cost: new_cost,
                 index: n,
             });
