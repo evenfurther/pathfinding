@@ -98,6 +98,7 @@
 use deprecate_until::deprecate_until;
 pub use num_traits;
 
+pub mod bertsekas;
 pub mod directed;
 pub mod grid;
 pub mod kuhn_munkres;
