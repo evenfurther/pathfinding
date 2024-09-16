@@ -1,13 +1,12 @@
 //! Bertekas Auction Algorithm for the Assignment Problem
-use num_traits::FloatConst;
-
-use crate::{matrix::Matrix, prelude::Weights};
+use crate::matrix::Matrix;
+use std::marker::PhantomData;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
 /// A simple data structure that keeps track of all data required to
 /// assign agents to tasks.
-pub struct Auction<T> {
-    cost_matrix: Matrix<T>,
+pub struct Auction<'a, T> {
+    cost_matrix: &'a Matrix<T>,
     assignments: Vec<Option<usize>>,
     prices: Vec<T>,
     epsilon: T,
@@ -15,15 +14,20 @@ pub struct Auction<T> {
     /// each agent made for that task. Thus, each task, j,  has a list of (agent, bid) tuples
     /// that were put in by each agent, i.
     task_bids: Vec<Vec<(usize, T)>>,
+    _phantom: PhantomData<T>,
 }
 
-impl<T> Auction<T>
+impl<'a, T> Auction<'a, T>
 where
     T: num_traits::Float,
 {
     /// Returns a new [`Auction`] based on the cost matrix used to determine optimal assignments.
+    ///
+    /// # Panics
+    ///
+    /// Panics if not able to covert `1 / (n + 1)` into the cost matrix's underlying type.
     #[must_use]
-    pub fn new(cost_matrix: Matrix<T>) -> Self {
+    pub fn new(cost_matrix: &'a Matrix<T>) -> Self {
         let m = cost_matrix.rows;
         let n = cost_matrix.columns;
 
@@ -31,7 +35,9 @@ where
         let assignments = vec![None; m];
         let task_bids = vec![Vec::with_capacity(m); n];
 
-        let epsilon = T::from(n + 1).unwrap().recip();
+        let epsilon = T::from(n + 1)
+            .expect("couldn't convert n + 1 = {n} + 1 to the required type!")
+            .recip();
 
         Self {
             cost_matrix,
@@ -39,10 +45,16 @@ where
             prices,
             epsilon,
             task_bids,
+            _phantom: PhantomData,
         }
     }
 
     /// Compute the score after assigning all agents to tasks
+    ///
+    /// # Panics
+    ///
+    /// Panics if getting an assignment `(i, j)`, where `i` is the agent assigned to task `j`,
+    /// is not found in the cost matrix. This shouldn't really happen.
     #[must_use]
     pub fn score(&self) -> Option<T>
     where
@@ -76,13 +88,13 @@ where
     /// The number of agents (i.e., the # of rows in the cost matrix.)
     #[must_use]
     pub fn num_agents(&self) -> usize {
-        self.cost_matrix.rows()
+        self.cost_matrix.rows
     }
 
     /// The number of tasks (i.e., the # of cols in the cost matrix.)
     #[must_use]
     pub fn num_tasks(&self) -> usize {
-        self.cost_matrix.columns()
+        self.cost_matrix.columns
     }
 
     fn num_assigned(&self) -> usize {
@@ -204,6 +216,7 @@ where
 {
     let (tx, rx): (Sender<Bid<T>>, Receiver<Bid<T>>) = channel();
 
+    // TODO: this needs to be cleaned up using the `Drop` functionality of channels.
     let mut num_bids = 0;
     for p in 0..auction_data.num_agents() {
         if auction_data.is_unassigned(p) {
@@ -220,7 +233,7 @@ where
         }
     }
 
-    // println!("waiting to assign bids for tasks...");
+    // TODO: this needs to be cleaned up using the `Drop` functionality of channels.
     for _ in 0..num_bids {
         let bid = rx.recv().unwrap();
 
@@ -294,7 +307,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{kuhn_munkres::kuhn_munkres, matrix};
+    use crate::kuhn_munkres::kuhn_munkres;
     use rand::Rng;
 
     #[test]
@@ -307,7 +320,7 @@ mod tests {
         ];
         let matrix = Matrix::from_rows(matrix).unwrap();
 
-        let mut auction_data = Auction::new(matrix);
+        let mut auction_data = Auction::new(&matrix);
         forward(&mut auction_data);
 
         let expected_assignments = vec![Some(2), Some(0), Some(3), Some(1)];
@@ -328,7 +341,7 @@ mod tests {
         ];
 
         let matrix = Matrix::from_rows(matrix).unwrap();
-        let mut auction_data = Auction::new(matrix);
+        let mut auction_data = Auction::new(&matrix);
         forward(&mut auction_data);
 
         // Any assignment is optimal since all profits are equal.
@@ -348,7 +361,7 @@ mod tests {
         let matrix = vec![vec![42.0]];
         let matrix = Matrix::from_rows(matrix).unwrap();
 
-        let mut auction_data = Auction::new(matrix);
+        let mut auction_data = Auction::new(&matrix);
         forward(&mut auction_data);
 
         // The only assignment possible should be agent 0
@@ -360,7 +373,7 @@ mod tests {
     fn empty() {
         let matrix: Matrix<f64> = Matrix::new_empty(0);
 
-        let mut auction_data = Auction::new(matrix);
+        let mut auction_data = Auction::new(&matrix);
         forward(&mut auction_data);
     }
 
@@ -369,7 +382,7 @@ mod tests {
         let m = 700;
         let matrix = Matrix::from_fn(m, m, |(i, j)| (i + j) as f64);
 
-        let mut auction_data = Auction::new(matrix);
+        let mut auction_data = Auction::new(&matrix);
         forward(&mut auction_data);
 
         assert!(auction_data.all_assigned());
@@ -389,7 +402,7 @@ mod tests {
         let float_matrix = int_matrix.clone().map(|value| value as f64);
 
         let now = std::time::Instant::now();
-        let mut auction_data = Auction::new(float_matrix);
+        let mut auction_data = Auction::new(&float_matrix);
         forward(&mut auction_data);
         let elapsed = now.elapsed().as_micros();
         println!("bertekas auction complete in {elapsed}");
