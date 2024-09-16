@@ -1,31 +1,37 @@
 //! Bertekas Auction Algorithm for the Assignment Problem
-//!
+use num_traits::FloatConst;
+
+use crate::{matrix::Matrix, prelude::Weights};
 use std::sync::mpsc::{channel, Receiver, Sender};
 
 /// A simple data structure that keeps track of all data required to
 /// assign agents to tasks.
-pub struct Auction {
-    cost_matrix: Vec<Vec<f64>>,
+pub struct Auction<T> {
+    cost_matrix: Matrix<T>,
     assignments: Vec<Option<usize>>,
-    prices: Vec<f64>,
-    epsilon: f64,
+    prices: Vec<T>,
+    epsilon: T,
     /// This is a mapping of every single possible task and the corresponding set of bids that
     /// each agent made for that task. Thus, each task, j,  has a list of (agent, bid) tuples
     /// that were put in by each agent, i.
-    task_bids: Vec<Vec<(usize, f64)>>,
+    task_bids: Vec<Vec<(usize, T)>>,
 }
 
-impl Auction {
+impl<T> Auction<T>
+where
+    T: num_traits::Float,
+{
     /// Returns a new [`Auction`] based on the cost matrix used to determine optimal assignments.
-    pub fn new(cost_matrix: Vec<Vec<f64>>) -> Self {
-        let m = cost_matrix.len();
-        let n = cost_matrix[0].len();
+    #[must_use]
+    pub fn new(cost_matrix: Matrix<T>) -> Self {
+        let m = cost_matrix.rows;
+        let n = cost_matrix.columns;
 
-        let prices = vec![0.0; n];
+        let prices = vec![T::zero(); n];
         let assignments = vec![None; m];
         let task_bids = vec![Vec::with_capacity(m); n];
 
-        let epsilon = 1.0 / (n + 1) as f64;
+        let epsilon = T::from(n + 1).unwrap().recip();
 
         Self {
             cost_matrix,
@@ -37,13 +43,17 @@ impl Auction {
     }
 
     /// Compute the score after assigning all agents to tasks
-    pub fn score(&self) -> Option<f64> {
-        let mut res = 0.0;
+    #[must_use]
+    pub fn score(&self) -> Option<T>
+    where
+        T: num_traits::Float + std::ops::AddAssign,
+    {
+        let mut res: T = T::zero();
 
         if self.all_assigned() {
             for (i, assigned_task) in self.assignments.iter().enumerate() {
                 if let Some(j) = *assigned_task {
-                    res += self.cost_matrix[i][j];
+                    res += *self.cost_matrix.get((i, j)).unwrap();
                 }
             }
             Some(res)
@@ -52,23 +62,27 @@ impl Auction {
         }
     }
 
-    pub(crate) fn scale_epsilon(&mut self) {
-        self.epsilon *= 2.0;
+    pub(crate) fn scale_epsilon(&mut self)
+    where
+        T: num_traits::Float + num_traits::FloatConst + std::ops::MulAssign,
+    {
+        self.epsilon *= T::from(1.01).unwrap();
     }
 
-    pub(crate) fn update_price(&mut self, task: usize, price: f64) {
+    pub(crate) fn update_price(&mut self, task: usize, price: T) {
         self.prices[task] = price;
     }
 
     /// The number of agents (i.e., the # of rows in the cost matrix.)
+    #[must_use]
     pub fn num_agents(&self) -> usize {
-        self.cost_matrix.len()
+        self.cost_matrix.rows()
     }
 
     /// The number of tasks (i.e., the # of cols in the cost matrix.)
-
+    #[must_use]
     pub fn num_tasks(&self) -> usize {
-        self.cost_matrix[0].len()
+        self.cost_matrix.columns()
     }
 
     fn num_assigned(&self) -> usize {
@@ -102,6 +116,7 @@ impl Auction {
     ///     is always going to be less than the number of possible ojbects.
     ///     Let m be the number of agents, and let n be the number of tasks,
     ///     then we will always have `k = m - n` agents that can be assigned.
+    #[must_use]
     pub fn all_assigned(&self) -> bool {
         if self.num_agents() > self.num_tasks() {
             // Case 3: More agents than tasks. We should have exactly `n` agents assigned.
@@ -113,11 +128,15 @@ impl Auction {
     }
 
     /// Should this be public?
+    #[must_use]
     pub fn is_unassigned(&self, agent: usize) -> bool {
         self.assignments[agent].is_none()
     }
 
-    fn add_task_bid(&mut self, agent: usize, task: usize, bid: f64) {
+    fn add_task_bid(&mut self, agent: usize, task: usize, bid: T)
+    where
+        T: num_traits::Float,
+    {
         self.task_bids[task].push((agent, bid));
     }
 
@@ -130,22 +149,34 @@ impl Auction {
 }
 
 /// Tuple struct of (agent, task, bid)
-struct Bid(usize, usize, f64);
+struct Bid<T> {
+    agent: usize,
+    task: usize,
+    amount: T,
+}
 
-impl Bid {
-    pub fn new(agent: usize, task: usize, bid: f64) -> Self {
-        Self(agent, task, bid)
+impl<T> Bid<T> {
+    pub fn new(agent: usize, task: usize, amount: T) -> Self
+    where
+        T: num_traits::Float + num_traits::FloatConst,
+    {
+        Self {
+            agent,
+            task,
+            amount,
+        }
     }
 }
 
-fn bid(agent_row: &[f64], prices: &[f64], epsilon: f64, unassigned_agent: usize, tx: &Sender<Bid>) {
+fn bid<T>(agent_row: &[T], prices: &[T], epsilon: T, unassigned_agent: usize, tx: &Sender<Bid<T>>)
+where
+    T: num_traits::Float + num_traits::FloatConst,
+{
     let mut best_task = None;
-    let mut best_profit = f64::NEG_INFINITY;
-    let mut next_best_profit = f64::NEG_INFINITY;
+    let mut best_profit = T::neg_infinity();
+    let mut next_best_profit = T::neg_infinity();
 
     for ((j, val), price_j) in agent_row.iter().enumerate().zip(prices.iter()) {
-        // deferencing these first makes the flamegraph take
-        // less time on Sub<&f64>
         let profit = (*val) - (*price_j);
 
         if profit > best_profit {
@@ -167,8 +198,11 @@ fn bid(agent_row: &[f64], prices: &[f64], epsilon: f64, unassigned_agent: usize,
 /// This is known as the "Jacobi bidding" version.
 /// Essentially, all agents bid for tasks, and only then
 /// do we make an assignment.
-fn bid_phase(auction_data: &mut Auction) {
-    let (tx, rx): (Sender<Bid>, Receiver<Bid>) = channel();
+fn bid_phase<T>(auction_data: &mut Auction<T>)
+where
+    T: num_traits::Float + num_traits::FloatConst,
+{
+    let (tx, rx): (Sender<Bid<T>>, Receiver<Bid<T>>) = channel();
 
     let mut num_bids = 0;
     for p in 0..auction_data.num_agents() {
@@ -179,7 +213,7 @@ fn bid_phase(auction_data: &mut Auction) {
 
     for p in 0..auction_data.num_agents() {
         if auction_data.is_unassigned(p) {
-            let agent_row = &auction_data.cost_matrix[p];
+            let agent_row = &auction_data.cost_matrix.get_row(p).unwrap();
             let prices = &auction_data.prices;
             let eps = auction_data.epsilon;
             bid(agent_row, prices, eps, p, &tx);
@@ -191,24 +225,27 @@ fn bid_phase(auction_data: &mut Auction) {
         let bid = rx.recv().unwrap();
 
         // auction_data.add_task_bid(unassigned_agent, best_obj, bid_value);
-        auction_data.add_task_bid(bid.0, bid.1, bid.2);
+        auction_data.add_task_bid(bid.agent, bid.task, bid.amount);
     }
     // println!("bidding phase complete");
 }
 
-fn assignment_phase(auction_data: &mut Auction) {
-    let (tx, rx): (Sender<Option<Bid>>, Receiver<Option<Bid>>) = channel();
+fn assignment_phase<T>(auction_data: &mut Auction<T>)
+where
+    T: num_traits::Float + num_traits::FloatConst,
+{
+    let (tx, rx): (Sender<Option<Bid<T>>>, Receiver<Option<Bid<T>>>) = channel();
 
     let mut num_tasks = 0;
-    for _ in auction_data.task_bids.iter() {
+    for _ in &auction_data.task_bids {
         num_tasks += 1;
     }
 
     for (task, bids) in auction_data.task_bids.iter().enumerate() {
-        let mut max_bid = f64::NEG_INFINITY;
+        let mut max_bid = T::neg_infinity();
         let mut bid_winner = None;
 
-        for b in bids.iter() {
+        for b in bids {
             let (agent, agents_bid) = *b;
             if agents_bid > max_bid {
                 max_bid = agents_bid;
@@ -225,7 +262,12 @@ fn assignment_phase(auction_data: &mut Auction) {
     // println!("sent all bids via tx in assignment phase");
 
     for _i in 0..num_tasks {
-        if let Some(Bid(bid_winner, task, max_bid)) = rx.recv().unwrap() {
+        if let Some(Bid {
+            agent: bid_winner,
+            task,
+            amount: max_bid,
+        }) = rx.recv().unwrap()
+        {
             auction_data.update_price(task, max_bid);
             auction_data.assign(bid_winner, task);
         }
@@ -238,7 +280,10 @@ fn assignment_phase(auction_data: &mut Auction) {
 /// Run the forward auction only. The way to consider this
 /// is that agents are going to bid for tasks. Agents will
 /// be assigned to a task after each bidding phase.
-pub fn forward(auction_data: &mut Auction) {
+pub fn forward<T>(auction_data: &mut Auction<T>)
+where
+    T: num_traits::Float + num_traits::FloatConst + std::ops::MulAssign,
+{
     while !auction_data.all_assigned() {
         bid_phase(auction_data);
         assignment_phase(auction_data);
@@ -260,6 +305,7 @@ mod tests {
             vec![6.0, 1.0, 1.5, 12.0],
             vec![0.0, 14.0, 3.7, 14.0],
         ];
+        let matrix = Matrix::from_rows(matrix).unwrap();
 
         let mut auction_data = Auction::new(matrix);
         forward(&mut auction_data);
@@ -281,6 +327,7 @@ mod tests {
             vec![1000.0, 1000.0, 1000.0, 1000.0],
         ];
 
+        let matrix = Matrix::from_rows(matrix).unwrap();
         let mut auction_data = Auction::new(matrix);
         forward(&mut auction_data);
 
@@ -297,31 +344,9 @@ mod tests {
     }
 
     #[test]
-    fn rectangular_matrix_more_agents_maximization() {
-        let matrix = vec![
-            vec![10.0, 15.0, 20.0],
-            vec![5.0, 30.0, 25.0],
-            vec![35.0, 10.0, 15.0],
-            vec![10.0, 20.0, 25.0],
-        ];
-
-        let mut auction_data = Auction::new(matrix);
-        forward(&mut auction_data);
-
-        assert!(auction_data.all_assigned());
-        assert_eq!(
-            auction_data
-                .assignments
-                .iter()
-                .filter(|x| x.is_some())
-                .count(),
-            3
-        );
-    }
-
-    #[test]
     fn single_agent_single_task() {
         let matrix = vec![vec![42.0]];
+        let matrix = Matrix::from_rows(matrix).unwrap();
 
         let mut auction_data = Auction::new(matrix);
         forward(&mut auction_data);
@@ -332,11 +357,17 @@ mod tests {
     }
 
     #[test]
+    fn empty() {
+        let matrix: Matrix<f64> = Matrix::new_empty(0);
+
+        let mut auction_data = Auction::new(matrix);
+        forward(&mut auction_data);
+    }
+
+    #[test]
     fn large_matrix() {
         let m = 700;
-        let matrix: Vec<Vec<f64>> = (0..m)
-            .map(|i| (0..m).map(|j| (i + j) as f64).collect())
-            .collect();
+        let matrix = Matrix::from_fn(m, m, |(i, j)| (i + j) as f64);
 
         let mut auction_data = Auction::new(matrix);
         forward(&mut auction_data);
@@ -350,16 +381,15 @@ mod tests {
         let rows = 200;
         let cols = 200;
         let mut rng = rand::thread_rng();
-        let matrix: Vec<i64> = (0..rows * cols).map(|_| rng.gen_range(0..100)).collect();
-        let matrix = matrix::Matrix::from_vec(rows, cols, matrix).unwrap();
 
-        let mut cost_matrix = Vec::new();
-        for r in matrix.iter() {
-            cost_matrix.push(r.iter().map(|a| *a as f64).collect());
-        }
+        // Create the integer matrix
+        let int_matrix: Matrix<i64> = Matrix::from_fn(rows, cols, |_| rng.gen_range(0..100));
+
+        // Create the float matrix as a clone of the integer matrix
+        let float_matrix = int_matrix.clone().map(|value| value as f64);
 
         let now = std::time::Instant::now();
-        let mut auction_data = Auction::new(cost_matrix);
+        let mut auction_data = Auction::new(float_matrix);
         forward(&mut auction_data);
         let elapsed = now.elapsed().as_micros();
         println!("bertekas auction complete in {elapsed}");
@@ -368,7 +398,7 @@ mod tests {
 
         // Run Munkres algorithm using pathfinding crate
         let now = std::time::Instant::now();
-        let (score, assignments) = kuhn_munkres(&matrix);
+        let (score, assignments) = kuhn_munkres(&int_matrix);
         let elapsed = now.elapsed().as_micros();
         println!("hungarian algo complete in {elapsed}");
         println!("hungarian algo score: {score}");

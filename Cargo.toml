@@ -17,8 +17,8 @@ rust-version = "1.77.2"
 sign-commit = true
 sign-tag = true
 pre-release-replacements = [
-    {file = "README.md", search = "pathfinding = \".*\"", replace = "pathfinding = \"{{version}}\"", exactly = 1},
-    {file = "CHANGELOG.md", search = "n\\.n\\.n", replace = "{{tag_name}}", exactly = 1}
+  { file = "README.md", search = "pathfinding = \".*\"", replace = "pathfinding = \"{{version}}\"", exactly = 1 },
+  { file = "CHANGELOG.md", search = "n\\.n\\.n", replace = "{{tag_name}}", exactly = 1 },
 ]
 
 [dependencies]
@@ -66,6 +66,10 @@ harness = false
 
 [[bench]]
 name = "kuhn_munkres"
+harness = false
+
+[[bench]]
+name = "kuhn_munkres_vs_bertsekas"
 harness = false
 
 [[bench]]
