@@ -139,9 +139,8 @@ where
         }
     }
 
-    /// Should this be public?
     #[must_use]
-    pub fn is_unassigned(&self, agent: usize) -> bool {
+    fn is_unassigned(&self, agent: usize) -> bool {
         self.assignments[agent].is_none()
     }
 
@@ -237,22 +236,15 @@ where
     for _ in 0..num_bids {
         let bid = rx.recv().unwrap();
 
-        // auction_data.add_task_bid(unassigned_agent, best_obj, bid_value);
         auction_data.add_task_bid(bid.agent, bid.task, bid.amount);
     }
-    // println!("bidding phase complete");
 }
 
 fn assignment_phase<T>(auction_data: &mut Auction<T>)
 where
     T: num_traits::Float + num_traits::FloatConst,
 {
-    let (tx, rx): (Sender<Option<Bid<T>>>, Receiver<Option<Bid<T>>>) = channel();
-
-    let mut num_tasks = 0;
-    for _ in &auction_data.task_bids {
-        num_tasks += 1;
-    }
+    let (tx, rx): (Sender<Bid<T>>, Receiver<Bid<T>>) = channel();
 
     for (task, bids) in auction_data.task_bids.iter().enumerate() {
         let mut max_bid = T::neg_infinity();
@@ -267,27 +259,24 @@ where
         }
 
         if let Some(bw) = bid_winner {
-            tx.send(Some(Bid::new(bw, task, max_bid))).unwrap();
-        } else {
-            tx.send(None).unwrap();
-        }
-    }
-    // println!("sent all bids via tx in assignment phase");
-
-    for _i in 0..num_tasks {
-        if let Some(Bid {
-            agent: bid_winner,
-            task,
-            amount: max_bid,
-        }) = rx.recv().unwrap()
-        {
-            auction_data.update_price(task, max_bid);
-            auction_data.assign(bid_winner, task);
+            tx.send(Bid::new(bw, task, max_bid)).unwrap();
         }
     }
 
-    auction_data.clear_task_bids(); // Clear bids after each assignment phase
-                                    // println!("assignment phase complete");
+    drop(tx);
+
+    for Bid {
+        agent: bid_winner,
+        task,
+        amount: max_bid,
+    } in rx
+    {
+        auction_data.update_price(task, max_bid);
+        auction_data.assign(bid_winner, task);
+    }
+
+    // Clear bids after each assignment phase
+    auction_data.clear_task_bids();
 }
 
 /// Run the forward auction only. The way to consider this
