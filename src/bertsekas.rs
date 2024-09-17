@@ -1,5 +1,6 @@
 //! Bertekas Auction Algorithm for the Assignment Problem
 use crate::matrix::Matrix;
+use num_traits::{Float, FloatConst};
 use std::marker::PhantomData;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
@@ -19,7 +20,7 @@ pub struct Auction<'a, T> {
 
 impl<'a, T> Auction<'a, T>
 where
-    T: num_traits::Float,
+    T: Float,
 {
     /// Returns a new [`Auction`] based on the cost matrix used to determine optimal assignments.
     ///
@@ -58,7 +59,7 @@ where
     #[must_use]
     pub fn score(&self) -> Option<T>
     where
-        T: num_traits::Float + std::ops::AddAssign,
+        T: Float + std::ops::AddAssign,
     {
         let mut res: T = T::zero();
 
@@ -76,7 +77,7 @@ where
 
     pub(crate) fn scale_epsilon(&mut self)
     where
-        T: num_traits::Float + num_traits::FloatConst + std::ops::MulAssign,
+        T: Float + FloatConst + std::ops::MulAssign,
     {
         self.epsilon *= T::from(1.01).unwrap();
     }
@@ -146,7 +147,7 @@ where
 
     fn add_task_bid(&mut self, agent: usize, task: usize, bid: T)
     where
-        T: num_traits::Float,
+        T: Float,
     {
         self.task_bids[task].push((agent, bid));
     }
@@ -169,7 +170,7 @@ struct Bid<T> {
 impl<T> Bid<T> {
     pub fn new(agent: usize, task: usize, amount: T) -> Self
     where
-        T: num_traits::Float + num_traits::FloatConst,
+        T: Float + FloatConst,
     {
         Self {
             agent,
@@ -181,7 +182,7 @@ impl<T> Bid<T> {
 
 fn bid<T>(agent_row: &[T], prices: &[T], epsilon: T, unassigned_agent: usize, tx: &Sender<Bid<T>>)
 where
-    T: num_traits::Float + num_traits::FloatConst,
+    T: Float + FloatConst,
 {
     let mut best_task = None;
     let mut best_profit = T::neg_infinity();
@@ -206,22 +207,13 @@ where
     }
 }
 
-/// This is known as the "Jacobi bidding" version.
-/// Essentially, all agents bid for tasks, and only then
-/// do we make an assignment.
+/// This is known as the "Jacobi bidding" version. Essentially, all agents
+/// bid for tasks, and only then do we make an assignment.
 fn bid_phase<T>(auction_data: &mut Auction<T>)
 where
-    T: num_traits::Float + num_traits::FloatConst,
+    T: Float + FloatConst,
 {
     let (tx, rx): (Sender<Bid<T>>, Receiver<Bid<T>>) = channel();
-
-    // TODO: this needs to be cleaned up using the `Drop` functionality of channels.
-    let mut num_bids = 0;
-    for p in 0..auction_data.num_agents() {
-        if auction_data.is_unassigned(p) {
-            num_bids += 1;
-        }
-    }
 
     for p in 0..auction_data.num_agents() {
         if auction_data.is_unassigned(p) {
@@ -232,17 +224,16 @@ where
         }
     }
 
-    // TODO: this needs to be cleaned up using the `Drop` functionality of channels.
-    for _ in 0..num_bids {
-        let bid = rx.recv().unwrap();
+    drop(tx);
 
+    for bid in rx {
         auction_data.add_task_bid(bid.agent, bid.task, bid.amount);
     }
 }
 
 fn assignment_phase<T>(auction_data: &mut Auction<T>)
 where
-    T: num_traits::Float + num_traits::FloatConst,
+    T: Float + FloatConst,
 {
     let (tx, rx): (Sender<Bid<T>>, Receiver<Bid<T>>) = channel();
 
@@ -284,7 +275,7 @@ where
 /// be assigned to a task after each bidding phase.
 pub fn forward<T>(auction_data: &mut Auction<T>)
 where
-    T: num_traits::Float + num_traits::FloatConst + std::ops::MulAssign,
+    T: Float + FloatConst + std::ops::MulAssign,
 {
     while !auction_data.all_assigned() {
         bid_phase(auction_data);
