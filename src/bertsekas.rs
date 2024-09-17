@@ -11,11 +11,14 @@ pub struct Auction<'a, T> {
     assignments: Vec<Option<usize>>,
     prices: Vec<T>,
     epsilon: T,
+    epsilon_scaling_factor: T,
     /// This is a mapping of every single possible task and the corresponding set of bids that
     /// each agent made for that task. Thus, each task, j,  has a list of (agent, bid) tuples
     /// that were put in by each agent, i.
     task_bids: Vec<Vec<(usize, T)>>,
     _phantom: PhantomData<T>,
+    tx: Sender<Option<Bid<T>>>,
+    rx: Receiver<Option<Bid<T>>>,
 }
 
 impl<'a, T> Auction<'a, T>
@@ -40,14 +43,35 @@ where
             .expect("couldn't convert n + 1 = {n} + 1 to the required type!")
             .recip();
 
+        let (tx, rx): (Sender<Option<Bid<T>>>, Receiver<Option<Bid<T>>>) = channel();
+
         Self {
             cost_matrix,
             assignments,
             prices,
             epsilon,
+            epsilon_scaling_factor: T::from(2.0).unwrap(),
             task_bids,
             _phantom: PhantomData,
+            tx,
+            rx,
         }
+    }
+
+    /// Same a [`Self::new`], except the user is given the option of setting a custom
+    /// `epsilon_scaling_factor` via the [`es`] parameter.
+    ///
+    /// # Notes
+    /// In general, the value of epsilon determines how quickly the algorithm
+    /// will converge. The higher the value, the more *aggressive* the bidding.
+    /// Epsilon scaling is required to keep this algorithm from exhibiting
+    /// psuedopolynomial run-time. The scaling factor determines how fast the value
+    /// of `epsilon` grows after each round of bidding/assigning.
+    #[must_use]
+    pub fn with_epsilon_scaling_factor(es: T, cost_matrix: &'a Matrix<T>) -> Self {
+        let mut auc = Self::new(cost_matrix);
+        auc.epsilon_scaling_factor = es;
+        auc
     }
 
     /// Compute the score after assigning all agents to tasks
@@ -79,7 +103,7 @@ where
     where
         T: Float + FloatConst + std::ops::MulAssign,
     {
-        self.epsilon *= T::from(1.01).unwrap();
+        self.epsilon *= self.epsilon_scaling_factor;
     }
 
     pub(crate) fn update_price(&mut self, task: usize, price: T) {
@@ -180,16 +204,21 @@ impl<T> Bid<T> {
     }
 }
 
-fn bid<T>(agent_row: &[T], prices: &[T], epsilon: T, unassigned_agent: usize, tx: &Sender<Bid<T>>)
-where
+fn bid<T>(
+    agent_row: &[T],
+    prices: &[T],
+    epsilon: T,
+    unassigned_agent: usize,
+    tx: &Sender<Option<Bid<T>>>,
+) where
     T: Float + FloatConst,
 {
     let mut best_task = None;
     let mut best_profit = T::neg_infinity();
     let mut next_best_profit = T::neg_infinity();
 
-    for ((j, val), price_j) in agent_row.iter().enumerate().zip(prices.iter()) {
-        let profit = (*val) - (*price_j);
+    for ((j, &val), &price_j) in agent_row.iter().enumerate().zip(prices.iter()) {
+        let profit = val - price_j;
 
         if profit > best_profit {
             next_best_profit = best_profit;
@@ -203,7 +232,7 @@ where
     if let Some(best_obj) = best_task {
         let bid_value = prices[best_obj] + best_profit - next_best_profit + epsilon;
         let bid_for_agent = Bid::new(unassigned_agent, best_obj, bid_value);
-        tx.send(bid_for_agent).unwrap();
+        tx.send(Some(bid_for_agent)).unwrap();
     }
 }
 
@@ -213,20 +242,20 @@ fn bid_phase<T>(auction_data: &mut Auction<T>)
 where
     T: Float + FloatConst,
 {
-    let (tx, rx): (Sender<Bid<T>>, Receiver<Bid<T>>) = channel();
-
     for p in 0..auction_data.num_agents() {
         if auction_data.is_unassigned(p) {
-            let agent_row = &auction_data.cost_matrix.get_row(p).unwrap();
-            let prices = &auction_data.prices;
+            let agent_row = auction_data.cost_matrix.get_row(p).unwrap();
+            let prices = auction_data.prices.as_slice();
             let eps = auction_data.epsilon;
+            let tx = auction_data.tx.clone();
             bid(agent_row, prices, eps, p, &tx);
         }
     }
 
-    drop(tx);
+    // Send a sentinel value, `None`, indicating we are finished sending all bids.
+    auction_data.tx.send(None).unwrap();
 
-    for bid in rx {
+    while let Some(bid) = auction_data.rx.recv().unwrap() {
         auction_data.add_task_bid(bid.agent, bid.task, bid.amount);
     }
 }
@@ -235,8 +264,6 @@ fn assignment_phase<T>(auction_data: &mut Auction<T>)
 where
     T: Float + FloatConst,
 {
-    let (tx, rx): (Sender<Bid<T>>, Receiver<Bid<T>>) = channel();
-
     for (task, bids) in auction_data.task_bids.iter_mut().enumerate() {
         let mut max_bid = T::neg_infinity();
         let mut bid_winner = None;
@@ -249,30 +276,31 @@ where
         }
 
         if let Some(bw) = bid_winner {
-            tx.send(Bid::new(bw, task, max_bid)).unwrap();
+            let tx = auction_data.tx.clone();
+            tx.send(Some(Bid::new(bw, task, max_bid))).unwrap();
         }
     }
 
-    drop(tx);
+    // Send a sentinel value, `None`, indicating we are finished finding the *new* best assigments.
+    auction_data.tx.send(None).unwrap();
 
-    for Bid {
+    while let Some(Bid {
         agent: bid_winner,
         task,
         amount: max_bid,
-    } in rx
+    }) = auction_data.rx.recv().unwrap()
     {
         auction_data.update_price(task, max_bid);
         auction_data.assign(bid_winner, task);
     }
 
-    // Clear bids after each assignment phase
-    // auction_data.clear_task_bids();
+    // Make sure to clear bids after each assignment phase
+    // Currently, this is not needed since we use [`drain`].
 }
 
-/// Run the forward auction only. The way to consider this
-/// is that agents are going to bid for tasks. Agents will
-/// be assigned to a task after each bidding phase.
-pub fn forward<T>(auction_data: &mut Auction<T>)
+/// Run the Bertsekas algorithm to create an assignment. The way to think about this is that agents
+/// are going to bid for tasks. Agents will be assigned to a task after each bidding phase.
+pub fn bertsekas_aaap<T>(auction_data: &mut Auction<T>)
 where
     T: Float + FloatConst + std::ops::MulAssign,
 {
@@ -300,7 +328,7 @@ mod tests {
         let matrix = Matrix::from_rows(matrix).unwrap();
 
         let mut auction_data = Auction::new(&matrix);
-        forward(&mut auction_data);
+        bertsekas_aaap(&mut auction_data);
 
         let expected_assignments = vec![Some(2), Some(0), Some(3), Some(1)];
         assert_eq!(auction_data.assignments, expected_assignments);
@@ -321,7 +349,7 @@ mod tests {
 
         let matrix = Matrix::from_rows(matrix).unwrap();
         let mut auction_data = Auction::new(&matrix);
-        forward(&mut auction_data);
+        bertsekas_aaap(&mut auction_data);
 
         // Any assignment is optimal since all profits are equal.
         assert!(auction_data.all_assigned());
@@ -341,7 +369,7 @@ mod tests {
         let matrix = Matrix::from_rows(matrix).unwrap();
 
         let mut auction_data = Auction::new(&matrix);
-        forward(&mut auction_data);
+        bertsekas_aaap(&mut auction_data);
 
         // The only assignment possible should be agent 0
         let expected_assignments = vec![Some(0)];
@@ -353,7 +381,7 @@ mod tests {
         let matrix: Matrix<f64> = Matrix::new_empty(0);
 
         let mut auction_data = Auction::new(&matrix);
-        forward(&mut auction_data);
+        bertsekas_aaap(&mut auction_data);
     }
 
     #[test]
@@ -362,7 +390,7 @@ mod tests {
         let matrix = Matrix::from_fn(m, m, |(i, j)| (i + j) as f64);
 
         let mut auction_data = Auction::new(&matrix);
-        forward(&mut auction_data);
+        bertsekas_aaap(&mut auction_data);
 
         assert!(auction_data.all_assigned());
         assert_eq!(auction_data.num_assigned(), m);
@@ -382,7 +410,7 @@ mod tests {
 
         let now = std::time::Instant::now();
         let mut auction_data = Auction::new(&float_matrix);
-        forward(&mut auction_data);
+        bertsekas_aaap(&mut auction_data);
         let elapsed = now.elapsed().as_micros();
         println!("bertekas auction complete in {elapsed}");
         println!("score: {}", auction_data.score().unwrap());

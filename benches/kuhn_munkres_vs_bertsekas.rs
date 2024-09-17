@@ -1,7 +1,7 @@
 use codspeed_criterion_compat::{
     black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput,
 };
-use pathfinding::bertsekas::{forward, Auction};
+use pathfinding::bertsekas::{bertsekas_aaap, Auction};
 use pathfinding::prelude::{kuhn_munkres, Matrix};
 use rand::Rng;
 
@@ -24,7 +24,7 @@ fn compare_algorithms(c: &mut Criterion) {
             let (_, float_matrix) = black_box(create_matrices(*size));
             b.iter_with_large_drop(|| {
                 let mut auction_data = Auction::new(&float_matrix);
-                forward(&mut auction_data);
+                bertsekas_aaap(&mut auction_data);
             });
         });
 
@@ -46,4 +46,3 @@ fn compare_algorithms(c: &mut Criterion) {
 
 criterion_group!(benches, compare_algorithms);
 criterion_main!(benches);
-

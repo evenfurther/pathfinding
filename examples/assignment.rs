@@ -1,4 +1,4 @@
-use pathfinding::bertsekas::{forward, Auction};
+use pathfinding::bertsekas::{bertsekas_aaap, Auction};
 use pathfinding::matrix::Matrix;
 use rand::Rng;
 
@@ -14,5 +14,5 @@ fn main() {
     let matrix = generate_random_matrix(size, size);
     let mut auction_data = Auction::new(&matrix);
 
-    forward(&mut auction_data);
+    bertsekas_aaap(&mut auction_data);
 }
