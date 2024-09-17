@@ -153,11 +153,11 @@ where
     }
 
     /// We need to clear out all the bids that each agent made for each task
-    fn clear_task_bids(&mut self) {
-        for bids in &mut self.task_bids {
-            bids.clear();
-        }
-    }
+    // fn clear_task_bids(&mut self) {
+    //     for bids in &mut self.task_bids {
+    //         bids.clear();
+    //     }
+    // }
 }
 
 /// Tuple struct of (agent, task, bid)
@@ -237,12 +237,11 @@ where
 {
     let (tx, rx): (Sender<Bid<T>>, Receiver<Bid<T>>) = channel();
 
-    for (task, bids) in auction_data.task_bids.iter().enumerate() {
+    for (task, bids) in auction_data.task_bids.iter_mut().enumerate() {
         let mut max_bid = T::neg_infinity();
         let mut bid_winner = None;
 
-        for b in bids {
-            let (agent, agents_bid) = *b;
+        for (agent, agents_bid) in bids.drain(..) {
             if agents_bid > max_bid {
                 max_bid = agents_bid;
                 bid_winner = Some(agent);
@@ -267,7 +266,7 @@ where
     }
 
     // Clear bids after each assignment phase
-    auction_data.clear_task_bids();
+    // auction_data.clear_task_bids();
 }
 
 /// Run the forward auction only. The way to consider this
