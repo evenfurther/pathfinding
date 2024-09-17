@@ -152,7 +152,7 @@ where
         self.task_bids[task].push((agent, bid));
     }
 
-    /// We need to clear out all the bids that each agent made for each task
+    // /// We need to clear out all the bids that each agent made for each task
     // fn clear_task_bids(&mut self) {
     //     for bids in &mut self.task_bids {
     //         bids.clear();
