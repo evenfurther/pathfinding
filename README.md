@@ -70,5 +70,7 @@ This repository uses the [conventional commits](https://www.conventionalcommits.
 - feat(matrix): add `Matrix::transpose()`
 - fix(tests): remove unused imports
 
+Each commit must be self-sufficient and clean. If during inspection or code review you need to make further changes to a commit, please squash it. You may use `git rebase -i`, or more convenient tools such as [`jj`](https://martinvonz.github.io/jj/latest/) or [`git-branchless`](https://github.com/arxanas/git-branchless), in order to manipulate your git commits.
+
 If a pull-request should automatically close an open issue, please
 include "Fix #xxx# or "Close #xxx" in the pull-request cover-letter.
