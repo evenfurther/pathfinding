@@ -140,3 +140,40 @@ fn all_paths() {
         ]
     );
 }
+
+#[test]
+fn multiple_equal_cost_paths() {
+    use std::collections::HashMap;
+
+    // Graph example:
+    //     A --> B --> D
+    //     A --> C --> D
+    // Both paths (A -> B -> D) and (A -> C -> D) have the same cost of 2.
+
+    let mut graph = HashMap::new();
+    graph.insert('A', vec![('B', 1), ('C', 1)]);
+    graph.insert('B', vec![('D', 1)]);
+    graph.insert('C', vec![('D', 1)]);
+    graph.insert('D', vec![]); // Goal node
+
+    let successors = |n: &char| {
+        let neighbors = match n {
+            'A' => "BC",
+            'B' | 'C' => "D",
+            _ => "",
+        };
+        neighbors.chars().map(|n| (n, 1))
+    };
+
+    // Start is 'A', goal is 'D', and we want 2 shortest paths.
+    let paths = yen(&'A', successors, |n| *n == 'D', 2);
+
+    // We expect two distinct paths both with cost 2:
+    // Path 1: A -> B -> D
+    // Path 2: A -> C -> D
+    assert_eq!(paths.len(), 2);
+
+    // Check both paths have total cost of 2 and are distinct
+    assert_eq!(paths[0], (vec!['A', 'B', 'D'], 2));
+    assert_eq!(paths[1], (vec!['A', 'C', 'D'], 2));
+}
