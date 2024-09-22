@@ -148,7 +148,7 @@ where
 
 /// Compute all shortest paths using the [A* search
 /// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
-
+///
 /// Whereas `astar` (non-deterministic-ally) returns a single shortest
 /// path, `astar_bag` returns all shortest paths (in a
 /// non-deterministic order).
@@ -276,7 +276,7 @@ where
 
 /// Compute all shortest paths using the [A* search
 /// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
-
+///
 /// Whereas `astar` (non-deterministic-ally) returns a single shortest
 /// path, `astar_bag` returns all shortest paths (in a
 /// non-deterministic order).
