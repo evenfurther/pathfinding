@@ -95,7 +95,6 @@ where
 ///     2);
 /// assert!(empty.is_empty());
 /// ```
-
 pub fn yen<N, C, FN, IN, FS>(
     start: &N,
     mut successors: FN,
