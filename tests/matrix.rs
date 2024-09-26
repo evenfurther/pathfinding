@@ -71,7 +71,7 @@ fn from_vec_empty_row_error() {
 #[test]
 #[should_panic(expected = "unable to create a matrix with empty rows")]
 fn new_empty_row_panic() {
-    let _ = Matrix::new(1, 0, 42);
+    _ = Matrix::new(1, 0, 42);
 }
 
 #[test]
@@ -221,19 +221,19 @@ fn non_square_rotate() {
 #[test]
 #[should_panic(expected = "this operation would create a matrix with empty rows")]
 fn no_rows_rotated_cw_panic() {
-    let _ = Matrix::<u32>::new_empty(10).rotated_cw(1);
+    _ = Matrix::<u32>::new_empty(10).rotated_cw(1);
 }
 
 #[test]
 #[should_panic(expected = "this operation would create a matrix with empty rows")]
 fn no_rows_rotated_ccw_panic() {
-    let _ = Matrix::<u32>::new_empty(10).rotated_ccw(1);
+    _ = Matrix::<u32>::new_empty(10).rotated_ccw(1);
 }
 
 #[test]
 fn no_rows_rotated_twice() {
-    let _ = Matrix::<u32>::new_empty(10).rotated_cw(2);
-    let _ = Matrix::<u32>::new_empty(10).rotated_ccw(2);
+    _ = Matrix::<u32>::new_empty(10).rotated_cw(2);
+    _ = Matrix::<u32>::new_empty(10).rotated_ccw(2);
 }
 
 #[test]
@@ -291,7 +291,7 @@ fn transpose() {
 #[test]
 #[should_panic(expected = "this operation would create a matrix with empty rows")]
 fn no_rows_transposed_panic() {
-    let _ = Matrix::<u32>::new_empty(10).transposed();
+    _ = Matrix::<u32>::new_empty(10).transposed();
 }
 
 #[test]
@@ -635,7 +635,7 @@ fn from_iter() {
 #[test]
 #[should_panic(expected = "provided data does not correspond to the expected length")]
 fn from_iter_error() {
-    let _ = (1..3)
+    _ = (1..3)
         .map(|n| (1..n).map(move |x| x * n))
         .collect::<Matrix<_>>();
 }
