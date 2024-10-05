@@ -898,7 +898,7 @@ impl<'a, C> Iterator for RowIterator<'a, C> {
     }
 }
 
-impl<'a, C> DoubleEndedIterator for RowIterator<'a, C> {
+impl<C> DoubleEndedIterator for RowIterator<'_, C> {
     fn next_back(&mut self) -> Option<Self::Item> {
         (self.row < self.matrix.rows).then(|| {
             let row = self.matrix.rows - self.row;
@@ -942,7 +942,7 @@ impl<'a, C> Iterator for ColumnIterator<'a, C> {
     }
 }
 
-impl<'a, C> DoubleEndedIterator for ColumnIterator<'a, C> {
+impl<C> DoubleEndedIterator for ColumnIterator<'_, C> {
     fn next_back(&mut self) -> Option<Self::Item> {
         (self.column < self.matrix.columns).then(|| {
             self.column += 1;
