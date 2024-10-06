@@ -47,7 +47,9 @@ version_check = "0.9.5"
 [lints.clippy]
 module_name_repetitions = { level = "allow", priority = 1 }
 too_long_first_doc_paragraph = { level = "allow", priority = 1 } # Temporary
-pedantic = { level = "deny", priority = 0 }
+pedantic = "deny"
+# Do not activate until Clippy issue #13356 is fixed
+#allow_attributes = "deny"
 
 [[bench]]
 name = "algos"
