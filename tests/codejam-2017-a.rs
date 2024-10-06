@@ -8,7 +8,7 @@ use std::io::{self, Cursor};
 use std::num::ParseIntError;
 
 #[derive(Debug)]
-#[allow(dead_code)]
+#[expect(dead_code)]
 enum Error {
     Io(io::Error),
     Parse(ParseIntError),
@@ -99,7 +99,7 @@ fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut dyn BufRead) -> Result<String
             loop {
                 let (_, n, _) = ek.augment();
                 debug_assert!(n >= 0);
-                #[allow(clippy::cast_sign_loss)]
+                #[expect(clippy::cast_sign_loss)]
                 let n = n as usize;
                 if n > max {
                     max = n;

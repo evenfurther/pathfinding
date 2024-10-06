@@ -168,7 +168,7 @@ where
 ///
 /// The [`build_path`] function can be used to build a full path from the starting point to one
 /// of the reachable targets.
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::missing_panics_doc)]
 pub fn dijkstra_partial<N, C, FN, IN, FS>(
     start: &N,
     mut successors: FN,
@@ -283,7 +283,7 @@ where
 /// assert_eq!(vec![1], build_path(&1, &parents));
 /// assert_eq!(vec![101], build_path(&101, &parents));
 /// ```
-#[allow(clippy::implicit_hasher)]
+#[expect(clippy::implicit_hasher)]
 pub fn build_path<N, C>(target: &N, parents: &HashMap<N, (N, C)>) -> Vec<N>
 where
     N: Eq + Hash + Clone,

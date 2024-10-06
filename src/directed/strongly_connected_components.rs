@@ -104,7 +104,7 @@ where
 ///
 /// The function returns the strongly connected component containing the node,
 /// which is guaranteed to contain at least `node`.
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::missing_panics_doc)]
 pub fn strongly_connected_component<N, FN, IN>(node: &N, successors: FN) -> Vec<N>
 where
     N: Clone + Hash + Eq,
