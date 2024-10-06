@@ -14,7 +14,6 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::hash::Hash;
 
 /// Type alias for Edmonds-Karp maximum flow result.
-#[allow(clippy::upper_case_acronyms)]
 pub type EKFlows<N, C> = (Vec<Edge<N, C>>, C, Vec<Edge<N, C>>);
 
 /// Type alias for representing an edge in a graph

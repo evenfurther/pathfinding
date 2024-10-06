@@ -86,7 +86,6 @@ impl<C: Clone> Matrix<C> {
     ///
     /// [`MatrixFormatError::WrongIndex`] if the ranges
     /// are outside the original matrix.
-    #[allow(clippy::needless_pass_by_value)]
     pub fn slice(
         &self,
         rows: Range<usize>,

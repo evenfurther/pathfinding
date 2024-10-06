@@ -1,5 +1,3 @@
-#![allow(clippy::cast_possible_truncation)]
-
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use pathfinding::prelude::{astar, idastar};
@@ -37,7 +35,7 @@ lazy_static! {
         positions: {
             let mut p = [0u8; LIMIT];
             for (i, e) in p.iter_mut().enumerate() {
-                *e = i as u8;
+                *e = u8::try_from(i).unwrap();
             }
             p
         },
@@ -125,7 +123,8 @@ impl Game {
     }
 
     fn from_array(positions: [u8; LIMIT]) -> Game {
-        let hole_idx = positions.iter().find_position(|&&n| n == 0).unwrap().0 as u8;
+        let hole_idx =
+            u8::try_from(positions.iter().find_position(|&&n| n == 0).unwrap().0).unwrap();
         let mut game = Game {
             positions,
             hole_idx,
