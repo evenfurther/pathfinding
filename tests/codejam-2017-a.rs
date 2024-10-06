@@ -1,8 +1,6 @@
 // Problem A from the Google Code Jam finals 2017.
 // https://code.google.com/codejam/contest/dashboard?c=6314486#s=p0&a=0
 
-#![allow(clippy::cast_sign_loss)]
-
 use pathfinding::prelude::*;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::io::prelude::*;
@@ -101,6 +99,7 @@ fn test<EK: EdmondsKarp<i32>>(n: usize, file: &mut dyn BufRead) -> Result<String
             loop {
                 let (_, n, _) = ek.augment();
                 debug_assert!(n >= 0);
+                #[allow(clippy::cast_sign_loss)]
                 let n = n as usize;
                 if n > max {
                     max = n;

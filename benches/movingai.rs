@@ -1,7 +1,5 @@
 // Test with files from https://movingai.com/benchmarks/
 
-#![allow(clippy::cast_precision_loss)]
-
 use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
 use movingai::parser::{parse_map_file, parse_scen_file};
 use movingai::{Coords2D, Map2D};
@@ -9,6 +7,7 @@ use noisy_float::prelude::*;
 use pathfinding::directed::astar::astar;
 use std::path::Path;
 
+#[allow(clippy::cast_precision_loss)]
 fn distance(a: &Coords2D, b: &Coords2D) -> R64 {
     r64((a.0 as f64 - b.0 as f64).hypot(a.1 as f64 - b.1 as f64))
 }
