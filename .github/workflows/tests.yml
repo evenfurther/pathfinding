@@ -103,4 +103,4 @@ jobs:
           rustup install --profile default nightly
           rustup default nightly
       - uses: Swatinem/rust-cache@v2
-      - run: cargo clippy --all-targets
+      - run: cargo clippy --all-targets -- -D warnings

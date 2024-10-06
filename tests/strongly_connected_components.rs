@@ -4,7 +4,7 @@ use std::{collections::hash_map::HashMap, sync::LazyLock};
 // Tests in this file use the example at
 // https://en.wikipedia.org/wiki/Strongly_connected_component#/media/File:Graph_Condensation.svg
 
-#[allow(clippy::trivially_copy_pass_by_ref)]
+#[expect(clippy::trivially_copy_pass_by_ref)]
 fn successors(n: &usize) -> Vec<usize> {
     match *n {
         0 => vec![2],
