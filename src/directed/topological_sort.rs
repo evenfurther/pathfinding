@@ -152,8 +152,8 @@ where
 /// In this case, the strongly connected set(s) can then be found using the
 /// [`strongly_connected_components`](super::strongly_connected_components::strongly_connected_components)
 /// function on the list of remaining nodes.
-#[allow(clippy::type_complexity)]
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::type_complexity)]
+#[expect(clippy::missing_panics_doc)]
 pub fn topological_sort_into_groups<N, FN, IN>(
     nodes: &[N],
     mut successors: FN,

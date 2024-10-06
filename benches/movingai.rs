@@ -7,12 +7,12 @@ use noisy_float::prelude::*;
 use pathfinding::directed::astar::astar;
 use std::path::Path;
 
-#[allow(clippy::cast_precision_loss)]
+#[expect(clippy::cast_precision_loss)]
 fn distance(a: &Coords2D, b: &Coords2D) -> R64 {
     r64((a.0 as f64 - b.0 as f64).hypot(a.1 as f64 - b.1 as f64))
 }
 
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::missing_panics_doc)]
 pub fn arena(c: &mut Criterion) {
     c.bench_function("arena", |b| {
         b.iter(|| {
