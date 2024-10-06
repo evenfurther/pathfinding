@@ -12,8 +12,8 @@ const SIDE: u8 = 3;
 const SIDE: u8 = 4;
 const LIMIT: usize = (SIDE * SIDE) as usize;
 
-#[allow(clippy::derived_hash_with_manual_eq)]
 #[derive(Clone, Debug, Hash)]
+#[allow(clippy::derived_hash_with_manual_eq)] // expect doesn't work, clippy issue #13356
 struct Game {
     positions: [u8; LIMIT], // Correct position of piece at every index
     hole_idx: u8,           // Current index of the hole
