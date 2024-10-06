@@ -699,7 +699,7 @@ fn into_iter_is_fused() {
 }
 
 #[test]
-#[allow(deprecated)]
+#[expect(deprecated)]
 fn indices() {
     let m = matrix![[0, 1, 2], [2, 1, 0]];
     assert_eq!(
