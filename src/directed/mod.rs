@@ -17,7 +17,7 @@ pub mod strongly_connected_components;
 pub mod topological_sort;
 pub mod yen;
 
-#[allow(clippy::needless_collect)]
+#[expect(clippy::needless_collect)]
 fn reverse_path<N, V, F>(parents: &FxIndexMap<N, V>, mut parent: F, start: usize) -> Vec<N>
 where
     N: Eq + Hash + Clone,

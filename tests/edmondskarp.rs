@@ -60,7 +60,7 @@ fn wikipedia_example_sparse() {
     wikipedia_example::<SparseCapacity<_>>();
 }
 
-#[allow(clippy::cast_possible_truncation)]
+#[expect(clippy::cast_possible_truncation)]
 fn wikipedia_progressive_example<EK: EdmondsKarp<i32>>() {
     let successors = successors_wikipedia();
     let size = successors.len();
