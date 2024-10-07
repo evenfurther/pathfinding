@@ -4,6 +4,40 @@ use num_traits::{Float, FloatConst};
 use std::marker::PhantomData;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
+/// This is a mapping of every single possible task and the corresponding set of bids that each
+/// agent made for that task. Thus, each task, j, has a list of `(agent, bid)` tuples that were put
+/// in by each agent, i.
+struct BidsForTasks<T> {
+    agents: Vec<Vec<usize>>,
+    bids: Vec<Vec<T>>,
+}
+
+impl<T> BidsForTasks<T>
+where
+    T: Float,
+{
+    pub fn new(num_tasks: usize) -> Self {
+        Self {
+            agents: vec![Vec::new(); num_tasks],
+            bids: vec![Vec::new(); num_tasks],
+        }
+    }
+
+    fn clear(&mut self) {
+        for agents in &mut self.agents {
+            agents.clear();
+        }
+        for bids in &mut self.bids {
+            bids.clear();
+        }
+    }
+
+    fn add_bid(&mut self, task: usize, agent: usize, bid: T) {
+        self.agents[task].push(agent);
+        self.bids[task].push(bid);
+    }
+}
+
 /// A simple data structure that keeps track of all data required to
 /// assign agents to tasks.
 pub struct Auction<'a, T> {
@@ -12,10 +46,7 @@ pub struct Auction<'a, T> {
     prices: Vec<T>,
     epsilon: T,
     epsilon_scaling_factor: T,
-    /// This is a mapping of every single possible task and the corresponding set of bids that
-    /// each agent made for that task. Thus, each task, j,  has a list of (agent, bid) tuples
-    /// that were put in by each agent, i.
-    task_bids: Vec<Vec<(usize, T)>>,
+    task_bids: BidsForTasks<T>,
     _phantom: PhantomData<T>,
     tx: Sender<Option<Bid<T>>>,
     rx: Receiver<Option<Bid<T>>>,
@@ -32,12 +63,16 @@ where
     /// Panics if not able to covert `1 / (n + 1)` into the cost matrix's underlying type.
     #[must_use]
     pub fn new(cost_matrix: &'a Matrix<T>) -> Self {
+        // The # of rows in the matrix corresponds to the # of agents
         let m = cost_matrix.rows;
+
+        // The # of columns in the matrix corresponds to the # of tasks
         let n = cost_matrix.columns;
+
+        assert!(m <= n);
 
         let prices = vec![T::zero(); n];
         let assignments = vec![None; m];
-        let task_bids = vec![Vec::with_capacity(m); n];
 
         let epsilon = T::from(n + 1)
             .expect("couldn't convert n + 1 = {n} + 1 to the required type!")
@@ -51,7 +86,7 @@ where
             prices,
             epsilon,
             epsilon_scaling_factor: T::from(2.0).unwrap(),
-            task_bids,
+            task_bids: BidsForTasks::new(n),
             _phantom: PhantomData,
             tx,
             rx,
@@ -173,7 +208,7 @@ where
     where
         T: Float,
     {
-        self.task_bids[task].push((agent, bid));
+        self.task_bids.add_bid(task, agent, bid);
     }
 
     // /// We need to clear out all the bids that each agent made for each task
@@ -264,24 +299,32 @@ fn assignment_phase<T>(auction_data: &mut Auction<T>)
 where
     T: Float + FloatConst,
 {
-    for (task, bids) in auction_data.task_bids.iter_mut().enumerate() {
+    for (task, (agents, bids)) in auction_data
+        .task_bids
+        .agents
+        .iter()
+        .zip(&auction_data.task_bids.bids)
+        .enumerate()
+    {
         let mut max_bid = T::neg_infinity();
         let mut bid_winner = None;
 
-        for (agent, agents_bid) in bids.drain(..) {
-            if agents_bid > max_bid {
-                max_bid = agents_bid;
+        for (&agent, &bid) in agents.iter().zip(bids.iter()) {
+            if bid > max_bid {
+                max_bid = bid;
                 bid_winner = Some(agent);
             }
         }
 
         if let Some(bw) = bid_winner {
-            let tx = auction_data.tx.clone();
-            tx.send(Some(Bid::new(bw, task, max_bid))).unwrap();
+            auction_data
+                .tx
+                .send(Some(Bid::new(bw, task, max_bid)))
+                .unwrap();
         }
     }
 
-    // Send a sentinel value, `None`, indicating we are finished finding the *new* best assigments.
+    // Send a sentinel value, `None`, indicating we are finished finding the *new* best assignments.
     auction_data.tx.send(None).unwrap();
 
     while let Some(Bid {
@@ -294,8 +337,8 @@ where
         auction_data.assign(bid_winner, task);
     }
 
-    // Make sure to clear bids after each assignment phase
-    // Currently, this is not needed since we use [`drain`].
+    // Clear bids after each assignment phase
+    auction_data.task_bids.clear();
 }
 
 /// Run the Bertsekas algorithm to create an assignment. The way to think about this is that agents
@@ -361,6 +404,9 @@ mod tests {
                 .count(),
             4
         );
+
+        let expected_score: f64 = 4000.0;
+        assert_eq!(auction_data.score().unwrap(), expected_score);
     }
 
     #[test]
