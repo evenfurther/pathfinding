@@ -47,14 +47,14 @@ fn union(parents: &mut [usize], ranks: &mut [usize], mut a: usize, mut b: usize)
 /// This function panics if a node is outside the range [0, `number_of_nodes`-1].
 pub fn kruskal_indices<C>(
     number_of_nodes: usize,
-    edges: &[(usize, usize, C)],
+    edges: impl AsRef<[(usize, usize, C)]>,
 ) -> impl Iterator<Item = (usize, usize, C)>
 where
     C: Clone + Ord,
 {
     let mut parents = (0..number_of_nodes).collect::<Vec<_>>();
     let mut ranks = vec![1; number_of_nodes];
-    let mut edges = edges.to_vec();
+    let mut edges = edges.as_ref().to_vec();
     edges.sort_unstable_by(|a, b| a.2.cmp(&b.2));
     edges.into_iter().filter_map(move |(a, b, w)| {
         let ra = find(&mut parents, a);
@@ -85,7 +85,7 @@ where
             (ia, ib, w.clone())
         })
         .collect::<Vec<_>>();
-    kruskal_indices(nodes.len(), &edges).filter_map(move |(ia, ib, w)| {
+    kruskal_indices(nodes.len(), edges).filter_map(move |(ia, ib, w)| {
         Some((
             <&N>::clone(nodes.get_index(ia)?), // Cannot fail
             <&N>::clone(nodes.get_index(ib)?), // Cannot fail
