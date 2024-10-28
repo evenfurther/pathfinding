@@ -92,7 +92,7 @@ impl Game {
     // However, since the successors are the current board with the hole moved one
     // position, we need to build a clone of the current board that will be reused in
     // this iterator.
-    fn successors(&self) -> impl Iterator<Item = (Self, u8)> {
+    fn successors(&self) -> impl Iterator<Item = (Self, u8)> + use<> {
         let game = self.clone();
         SUCCESSORS[self.hole_idx as usize]
             .iter()
