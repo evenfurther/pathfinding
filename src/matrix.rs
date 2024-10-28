@@ -530,7 +530,7 @@ impl<C> Matrix<C> {
         &self,
         (r, c): (usize, usize),
         diagonals: bool,
-    ) -> impl Iterator<Item = (usize, usize)> {
+    ) -> impl Iterator<Item = (usize, usize)> + use<C> {
         let (row_range, col_range) = if r < self.rows && c < self.columns {
             (
                 r.saturating_sub(1)..(self.rows).min(r + 2),
@@ -596,7 +596,7 @@ impl<C> Matrix<C> {
         &self,
         start: (usize, usize),
         direction: (isize, isize),
-    ) -> impl Iterator<Item = (usize, usize)> {
+    ) -> impl Iterator<Item = (usize, usize)> + use<C> {
         in_direction(start, direction, (self.rows, self.columns))
     }
 
@@ -627,14 +627,14 @@ impl<C> Matrix<C> {
         since = "4.1.0",
         remove = "> 4.x"
     )]
-    pub fn indices(&self) -> impl Iterator<Item = (usize, usize)> {
+    pub fn indices(&self) -> impl Iterator<Item = (usize, usize)> + use<C> {
         self.keys()
     }
 
     /// Return an iterator on the Matrix indices, first row first. The values are
     /// computed when this method is called and will not change even if new rows are
     /// added before the iterator is consumed.
-    pub fn keys(&self) -> impl Iterator<Item = (usize, usize)> {
+    pub fn keys(&self) -> impl Iterator<Item = (usize, usize)> + use<C> {
         let columns = self.columns;
         (0..self.rows).flat_map(move |r| (0..columns).map(move |c| (r, c)))
     }
