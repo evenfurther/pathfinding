@@ -7,7 +7,7 @@ fn build_network(size: usize) -> Matrix<usize> {
     for a in 0..size {
         for b in 0..size {
             if rng.gen_ratio(2, 3) {
-                network[(a, b)] = rng.gen::<u16>() as usize;
+                network[(a, b)] = rng.r#gen::<u16>() as usize;
             }
         }
     }
