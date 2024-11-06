@@ -1,4 +1,4 @@
-error: no rules expected the token `,`
+error: no rules expected `,`
  --> tests/ui/matrix.rs:7:17
   |
 7 |     _ = matrix!(,);
@@ -6,7 +6,7 @@ error: no rules expected the token `,`
   |
   = note: while trying to match end of macro
 
-error: no rules expected the token `,`
+error: no rules expected `,`
  --> tests/ui/matrix.rs:8:34
   |
 8 |     _ = matrix!( [1, 2], [3, 4], ,);
