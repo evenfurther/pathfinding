@@ -66,9 +66,7 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 yanked = "warn"
 # A list of advisory IDs to ignore. Note that ignored advisories will still
 # output a note when they are encountered.
-ignore = [
-    "RUSTSEC-2021-0145",    # atty, as long as Criterion uses it
-]
+ignore = []
 # Threshold for security vulnerabilities, any vulnerability with a CVSS score
 # lower than the range specified will be ignored. Note that ignored advisories
 # will still output a note when they are encountered.
@@ -95,7 +93,7 @@ ignore = [
 allow = [
     "MIT",
     "Apache-2.0",
-    "Unicode-DFS-2016",
+    "Unicode-3.0",
 ]
 # The confidence threshold for detecting a license from license text.
 # The higher the value, the more closely the license text must be to the
