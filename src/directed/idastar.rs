@@ -154,7 +154,7 @@ where
         path.push(node);
         match search(path, cost + extra, bound, successors, heuristic, success) {
             found_path @ Path::Found(_, _) => return found_path,
-            Path::Minimum(m) if !min.is_some_and(|n| n < m) => min = Some(m),
+            Path::Minimum(m) if min.is_none_or(|n| n >= m) => min = Some(m),
             _ => (),
         }
         path.pop();
