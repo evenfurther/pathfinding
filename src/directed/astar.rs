@@ -77,7 +77,7 @@ use crate::FxIndexMap;
 ///                    |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::missing_panics_doc)]
 pub fn astar<N, C, FN, IN, FH, FS>(
     start: &N,
     mut successors: FN,
@@ -169,7 +169,7 @@ where
 ///
 /// Each path comprises both the start and an end node. Note that while every path shares the same
 /// start node, different paths may have different end nodes.
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::missing_panics_doc)]
 pub fn astar_bag<N, C, FN, IN, FH, FS>(
     start: &N,
     mut successors: FN,

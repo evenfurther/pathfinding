@@ -3,7 +3,7 @@ mod ex1 {
     use lazy_static::lazy_static;
     use pathfinding::prelude::*;
 
-    #[allow(clippy::trivially_copy_pass_by_ref)]
+    #[expect(clippy::trivially_copy_pass_by_ref)]
     fn successors(node: &u8) -> impl Iterator<Item = (u8, usize)> {
         lazy_static! {
             static ref SUCCESSORS: Vec<Vec<(u8, usize)>> = vec![
