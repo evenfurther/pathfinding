@@ -68,7 +68,7 @@ fn successor_distances(
 }
 
 #[test]
-fn test_gps() {
+fn gps() {
     let coords = coords();
     let successor_distances = successor_distances(&coords);
     let (start, goal) = ("Paris", "Cannes");

@@ -14,19 +14,24 @@ fn find(parents: &mut [usize], mut node: usize) -> usize {
     node
 }
 
-#[test]
-fn test_path_halving() {
-    let mut parents = vec![0, 0, 1, 2, 3, 4, 5, 6];
-    assert_eq!(find(&mut parents, 7), 0);
-    assert_eq!(parents, vec![0, 0, 1, 1, 3, 3, 5, 5]);
-    assert_eq!(find(&mut parents, 7), 0);
-    assert_eq!(parents, vec![0, 0, 1, 0, 3, 3, 5, 3]);
-    assert_eq!(find(&mut parents, 7), 0);
-    assert_eq!(parents, vec![0, 0, 1, 0, 3, 3, 5, 0]);
-    assert_eq!(find(&mut parents, 6), 0);
-    assert_eq!(parents, vec![0, 0, 1, 0, 3, 3, 3, 0]);
-    assert_eq!(find(&mut parents, 6), 0);
-    assert_eq!(parents, vec![0, 0, 1, 0, 3, 3, 0, 0]);
+#[cfg(test)]
+mod tests {
+    use super::find;
+
+    #[test]
+    fn path_halving() {
+        let mut parents = vec![0, 0, 1, 2, 3, 4, 5, 6];
+        assert_eq!(find(&mut parents, 7), 0);
+        assert_eq!(parents, vec![0, 0, 1, 1, 3, 3, 5, 5]);
+        assert_eq!(find(&mut parents, 7), 0);
+        assert_eq!(parents, vec![0, 0, 1, 0, 3, 3, 5, 3]);
+        assert_eq!(find(&mut parents, 7), 0);
+        assert_eq!(parents, vec![0, 0, 1, 0, 3, 3, 5, 0]);
+        assert_eq!(find(&mut parents, 6), 0);
+        assert_eq!(parents, vec![0, 0, 1, 0, 3, 3, 3, 0]);
+        assert_eq!(find(&mut parents, 6), 0);
+        assert_eq!(parents, vec![0, 0, 1, 0, 3, 3, 0, 0]);
+    }
 }
 
 fn union(parents: &mut [usize], ranks: &mut [usize], mut a: usize, mut b: usize) {
