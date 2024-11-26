@@ -254,7 +254,7 @@ fn remove_outside_vertex() {
 }
 
 #[test]
-fn test_outside_vertex() {
+fn outside_vertex() {
     let mut g = Grid::new(10, 10);
     assert!(!g.has_vertex((10, 10)));
     g.fill();
@@ -585,7 +585,7 @@ fn from_matrix() {
 }
 
 #[test]
-fn test_equality() {
+fn equality() {
     let g = [
         (0, 0),
         (1, 0),
