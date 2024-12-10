@@ -1,4 +1,36 @@
 
+n.n.n / 2024-12-10
+==================
+
+  * fix(doc): reference `count_paths` from top-level documentation
+  * fix(tests): remove `test_` prefix in tests
+  * chore(Cargo): update fake regex dependency message
+  * fix(deps): update rust crate thiserror to v2
+  * fix: use proper pattern binding
+  * fix(deps): update codspeed-criterion-compat to get rid of advisory
+  * fix(tests): new test for `utils` module
+  * fix(ui): adapt UI tests to Rust 1.84
+  * chore(gitignore): ignore `cargo mutants` output
+  * fix(tests): `gen` will be a keyword in Rust 2024
+  * fix(kruskal): accept owned data into the method
+  * fix: remove or move `allow` attributes
+  * style(matrix): remove unneeded bounds on `DoubleEndedIterator` impl
+  * style: replace `let _ =` by `_ =`
+  * docs: remove empty lines in comments
+  * Add test for Yen's algorithm
+  * Add precision on development process
+  * feat(tests): test Edmonds-Karp failure in sparse mode
+  * feat(dfs): use a non-recursive version
+  * fix(benches): reinstate regular benches for DFS
+  * fix!(dfs): never visit the same node twice
+  * feat(benches): add restricted DFS benchmarks
+  * style: use Iterator::inspect() when the value does not change
+  * chore(deps): update rust crate codspeed-criterion-compat to v2
+  * fix!(msrv): update MSRV to 1.77.2
+  * Generic variant of connected_components
+  * fix(doc): refer to `usize::MAX` instead of `std::usize::MAX`
+  * chore(Cargo.toml): allow `clippy::too_long_first_doc_paragraph`
+
 v4.11.0 / 2024-08-31
 ==================
 
