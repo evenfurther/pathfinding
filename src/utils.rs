@@ -36,7 +36,7 @@ where
 /// assert_eq!(move_in_direction((1, 1), (-1, -2), board), None);
 /// ```
 #[must_use]
-#[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+#[expect(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
 pub fn move_in_direction(
     start: (usize, usize),
     direction: (isize, isize),
@@ -90,7 +90,7 @@ pub fn in_direction(
 /// assert_eq!(constrain(-30, 7), 5);
 /// ```
 #[must_use]
-#[allow(clippy::cast_sign_loss)]
+#[expect(clippy::cast_sign_loss)]
 pub const fn constrain(value: isize, upper: usize) -> usize {
     if value > 0 {
         value as usize % upper
