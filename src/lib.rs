@@ -23,6 +23,7 @@
 //! - [Fringe](directed/fringe/index.html): find the shortest path in a weighted graph using an heuristic to guide the process ([⇒ Wikipedia][Fringe])
 //! - [IDA*](directed/idastar/index.html): explore longer and longer paths in a weighted graph at the cost of multiple similar examinations ([⇒ Wikipedia][IDA*])
 //! - [IDDFS](directed/iddfs/index.html): explore longer and longer paths in an unweighted graph at the cost of multiple similar examinations ([⇒ Wikipedia][IDDFS])
+//! - [paths counting](directed/count_paths/index.html): count the paths to the destination in an acyclic graph
 //! - [strongly connected components](directed/strongly_connected_components/index.html): find strongly connected components in a directed graph ([⇒ Wikipedia][Strongly connected components])
 //! - [topological sorting](directed/topological_sort/index.html): find an acceptable topological order in a directed graph ([⇒ Wikipedia][Topological sorting])
 //! - [Yen](directed/yen/index.html): find k-shortest paths using Dijkstra ([⇒ Wikipedia][Yen])
