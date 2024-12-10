@@ -1,5 +1,5 @@
 
-n.n.n / 2024-12-10
+v4.12.0 / 2024-12-10
 ==================
 
   * fix(doc): reference `count_paths` from top-level documentation
