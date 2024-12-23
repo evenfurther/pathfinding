@@ -33,6 +33,7 @@
 //! - [connected components](undirected/connected_components/index.html): find disjoint connected sets of vertices ([⇒ Wikipedia][Connected components])
 //! - [Kruskal](undirected/kruskal/index.html): find a minimum-spanning-tree ([⇒ Wikipedia][Kruskal])
 //! - [Prim](undirected/prim/index.html): find a minimum-spanning-tree ([⇒ Wikipedia][Prim])
+//! - [cliques]: find maximum cliques in a graph ([= Wikipedia][BronKerbosch])
 //!
 //! ### Matching
 //!
@@ -80,6 +81,7 @@
 //! [A*]: https://en.wikipedia.org/wiki/A*_search_algorithm
 //! [BFS]: https://en.wikipedia.org/wiki/Breadth-first_search
 //! [Brent]: https://en.wikipedia.org/wiki/Cycle_detection#Brent's_algorithm
+//! [BronKerbosch]: https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm
 //! [Connected components]: https://en.wikipedia.org/wiki/Connected_component_(graph_theory)
 //! [DFS]: https://en.wikipedia.org/wiki/Depth-first_search
 //! [Dijkstra]: https://en.wikipedia.org/wiki/Dijkstra's_algorithm
@@ -131,6 +133,7 @@ pub mod prelude {
     pub use crate::grid::*;
     pub use crate::kuhn_munkres::*;
     pub use crate::matrix::*;
+    pub use crate::undirected::cliques::*;
     pub use crate::undirected::connected_components::*;
     pub use crate::undirected::kruskal::*;
     pub use crate::utils::*;
