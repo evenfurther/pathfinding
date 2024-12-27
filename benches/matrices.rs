@@ -1,4 +1,4 @@
-use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
+use codspeed_criterion_compat::{Criterion, criterion_group, criterion_main};
 use pathfinding::matrix::Matrix;
 
 #[expect(clippy::missing_panics_doc)]

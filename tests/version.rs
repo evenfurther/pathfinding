@@ -11,7 +11,10 @@ fn check_version() {
     assert!(
         trim(VERSION).starts_with(&trim(version)),
         "Version in README.md ({} - seen as {}) is not compatible with Cargo.toml ({} - seen as {})",
-        version, trim(version), VERSION, trim(VERSION),
+        version,
+        trim(version),
+        VERSION,
+        trim(VERSION),
     );
 }
 

@@ -38,11 +38,7 @@ fn complexity() {
     let mut requested = 0;
     let result = tsort(&ints, |&n| {
         requested += 1;
-        if n < 999 {
-            vec![n + 1]
-        } else {
-            vec![]
-        }
+        if n < 999 { vec![n + 1] } else { vec![] }
     });
     assert_eq!(result, Ok((1..1000).collect_vec()));
     assert_eq!(requested, 999);
