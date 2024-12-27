@@ -186,7 +186,7 @@ mod ex2 {
             .collect()
     }
 
-    fn distance(&(x1, y1): &(usize, usize), &(x2, y2): &(usize, usize)) -> usize {
+    const fn distance(&(x1, y1): &(usize, usize), &(x2, y2): &(usize, usize)) -> usize {
         x1.abs_diff(x2) + y1.abs_diff(y2)
     }
 

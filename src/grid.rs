@@ -118,7 +118,7 @@ impl Grid {
     /// is located outside the grid.
     #[inline]
     #[must_use]
-    pub fn is_inside(&self, vertex: (usize, usize)) -> bool {
+    pub const fn is_inside(&self, vertex: (usize, usize)) -> bool {
         vertex.0 < self.width && vertex.1 < self.height
     }
 
@@ -167,7 +167,7 @@ impl Grid {
 
     /// Return the number of positions in this grid.
     #[must_use]
-    pub fn size(&self) -> usize {
+    pub const fn size(&self) -> usize {
         self.width * self.height
     }
 
@@ -333,7 +333,7 @@ impl Grid {
 
     /// Iterate over edges.
     #[must_use]
-    pub fn edges(&self) -> EdgesIterator {
+    pub const fn edges(&self) -> EdgesIterator {
         EdgesIterator {
             grid: self,
             x: 0,
