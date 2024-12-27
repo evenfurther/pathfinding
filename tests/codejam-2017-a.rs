@@ -15,14 +15,14 @@ enum Error {
 }
 
 impl From<io::Error> for Error {
-    fn from(err: io::Error) -> Error {
-        Error::Io(err)
+    fn from(err: io::Error) -> Self {
+        Self::Io(err)
     }
 }
 
 impl From<ParseIntError> for Error {
-    fn from(err: ParseIntError) -> Error {
-        Error::Parse(err)
+    fn from(err: ParseIntError) -> Self {
+        Self::Parse(err)
     }
 }
 

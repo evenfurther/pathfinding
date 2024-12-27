@@ -12,8 +12,8 @@ struct Pt {
 }
 
 impl Pt {
-    const fn new(x: u16, y: u16) -> Pt {
-        Pt {
+    const fn new(x: u16, y: u16) -> Self {
+        Self {
             x,
             y,
             _fill: [0u64; 32],
@@ -21,7 +21,7 @@ impl Pt {
     }
 
     #[inline]
-    const fn heuristic(p: &Pt) -> usize {
+    const fn heuristic(p: &Self) -> usize {
         (64 - p.x - p.y) as usize
     }
 }
