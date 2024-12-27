@@ -1,5 +1,5 @@
-use pathfinding::prelude::{bfs, bfs_bidirectional};
 use pathfinding::NodeRefs;
+use pathfinding::prelude::{bfs, bfs_bidirectional};
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

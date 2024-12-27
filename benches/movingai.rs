@@ -1,6 +1,6 @@
 // Test with files from https://movingai.com/benchmarks/
 
-use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
+use codspeed_criterion_compat::{Criterion, criterion_group, criterion_main};
 use movingai::parser::{parse_map_file, parse_scen_file};
 use movingai::{Coords2D, Map2D};
 use noisy_float::prelude::*;
