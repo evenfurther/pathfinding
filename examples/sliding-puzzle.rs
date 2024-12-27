@@ -68,12 +68,12 @@ impl Game {
     }
 
     #[inline]
-    fn x(pos: u8) -> u8 {
+    const fn x(pos: u8) -> u8 {
         pos % SIDE
     }
 
     #[inline]
-    fn y(pos: u8) -> u8 {
+    const fn y(pos: u8) -> u8 {
         pos / SIDE
     }
 

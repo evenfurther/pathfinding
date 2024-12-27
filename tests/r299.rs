@@ -52,7 +52,7 @@ fn parse(input: &str) -> (Vec<Point>, HashMap<Point, SuccessorInfo>) {
     (nodes, successors)
 }
 
-fn distance(a: &Point, b: &Point) -> usize {
+const fn distance(a: &Point, b: &Point) -> usize {
     a.row.abs_diff(b.row) + a.col.abs_diff(b.col)
 }
 

@@ -613,7 +613,7 @@ impl<C> Matrix<C> {
     /// requires building vectors of column data which are not stored
     /// consecutively in memory.
     #[must_use]
-    pub fn column_iter(&self) -> ColumnIterator<'_, C> {
+    pub const fn column_iter(&self) -> ColumnIterator<'_, C> {
         ColumnIterator {
             matrix: self,
             column: 0,

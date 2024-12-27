@@ -15,12 +15,12 @@ struct Pt {
 }
 
 impl Pt {
-    fn new(x: u16, y: u16) -> Pt {
+    const fn new(x: u16, y: u16) -> Pt {
         Pt { x, y }
     }
 
     #[inline]
-    fn heuristic(p: &Pt) -> usize {
+    const fn heuristic(p: &Pt) -> usize {
         (128 - p.x - p.y) as usize
     }
 }
