@@ -21,7 +21,7 @@ struct Game {
 }
 
 impl PartialEq for Game {
-    fn eq(&self, other: &Game) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         self.hole_idx == other.hole_idx
             && self.weight == other.weight
             && self.positions == other.positions
@@ -57,7 +57,7 @@ lazy_static! {
 
 impl Game {
     /// Move the hole to the given index.
-    fn switch(&self, idx: u8) -> Game {
+    fn switch(&self, idx: u8) -> Self {
         let mut g = self.clone();
         g.positions.swap(self.hole_idx as usize, idx as usize);
         g.hole_idx = idx;
@@ -95,7 +95,7 @@ impl Game {
     // However, since the successors are the current board with the hole moved one
     // position, we need to build a clone of the current board that will be reused in
     // this iterator.
-    fn successors(&self) -> impl Iterator<Item = (Game, u8)> {
+    fn successors(&self) -> impl Iterator<Item = (Self, u8)> {
         let game = self.clone();
         SUCCESSORS[self.hole_idx as usize]
             .iter()
@@ -122,10 +122,10 @@ impl Game {
         }
     }
 
-    fn from_array(positions: [u8; LIMIT]) -> Game {
+    fn from_array(positions: [u8; LIMIT]) -> Self {
         let hole_idx =
             u8::try_from(positions.iter().find_position(|&&n| n == 0).unwrap().0).unwrap();
-        let mut game = Game {
+        let mut game = Self {
             positions,
             hole_idx,
             weight: 0,
@@ -137,7 +137,7 @@ impl Game {
         game
     }
 
-    fn shuffled() -> Game {
+    fn shuffled() -> Self {
         let mut rng = OsRng;
         let mut positions = Self::default().positions;
         loop {
@@ -151,7 +151,7 @@ impl Game {
 }
 
 impl Default for Game {
-    fn default() -> Game {
+    fn default() -> Self {
         GOAL.clone()
     }
 }

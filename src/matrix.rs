@@ -814,7 +814,7 @@ where
     IC: IntoIterator<Item = C>,
 {
     fn from_iter<T: IntoIterator<Item = IC>>(iter: T) -> Self {
-        match Matrix::from_rows(iter) {
+        match Self::from_rows(iter) {
             Ok(matrix) => matrix,
             Err(e) => panic!("{e}"),
         }

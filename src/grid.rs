@@ -723,7 +723,7 @@ impl fmt::Debug for Grid {
 
 impl From<&Matrix<bool>> for Grid {
     fn from(matrix: &Matrix<bool>) -> Self {
-        let mut grid = Grid::new(matrix.columns, matrix.rows);
+        let mut grid = Self::new(matrix.columns, matrix.rows);
         for ((r, c), &v) in matrix.items() {
             if v {
                 grid.add_vertex((c, r));
@@ -735,7 +735,7 @@ impl From<&Matrix<bool>> for Grid {
 
 impl From<Matrix<bool>> for Grid {
     fn from(matrix: Matrix<bool>) -> Self {
-        Grid::from(&matrix)
+        Self::from(&matrix)
     }
 }
 
