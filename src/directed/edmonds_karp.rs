@@ -62,14 +62,12 @@ where
     let reverse = vertices.iter().collect::<FxIndexSet<_>>();
     let mut capacities = EK::new(
         vertices.len(),
-        match reverse.get_index_of(source) {
-            Some(s) => s,
-            None => panic!("source not found in vertices"),
-        },
-        match reverse.get_index_of(sink) {
-            Some(s) => s,
-            None => panic!("sink not found in vertices"),
-        },
+        reverse
+            .get_index_of(source)
+            .unwrap_or_else(|| panic!("source not found in vertices")),
+        reverse
+            .get_index_of(sink)
+            .unwrap_or_else(|| panic!("sink not found in vertices")),
     );
     for ((from, to), capacity) in caps {
         capacities.set_capacity(
