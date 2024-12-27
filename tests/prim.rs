@@ -12,15 +12,12 @@ fn base_test() {
         ('c', 'e', 6),
         ('d', 'e', 7),
     ];
-    assert_eq!(
-        prim(&edges),
-        vec![
-            (&'a', &'e', 1),
-            (&'a', &'b', 3),
-            (&'b', &'c', 5),
-            (&'c', &'d', 2),
-        ]
-    );
+    assert_eq!(prim(&edges), vec![
+        (&'a', &'e', 1),
+        (&'a', &'b', 3),
+        (&'b', &'c', 5),
+        (&'c', &'d', 2),
+    ]);
 }
 
 #[test]
@@ -42,19 +39,16 @@ fn geeksforgeeks() {
         (6, 8, 6),
         (7, 8, 7),
     ];
-    assert_eq!(
-        prim(&edges),
-        vec![
-            (&0, &1, 4),
-            (&0, &7, 8),
-            (&7, &6, 1),
-            (&6, &5, 2),
-            (&5, &2, 4),
-            (&2, &8, 2),
-            (&2, &3, 7),
-            (&3, &4, 9),
-        ]
-    );
+    assert_eq!(prim(&edges), vec![
+        (&0, &1, 4),
+        (&0, &7, 8),
+        (&7, &6, 1),
+        (&6, &5, 2),
+        (&5, &2, 4),
+        (&2, &8, 2),
+        (&2, &3, 7),
+        (&3, &4, 9),
+    ]);
 }
 
 // Order of edges is not important in the result, except for starting edge, because always
@@ -71,13 +65,10 @@ fn another_test() {
         ('C', 'E', 6),
         ('D', 'E', 1),
     ];
-    assert_eq!(
-        prim(&edges),
-        vec![
-            (&'B', &'D', 4),
-            (&'D', &'E', 1),
-            (&'D', &'C', 2),
-            (&'C', &'A', 3),
-        ]
-    );
+    assert_eq!(prim(&edges), vec![
+        (&'B', &'D', 4),
+        (&'D', &'E', 1),
+        (&'D', &'C', 2),
+        (&'C', &'A', 3),
+    ]);
 }

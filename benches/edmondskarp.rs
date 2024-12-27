@@ -1,6 +1,6 @@
-use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
+use codspeed_criterion_compat::{Criterion, criterion_group, criterion_main};
 use pathfinding::directed::edmonds_karp::{
-    edmonds_karp, DenseCapacity, EKFlows, EdmondsKarp, SparseCapacity,
+    DenseCapacity, EKFlows, EdmondsKarp, SparseCapacity, edmonds_karp,
 };
 use std::collections::HashMap;
 
