@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use pathfinding::prelude::{dijkstra_reach, DijkstraReachableItem};
+use pathfinding::prelude::{DijkstraReachableItem, dijkstra_reach};
 use std::collections::HashMap;
 
 #[test]
@@ -12,11 +12,13 @@ fn dijkstra_reach_numbers() {
     assert!((0..100).all(|x| reach.iter().any(|y| x == y.total_cost)));
 
     // dijkstra_reach should return reachable nodes in order of cost
-    assert!(reach
-        .iter()
-        .map(|x| x.total_cost)
-        .tuple_windows()
-        .all(|(a, b)| b >= a));
+    assert!(
+        reach
+            .iter()
+            .map(|x| x.total_cost)
+            .tuple_windows()
+            .all(|(a, b)| b >= a)
+    );
 }
 
 #[test]
