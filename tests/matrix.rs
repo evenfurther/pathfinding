@@ -271,29 +271,17 @@ fn flip_square() {
 
 #[test]
 fn flip_non_square() {
-    let m1 = Matrix::from_vec(
-        4,
-        5,
-        vec![
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-        ],
-    )
+    let m1 = Matrix::from_vec(4, 5, vec![
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    ])
     .unwrap();
-    let m2 = Matrix::from_vec(
-        4,
-        5,
-        vec![
-            15, 16, 17, 18, 19, 10, 11, 12, 13, 14, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4,
-        ],
-    )
+    let m2 = Matrix::from_vec(4, 5, vec![
+        15, 16, 17, 18, 19, 10, 11, 12, 13, 14, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4,
+    ])
     .unwrap();
-    let m3 = Matrix::from_vec(
-        4,
-        5,
-        vec![
-            4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 14, 13, 12, 11, 10, 19, 18, 17, 16, 15,
-        ],
-    )
+    let m3 = Matrix::from_vec(4, 5, vec![
+        4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 14, 13, 12, 11, 10, 19, 18, 17, 16, 15,
+    ])
     .unwrap();
     assert_eq!(m1.flipped_ud(), m2);
     assert_eq!(m1.flipped_lr(), m3);
@@ -396,26 +384,18 @@ fn set_slice() {
     .unwrap();
     let m2 = Matrix::from_vec(3, 2, vec![10, 20, 30, 40, 50, 60]).unwrap();
     m1.set_slice((2, 3), &m2);
-    assert_eq!(
-        m1.to_vec(),
-        [
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 10, 20, 15, 16, 17, 30, 40, 20, 21, 22, 50,
-            60,
-        ]
-    );
+    assert_eq!(m1.to_vec(), [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 10, 20, 15, 16, 17, 30, 40, 20, 21, 22, 50, 60,
+    ]);
     let mut m1 = Matrix::square_from_vec(vec![
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
     ])
     .unwrap();
     let m2 = Matrix::from_vec(4, 3, vec![10, 20, 22, 30, 40, 44, 50, 60, 66, 70, 80, 88]).unwrap();
     m1.set_slice((2, 3), &m2);
-    assert_eq!(
-        m1.to_vec(),
-        [
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 10, 20, 15, 16, 17, 30, 40, 20, 21, 22, 50,
-            60,
-        ]
-    );
+    assert_eq!(m1.to_vec(), [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 10, 20, 15, 16, 17, 30, 40, 20, 21, 22, 50, 60,
+    ]);
 }
 
 #[test]
@@ -534,16 +514,21 @@ fn bfs_reachable() {
     let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
 
     let indices = m.bfs_reachable((1, 0), false, |n| m[n] % 4 != 0);
-    assert_eq!(
-        indices.into_iter().collect::<Vec<_>>(),
-        vec![(1, 0), (2, 0), (2, 1)]
-    );
+    assert_eq!(indices.into_iter().collect::<Vec<_>>(), vec![
+        (1, 0),
+        (2, 0),
+        (2, 1)
+    ]);
 
     let indices = m.bfs_reachable((1, 0), true, |n| m[n] % 4 != 0);
-    assert_eq!(
-        indices.into_iter().collect::<Vec<_>>(),
-        vec![(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)]
-    );
+    assert_eq!(indices.into_iter().collect::<Vec<_>>(), vec![
+        (0, 1),
+        (0, 2),
+        (1, 0),
+        (1, 2),
+        (2, 0),
+        (2, 1)
+    ]);
 }
 
 #[test]
@@ -555,10 +540,11 @@ fn bfs_reachable_mut() {
         counter += 1;
         m[n] % 4 != 0
     });
-    assert_eq!(
-        indices.into_iter().collect::<Vec<_>>(),
-        vec![(1, 0), (2, 0), (2, 1)]
-    );
+    assert_eq!(indices.into_iter().collect::<Vec<_>>(), vec![
+        (1, 0),
+        (2, 0),
+        (2, 1)
+    ]);
     assert_eq!(counter, 8);
 
     let mut counter = 0;
@@ -566,10 +552,14 @@ fn bfs_reachable_mut() {
         counter += 1;
         m[n] % 4 != 0
     });
-    assert_eq!(
-        indices.into_iter().collect::<Vec<_>>(),
-        vec![(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)]
-    );
+    assert_eq!(indices.into_iter().collect::<Vec<_>>(), vec![
+        (0, 1),
+        (0, 2),
+        (1, 0),
+        (1, 2),
+        (2, 0),
+        (2, 1)
+    ]);
     assert_eq!(counter, 26);
 }
 
@@ -578,16 +568,21 @@ fn dfs_reachable() {
     let m = matrix![[0, 1, 2], [3, 4, 5], [6, 7, 8]];
 
     let indices = m.dfs_reachable((1, 0), false, |n| m[n] % 4 != 0);
-    assert_eq!(
-        indices.into_iter().collect::<Vec<_>>(),
-        vec![(1, 0), (2, 0), (2, 1)]
-    );
+    assert_eq!(indices.into_iter().collect::<Vec<_>>(), vec![
+        (1, 0),
+        (2, 0),
+        (2, 1)
+    ]);
 
     let indices = m.dfs_reachable((1, 0), true, |n| m[n] % 4 != 0);
-    assert_eq!(
-        indices.into_iter().collect::<Vec<_>>(),
-        vec![(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)]
-    );
+    assert_eq!(indices.into_iter().collect::<Vec<_>>(), vec![
+        (0, 1),
+        (0, 2),
+        (1, 0),
+        (1, 2),
+        (2, 0),
+        (2, 1)
+    ]);
 }
 
 #[test]
@@ -599,10 +594,11 @@ fn dfs_reachable_mut() {
         counter += 1;
         m[n] % 4 != 0
     });
-    assert_eq!(
-        indices.into_iter().collect::<Vec<_>>(),
-        vec![(1, 0), (2, 0), (2, 1)]
-    );
+    assert_eq!(indices.into_iter().collect::<Vec<_>>(), vec![
+        (1, 0),
+        (2, 0),
+        (2, 1)
+    ]);
     assert_eq!(counter, 8);
 
     let mut counter = 0;
@@ -610,10 +606,14 @@ fn dfs_reachable_mut() {
         counter += 1;
         m[n] % 4 != 0
     });
-    assert_eq!(
-        indices.into_iter().collect::<Vec<_>>(),
-        vec![(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)]
-    );
+    assert_eq!(indices.into_iter().collect::<Vec<_>>(), vec![
+        (0, 1),
+        (0, 2),
+        (1, 0),
+        (1, 2),
+        (2, 0),
+        (2, 1)
+    ]);
     assert_eq!(counter, 26);
 }
 
@@ -721,28 +721,35 @@ fn into_iter_is_fused() {
 #[expect(deprecated)]
 fn indices() {
     let m = matrix![[0, 1, 2], [2, 1, 0]];
-    assert_eq!(
-        m.indices().collect::<Vec<_>>(),
-        vec![(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
-    );
+    assert_eq!(m.indices().collect::<Vec<_>>(), vec![
+        (0, 0),
+        (0, 1),
+        (0, 2),
+        (1, 0),
+        (1, 1),
+        (1, 2)
+    ]);
 }
 
 #[test]
 fn keys() {
     let m = matrix![[0, 1, 2], [2, 1, 0]];
-    assert_eq!(
-        m.keys().collect::<Vec<_>>(),
-        vec![(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
-    );
+    assert_eq!(m.keys().collect::<Vec<_>>(), vec![
+        (0, 0),
+        (0, 1),
+        (0, 2),
+        (1, 0),
+        (1, 1),
+        (1, 2)
+    ]);
 }
 
 #[test]
 fn values() {
     let m = matrix![[0, 1, 2], [2, 1, 0]];
-    assert_eq!(
-        m.values().copied().collect::<Vec<_>>(),
-        vec![0, 1, 2, 2, 1, 0]
-    );
+    assert_eq!(m.values().copied().collect::<Vec<_>>(), vec![
+        0, 1, 2, 2, 1, 0
+    ]);
 }
 
 #[test]
@@ -764,38 +771,32 @@ fn in_direction() {
         m.in_direction((10, 10), (-1, -1)).collect::<Vec<_>>(),
         vec![]
     );
-    assert_eq!(
-        m.in_direction((4, 4), (-2, 0)).collect::<Vec<_>>(),
-        vec![(2, 4), (0, 4)]
-    );
-    assert_eq!(
-        m.in_direction((4, 4), (-3, 0)).collect::<Vec<_>>(),
-        vec![(1, 4)]
-    );
-    assert_eq!(
-        m.in_direction((4, 4), (2, 0)).collect::<Vec<_>>(),
-        vec![(6, 4)]
-    );
-    assert_eq!(
-        m.in_direction((4, 4), (3, 0)).collect::<Vec<_>>(),
-        vec![(7, 4)]
-    );
-    assert_eq!(
-        m.in_direction((4, 4), (0, -2)).collect::<Vec<_>>(),
-        vec![(4, 2), (4, 0)]
-    );
-    assert_eq!(
-        m.in_direction((4, 4), (0, -3)).collect::<Vec<_>>(),
-        vec![(4, 1)]
-    );
-    assert_eq!(
-        m.in_direction((4, 4), (0, 2)).collect::<Vec<_>>(),
-        vec![(4, 6)]
-    );
-    assert_eq!(
-        m.in_direction((4, 4), (0, 3)).collect::<Vec<_>>(),
-        vec![(4, 7)]
-    );
+    assert_eq!(m.in_direction((4, 4), (-2, 0)).collect::<Vec<_>>(), vec![
+        (2, 4),
+        (0, 4)
+    ]);
+    assert_eq!(m.in_direction((4, 4), (-3, 0)).collect::<Vec<_>>(), vec![(
+        1, 4
+    )]);
+    assert_eq!(m.in_direction((4, 4), (2, 0)).collect::<Vec<_>>(), vec![(
+        6, 4
+    )]);
+    assert_eq!(m.in_direction((4, 4), (3, 0)).collect::<Vec<_>>(), vec![(
+        7, 4
+    )]);
+    assert_eq!(m.in_direction((4, 4), (0, -2)).collect::<Vec<_>>(), vec![
+        (4, 2),
+        (4, 0)
+    ]);
+    assert_eq!(m.in_direction((4, 4), (0, -3)).collect::<Vec<_>>(), vec![(
+        4, 1
+    )]);
+    assert_eq!(m.in_direction((4, 4), (0, 2)).collect::<Vec<_>>(), vec![(
+        4, 6
+    )]);
+    assert_eq!(m.in_direction((4, 4), (0, 3)).collect::<Vec<_>>(), vec![(
+        4, 7
+    )]);
 }
 
 #[test]
