@@ -1,4 +1,12 @@
 
+n.n.n / 2024-12-29
+==================
+
+  * feat: implement Bron-Kerbosch algorithm, thanks to @gzsombor
+  * fix(style): use `unwrap_or_else` when appropriate
+  * fix(style): use `Self` instead of the type name
+  * fix(style): make some functions `const`
+
 v4.12.0 / 2024-12-10
 ==================
 
