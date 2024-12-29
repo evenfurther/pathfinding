@@ -1,5 +1,5 @@
 
-n.n.n / 2024-12-29
+v4.13.0 / 2024-12-29
 ==================
 
   * feat: implement Bron-Kerbosch algorithm, thanks to @gzsombor
