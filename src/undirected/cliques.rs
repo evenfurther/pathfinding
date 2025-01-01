@@ -3,7 +3,8 @@
 use std::collections::HashSet;
 use std::hash::Hash;
 
-/// Algorithm for finding all maximal cliques in an undirected graph.
+/// Find all maximal cliques in an undirected graph.
+///
 /// That is, it lists all subsets of vertices with the two properties that each pair of vertices in
 /// one of the listed subsets is connected by an edge, and no listed subset can have
 /// any additional vertices added to it while preserving its complete connectivity.
@@ -32,7 +33,8 @@ where
     result
 }
 
-/// Algorithm for finding all maximal cliques in an undirected graph.
+/// Find all maximal cliques in an undirected graph.
+///
 /// That is, it lists all subsets of vertices with the two properties that each pair of vertices in
 /// one of the listed subsets is connected by an edge, and no listed subset can have
 /// any additional vertices added to it while preserving its complete connectivity.
