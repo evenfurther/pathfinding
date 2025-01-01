@@ -9,6 +9,7 @@ use std::marker::PhantomData;
 use rustc_hash::{FxHashMap, FxHashSet};
 
 /// A connected component implementation for various generic types.
+///
 /// This structure is only useful if the default collections used by
 /// the various functions of the [`connected_components`](self) module
 /// do not fit your needs.
