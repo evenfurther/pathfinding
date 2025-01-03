@@ -3,8 +3,8 @@ mod ex1 {
     use lazy_static::lazy_static;
     use pathfinding::prelude::*;
 
-    #[allow(clippy::trivially_copy_pass_by_ref)]
-    fn successors(node: &u8) -> impl Iterator<Item = (u8, usize)> {
+    #[expect(clippy::trivially_copy_pass_by_ref)]
+    fn successors(node: &u8) -> impl Iterator<Item = (u8, usize)> + use<> {
         lazy_static! {
             static ref SUCCESSORS: Vec<Vec<(u8, usize)>> = vec![
                 vec![(1, 7), (2, 7), (3, 6)],
@@ -225,9 +225,11 @@ mod ex2 {
         .unwrap();
         assert_eq!(cost, 8);
         assert_eq!(paths.len(), 1);
-        assert!(paths
-            .iter()
-            .all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx])));
+        assert!(
+            paths
+                .iter()
+                .all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx]))
+        );
         assert_eq!(counter, 15);
     }
 
@@ -247,9 +249,11 @@ mod ex2 {
         .unwrap();
         assert_eq!(cost, 9);
         assert_eq!(paths.len(), 3);
-        assert!(paths
-            .iter()
-            .all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx])));
+        assert!(
+            paths
+                .iter()
+                .all(|path| path.iter().all(|&(nx, ny)| OPEN[ny][nx]))
+        );
         assert_eq!(counter, 18);
     }
 
