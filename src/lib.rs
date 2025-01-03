@@ -77,7 +77,7 @@
 //! in this context, you can wrap them into compliant types using the
 //! [ordered-float](https://crates.io/crates/ordered-float) crate.
 //!
-//! The minimum supported Rust version (MSRV) is Rust 1.82.0.
+//! The minimum supported Rust version (MSRV) is Rust 1.83.0.
 //!
 //! [A*]: https://en.wikipedia.org/wiki/A*_search_algorithm
 //! [BFS]: https://en.wikipedia.org/wiki/Breadth-first_search
