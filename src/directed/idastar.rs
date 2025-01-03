@@ -1,7 +1,9 @@
 //! Compute a shortest path using the [IDA* search
 //! algorithm](https://en.wikipedia.org/wiki/Iterative_deepening_A*).
 
+use indexmap::IndexSet;
 use num_traits::Zero;
+use std::{hash::Hash, ops::ControlFlow};
 
 /// Compute a shortest path using the [IDA* search
 /// algorithm](https://en.wikipedia.org/wiki/Iterative_deepening_A*).
@@ -76,52 +78,43 @@ pub fn idastar<N, C, FN, IN, FH, FS>(
     mut success: FS,
 ) -> Option<(Vec<N>, C)>
 where
-    N: Eq + Clone,
+    N: Eq + Clone + Hash,
     C: Zero + Ord + Copy,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
     FH: FnMut(&N) -> C,
     FS: FnMut(&N) -> bool,
 {
-    let mut bound = heuristic(start);
-    let mut path = vec![start.clone()];
-    loop {
-        match search(
-            &mut path,
-            Zero::zero(),
-            bound,
-            &mut successors,
-            &mut heuristic,
-            &mut success,
-        ) {
-            Path::Found(path, cost) => return Some((path, cost)),
-            Path::Minimum(min) => {
-                if bound == min {
-                    return None;
-                }
-                bound = min;
-            }
-            Path::Impossible => return None,
-        }
-    }
-}
+    let mut path = IndexSet::from([start.clone()]);
 
-enum Path<N, C> {
-    Found(Vec<N>, C),
-    Minimum(C),
-    Impossible,
+    std::iter::repeat(())
+        .try_fold(heuristic(start), |bound, ()| {
+            search(
+                &mut path,
+                Zero::zero(),
+                bound,
+                &mut successors,
+                &mut heuristic,
+                &mut success,
+            )
+            .map_break(Some)?
+            // .filter(|min| *min > bound)
+            .map_or(ControlFlow::Break(None), ControlFlow::Continue)
+        })
+        .break_value()
+        .unwrap()
 }
 
 fn search<N, C, FN, IN, FH, FS>(
-    path: &mut Vec<N>,
+    path: &mut IndexSet<N>,
     cost: C,
     bound: C,
     successors: &mut FN,
     heuristic: &mut FH,
     success: &mut FS,
-) -> Path<N, C>
+) -> ControlFlow<(Vec<N>, C), Option<C>>
 where
-    N: Eq + Clone,
+    N: Eq + Clone + Hash,
     C: Zero + Ord + Copy,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
@@ -132,12 +125,12 @@ where
         let start = &path[path.len() - 1];
         let f = cost + heuristic(start);
         if f > bound {
-            return Path::Minimum(f);
+            return ControlFlow::Continue(Some(f));
         }
         if success(start) {
-            return Path::Found(path.clone(), f);
+            return ControlFlow::Break((path.iter().cloned().collect(), f));
         }
-        let mut neighbs = successors(start)
+        let mut neighbs: Vec<(N, C, C)> = successors(start)
             .into_iter()
             .filter_map(|(n, c)| {
                 (!path.contains(&n)).then(|| {
@@ -151,13 +144,12 @@ where
     };
     let mut min = None;
     for (node, extra, _) in neighbs {
-        path.push(node);
-        match search(path, cost + extra, bound, successors, heuristic, success) {
-            found_path @ Path::Found(_, _) => return found_path,
-            Path::Minimum(m) if min.is_none_or(|n| n >= m) => min = Some(m),
+        let (idx, _) = path.insert_full(node);
+        match search(path, cost + extra, bound, successors, heuristic, success)? {
+            Some(m) if min.is_none_or(|n| n >= m) => min = Some(m),
             _ => (),
         }
-        path.pop();
+        path.swap_remove_index(idx);
     }
-    min.map_or(Path::Impossible, Path::Minimum)
+    ControlFlow::Continue(min)
 }
