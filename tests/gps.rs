@@ -15,7 +15,7 @@ impl Coords {
         self.1.to_radians()
     }
 
-    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn distance_in_meters(&self, other: &Self) -> u64 {
         let x =
             (other.lon_rad() - self.lon_rad()) * ((other.lat_rad() + self.lat_rad()) / 2.0).cos();
