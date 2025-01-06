@@ -726,7 +726,7 @@ impl<C> Matrix<C> {
         let mn1 = m * n - 1;
 
         // Scratch array for recording visited locations
-        let mut visited = vec![0u8; (m * n + 7) / 8];
+        let mut visited = vec![0u8; (m * n + 7).div_ceil(8)];
 
         for s in 1..self.data.len() {
             if visited[s / 8] & (1 << (s % 8)) != 0 {
