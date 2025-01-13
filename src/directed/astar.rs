@@ -364,9 +364,7 @@ impl<N: Clone + Eq + Hash> AstarSolution<N> {
     }
 
     fn next_vec(&mut self) {
-        while self.current.last().map(Vec::len) == Some(1) {
-            self.current.pop();
-        }
+        while self.current.pop_if(|v| v.len() == 1).is_some() {}
         self.current.last_mut().map(Vec::pop);
     }
 
