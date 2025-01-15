@@ -1,4 +1,16 @@
 
+n.n.n / 2025-01-15
+==================
+
+  * fix(perf): back out commit 808b951c5a9eb5dd25adbd46a5887525d0a0913d which causes a severe performance regression in Dijkstra algorithm
+  * style: use `usize::div_ceil()`
+  * feat(gitignore): ignore flame graph files
+  * docs: cleanup some first line
+  * chore(deps): update rust crate itertools to 0.14.0
+  * fix(clippy): put test module last in file
+  * feat: accept `&(usize, usize)` as `Matrix` index
+  * fix(style): use a less convoluted test
+
 v4.13.0 / 2024-12-29
 ==================
 
