@@ -58,6 +58,10 @@ name = "algos-fill"
 harness = false
 
 [[bench]]
+name = "dijkstra-perf"
+harness = false
+
+[[bench]]
 name = "movingai"
 harness = false
 
