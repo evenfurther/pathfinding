@@ -1,5 +1,5 @@
 
-n.n.n / 2025-01-15
+v4.13.1 / 2025-01-15
 ==================
 
   * fix(perf): back out commit 808b951c5a9eb5dd25adbd46a5887525d0a0913d which causes a severe performance regression in Dijkstra algorithm
