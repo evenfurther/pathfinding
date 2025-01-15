@@ -77,19 +77,16 @@ fn diagonal_mode() {
     g.enable_diagonal_mode();
     let mut ns = g.neighbours((1, 1));
     ns.sort_unstable();
-    assert_eq!(
-        ns,
-        vec![
-            (0, 0),
-            (0, 1),
-            (0, 2),
-            (1, 0),
-            (1, 2),
-            (2, 0),
-            (2, 1),
-            (2, 2),
-        ]
-    );
+    assert_eq!(ns, vec![
+        (0, 0),
+        (0, 1),
+        (0, 2),
+        (1, 0),
+        (1, 2),
+        (2, 0),
+        (2, 1),
+        (2, 2),
+    ]);
     g.disable_diagonal_mode();
     let mut ns = g.neighbours((1, 1));
     ns.sort_unstable();
@@ -290,10 +287,13 @@ fn neighbours_of_border() {
     g.enable_diagonal_mode();
     assert_eq!(g.neighbours((2, 1)), vec![]);
     g.fill();
-    assert_eq!(
-        sort(g.neighbours((2, 1))),
-        vec![(1, 0), (1, 1), (1, 2), (2, 0), (2, 2)]
-    );
+    assert_eq!(sort(g.neighbours((2, 1))), vec![
+        (1, 0),
+        (1, 1),
+        (1, 2),
+        (2, 0),
+        (2, 2)
+    ]);
     g.disable_diagonal_mode();
     assert_eq!(sort(g.neighbours((2, 1))), vec![(1, 1), (2, 0), (2, 2)]);
 
@@ -302,10 +302,13 @@ fn neighbours_of_border() {
     g.enable_diagonal_mode();
     assert_eq!(g.neighbours((1, 2)), vec![]);
     g.fill();
-    assert_eq!(
-        sort(g.neighbours((1, 2))),
-        vec![(0, 1), (0, 2), (1, 1), (2, 1), (2, 2)]
-    );
+    assert_eq!(sort(g.neighbours((1, 2))), vec![
+        (0, 1),
+        (0, 2),
+        (1, 1),
+        (2, 1),
+        (2, 2)
+    ]);
     g.disable_diagonal_mode();
     assert_eq!(sort(g.neighbours((1, 2))), vec![(0, 2), (1, 1), (2, 2)]);
 }
@@ -467,47 +470,38 @@ fn edges() {
     g.fill();
     let mut edges = g.edges().collect::<Vec<_>>();
     edges.sort_unstable();
-    assert_eq!(
-        edges,
-        vec![
-            ((0, 0), (0, 1)),
-            ((0, 0), (1, 0)),
-            ((0, 1), (1, 1)),
-            ((1, 0), (1, 1))
-        ]
-    );
+    assert_eq!(edges, vec![
+        ((0, 0), (0, 1)),
+        ((0, 0), (1, 0)),
+        ((0, 1), (1, 1)),
+        ((1, 0), (1, 1))
+    ]);
     g.enable_diagonal_mode();
     let mut edges = g.edges().collect::<Vec<_>>();
     edges.sort_unstable();
-    assert_eq!(
-        edges,
-        vec![
-            ((0, 0), (0, 1)),
-            ((0, 0), (1, 0)),
-            ((0, 0), (1, 1)),
-            ((0, 1), (1, 1)),
-            ((1, 0), (0, 1)),
-            ((1, 0), (1, 1))
-        ]
-    );
+    assert_eq!(edges, vec![
+        ((0, 0), (0, 1)),
+        ((0, 0), (1, 0)),
+        ((0, 0), (1, 1)),
+        ((0, 1), (1, 1)),
+        ((1, 0), (0, 1)),
+        ((1, 0), (1, 1))
+    ]);
     let mut g = Grid::new(3, 3);
     g.fill();
     g.remove_vertex((1, 1));
     let mut edges = g.edges().collect::<Vec<_>>();
     edges.sort_unstable();
-    assert_eq!(
-        edges,
-        vec![
-            ((0, 0), (0, 1)),
-            ((0, 0), (1, 0)),
-            ((0, 1), (0, 2)),
-            ((0, 2), (1, 2)),
-            ((1, 0), (2, 0)),
-            ((1, 2), (2, 2)),
-            ((2, 0), (2, 1)),
-            ((2, 1), (2, 2))
-        ]
-    );
+    assert_eq!(edges, vec![
+        ((0, 0), (0, 1)),
+        ((0, 0), (1, 0)),
+        ((0, 1), (0, 2)),
+        ((0, 2), (1, 2)),
+        ((1, 0), (2, 0)),
+        ((1, 2), (2, 2)),
+        ((2, 0), (2, 1)),
+        ((2, 1), (2, 2))
+    ]);
 }
 
 #[test]

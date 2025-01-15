@@ -11,14 +11,11 @@ fn grid_lines() {
         .collect::<Vec<_>>();
     assert_eq!(weighted_edges.len(), 4);
     let mst = kruskal(&weighted_edges).sorted().collect_vec();
-    assert_eq!(
-        mst,
-        vec![
-            (&(0, 0), &(0, 1), 0),
-            (&(0, 0), &(1, 0), 0),
-            (&(1, 0), &(1, 1), 0)
-        ]
-    );
+    assert_eq!(mst, vec![
+        (&(0, 0), &(0, 1), 0),
+        (&(0, 0), &(1, 0), 0),
+        (&(1, 0), &(1, 1), 0)
+    ]);
 }
 
 #[test]
@@ -33,13 +30,10 @@ fn wikipedia() {
         ('c', 'e', 6),
         ('d', 'e', 7),
     ];
-    assert_eq!(
-        kruskal(&edges).collect::<Vec<_>>(),
-        vec![
-            (&'a', &'e', 1),
-            (&'c', &'d', 2),
-            (&'a', &'b', 3),
-            (&'b', &'c', 5)
-        ]
-    );
+    assert_eq!(kruskal(&edges).collect::<Vec<_>>(), vec![
+        (&'a', &'e', 1),
+        (&'c', &'d', 2),
+        (&'a', &'b', 3),
+        (&'b', &'c', 5)
+    ]);
 }

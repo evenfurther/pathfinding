@@ -34,12 +34,9 @@ fn tryalgo_examples() {
 #[test]
 fn cranes() {
     // Test from https://s-mat-pcs.oulu.fi/~mpa/matreng/eem1_2-1.htm.
-    let distances = matrix![
-        [90, 75, 75, 80],
-        [35, 85, 55, 65],
-        [125, 95, 90, 105],
-        [45, 110, 95, 115],
-    ];
+    let distances = matrix![[90, 75, 75, 80], [35, 85, 55, 65], [125, 95, 90, 105], [
+        45, 110, 95, 115
+    ],];
     assert_eq!(kuhn_munkres_min(&distances).0, 275);
 }
 
@@ -60,12 +57,9 @@ fn mattkrick() {
 #[test]
 fn hungarian() {
     // Test from http://www.hungarianalgorithm.com/examplehungarianalgorithm.php
-    let weights = matrix![
-        [82, 83, 69, 92],
-        [77, 37, 49, 92],
-        [11, 69, 5, 86],
-        [8, 9, 98, 23],
-    ];
+    let weights = matrix![[82, 83, 69, 92], [77, 37, 49, 92], [11, 69, 5, 86], [
+        8, 9, 98, 23
+    ],];
     assert_eq!(kuhn_munkres_min(&weights).0, 140);
 }
 
