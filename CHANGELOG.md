@@ -1,4 +1,13 @@
 
+n.n.n / 2025-01-25
+==================
+
+  * feat: implement bidirectional BFS
+  * fix(dijkstra)!: remove unneeded partial cost parameter. This is
+    a BREAKING CHANGE in `dijkstra_reach()` parameters, but fortunately
+    very easy to fix for users.
+  * chore: reorganize `rand` imports
+
 v4.13.1 / 2025-01-15
 ==================
 
