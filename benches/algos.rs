@@ -1,7 +1,7 @@
 use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
 use itertools::Itertools;
 use pathfinding::prelude::{
-    astar, bfs, dfs, dijkstra, fringe, idastar, iddfs, separate_components,
+    astar, bfs, bfs_bidirectional, dfs, dijkstra, fringe, idastar, iddfs, separate_components,
 };
 use rand::seq::SliceRandom;
 use rand::{Rng as _, RngCore as _, SeedableRng as _};
@@ -64,6 +64,17 @@ fn corner_to_corner_bfs(c: &mut Criterion) {
         b.iter(|| {
             assert_ne!(
                 bfs(&Pt::new(0, 0), successors, |n| n.x == 64 && n.y == 64,),
+                None
+            );
+        });
+    });
+}
+
+fn corner_to_corner_bfs_bidirectional(c: &mut Criterion) {
+    c.bench_function("corner_to_corner_bfs_bidirectional", |b| {
+        b.iter(|| {
+            assert_ne!(
+                bfs_bidirectional(&Pt::new(0, 0), &Pt::new(64, 64), successors, successors),
                 None
             );
         });
@@ -161,6 +172,22 @@ fn no_path_bfs(c: &mut Criterion) {
     });
 }
 
+fn no_path_bfs_bidirectional(c: &mut Criterion) {
+    c.bench_function("no_path_bfs_bidirectional", |b| {
+        b.iter(|| {
+            assert_eq!(
+                bfs_bidirectional(
+                    &Pt::new(2, 3),
+                    &Pt::new(u16::MAX, u16::MAX),
+                    successors,
+                    |_| vec![]
+                ),
+                None
+            );
+        });
+    });
+}
+
 fn no_path_dfs(c: &mut Criterion) {
     c.bench_function("no_path_dfs", |b| {
         b.iter(|| assert_eq!(bfs(&Pt::new(2, 3), successors, |_| false), None));
@@ -254,6 +281,7 @@ criterion_group!(
     benches,
     corner_to_corner_astar,
     corner_to_corner_bfs,
+    corner_to_corner_bfs_bidirectional,
     corner_to_corner_dfs,
     corner_to_corner_dijkstra,
     corner_to_corner_fringe,
@@ -261,6 +289,7 @@ criterion_group!(
     corner_to_corner_iddfs,
     no_path_astar,
     no_path_bfs,
+    no_path_bfs_bidirectional,
     no_path_dfs,
     no_path_dijkstra,
     no_path_fringe,

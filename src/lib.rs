@@ -15,6 +15,7 @@
 //!
 //! - [A*](directed/astar/index.html): find the shortest path in a weighted graph using an heuristic to guide the process ([⇒ Wikipedia][A*])
 //! - [BFS](directed/bfs/index.html): explore nearest successors first, then widen the search ([⇒ Wikipedia][BFS])
+//! - [Bidirectional search](directed/bfs/fn.bfs_bidirectional.html): simultaneously explore paths forwards from the start and backwards from the goal ([=> Wikipedia][Bidirectional search])
 //! - [Brent](directed/cycle_detection/index.html): find a cycle in an infinite sequence ([⇒ Wikipedia][Brent])
 //! - [DFS](directed/dfs/index.html): explore a graph by going as far as possible, then backtrack ([⇒ Wikipedia][DFS])
 //! - [Dijkstra](directed/dijkstra/index.html): find the shortest path in a weighted graph ([⇒ Wikipedia][Dijkstra])
@@ -80,6 +81,7 @@
 //!
 //! [A*]: https://en.wikipedia.org/wiki/A*_search_algorithm
 //! [BFS]: https://en.wikipedia.org/wiki/Breadth-first_search
+//! [Bidirectional search]: https://en.wikipedia.org/wiki/Bidirectional_search
 //! [Brent]: https://en.wikipedia.org/wiki/Cycle_detection#Brent's_algorithm
 //! [BronKerbosch]: https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm
 //! [Connected components]: https://en.wikipedia.org/wiki/Connected_component_(graph_theory)
