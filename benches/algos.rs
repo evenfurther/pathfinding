@@ -3,8 +3,8 @@ use itertools::Itertools;
 use pathfinding::prelude::{
     astar, bfs, dfs, dijkstra, fringe, idastar, iddfs, separate_components,
 };
-use rand::prelude::SliceRandom;
-use rand::{Rng, RngCore, SeedableRng};
+use rand::seq::SliceRandom;
+use rand::{Rng as _, RngCore as _, SeedableRng as _};
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
 

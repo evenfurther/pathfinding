@@ -1,8 +1,8 @@
 use itertools::Itertools;
 use pathfinding::directed::topological_sort::topological_sort as tsort;
 use pathfinding::directed::topological_sort::topological_sort_into_groups;
-use rand::prelude::SliceRandom;
 use rand::rngs;
+use rand::seq::SliceRandom;
 
 #[test]
 fn empty() {

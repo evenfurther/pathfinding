@@ -1,7 +1,7 @@
 use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
 use itertools::Itertools;
 use pathfinding::prelude::separate_components;
-use rand::{prelude::SliceRandom, Rng, RngCore, SeedableRng};
+use rand::{prelude::SliceRandom, Rng as _, RngCore as _, SeedableRng as _};
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
 
