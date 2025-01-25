@@ -123,6 +123,117 @@ where
     bfs_core(start, successors, |n| n == start, false)
 }
 
+/// Compute a shortest path using the [breadth-first search
+/// algorithm](https://en.wikipedia.org/wiki/Breadth-first_search) with
+/// [bidirectional search](https://en.wikipedia.org/wiki/Bidirectional_search).
+///
+/// Bidirectional search runs two simultaneous searches: one forward from the start,
+/// and one backward from the end, stopping when the two meet. In many cases this gives
+/// a faster result than searching only in a single direction.
+///
+/// The shortest path starting from `start` up to a node `end` is
+/// computed and returned in a `Some`. If no path can be found, `None`
+/// is returned instead.
+///
+/// - `start` is the starting node.
+/// - `end` is the end node.
+/// - `successors_fn` returns a list of successors for a given node.
+/// - `predecessors_fn` returns a list of predecessors for a given node. For an undirected graph
+///   this will be the same as `successors_fn`, however for a directed graph this will be different.
+///
+/// A node will never be included twice in the path as determined by the `Eq` relationship.
+///
+/// The returned path comprises both the start and end node.
+///
+/// # Example
+///
+/// We will search the shortest path on a chess board to go from (1, 1) to (4, 6) doing only knight
+/// moves.
+///
+/// ```
+/// use pathfinding::prelude::bfs_bidirectional;
+///
+/// static SUCCESSORS: fn(&(i32, i32)) -> Vec<(i32, i32)> = |&(x, y)| vec![
+///     (x+1,y+2), (x+1,y-2), (x-1,y+2), (x-1,y-2),
+///     (x+2,y+1), (x+2,y-1), (x-2,y+1), (x-2,y-1)
+/// ];
+/// let result = bfs_bidirectional(&(1, 1), &(4, 6), SUCCESSORS, SUCCESSORS);
+/// assert_eq!(result.expect("no path found").len(), 5);
+/// ```
+#[allow(clippy::missing_panics_doc)]
+pub fn bfs_bidirectional<N, FNS, FNP, IN>(
+    start: &N,
+    end: &N,
+    successors_fn: FNS,
+    predecessors_fn: FNP,
+) -> Option<Vec<N>>
+where
+    N: Eq + Hash + Clone,
+    FNS: Fn(&N) -> IN,
+    FNP: Fn(&N) -> IN,
+    IN: IntoIterator<Item = N>,
+{
+    let mut predecessors: FxIndexMap<N, Option<usize>> = FxIndexMap::default();
+    predecessors.insert(start.clone(), None);
+    let mut successors: FxIndexMap<N, Option<usize>> = FxIndexMap::default();
+    successors.insert(end.clone(), None);
+
+    let mut i_forwards = 0;
+    let mut i_backwards = 0;
+    let middle = 'l: loop {
+        for _ in 0..(predecessors.len() - i_forwards) {
+            let node = predecessors.get_index(i_forwards).unwrap().0;
+            for successor_node in successors_fn(node) {
+                if !predecessors.contains_key(&successor_node) {
+                    predecessors.insert(successor_node.clone(), Some(i_forwards));
+                }
+                if successors.contains_key(&successor_node) {
+                    break 'l Some(successor_node);
+                }
+            }
+            i_forwards += 1;
+        }
+
+        for _ in 0..(successors.len() - i_backwards) {
+            let node = successors.get_index(i_backwards).unwrap().0;
+            for predecessor_node in predecessors_fn(node) {
+                if !successors.contains_key(&predecessor_node) {
+                    successors.insert(predecessor_node.clone(), Some(i_backwards));
+                }
+                if predecessors.contains_key(&predecessor_node) {
+                    break 'l Some(predecessor_node);
+                }
+            }
+            i_backwards += 1;
+        }
+
+        if i_forwards == predecessors.len() && i_backwards == successors.len() {
+            break 'l None;
+        }
+    };
+
+    middle.map(|middle| {
+        // Path found!
+        // Build the path.
+        let mut path = vec![];
+        // From middle to the start.
+        let mut node = Some(middle.clone());
+        while let Some(n) = node {
+            path.push(n.clone());
+            node = predecessors[&n].map(|i| predecessors.get_index(i).unwrap().0.clone());
+        }
+        // Reverse, to put start at the front.
+        path.reverse();
+        // And from middle to the end.
+        let mut node = successors[&middle].map(|i| successors.get_index(i).unwrap().0.clone());
+        while let Some(n) = node {
+            path.push(n.clone());
+            node = successors[&n].map(|i| successors.get_index(i).unwrap().0.clone());
+        }
+        path
+    })
+}
+
 /// Visit all nodes that are reachable from a start node. The node will be visited
 /// in BFS order, starting from the `start` node and following the order returned
 /// by the `successors` function.

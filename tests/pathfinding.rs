@@ -1,5 +1,4 @@
 mod ex1 {
-
     use lazy_static::lazy_static;
     use pathfinding::prelude::*;
 
@@ -157,7 +156,6 @@ mod ex1 {
 }
 
 mod ex2 {
-
     use lazy_static::lazy_static;
     use pathfinding::prelude::*;
 
@@ -336,6 +334,18 @@ mod ex2 {
     }
 
     #[test]
+    fn bfs_bidirectional_path_ok() {
+        static SUCCESSORS: fn(&(usize, usize)) -> Vec<(usize, usize)> =
+            |n| successors(n).into_iter().map(|(n, _)| n).collect();
+
+        let path =
+            bfs_bidirectional(&(2, 3), &(6, 3), SUCCESSORS, SUCCESSORS).expect("path not found");
+
+        assert_eq!(path.len(), 9);
+        assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
+    }
+
+    #[test]
     fn dfs_path_ok() {
         const GOAL: (usize, usize) = (6, 3);
         let path = dfs(
@@ -403,6 +413,17 @@ mod ex2 {
                 |n| successors(n).into_iter().map(|(n, _)| n),
                 |n| n == &GOAL,
             ),
+            None
+        );
+    }
+
+    #[test]
+    fn bfs_bidirectional_no_path() {
+        static SUCCESSORS: fn(&(usize, usize)) -> Vec<(usize, usize)> =
+            |n| successors(n).into_iter().map(|(n, _)| n).collect();
+
+        assert_eq!(
+            bfs_bidirectional(&(2, 3), &(1, 1), SUCCESSORS, SUCCESSORS),
             None
         );
     }
