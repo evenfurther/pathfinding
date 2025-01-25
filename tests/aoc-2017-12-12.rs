@@ -1,20 +1,22 @@
 // Test from https://adventofcode.com/, 2017-12-12
 
-use lazy_static::lazy_static;
 use pathfinding::prelude::*;
+use std::{
+    collections::{HashMap, HashSet},
+    sync::LazyLock,
+};
 
-use std::collections::{HashMap, HashSet};
-
-lazy_static! {
-    static ref PIPES: Vec<Vec<usize>> = include_str!("aoc-2017-12-12.txt")
+static PIPES: LazyLock<Vec<Vec<usize>>> = LazyLock::new(|| {
+    include_str!("aoc-2017-12-12.txt")
         .lines()
-        .map(|line| line
-            .replace(" <->", ",")
-            .split(", ")
-            .map(|w| w.parse::<usize>().unwrap())
-            .collect::<Vec<_>>())
-        .collect::<Vec<_>>();
-}
+        .map(|line| {
+            line.replace(" <->", ",")
+                .split(", ")
+                .map(|w| w.parse::<usize>().unwrap())
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<_>>()
+});
 
 #[test]
 fn method1() {

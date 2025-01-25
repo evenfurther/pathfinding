@@ -1,6 +1,5 @@
-use lazy_static::lazy_static;
 use pathfinding::directed::strongly_connected_components::*;
-use std::collections::hash_map::HashMap;
+use std::{collections::hash_map::HashMap, sync::LazyLock};
 
 // Tests in this file use the example at
 // https://en.wikipedia.org/wiki/Strongly_connected_component#/media/File:Graph_Condensation.svg
@@ -28,21 +27,21 @@ fn successors(n: &usize) -> Vec<usize> {
     }
 }
 
-lazy_static! {
-    static ref EXPECTED: Vec<Vec<usize>> = vec![
-        vec![0, 1, 2, 3, 4],
-        vec![5],
-        vec![6, 7, 8],
-        vec![9, 10, 11, 12],
-        vec![13, 14],
-        vec![15],
-    ];
-    static ref SCC: HashMap<usize, Vec<usize>> = EXPECTED
-        .clone()
-        .into_iter()
-        .flat_map(|v| v.clone().into_iter().map(move |n| (n, v.clone())))
-        .collect();
-}
+const EXPECTED: &[&[usize]] = &[
+    &[0, 1, 2, 3, 4],
+    &[5],
+    &[6, 7, 8],
+    &[9, 10, 11, 12],
+    &[13, 14],
+    &[15],
+];
+
+static SCC: LazyLock<HashMap<usize, Vec<usize>>> = LazyLock::new(|| {
+    EXPECTED
+        .iter()
+        .flat_map(|v| v.iter().map(move |n| (*n, v.to_vec())))
+        .collect()
+});
 
 #[test]
 fn empty_scc() {
@@ -84,7 +83,7 @@ fn some_scc() {
         c.sort();
         // Check that clusters are indeed valid ones
         for v in &c {
-            assert!(EXPECTED.contains(v));
+            assert!(EXPECTED.contains(&&v[..]));
         }
         // Return the first element of each cluster
         c.into_iter().map(|v| v[0]).collect()

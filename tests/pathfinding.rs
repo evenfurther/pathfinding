@@ -1,22 +1,19 @@
 mod ex1 {
-    use lazy_static::lazy_static;
     use pathfinding::prelude::*;
 
     #[allow(clippy::trivially_copy_pass_by_ref)]
     fn successors(node: &u8) -> impl Iterator<Item = (u8, usize)> {
-        lazy_static! {
-            static ref SUCCESSORS: Vec<Vec<(u8, usize)>> = vec![
-                vec![(1, 7), (2, 7), (3, 6)],
-                vec![(0, 8), (6, 7)],
-                vec![(5, 7)],
-                vec![(7, 7)],
-                vec![(4, 2)],
-                vec![(1, 1)],
-                vec![(2, 5), (4, 5), (5, 2)],
-                vec![(5, 8)],
-                vec![],
-            ];
-        }
+        const SUCCESSORS: &[&[(u8, usize)]] = &[
+            &[(1, 7), (2, 7), (3, 6)],
+            &[(0, 8), (6, 7)],
+            &[(5, 7)],
+            &[(7, 7)],
+            &[(4, 2)],
+            &[(1, 1)],
+            &[(2, 5), (4, 5), (5, 2)],
+            &[(5, 8)],
+            &[],
+        ];
         SUCCESSORS[*node as usize].iter().copied()
     }
 
@@ -156,8 +153,8 @@ mod ex1 {
 }
 
 mod ex2 {
-    use lazy_static::lazy_static;
     use pathfinding::prelude::*;
+    use std::sync::LazyLock;
 
     const MAZE: &str = "\
 #########
@@ -170,12 +167,11 @@ mod ex2 {
 #########
 ";
 
-    lazy_static! {
-        static ref OPEN: Vec<Vec<bool>> = MAZE
-            .lines()
+    static OPEN: LazyLock<Vec<Vec<bool>>> = LazyLock::new(|| {
+        MAZE.lines()
             .map(|l| l.chars().map(|c| c == '.').collect())
-            .collect();
-    }
+            .collect()
+    });
 
     fn successors(&(x, y): &(usize, usize)) -> Vec<((usize, usize), usize)> {
         vec![(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
