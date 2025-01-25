@@ -1,5 +1,5 @@
 use pathfinding::prelude::*;
-use rand::{rngs, Rng};
+use rand::{rngs, Rng as _};
 
 fn build_network(size: usize) -> Matrix<usize> {
     let mut network = Matrix::new(size, size, 0);

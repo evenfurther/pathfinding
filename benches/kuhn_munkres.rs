@@ -1,6 +1,6 @@
 use codspeed_criterion_compat::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use pathfinding::prelude::{kuhn_munkres, Matrix};
-use rand::{Rng, SeedableRng};
+use rand::{Rng as _, SeedableRng as _};
 use rand_xorshift::XorShiftRng;
 
 fn compare_size(c: &mut Criterion) {
