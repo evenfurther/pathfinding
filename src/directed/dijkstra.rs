@@ -348,7 +348,7 @@ impl<N, C, FN, IN> Iterator for DijkstraReachable<N, C, FN>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy + Hash,
-    FN: FnMut(&N, C) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
 {
     type Item = DijkstraReachableItem<N, C>;
@@ -367,7 +367,7 @@ where
                     parent: self.parents.get_index(*parent_index).map(|x| x.0.clone()),
                     total_cost,
                 });
-                (self.successors)(node, total_cost)
+                (self.successors)(node)
             };
             for (successor, move_cost) in successors {
                 let new_cost = cost + move_cost;
@@ -404,14 +404,13 @@ where
 /// Visit all nodes that are reachable from a start node. The node
 /// will be visited in order of cost, with the closest nodes first.
 ///
-/// The `successors` function receives the current node and the best
-/// cost up to this node, and returns an iterator of successors
-/// associated with their move cost.
+/// The `successors` function receives the current node, and returns
+/// an iterator of successors associated with their move cost.
 pub fn dijkstra_reach<N, C, FN, IN>(start: &N, successors: FN) -> DijkstraReachable<N, C, FN>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
-    FN: FnMut(&N, C) -> IN,
+    FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
 {
     let mut to_see = BinaryHeap::new();

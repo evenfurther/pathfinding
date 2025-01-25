@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 #[test]
 fn dijkstra_reach_numbers() {
-    let reach = dijkstra_reach(&0, |prev, _| vec![(prev + 1, 1), (prev * 2, *prev)])
+    let reach = dijkstra_reach(&0, |prev| vec![(prev + 1, 1), (prev * 2, *prev)])
         .take_while(|x| x.total_cost < 100)
         .collect_vec();
     // the total cost should equal to the node's value, since the starting node is 0 and the cost to reach a successor node is equal to the increase in the node's value
@@ -30,13 +30,7 @@ fn dijkstra_reach_graph() {
     graph.insert("B", vec![("C", 2)]);
     graph.insert("C", vec![]);
 
-    let mut costs = HashMap::new();
-
-    let reach = dijkstra_reach(&"A", |prev, cost| {
-        costs.insert(*prev, cost);
-        graph[prev].clone()
-    })
-    .collect_vec();
+    let reach = dijkstra_reach(&"A", |prev| graph[prev].clone()).collect_vec();
 
     // need to make sure that a node won't be returned twice when a better path is found after the first candidate
     assert!(
@@ -59,8 +53,4 @@ fn dijkstra_reach_graph() {
                 },
             ]
     );
-
-    for item in reach {
-        assert!(item.total_cost == costs[item.node]);
-    }
 }
