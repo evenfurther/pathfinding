@@ -160,6 +160,9 @@ where
 /// let result = bfs_bidirectional(&(1, 1), &(4, 6), SUCCESSORS, SUCCESSORS);
 /// assert_eq!(result.expect("no path found").len(), 5);
 /// ```
+///
+/// Find also a more interesting example, comparing regular
+/// and bidirectional BFS [here](https://github.com/evenfurther/pathfinding/blob/main/examples/bfs_bidirectional.rs).
 #[allow(clippy::missing_panics_doc)]
 pub fn bfs_bidirectional<N, FNS, FNP, IN>(
     start: &N,
