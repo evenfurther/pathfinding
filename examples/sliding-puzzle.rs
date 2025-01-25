@@ -1,8 +1,8 @@
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use pathfinding::prelude::{astar, idastar};
 use rand::prelude::*;
 use rand::rngs::ThreadRng;
+use std::sync::LazyLock;
 use std::thread;
 use std::time::Instant;
 
@@ -30,30 +30,27 @@ impl PartialEq for Game {
 
 impl Eq for Game {}
 
-lazy_static! {
-    static ref GOAL: Game = Game {
-        positions: {
-            let mut p = [0u8; LIMIT];
-            for (i, e) in p.iter_mut().enumerate() {
-                *e = u8::try_from(i).unwrap();
-            }
-            p
-        },
-        hole_idx: 0,
-        weight: 0,
-    };
-    static ref SUCCESSORS: Vec<Vec<u8>> = (0..SIDE * SIDE)
-        .map(|idx| (0..4)
-            .filter_map(|dir| match dir {
-                0 if idx % SIDE > 0 => Some(idx - 1),
-                1 if idx >= SIDE => Some(idx - SIDE),
-                2 if idx % SIDE < SIDE - 1 => Some(idx + 1),
-                3 if idx < SIDE * SIDE - SIDE => Some(idx + SIDE),
-                _ => None,
-            })
-            .collect::<Vec<_>>())
-        .collect();
-}
+static GOAL: LazyLock<Game> = LazyLock::new(|| Game {
+    positions: (0..(SIDE * SIDE)).collect::<Vec<_>>().try_into().unwrap(),
+    hole_idx: 0,
+    weight: 0,
+});
+
+static SUCCESSORS: LazyLock<Vec<Vec<u8>>> = LazyLock::new(|| {
+    (0..SIDE * SIDE)
+        .map(|idx| {
+            (0..4)
+                .filter_map(|dir| match dir {
+                    0 if idx % SIDE > 0 => Some(idx - 1),
+                    1 if idx >= SIDE => Some(idx - SIDE),
+                    2 if idx % SIDE < SIDE - 1 => Some(idx + 1),
+                    3 if idx < SIDE * SIDE - SIDE => Some(idx + SIDE),
+                    _ => None,
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect()
+});
 
 impl Game {
     /// Move the hole to the given index.
