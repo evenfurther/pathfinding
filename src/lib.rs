@@ -110,6 +110,9 @@ pub mod matrix;
 pub mod undirected;
 pub mod utils;
 
+mod noderefs;
+pub use noderefs::NodeRefs;
+
 use indexmap::{IndexMap, IndexSet};
 use rustc_hash::FxHasher;
 use std::hash::BuildHasherDefault;
