@@ -189,22 +189,22 @@ fn fill_clear_invert_empty_full() {
 
 #[test]
 fn iterators() {
-    let mut rng = StdRng::from_entropy();
+    let mut rng = ThreadRng::default();
     for _ in 0..100 {
         let mut g = Grid::new(10, 20);
-        if rng.gen_bool(0.5) {
+        if rng.random_bool(0.5) {
             g.fill();
         }
         for _ in 0..1000 {
             let x = rng.next_u32() as usize % g.width;
             let y = rng.next_u32() as usize % g.height;
-            if rng.gen_bool(0.5) {
+            if rng.random_bool(0.5) {
                 g.add_vertex((x, y));
             } else {
                 g.remove_vertex((x, y));
             }
         }
-        if rng.gen_bool(0.2) {
+        if rng.random_bool(0.2) {
             g.invert();
         }
         let mut ns1 = g.iter().collect_vec();

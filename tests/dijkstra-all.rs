@@ -3,11 +3,11 @@ use rand::{rngs, Rng as _};
 
 fn build_network(size: usize) -> Matrix<usize> {
     let mut network = Matrix::new(size, size, 0);
-    let mut rng = rngs::OsRng;
+    let mut rng = rngs::ThreadRng::default();
     for a in 0..size {
         for b in 0..size {
-            if rng.gen_ratio(2, 3) {
-                network[(a, b)] = rng.r#gen::<u16>() as usize;
+            if rng.random_ratio(2, 3) {
+                network[(a, b)] = rng.random::<u16>() as usize;
             }
         }
     }
