@@ -14,7 +14,7 @@ fn empty() {
 fn order() {
     // Shuffle integers from 1 to 1000, and order them so that divisors
     // are located before the numbers they divide.
-    let mut rng = rngs::OsRng;
+    let mut rng = rngs::ThreadRng::default();
     let mut ints = (1..1000).collect_vec();
     ints.shuffle(&mut rng);
     let sorted = tsort(&ints, |&n| {
@@ -32,7 +32,7 @@ fn order() {
 fn complexity() {
     // To ensure that the sort is O(|E| + |V|), we ensure that the
     // successors for a particular node are requested exactly one time.
-    let mut rng = rngs::OsRng;
+    let mut rng = rngs::ThreadRng::default();
     let mut ints = (1..1000).collect_vec();
     ints.shuffle(&mut rng);
     let mut requested = 0;

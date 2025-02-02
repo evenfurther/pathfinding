@@ -2,7 +2,7 @@ use itertools::Itertools;
 use lazy_static::lazy_static;
 use pathfinding::prelude::{astar, idastar};
 use rand::prelude::*;
-use rand::rngs::OsRng;
+use rand::rngs::ThreadRng;
 use std::thread;
 use std::time::Instant;
 
@@ -138,7 +138,7 @@ impl Game {
     }
 
     fn shuffled() -> Self {
-        let mut rng = OsRng;
+        let mut rng = ThreadRng::default();
         let mut positions = Self::default().positions;
         loop {
             positions.shuffle(&mut rng);
