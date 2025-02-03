@@ -482,7 +482,7 @@ impl<C> Matrix<C> {
             2 => self.data.reverse(),
             n => {
                 for r in 0..self.rows / 2 {
-                    for c in 0..(self.columns + 1) / 2 {
+                    for c in 0..self.columns.div_ceil(2) {
                         // i1 … i2
                         // …  …  …
                         // i4 … i3
