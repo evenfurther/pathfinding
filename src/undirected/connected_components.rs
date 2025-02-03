@@ -233,7 +233,7 @@ where
 /// This function returns a map between every vertex and the index of
 /// the set it belongs to in the `components` list.
 #[must_use]
-#[allow(clippy::implicit_hasher)]
+#[expect(clippy::implicit_hasher)]
 pub fn component_index<N>(components: &[HashSet<N>]) -> HashMap<N, usize>
 where
     N: Clone + Hash + Eq,
