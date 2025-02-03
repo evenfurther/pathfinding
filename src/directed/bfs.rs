@@ -2,7 +2,7 @@
 //! algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
 
 use super::reverse_path;
-use crate::{FxIndexMap, FxIndexSet};
+use crate::{FxIndexMap, FxIndexSet, NodeRefs};
 use indexmap::map::Entry::Vacant;
 use std::hash::Hash;
 use std::iter::FusedIterator;
@@ -62,34 +62,41 @@ use std::iter::FusedIterator;
 ///                  |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").len(), 5);
 /// ```
-pub fn bfs<N, FN, IN, FS>(start: &N, successors: FN, success: FS) -> Option<Vec<N>>
+pub fn bfs<'a, N, S, FN, IN, FS>(start: S, successors: FN, success: FS) -> Option<Vec<N>>
 where
-    N: Eq + Hash + Clone,
+    N: Eq + Hash + Clone + 'a,
+    S: Into<NodeRefs<'a, N>>,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
 {
-    bfs_core(start, successors, success, true)
+    bfs_core(&start.into(), successors, success, true)
 }
 
-fn bfs_core<N, FN, IN, FS>(
-    start: &N,
+fn bfs_core<'a, N, FN, IN, FS>(
+    start: &NodeRefs<'a, N>,
     mut successors: FN,
     mut success: FS,
     check_first: bool,
 ) -> Option<Vec<N>>
 where
-    N: Eq + Hash + Clone,
+    N: Eq + Hash + Clone + 'a,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
 {
-    if check_first && success(start) {
-        return Some(vec![start.clone()]);
+    if check_first {
+        for start_node in start {
+            if success(start_node) {
+                return Some(vec![start_node.clone()]);
+            }
+        }
     }
-    let mut i = 0;
+
     let mut parents: FxIndexMap<N, usize> = FxIndexMap::default();
-    parents.insert(start.clone(), usize::MAX);
+    parents.extend(start.into_iter().map(|n| (n.clone(), usize::MAX)));
+
+    let mut i = 0;
     while let Some((node, _)) = parents.get_index(i) {
         for successor in successors(node) {
             if success(&successor) {
@@ -114,13 +121,15 @@ where
 /// Except the start node which will be included both at the beginning and the end of
 /// the path, a node will never be included twice in the path as determined
 /// by the `Eq` relationship.
-pub fn bfs_loop<N, FN, IN>(start: &N, successors: FN) -> Option<Vec<N>>
+pub fn bfs_loop<'a, N, S, FN, IN>(start: S, successors: FN) -> Option<Vec<N>>
 where
-    N: Eq + Hash + Clone,
+    N: Eq + Hash + Clone + 'a,
+    S: Into<NodeRefs<'a, N>>,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
-    bfs_core(start, successors, |n| n == start, false)
+    let start = start.into();
+    bfs_core(&start, successors, |n| start.contains(n), false)
 }
 
 /// Compute a shortest path using the [breadth-first search
@@ -164,22 +173,27 @@ where
 /// Find also a more interesting example, comparing regular
 /// and bidirectional BFS [here](https://github.com/evenfurther/pathfinding/blob/main/examples/bfs_bidirectional.rs).
 #[allow(clippy::missing_panics_doc)]
-pub fn bfs_bidirectional<N, FNS, FNP, IN>(
-    start: &N,
-    end: &N,
+pub fn bfs_bidirectional<'a, N, S, E, FNS, FNP, IN>(
+    start: S,
+    end: E,
     successors_fn: FNS,
     predecessors_fn: FNP,
 ) -> Option<Vec<N>>
 where
-    N: Eq + Hash + Clone,
+    N: Eq + Hash + Clone + 'a,
+    E: Into<NodeRefs<'a, N>>,
+    S: Into<NodeRefs<'a, N>>,
     FNS: Fn(&N) -> IN,
     FNP: Fn(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
+    let start = start.into();
+    let end = end.into();
+
     let mut predecessors: FxIndexMap<N, Option<usize>> = FxIndexMap::default();
-    predecessors.insert(start.clone(), None);
+    predecessors.extend(start.into_iter().cloned().map(|n| (n, None)));
     let mut successors: FxIndexMap<N, Option<usize>> = FxIndexMap::default();
-    successors.insert(end.clone(), None);
+    successors.extend(end.into_iter().cloned().map(|n| (n, None)));
 
     let mut i_forwards = 0;
     let mut i_backwards = 0;
