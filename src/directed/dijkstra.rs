@@ -260,7 +260,7 @@ where
 ///
 /// - `target` is reachable target.
 /// - `parents` is a map containing an optimal parent (and an associated
-///    cost which is ignored here) for every reachable node.
+///   cost which is ignored here) for every reachable node.
 ///
 /// This function returns a vector with a path from the farthest parent up to
 /// `target`, including `target` itself.
