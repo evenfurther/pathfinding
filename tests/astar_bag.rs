@@ -22,15 +22,12 @@ fn multiple_sinks() {
     )
     .unwrap();
     assert_eq!(cost, 4);
-    assert_eq!(
-        solutions.sorted().collect_vec(),
-        vec![
-            vec![1, 2, 4],
-            vec![1, 2, 5, 6, 7],
-            vec![1, 3, 4],
-            vec![1, 3, 5, 6, 7],
-        ]
-    );
+    assert_eq!(solutions.sorted().collect_vec(), vec![
+        vec![1, 2, 4],
+        vec![1, 2, 5, 6, 7],
+        vec![1, 3, 4],
+        vec![1, 3, 5, 6, 7],
+    ]);
 }
 
 #[test]

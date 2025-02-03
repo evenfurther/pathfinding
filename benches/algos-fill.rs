@@ -1,7 +1,7 @@
 // This version uses a filler in the Pt structure to increase
 // the cost of cloning a node.
 
-use codspeed_criterion_compat::{criterion_group, criterion_main, Criterion};
+use codspeed_criterion_compat::{Criterion, criterion_group, criterion_main};
 use pathfinding::prelude::{astar, bfs, dfs, dijkstra, fringe, idastar, iddfs};
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
