@@ -8,7 +8,7 @@ use std::mem;
 ///
 /// - `roots` is a collection of nodes that ought to be explored.
 /// - `successors` returns a list of successors for a given node, including possibly
-///    nodes that were not present in `roots`.
+///   nodes that were not present in `roots`.
 ///
 /// The function returns an acceptable topological order of nodes given as roots or
 /// discovered, or an error if a cycle is detected.
