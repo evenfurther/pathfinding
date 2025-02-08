@@ -17,8 +17,8 @@ rust-version = "1.77.2"
 sign-commit = true
 sign-tag = true
 pre-release-replacements = [
-    {file = "README.md", search = "pathfinding = \".*\"", replace = "pathfinding = \"{{version}}\"", exactly = 1},
-    {file = "CHANGELOG.md", search = "n\\.n\\.n", replace = "{{tag_name}}", exactly = 1}
+  { file = "README.md", search = "pathfinding = \".*\"", replace = "pathfinding = \"{{version}}\"", exactly = 1 },
+  { file = "CHANGELOG.md", search = "n\\.n\\.n", replace = "{{tag_name}}", exactly = 1 },
 ]
 
 [dependencies]
@@ -44,6 +44,10 @@ regex = "1.10.6"
 trybuild = "1.0.99"
 version_check = "0.9.5"
 
+[profile.profiling]
+inherits = "release"
+debug = true
+
 [lints.clippy]
 module_name_repetitions = { level = "allow", priority = 1 }
 too_long_first_doc_paragraph = { level = "allow", priority = 1 } # Temporary
@@ -67,6 +71,10 @@ harness = false
 
 [[bench]]
 name = "kuhn_munkres"
+harness = false
+
+[[bench]]
+name = "kuhn_munkres_vs_bertsekas"
 harness = false
 
 [[bench]]
