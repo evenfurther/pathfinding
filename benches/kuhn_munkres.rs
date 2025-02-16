@@ -13,7 +13,7 @@ fn compare_size(c: &mut Criterion) {
         group.bench_with_input(BenchmarkId::from_parameter(size), &size, |b, _| {
             let weights = Matrix::square_from_vec(
                 (0..(size * size))
-                    .map(|_| rng.gen_range(1..=100))
+                    .map(|_| rng.random_range(1..=100))
                     .collect::<Vec<_>>(),
             )
             .unwrap();
