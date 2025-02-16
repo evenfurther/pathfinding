@@ -24,13 +24,9 @@ fn test_same_node_appears_in_multiple_clique() {
     let cliques_as_vectors: Vec<Vec<i32>> = sort(&cliques);
 
     assert_eq!(
-        vec![
-            vec![1, 5, 9],
-            vec![2, 6],
-            vec![3, 6, 9],
-            vec![3, 7],
-            vec![4, 8]
-        ],
+        vec![vec![1, 5, 9], vec![2, 6], vec![3, 6, 9], vec![3, 7], vec![
+            4, 8
+        ]],
         cliques_as_vectors
     );
 }

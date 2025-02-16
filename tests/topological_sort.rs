@@ -38,11 +38,7 @@ fn complexity() {
     let mut requested = 0;
     let result = tsort(&ints, |&n| {
         requested += 1;
-        if n < 999 {
-            vec![n + 1]
-        } else {
-            vec![]
-        }
+        if n < 999 { vec![n + 1] } else { vec![] }
     });
     assert_eq!(result, Ok((1..1000).collect_vec()));
     assert_eq!(requested, 999);
@@ -51,7 +47,7 @@ fn complexity() {
 // Wrapper around topological_sort_into_groups that sorts each group (since
 // topological_sort_into_groups makes no guarantees about node order within
 // each group).
-#[allow(clippy::type_complexity)]
+#[expect(clippy::type_complexity)]
 fn tsig(succs: &[&[usize]]) -> Result<Vec<Vec<usize>>, (Vec<Vec<usize>>, Vec<usize>)> {
     let nodes: Vec<usize> = (0..succs.len()).collect();
     match topological_sort_into_groups(&nodes, |&n| succs[n].iter().copied()) {

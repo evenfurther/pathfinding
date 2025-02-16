@@ -2,10 +2,10 @@
 //! without diagonal links.
 
 use super::matrix::Matrix;
+use crate::FxIndexSet;
 use crate::directed::bfs::bfs_reach;
 use crate::directed::dfs::dfs_reach;
 use crate::utils::constrain;
-use crate::FxIndexSet;
 use num_traits::ToPrimitive;
 use std::collections::BTreeSet;
 use std::fmt;
@@ -214,7 +214,7 @@ impl Grid {
 
     /// Return an iterator over the border vertices. The grid must not have
     /// a zero width or height.
-    fn borders(&self) -> impl Iterator<Item = (usize, usize)> {
+    fn borders(&self) -> impl Iterator<Item = (usize, usize)> + use<> {
         let width = self.width;
         let height = self.height;
         (0..width)

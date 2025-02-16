@@ -1,5 +1,5 @@
 use pathfinding::prelude::*;
-use rand::{rngs, Rng as _};
+use rand::{Rng as _, rngs};
 
 fn build_network(size: usize) -> Matrix<usize> {
     let mut network = Matrix::new(size, size, 0);
@@ -52,7 +52,10 @@ fn all_paths() {
                     let other_path = build_path(&target, &paths);
                     // There might be several paths, but we know that internally we use the
                     // same algorithm so the comparison holds.
-                    assert_eq!(path, other_path, "path {start} -> {target} differ in {network:?}: {path:?} vs {other_path:?}");
+                    assert_eq!(
+                        path, other_path,
+                        "path {start} -> {target} differ in {network:?}: {path:?} vs {other_path:?}"
+                    );
                 }
             } else {
                 assert!(
