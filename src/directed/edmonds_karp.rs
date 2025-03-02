@@ -394,7 +394,6 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
         }
     }
 
-    #[must_use]
     fn from_matrix(source: usize, sink: usize, capacities: Matrix<C>) -> Self {
         assert!(
             capacities.is_square(),
@@ -483,7 +482,6 @@ pub struct DenseCapacity<C> {
 unsafe impl<C: Send> Send for DenseCapacity<C> {}
 
 impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C> {
-    #[must_use]
     fn new(size: usize, source: usize, sink: usize) -> Self {
         assert!(source < size, "source is greater or equal than size");
         assert!(sink < size, "sink is greater or equal than size");
@@ -500,7 +498,6 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
         }
     }
 
-    #[must_use]
     fn from_matrix(source: usize, sink: usize, capacities: Matrix<C>) -> Self {
         assert!(
             capacities.is_square(),
