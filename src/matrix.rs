@@ -256,7 +256,6 @@ impl<C: Copy> Matrix<C> {
 impl<C: Clone + Signed> Neg for Matrix<C> {
     type Output = Self;
 
-    #[must_use]
     fn neg(self) -> Self {
         Self {
             rows: self.rows,
@@ -781,7 +780,6 @@ impl<C> Matrix<C> {
 impl<C> Index<(usize, usize)> for Matrix<C> {
     type Output = C;
 
-    #[must_use]
     fn index(&self, index: (usize, usize)) -> &C {
         &self.data[self.idx(index)]
     }
@@ -790,7 +788,6 @@ impl<C> Index<(usize, usize)> for Matrix<C> {
 impl<C> Index<&(usize, usize)> for Matrix<C> {
     type Output = C;
 
-    #[must_use]
     fn index(&self, index: &(usize, usize)) -> &C {
         &self[*index]
     }
@@ -812,7 +809,6 @@ impl<C> IndexMut<&(usize, usize)> for Matrix<C> {
 impl<C> Deref for Matrix<C> {
     type Target = [C];
 
-    #[must_use]
     fn deref(&self) -> &[C] {
         &self.data
     }
@@ -928,7 +924,6 @@ impl<'a, C> IntoIterator for &'a Matrix<C> {
     type IntoIter = RowIterator<'a, C>;
     type Item = &'a [C];
 
-    #[must_use]
     fn into_iter(self) -> RowIterator<'a, C> {
         RowIterator {
             matrix: self,

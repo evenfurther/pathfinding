@@ -590,7 +590,6 @@ impl IntoIterator for Grid {
     type Item = (usize, usize);
     type IntoIter = GridIntoIterator;
 
-    #[must_use]
     fn into_iter(self) -> Self::IntoIter {
         GridIntoIterator {
             grid: self,
@@ -644,7 +643,6 @@ impl<'a> IntoIterator for &'a Grid {
     type Item = (usize, usize);
     type IntoIter = GridIterator<'a>;
 
-    #[must_use]
     fn into_iter(self) -> Self::IntoIter {
         GridIterator {
             grid: self,
