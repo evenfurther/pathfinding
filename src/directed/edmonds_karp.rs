@@ -8,7 +8,7 @@
 //! edges.
 
 use super::bfs::bfs;
-use crate::{matrix::Matrix, FxIndexSet};
+use crate::{FxIndexSet, matrix::Matrix};
 use num_traits::{Bounded, Signed, Zero};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::hash::Hash;

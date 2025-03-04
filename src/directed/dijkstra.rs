@@ -99,7 +99,7 @@ where
     reached.map(|target| {
         (
             reverse_path(&parents, |&(p, _)| p, target),
-            parents.get_index(target).unwrap().1 .1,
+            parents.get_index(target).unwrap().1.1,
         )
     })
 }
