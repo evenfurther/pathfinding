@@ -367,9 +367,9 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
 name = "movingai"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e99d780e3694de5afbadae2a02c8d3d07c2a9dc871fe84419e935312e0403f4b"
+checksum = "459d879e386cfade4761316eb54c57171bf7128143e696209ea5cfa72d7877ce"
 
 [[package]]
 name = "noisy_float"
