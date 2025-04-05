@@ -34,7 +34,7 @@
 //! - [connected components](undirected/connected_components/index.html): find disjoint connected sets of vertices ([⇒ Wikipedia][Connected components])
 //! - [Kruskal](undirected/kruskal/index.html): find a minimum-spanning-tree ([⇒ Wikipedia][Kruskal])
 //! - [Prim](undirected/prim/index.html): find a minimum-spanning-tree ([⇒ Wikipedia][Prim])
-//! - [cliques]: find maximum cliques in a graph ([= Wikipedia][BronKerbosch])
+//! - [cliques](undirected/cliques/index.html): find maximum cliques in a graph ([= Wikipedia][BronKerbosch])
 //!
 //! ### Matching
 //!
