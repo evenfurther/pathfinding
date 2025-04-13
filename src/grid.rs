@@ -124,13 +124,13 @@ impl Grid {
 
     /// Enable diagonal mode. Diagonal edges will be created between
     /// adjacent vertices.
-    pub fn enable_diagonal_mode(&mut self) {
+    pub const fn enable_diagonal_mode(&mut self) {
         self.diagonal_mode = true;
     }
 
     /// Disable diagonal mode. Only horizontal and vertical edges will
     /// be created between adjacent vertices.
-    pub fn disable_diagonal_mode(&mut self) {
+    pub const fn disable_diagonal_mode(&mut self) {
         self.diagonal_mode = false;
     }
 
@@ -310,7 +310,7 @@ impl Grid {
     /// Remove every existing vertex, and add all absent vertices.
     /// If you see the grid as a black and white array, imagine that
     /// the color are exchanged.
-    pub fn invert(&mut self) {
+    pub const fn invert(&mut self) {
         self.dense = !self.dense;
     }
 
