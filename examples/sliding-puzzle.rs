@@ -75,7 +75,7 @@ impl Game {
     }
 
     // Compute the Manhattan distance between the piece at idx and its correct position.
-    fn distance(&self, idx: u8) -> u8 {
+    const fn distance(&self, idx: u8) -> u8 {
         let (actual_x, actual_y) = (Self::x(idx), Self::y(idx));
         let (correct_x, correct_y) = (
             Self::x(self.positions[idx as usize]),
