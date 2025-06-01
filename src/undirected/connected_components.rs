@@ -3,7 +3,6 @@
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
-use std::iter::once;
 use std::marker::PhantomData;
 
 use rustc_hash::{FxHashMap, FxHashSet};
@@ -136,7 +135,7 @@ where
                 .map(|s| {
                     neighbours(s)
                         .into_iter()
-                        .chain(once(s.clone()))
+                        .chain([s.clone()])
                         .collect::<Vec<_>>()
                 })
                 .collect::<Vec<_>>(),
