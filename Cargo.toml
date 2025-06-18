@@ -17,8 +17,8 @@ rust-version = "1.86.0"
 sign-commit = true
 sign-tag = true
 pre-release-replacements = [
-    {file = "README.md", search = "pathfinding = \".*\"", replace = "pathfinding = \"{{version}}\"", exactly = 1},
-    {file = "CHANGELOG.md", search = "n\\.n\\.n", replace = "{{tag_name}}", exactly = 1}
+  { file = "README.md", search = "pathfinding = \".*\"", replace = "pathfinding = \"{{version}}\"", exactly = 1 },
+  { file = "CHANGELOG.md", search = "n\\.n\\.n", replace = "{{tag_name}}", exactly = 1 },
 ]
 
 [dependencies]
@@ -42,6 +42,10 @@ rand_xorshift = "0.4.0"
 regex = "1.11.1"
 trybuild = "1.0.103"
 version_check = "0.9.5"
+
+[profile.profiling]
+inherits = "release"
+debug = true
 
 [lints.clippy]
 module_name_repetitions = { level = "allow", priority = 1 }
@@ -69,6 +73,10 @@ harness = false
 
 [[bench]]
 name = "kuhn_munkres"
+harness = false
+
+[[bench]]
+name = "kuhn_munkres_vs_bertsekas"
 harness = false
 
 [[bench]]
