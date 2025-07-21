@@ -30,7 +30,7 @@ thiserror = "2.0.11"
 deprecate-until = "0.1.1"
 
 [dev-dependencies]
-codspeed-criterion-compat = "2.8.0"
+codspeed-criterion-compat = "3.0.0"
 itertools = "0.14.0"
 movingai = "2.0.0"
 noisy_float = "0.2.0"
