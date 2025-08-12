@@ -8,6 +8,7 @@ use num_traits::Zero;
 use rustc_hash::{FxHashMap, FxHashSet};
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
+use std::convert::Infallible;
 use std::hash::Hash;
 
 /// Compute a shortest path using the [Dijkstra search
@@ -80,28 +81,55 @@ where
     IN: IntoIterator<Item = (N, C)>,
     FS: FnMut(&N) -> bool,
 {
-    dijkstra_internal(start, &mut successors, &mut success)
+    match dijkstra_internal::<_, _, _, _, _, Infallible>(
+        start,
+        &mut |node| Ok(successors(node)),
+        &mut |node| Ok(success(node)),
+    ) {
+        Ok(result) => result,
+    }
 }
 
-pub(crate) fn dijkstra_internal<N, C, FN, IN, FS>(
+/// Compute a shortest path using the [Dijkstra search
+/// algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
+///
+/// # Errors
+/// This is the fallible version of [`dijkstra`].
+/// `Err(err)` is returned immediately if and only if `successors` or `success` returns `Err(err)`.
+pub fn try_dijkstra<N, C, FN, IN, FS, E>(
     start: &N,
-    successors: &mut FN,
-    success: &mut FS,
-) -> Option<(Vec<N>, C)>
+    mut successors: FN,
+    mut success: FS,
+) -> Result<Option<(Vec<N>, C)>, E>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
-    FN: FnMut(&N) -> IN,
+    FN: FnMut(&N) -> Result<IN, E>,
     IN: IntoIterator<Item = (N, C)>,
-    FS: FnMut(&N) -> bool,
+    FS: FnMut(&N) -> Result<bool, E>,
 {
-    let (parents, reached) = run_dijkstra(start, successors, success);
-    reached.map(|target| {
+    dijkstra_internal(start, &mut successors, &mut success)
+}
+
+pub(crate) fn dijkstra_internal<N, C, FN, IN, FS, E>(
+    start: &N,
+    successors: &mut FN,
+    success: &mut FS,
+) -> Result<Option<(Vec<N>, C)>, E>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: FnMut(&N) -> Result<IN, E>,
+    IN: IntoIterator<Item = (N, C)>,
+    FS: FnMut(&N) -> Result<bool, E>,
+{
+    let (parents, reached) = run_dijkstra(start, successors, success)?;
+    Ok(reached.map(|target| {
         (
             reverse_path(&parents, |&(p, _)| p, target),
             parents.get_index(target).unwrap().1.1,
         )
-    })
+    }))
 }
 
 /// Determine all reachable nodes from a starting point as well as the
@@ -152,6 +180,24 @@ where
     dijkstra_partial(start, successors, |_| false).0
 }
 
+/// Determine all reachable nodes from a starting point as well as the
+/// minimum cost to reach them and a possible optimal parent node
+/// using the [Dijkstra search
+/// algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
+///
+/// # Errors
+/// This is the fallible version of [`dijkstra_all`].
+/// `Err(err)` is returned immediately if and only if `successors` or `success` returns `Err(err)`.
+pub fn try_dijkstra_all<N, C, FN, IN, E>(start: &N, successors: FN) -> Result<HashMap<N, (N, C)>, E>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: FnMut(&N) -> Result<IN, E>,
+    IN: IntoIterator<Item = (N, C)>,
+{
+    try_dijkstra_partial(start, successors, |_| Ok(false)).map(|(map, _)| map)
+}
+
 /// Determine some reachable nodes from a starting point as well as the minimum cost to
 /// reach them and a possible optimal parent node
 /// using the [Dijkstra search algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
@@ -168,7 +214,6 @@ where
 ///
 /// The [`build_path`] function can be used to build a full path from the starting point to one
 /// of the reachable targets.
-#[expect(clippy::missing_panics_doc)]
 pub fn dijkstra_partial<N, C, FN, IN, FS>(
     start: &N,
     mut successors: FN,
@@ -181,28 +226,61 @@ where
     IN: IntoIterator<Item = (N, C)>,
     FS: FnMut(&N) -> bool,
 {
-    let (parents, reached) = run_dijkstra(start, &mut successors, &mut stop);
-    (
+    match try_dijkstra_partial::<_, _, _, _, _, Infallible>(
+        start,
+        |node| Ok(successors(node)),
+        |node| Ok(stop(node)),
+    ) {
+        Ok(result) => result,
+    }
+}
+
+type PartialResult<N, C> = (HashMap<N, (N, C)>, Option<N>);
+
+/// Determine some reachable nodes from a starting point as well as the minimum cost to
+/// reach them and a possible optimal parent node
+/// using the [Dijkstra search algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
+///
+/// # Errors
+/// This is the fallible version of [`dijkstra_partial`].
+/// `Err(err)` is returned immediately if and only if `successors` or `success` returns `Err(err)`.
+#[expect(clippy::missing_panics_doc)]
+pub fn try_dijkstra_partial<N, C, FN, IN, FS, E>(
+    start: &N,
+    mut successors: FN,
+    mut stop: FS,
+) -> Result<PartialResult<N, C>, E>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: FnMut(&N) -> Result<IN, E>,
+    IN: IntoIterator<Item = (N, C)>,
+    FS: FnMut(&N) -> Result<bool, E>,
+{
+    let (parents, reached) = run_dijkstra(start, &mut successors, &mut stop)?;
+    Ok((
         parents
             .iter()
             .skip(1)
             .map(|(n, (p, c))| (n.clone(), (parents.get_index(*p).unwrap().0.clone(), *c))) // unwrap() cannot fail
             .collect(),
         reached.map(|i| parents.get_index(i).unwrap().0.clone()),
-    )
+    ))
 }
 
-fn run_dijkstra<N, C, FN, IN, FS>(
+type RunResult<N, C> = (FxIndexMap<N, (usize, C)>, Option<usize>);
+
+fn run_dijkstra<N, C, FN, IN, FS, E>(
     start: &N,
     successors: &mut FN,
     stop: &mut FS,
-) -> (FxIndexMap<N, (usize, C)>, Option<usize>)
+) -> Result<RunResult<N, C>, E>
 where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
-    FN: FnMut(&N) -> IN,
+    FN: FnMut(&N) -> Result<IN, E>,
     IN: IntoIterator<Item = (N, C)>,
-    FS: FnMut(&N) -> bool,
+    FS: FnMut(&N) -> Result<bool, E>,
 {
     let mut to_see = BinaryHeap::new();
     to_see.push(SmallestHolder {
@@ -215,7 +293,7 @@ where
     while let Some(SmallestHolder { cost, index }) = to_see.pop() {
         let successors = {
             let (node, &(_, c)) = parents.get_index(index).unwrap();
-            if stop(node) {
+            if stop(node)? {
                 target_reached = Some(index);
                 break;
             }
@@ -225,7 +303,7 @@ where
             if cost > c {
                 continue;
             }
-            successors(node)
+            successors(node)?
         };
         for (successor, move_cost) in successors {
             let new_cost = cost + move_cost;
@@ -251,7 +329,7 @@ where
             });
         }
     }
-    (parents, target_reached)
+    Ok((parents, target_reached))
 }
 
 /// Build a path leading to a target according to a parents map, which must
