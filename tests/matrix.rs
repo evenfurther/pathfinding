@@ -169,7 +169,7 @@ fn square_rotate() {
     let mut m = m1.clone();
     m.rotate_ccw(2);
     assert_eq!(m, m3);
-    let mut m = m1.clone();
+    let mut m = m1;
     m.rotate_ccw(3);
     assert_eq!(m, m2);
 

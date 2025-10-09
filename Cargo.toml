@@ -48,8 +48,8 @@ module_name_repetitions = { level = "allow", priority = 1 }
 too_long_first_doc_paragraph = { level = "allow", priority = 1 } # Temporary
 pedantic = "deny"
 missing_const_for_fn = "deny"
-# Do not activate until Clippy issue #13356 is fixed
-#allow_attributes = "deny"
+redundant_clone = "deny"
+allow_attributes = "deny"
 
 [[bench]]
 name = "algos"
