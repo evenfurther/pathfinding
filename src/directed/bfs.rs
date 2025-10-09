@@ -172,7 +172,7 @@ where
 ///
 /// Find also a more interesting example, comparing regular
 /// and bidirectional BFS [here](https://github.com/evenfurther/pathfinding/blob/main/examples/bfs_bidirectional.rs).
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::missing_panics_doc)]
 pub fn bfs_bidirectional<'a, N, S, E, FNS, FNP, IN>(
     start: S,
     end: E,

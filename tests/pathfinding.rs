@@ -335,7 +335,7 @@ mod ex2 {
 
     #[test]
     fn bfs_bidirectional_path_ok() {
-        #[allow(clippy::type_complexity)]
+        #[expect(clippy::type_complexity)]
         static SUCCESSORS: fn(&(usize, usize)) -> Vec<(usize, usize)> =
             |n| successors(n).into_iter().map(|(n, _)| n).collect();
 
@@ -420,7 +420,7 @@ mod ex2 {
 
     #[test]
     fn bfs_bidirectional_no_path() {
-        #[allow(clippy::type_complexity)]
+        #[expect(clippy::type_complexity)]
         static SUCCESSORS: fn(&(usize, usize)) -> Vec<(usize, usize)> =
             |n| successors(n).into_iter().map(|(n, _)| n).collect();
 
