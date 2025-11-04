@@ -12,23 +12,12 @@ const SIDE: u8 = 3;
 const SIDE: u8 = 4;
 const LIMIT: usize = (SIDE * SIDE) as usize;
 
-#[expect(clippy::derived_hash_with_manual_eq)]
-#[derive(Clone, Debug, Hash)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 struct Game {
     positions: [u8; LIMIT], // Correct position of piece at every index
     hole_idx: u8,           // Current index of the hole
     weight: u8,             // Current sum of pieces Manhattan distances
 }
-
-impl PartialEq for Game {
-    fn eq(&self, other: &Self) -> bool {
-        self.hole_idx == other.hole_idx
-            && self.weight == other.weight
-            && self.positions == other.positions
-    }
-}
-
-impl Eq for Game {}
 
 static GOAL: LazyLock<Game> = LazyLock::new(|| Game {
     positions: (0..(SIDE * SIDE)).collect::<Vec<_>>().try_into().unwrap(),

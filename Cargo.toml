@@ -12,6 +12,18 @@ categories = ["algorithms"]
 readme = "README.md"
 edition = "2024"
 rust-version = "1.86.0"
+include = [
+    "src/**/*",
+    "tests/**/*",
+    "benches/**/*",
+    "examples/**/*",
+    "Cargo.toml",
+    "README.md",
+    "GRAPH_GUIDE.md",
+    "CHANGELOG.md",
+    "LICENSE-APACHE",
+    "LICENSE-MIT",
+]
 
 [package.metadata.release]
 sign-commit = true
