@@ -45,6 +45,17 @@ let result = bfs(&Pos(1, 1), |p| p.successors(), |p| *p == GOAL);
 assert_eq!(result.expect("no path found").len(), 5);
 ```
 
+## Working with Graphs
+
+If you want to use this library with traditional graph structures (nodes, edges, and weights), see the [Graph Guide](GRAPH_GUIDE.md) for comprehensive examples showing:
+
+- How to represent graphs (adjacency lists, adjacency matrices, edge lists)
+- Using A* and Dijkstra with weighted graphs
+- Using BFS and DFS with unweighted graphs
+- Practical examples for spatial shortest paths
+- Converting from other languages (R, Python)
+- Tips and best practices
+
 ## License
 
 This code is released under a dual Apache 2.0 / MIT free software license.

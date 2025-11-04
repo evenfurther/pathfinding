@@ -45,6 +45,15 @@
 //! - A [`Grid`](grid/index.html) type representing a rectangular grid in which vertices can be added or removed, with automatic creation of edges between adjacent vertices.
 //! - A [`Matrix`](matrix/index.html) type to store data of arbitrary types, with neighbour-aware methods.
 //!
+//! ## Working with Graphs
+//!
+//! This library does not provide a fixed graph data structure. Instead, the algorithms accept
+//! a **successor function** that defines how to navigate from one node to its neighbors.
+//!
+//! For comprehensive examples showing how to represent graphs (adjacency lists, adjacency matrices,
+//! edge lists, etc.) and use them with various algorithms, see the
+//! [Graph Guide](https://github.com/evenfurther/pathfinding/blob/main/GRAPH_GUIDE.md).
+//!
 //! ## Example
 //!
 //! We will search the shortest path on a chess board to go from (1, 1) to (4, 6) doing only knight
