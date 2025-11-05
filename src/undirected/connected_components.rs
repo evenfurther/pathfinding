@@ -60,7 +60,9 @@ where
     #[must_use]
     pub fn separate_components(groups: &[It]) -> (HashMap<&N, usize>, Vec<usize>) {
         let mut table = (0..groups.len()).collect::<Vec<_>>();
-        let mut indices = HashMap::new();
+        // Pre-size the hash map to reduce reallocations
+        let estimated_capacity = groups.iter().map(|g| g.into_iter().count()).sum();
+        let mut indices = HashMap::with_capacity(estimated_capacity);
         for (mut group_index, group) in groups.iter().enumerate() {
             let mut is_empty = true;
             for element in group {
