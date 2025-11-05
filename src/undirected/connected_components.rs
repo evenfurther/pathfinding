@@ -5,7 +5,7 @@ use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::marker::PhantomData;
 
-use rustc_hash::{FxHashMap, FxHashSet};
+use rustc_hash::{FxBuildHasher, FxHashMap, FxHashSet};
 
 /// A connected component implementation for various generic types.
 ///
@@ -60,7 +60,9 @@ where
     #[must_use]
     pub fn separate_components(groups: &[It]) -> (HashMap<&N, usize>, Vec<usize>) {
         let mut table = (0..groups.len()).collect::<Vec<_>>();
-        let mut indices = HashMap::new();
+        // Pre-size the hash map to reduce reallocations
+        let estimated_capacity = groups.iter().map(|g| g.into_iter().count()).sum();
+        let mut indices = HashMap::with_capacity(estimated_capacity);
         for (mut group_index, group) in groups.iter().enumerate() {
             let mut is_empty = true;
             for element in group {
@@ -103,7 +105,10 @@ where
     #[must_use]
     pub fn components(groups: &[It]) -> C2 {
         let (_, gindices) = Self::separate_components(groups);
-        let mut gb: FxHashMap<usize, FxHashSet<N>> = FxHashMap::default();
+        // Pre-size the hash map to reduce reallocations
+        let estimated_capacity = gindices.iter().filter(|&&n| n != usize::MAX).count();
+        let mut gb: FxHashMap<usize, FxHashSet<N>> =
+            FxHashMap::with_capacity_and_hasher(estimated_capacity, FxBuildHasher);
         for (i, n) in gindices
             .into_iter()
             .enumerate()
