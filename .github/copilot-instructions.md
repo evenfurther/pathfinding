@@ -166,6 +166,20 @@
  3. **codspeed.yml** (Runs on main branch pushes and PRs):
     - Runs performance benchmarks
 
+ ## MSRV (Minimum Supported Rust Version)
+
+ When updating the MSRV, you must update it in the following locations:
+ 1. **Cargo.toml** - The `rust-version` field (line 14)
+ 2. **src/lib.rs** - Documentation comment stating "The minimum supported Rust version (MSRV) is Rust X.Y.Z" (line 89)
+ 3. **.github/copilot-instructions.md** - Three locations:
+    - "MSRV: X.Y.Z" in Key Facts section (line 9)
+    - "MSRV X.Y.Z" in Prerequisites section (line 18)
+    - "rust-version = X.Y.Z" in Root Directory Files section (line 102)
+
+ **Note:** The GitHub Actions workflow (.github/workflows/tests.yml) automatically reads the MSRV from Cargo.toml, so it does not need manual updates.
+
+ After updating the MSRV, always run `sh tests/check-msrv-consistency.sh` to verify that Cargo.toml and src/lib.rs are in sync.
+
  ## Critical Validation Rules
 
  ### Before Committing
