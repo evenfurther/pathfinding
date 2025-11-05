@@ -6,7 +6,7 @@
 
  **Key Facts:**
  - **Language:** Rust (edition 2024)
- - **MSRV:** 1.86.0 (Minimum Supported Rust Version)
+ - **MSRV:** 1.87.0 (Minimum Supported Rust Version)
  - **Size:** ~6,000 lines of source code, ~4,400 lines of tests
  - **Type:** Library crate (no binary)
  - **Dependencies:** Minimal (num-traits, indexmap, rustc-hash, integer-sqrt, thiserror, deprecate-until)
@@ -15,7 +15,7 @@
  ## Build and Validation Commands
 
  ### Prerequisites
- All commands should be run from the repository root. The project requires Rust toolchain (stable, beta, nightly, or MSRV 1.86.0).
+ All commands should be run from the repository root. The project requires Rust toolchain (stable, beta, nightly, or MSRV 1.87.0).
 
  ### Essential Commands (In Order)
 
@@ -99,7 +99,7 @@
  ## Project Structure
 
  ### Root Directory Files
- - `Cargo.toml` - Project manifest with dependencies, MSRV (rust-version = "1.86.0"), and linting configuration
+ - `Cargo.toml` - Project manifest with dependencies, MSRV (rust-version = "1.87.0"), and linting configuration
  - `Cargo.lock` - Locked dependency versions
  - `README.md` - User-facing documentation
  - `CHANGELOG.md` - Version history
