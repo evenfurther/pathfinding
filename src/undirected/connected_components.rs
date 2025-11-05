@@ -5,7 +5,7 @@ use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::marker::PhantomData;
 
-use rustc_hash::{FxHashMap, FxHashSet};
+use rustc_hash::{FxBuildHasher, FxHashMap, FxHashSet};
 
 /// A connected component implementation for various generic types.
 ///
@@ -105,7 +105,10 @@ where
     #[must_use]
     pub fn components(groups: &[It]) -> C2 {
         let (_, gindices) = Self::separate_components(groups);
-        let mut gb: FxHashMap<usize, FxHashSet<N>> = FxHashMap::default();
+        // Pre-size the hash map to reduce reallocations
+        let estimated_capacity = gindices.iter().filter(|&&n| n != usize::MAX).count();
+        let mut gb: FxHashMap<usize, FxHashSet<N>> =
+            FxHashMap::with_capacity_and_hasher(estimated_capacity, FxBuildHasher);
         for (i, n) in gindices
             .into_iter()
             .enumerate()

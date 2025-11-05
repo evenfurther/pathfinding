@@ -92,7 +92,8 @@ where
     FH: FnMut(&N) -> C,
     FS: FnMut(&N) -> bool,
 {
-    let mut to_see = BinaryHeap::new();
+    // Pre-allocate heap with a reasonable default capacity to reduce reallocations
+    let mut to_see = BinaryHeap::with_capacity(64);
     to_see.push(SmallestCostHolder {
         estimated_cost: Zero::zero(),
         cost: Zero::zero(),
