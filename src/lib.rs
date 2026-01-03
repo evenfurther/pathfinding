@@ -122,12 +122,11 @@ pub mod utils;
 mod noderefs;
 pub use noderefs::NodeRefs;
 
+use ahash::RandomState;
 use indexmap::{IndexMap, IndexSet};
-use rustc_hash::FxHasher;
-use std::hash::BuildHasherDefault;
 
-type FxIndexMap<K, V> = IndexMap<K, V, BuildHasherDefault<FxHasher>>;
-type FxIndexSet<K> = IndexSet<K, BuildHasherDefault<FxHasher>>;
+type FxIndexMap<K, V> = IndexMap<K, V, RandomState>;
+type FxIndexSet<K> = IndexSet<K, RandomState>;
 
 /// Export all public functions and structures for an easy access.
 pub mod prelude {

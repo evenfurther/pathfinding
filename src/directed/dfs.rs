@@ -5,7 +5,7 @@ use std::collections::HashSet;
 use std::hash::Hash;
 use std::iter::FusedIterator;
 
-use rustc_hash::{FxHashMap, FxHashSet};
+use ahash::{AHashMap, AHashSet};
 
 /// Compute a path using the [depth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Depth-first_search).
@@ -54,8 +54,8 @@ where
     FS: FnMut(&N) -> bool,
 {
     let mut to_visit = vec![start];
-    let mut visited = FxHashSet::default();
-    let mut parents = FxHashMap::default();
+    let mut visited = AHashSet::default();
+    let mut parents = AHashMap::default();
     while let Some(node) = to_visit.pop() {
         if visited.insert(node.clone()) {
             if success(&node) {
@@ -77,7 +77,7 @@ where
     None
 }
 
-fn build_path<N>(mut node: N, parents: &FxHashMap<N, N>) -> Vec<N>
+fn build_path<N>(mut node: N, parents: &AHashMap<N, N>) -> Vec<N>
 where
     N: Clone + Eq + Hash,
 {
