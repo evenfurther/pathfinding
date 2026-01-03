@@ -106,8 +106,7 @@ where
         let (_, gindices) = Self::separate_components(groups);
         // Pre-size the hash map to reduce reallocations
         let estimated_capacity = gindices.iter().filter(|&&n| n != usize::MAX).count();
-        let mut gb: AHashMap<usize, AHashSet<N>> =
-            AHashMap::with_capacity(estimated_capacity);
+        let mut gb: AHashMap<usize, AHashSet<N>> = AHashMap::with_capacity(estimated_capacity);
         for (i, n) in gindices
             .into_iter()
             .enumerate()
