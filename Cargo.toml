@@ -33,6 +33,9 @@ pre-release-replacements = [
     {file = "CHANGELOG.md", search = "n\\.n\\.n", replace = "{{tag_name}}", exactly = 1}
 ]
 
+[features]
+iai = []
+
 [dependencies]
 num-traits = "0.2.19"
 indexmap = "2.11.4"
@@ -43,6 +46,7 @@ deprecate-until = "0.1.1"
 
 [dev-dependencies]
 codspeed-criterion-compat = "4.0.0"
+iai-callgrind = "0.16.1"
 itertools = "0.14.0"
 movingai = "2.1.0"
 noisy_float = "0.2.0"
@@ -90,3 +94,23 @@ harness = false
 [[bench]]
 name = "matrices"
 harness = false
+
+[[bench]]
+name = "iai_algos"
+harness = false
+required-features = ["iai"]
+
+[[bench]]
+name = "iai_edmondskarp"
+harness = false
+required-features = ["iai"]
+
+[[bench]]
+name = "iai_kuhn_munkres"
+harness = false
+required-features = ["iai"]
+
+[[bench]]
+name = "iai_separate_components"
+harness = false
+required-features = ["iai"]

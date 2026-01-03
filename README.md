@@ -60,6 +60,32 @@ If you want to use this library with traditional graph structures (nodes, edges,
 
 This code is released under a dual Apache 2.0 / MIT free software license.
 
+## Benchmarking
+
+This repository includes two types of benchmarks:
+
+### Wall-time Benchmarks (Criterion/CodSpeed)
+
+Traditional wall-time benchmarks using Criterion (with CodSpeed compatibility) are located in `benches/` with names like `algos.rs`, `edmondskarp.rs`, etc. These can be run with:
+
+```bash
+cargo bench --bench algos --bench edmondskarp --bench kuhn_munkres --bench separate_components
+```
+
+### Deterministic Benchmarks (iai-callgrind)
+
+For more precise and deterministic performance measurements, we use iai-callgrind which counts CPU instructions, cache hits/misses, and estimated cycles using Valgrind. These benchmarks are prefixed with `iai_` and require the `iai` feature flag:
+
+```bash
+# Install valgrind first (required by iai-callgrind)
+sudo apt-get install valgrind  # On Ubuntu/Debian
+
+# Run the benchmarks with the feature flag
+cargo bench --features iai --bench iai_algos --bench iai_edmondskarp --bench iai_kuhn_munkres --bench iai_separate_components
+```
+
+The iai-callgrind benchmarks provide consistent results across runs and are not affected by system load, making them ideal for detecting performance regressions. They run automatically in CI for all pull requests, comparing performance against the base branch.
+
 ## Contributing
 
 You are welcome to contribute by opening [issues](https://github.com/evenfurther/pathfinding/issues)

@@ -1,0 +1,230 @@
+name: iai-callgrind Benchmarks
+
+on:
+  pull_request:
+  merge_group:
+
+jobs:
+  benchmarks:
+    name: Run iai-callgrind benchmarks
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+        name: Checkout PR branch
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust toolchain
+        run: |
+          rustup install --profile minimal stable
+          rustup default stable
+
+      - name: Install valgrind
+        run: sudo apt-get update && sudo apt-get install -y valgrind
+
+      - name: Install iai-callgrind-runner
+        uses: baptiste0928/cargo-install@v3
+        with:
+          crate: iai-callgrind-runner
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: iai-callgrind
+
+      - name: Get base branch name
+        id: base_branch
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "name=${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=main" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout base branch
+        run: |
+          git fetch origin ${{ steps.base_branch.outputs.name }}
+          git checkout origin/${{ steps.base_branch.outputs.name }}
+
+      - name: Run benchmarks on base branch
+        continue-on-error: true
+        run: |
+          echo "Running benchmarks on base branch: ${{ steps.base_branch.outputs.name }}"
+          cargo bench --features iai --bench iai_algos --bench iai_edmondskarp --bench iai_kuhn_munkres --bench iai_separate_components 2>&1 | tee baseline-output.txt
+
+      - name: Checkout PR branch
+        run: git checkout ${{ github.sha }}
+
+      - name: Clear target directory for PR build
+        run: cargo clean
+
+      - name: Run benchmarks on PR branch
+        run: |
+          echo "Running benchmarks on PR branch"
+          cargo bench --features iai --bench iai_algos --bench iai_edmondskarp --bench iai_kuhn_munkres --bench iai_separate_components 2>&1 | tee pr-output.txt
+
+      - name: Parse and compare results
+        if: github.event_name == 'pull_request'
+        id: parse_results
+        run: |
+          python3 << 'EOF'
+          import re
+          import os
+
+          def parse_benchmark_output(filename):
+              """Parse iai-callgrind output and extract benchmark results."""
+              benchmarks = {}
+              try:
+                  with open(filename, 'r') as f:
+                      content = f.read()
+
+                  # Pattern to match benchmark names and their metrics
+                  benchmark_pattern = r'([^\n]+?)::[^\n]+?::([^\n]+?)\n\s+Instructions:\s+(\d+)'
+
+                  for match in re.finditer(benchmark_pattern, content):
+                      bench_name = f"{match.group(1)}::{match.group(2)}"
+                      instructions = int(match.group(3))
+                      benchmarks[bench_name] = instructions
+              except FileNotFoundError:
+                  pass
+
+              return benchmarks
+
+          baseline = parse_benchmark_output('baseline-output.txt')
+          pr_results = parse_benchmark_output('pr-output.txt')
+
+          # Create markdown comment
+          comment = "## 📊 iai-callgrind Benchmark Results\n\n"
+
+          if not baseline:
+              comment += "⚠️ **No baseline benchmarks found.** This may be the first time these benchmarks are run on the base branch.\n\n"
+              comment += "### PR Branch Results\n\n"
+              comment += "| Benchmark | Instructions |\n"
+              comment += "|-----------|-------------|\n"
+              for name, instr in sorted(pr_results.items()):
+                  comment += f"| `{name}` | {instr:,} |\n"
+          else:
+              # Compare results
+              improvements = []
+              regressions = []
+              unchanged = []
+              new_benchmarks = []
+
+              for name, pr_instr in sorted(pr_results.items()):
+                  if name in baseline:
+                      base_instr = baseline[name]
+                      diff = pr_instr - base_instr
+                      pct_change = (diff / base_instr) * 100 if base_instr > 0 else 0
+
+                      result = {
+                          'name': name,
+                          'base': base_instr,
+                          'pr': pr_instr,
+                          'diff': diff,
+                          'pct': pct_change
+                      }
+
+                      if abs(pct_change) < 0.1:  # Less than 0.1% change
+                          unchanged.append(result)
+                      elif diff < 0:
+                          improvements.append(result)
+                      else:
+                          regressions.append(result)
+                  else:
+                      new_benchmarks.append({'name': name, 'pr': pr_instr})
+
+              # Summary
+              if regressions:
+                  comment += f"### ⚠️ {len(regressions)} Regression(s) Detected\n\n"
+                  comment += "| Benchmark | Base | PR | Change | % |\n"
+                  comment += "|-----------|------|----|---------|\n"
+                  for r in sorted(regressions, key=lambda x: abs(x['pct']), reverse=True):
+                      comment += f"| `{r['name']}` | {r['base']:,} | {r['pr']:,} | +{r['diff']:,} | +{r['pct']:.2f}% |\n"
+                  comment += "\n"
+
+              if improvements:
+                  comment += f"### ✅ {len(improvements)} Improvement(s)\n\n"
+                  comment += "| Benchmark | Base | PR | Change | % |\n"
+                  comment += "|-----------|------|----|---------|\n"
+                  for r in sorted(improvements, key=lambda x: abs(x['pct']), reverse=True):
+                      comment += f"| `{r['name']}` | {r['base']:,} | {r['pr']:,} | {r['diff']:,} | {r['pct']:.2f}% |\n"
+                  comment += "\n"
+
+              if unchanged:
+                  comment += f"### ➡️ {len(unchanged)} Unchanged (within ±0.1%)\n\n"
+                  comment += "<details><summary>Click to expand</summary>\n\n"
+                  comment += "| Benchmark | Instructions |\n"
+                  comment += "|-----------|-------------|\n"
+                  for r in unchanged:
+                      comment += f"| `{r['name']}` | {r['pr']:,} |\n"
+                  comment += "\n</details>\n\n"
+
+              if new_benchmarks:
+                  comment += f"### 🆕 {len(new_benchmarks)} New Benchmark(s)\n\n"
+                  comment += "| Benchmark | Instructions |\n"
+                  comment += "|-----------|-------------|\n"
+                  for nb in new_benchmarks:
+                      comment += f"| `{nb['name']}` | {nb['pr']:,} |\n"
+                  comment += "\n"
+
+              if not regressions and not improvements and not new_benchmarks:
+                  comment += "### ✅ All benchmarks unchanged\n\n"
+
+          comment += "\n---\n"
+          comment += "*iai-callgrind measures instructions executed, which is deterministic and not affected by system load.*\n"
+
+          # Write to file
+          with open('comment.txt', 'w') as f:
+              f.write(comment)
+
+          print("Comment generated successfully")
+          EOF
+
+      - name: Post comment to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const comment = fs.readFileSync('comment.txt', 'utf8');
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('iai-callgrind Benchmark Results')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+      - name: Add summary
+        if: always()
+        run: |
+          if [ -f comment.txt ]; then
+            cat comment.txt >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
+            echo "Benchmark comparison was not generated." >> $GITHUB_STEP_SUMMARY
+          fi
