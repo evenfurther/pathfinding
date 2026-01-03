@@ -102,7 +102,7 @@
  - `Cargo.toml` - Project manifest with dependencies, MSRV (rust-version = "1.87.0"), and linting configuration
  - `Cargo.lock` - Locked dependency versions
  - `README.md` - User-facing documentation
- - `CHANGELOG.md` - Version history
+ - `CHANGELOG.md` - Version history (DO NOT MODIFY - updated automatically during release process)
  - `.gitignore` - Ignores: target/, mutants.out*, flamegraph.svg, perf.data*
  - `deny.toml` - Configuration for cargo-deny (license and security checks)
  - `.pre-commit-config.yaml` - Pre-commit hooks configuration
@@ -189,6 +189,7 @@
  4. **Check MSRV consistency:** `sh tests/check-msrv-consistency.sh` if you modify Cargo.toml or src/lib.rs
  5. **Remove trailing spaces:** All files must have trailing whitespace removed (pre-commit checks enforce this)
  6. **Unix line terminators:** Unix regular \n terminators must be used
+ 7. **DO NOT modify CHANGELOG.md:** The changelog is updated automatically during the release process and should not be modified in pull requests
 
  ### Commit Message Format
  This repository uses **conventional commits**. Every commit message must follow this format:
@@ -209,6 +210,7 @@
  4. **Tests must pass in both debug and release modes** on multiple toolchains (stable, beta, nightly, MSRV).
  5. **Documentation tests are separate** from regular tests. Always run both `cargo test --tests` and `cargo test --doc`.
  6. **Benchmarks are tests too**. Use `--benches` flag when running tests to include benchmark tests.
+ 7. **DO NOT modify CHANGELOG.md** in pull requests. The changelog is updated automatically by the release script (`release.sh`) which generates it from git commit messages.
 
  ## Development Workflow
 
