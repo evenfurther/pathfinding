@@ -107,8 +107,14 @@ where
         let (_, gindices) = Self::separate_components(groups);
         // Pre-size the hash map to reduce reallocations
         let estimated_capacity = gindices.iter().filter(|&&n| n != usize::MAX).count();
-        let mut gb: HashMap<usize, HashSet<N, BuildHasherDefault<AHasher>>, BuildHasherDefault<AHasher>> =
-            HashMap::with_capacity_and_hasher(estimated_capacity, BuildHasherDefault::<AHasher>::default());
+        let mut gb: HashMap<
+            usize,
+            HashSet<N, BuildHasherDefault<AHasher>>,
+            BuildHasherDefault<AHasher>,
+        > = HashMap::with_capacity_and_hasher(
+            estimated_capacity,
+            BuildHasherDefault::<AHasher>::default(),
+        );
         for (i, n) in gindices
             .into_iter()
             .enumerate()
