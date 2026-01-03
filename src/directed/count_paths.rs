@@ -1,8 +1,11 @@
 //! Count the total number of possible paths to reach a destination.
 
-use std::hash::Hash;
+use std::collections::HashMap;
+use std::hash::{BuildHasherDefault, Hash};
 
-use ahash::AHashMap;
+use ahash::AHasher;
+
+type AHashMap<K, V> = HashMap<K, V, BuildHasherDefault<AHasher>>;
 
 fn cached_count_paths<T, FN, IN, FS>(
     start: T,

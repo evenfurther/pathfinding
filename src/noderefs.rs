@@ -1,7 +1,11 @@
-use ahash::AHashSet;
-use std::hash::Hash;
+use std::collections::HashSet;
+use std::hash::{BuildHasherDefault, Hash};
 use std::iter::FromIterator;
 use std::ops::Deref;
+
+use ahash::AHasher;
+
+type AHashSet<T> = HashSet<T, BuildHasherDefault<AHasher>>;
 
 /// A set of node references.
 ///

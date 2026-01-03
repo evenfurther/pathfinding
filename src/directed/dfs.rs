@@ -1,11 +1,14 @@
 //! Compute a path using the [depth-first search
 //! algorithm](https://en.wikipedia.org/wiki/Depth-first_search).
 
-use std::collections::HashSet;
-use std::hash::Hash;
+use std::collections::{HashMap, HashSet};
+use std::hash::{BuildHasherDefault, Hash};
 use std::iter::FusedIterator;
 
-use ahash::{AHashMap, AHashSet};
+use ahash::AHasher;
+
+type AHashMap<K, V> = HashMap<K, V, BuildHasherDefault<AHasher>>;
+type AHashSet<T> = HashSet<T, BuildHasherDefault<AHasher>>;
 
 /// Compute a path using the [depth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Depth-first_search).

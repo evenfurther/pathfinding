@@ -3,12 +3,16 @@
 
 use super::reverse_path;
 use crate::FxIndexMap;
-use ahash::{AHashMap, AHashSet};
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
-use std::hash::Hash;
+use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::hash::{BuildHasherDefault, Hash};
+
+use ahash::AHasher;
+
+type AHashMap<K, V> = HashMap<K, V, BuildHasherDefault<AHasher>>;
+type AHashSet<T> = HashSet<T, BuildHasherDefault<AHasher>>;
 
 /// Compute a shortest path using the [Dijkstra search
 /// algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
