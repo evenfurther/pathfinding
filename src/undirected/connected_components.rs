@@ -2,10 +2,10 @@
 
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
+use std::hash::{BuildHasherDefault, Hash};
 use std::marker::PhantomData;
 
-use rustc_hash::{FxBuildHasher, FxHashMap, FxHashSet};
+use ahash::AHasher;
 
 /// A connected component implementation for various generic types.
 ///
@@ -107,8 +107,14 @@ where
         let (_, gindices) = Self::separate_components(groups);
         // Pre-size the hash map to reduce reallocations
         let estimated_capacity = gindices.iter().filter(|&&n| n != usize::MAX).count();
-        let mut gb: FxHashMap<usize, FxHashSet<N>> =
-            FxHashMap::with_capacity_and_hasher(estimated_capacity, FxBuildHasher);
+        let mut gb: HashMap<
+            usize,
+            HashSet<N, BuildHasherDefault<AHasher>>,
+            BuildHasherDefault<AHasher>,
+        > = HashMap::with_capacity_and_hasher(
+            estimated_capacity,
+            BuildHasherDefault::<AHasher>::default(),
+        );
         for (i, n) in gindices
             .into_iter()
             .enumerate()
