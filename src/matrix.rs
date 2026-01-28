@@ -449,6 +449,16 @@ impl<C> Matrix<C> {
         })
     }
 
+    /// Access a reference to a row as a slice.
+    #[must_use]
+    pub fn get_row(&self, row: usize) -> Option<&[C]> {
+        if row < self.rows {
+            Some(&self.data[row * self.columns..(row + 1) * self.columns])
+        } else {
+            None
+        }
+    }
+
     /// Flip the matrix around the vertical axis.
     pub fn flip_lr(&mut self) {
         for r in 0..self.rows {
