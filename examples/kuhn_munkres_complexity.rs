@@ -6,9 +6,29 @@
 //! verify this complexity.
 
 use pathfinding::prelude::{Matrix, kuhn_munkres};
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::time::Instant;
+
+// Adapter to make XorShiftRng (which implements rand_core 0.10 traits)
+// compatible with rand 0.9.2 (which expects rand_core 0.9 traits)
+struct RngAdapter<R>(R);
+
+#[expect(deprecated)]
+impl<R: rand_core::RngCore> rand::RngCore for RngAdapter<R> {
+    fn next_u32(&mut self) -> u32 {
+        self.0.next_u32()
+    }
+
+    fn next_u64(&mut self) -> u64 {
+        self.0.next_u64()
+    }
+
+    fn fill_bytes(&mut self, dest: &mut [u8]) {
+        self.0.fill_bytes(dest);
+    }
+}
 
 /// Test sizes to use for complexity analysis
 const TEST_SIZES: &[usize] = &[5, 10, 20, 30, 40, 50, 60, 80, 100, 120, 150, 200];
@@ -37,9 +57,9 @@ fn main() {
         let mut total_time_micros = 0u128;
 
         // Use a fixed seed for reproducibility
-        let mut rng = XorShiftRng::from_seed([
+        let mut rng = RngAdapter(XorShiftRng::from_seed([
             3, 42, 93, 129, 1, 85, 72, 42, 84, 23, 95, 212, 253, 10, 4, 2,
-        ]);
+        ]));
 
         for iteration in 0..ITERATIONS {
             // Generate a random square matrix with weights between 1 and 100

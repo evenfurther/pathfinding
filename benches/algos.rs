@@ -4,9 +4,29 @@ use pathfinding::prelude::{
     astar, bfs, bfs_bidirectional, dfs, dijkstra, fringe, idastar, iddfs, separate_components,
 };
 use rand::seq::SliceRandom;
-use rand::{Rng as _, RngCore as _, SeedableRng as _};
+use rand::{Rng as _, RngCore as _};
+use rand_core::SeedableRng as _;
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
+
+// Adapter to make XorShiftRng (which implements rand_core 0.10 traits)
+// compatible with rand 0.9.2 (which expects rand_core 0.9 traits)
+struct RngAdapter<R>(R);
+
+#[expect(deprecated)]
+impl<R: rand_core::RngCore> rand::RngCore for RngAdapter<R> {
+    fn next_u32(&mut self) -> u32 {
+        self.0.next_u32()
+    }
+
+    fn next_u64(&mut self) -> u64 {
+        self.0.next_u64()
+    }
+
+    fn fill_bytes(&mut self, dest: &mut [u8]) {
+        self.0.fill_bytes(dest);
+    }
+}
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 struct Pt {
@@ -227,9 +247,9 @@ fn no_path_fringe(c: &mut Criterion) {
 
 fn bench_separate_components(c: &mut Criterion) {
     c.bench_function("separate_components", |b| {
-        let mut rng = XorShiftRng::from_seed([
+        let mut rng = RngAdapter(XorShiftRng::from_seed([
             3, 42, 93, 129, 1, 85, 72, 42, 84, 23, 95, 212, 253, 10, 4, 2,
-        ]);
+        ]));
         let mut seen = HashSet::new();
         let mut components = (0..100)
             .map(|_| {
