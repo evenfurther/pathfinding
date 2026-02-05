@@ -1,11 +1,10 @@
 //! Separate components of an undirected graph into disjoint sets.
 
+use ahash::{AHashMap, AHashSet};
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::marker::PhantomData;
-
-use rustc_hash::{FxBuildHasher, FxHashMap, FxHashSet};
 
 /// A connected component implementation for various generic types.
 ///
@@ -107,8 +106,7 @@ where
         let (_, gindices) = Self::separate_components(groups);
         // Pre-size the hash map to reduce reallocations
         let estimated_capacity = gindices.iter().filter(|&&n| n != usize::MAX).count();
-        let mut gb: FxHashMap<usize, FxHashSet<N>> =
-            FxHashMap::with_capacity_and_hasher(estimated_capacity, FxBuildHasher);
+        let mut gb: AHashMap<usize, AHashSet<N>> = AHashMap::with_capacity(estimated_capacity);
         for (i, n) in gindices
             .into_iter()
             .enumerate()
