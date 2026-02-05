@@ -5,10 +5,14 @@ use super::reverse_path;
 use crate::FxIndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
-use rustc_hash::{FxHashMap, FxHashSet};
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
-use std::hash::Hash;
+use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::hash::{BuildHasherDefault, Hash};
+
+use ahash::AHasher;
+
+type AHashMap<K, V> = HashMap<K, V, BuildHasherDefault<AHasher>>;
+type AHashSet<T> = HashSet<T, BuildHasherDefault<AHasher>>;
 
 /// Compute a shortest path using the [Dijkstra search
 /// algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
@@ -326,9 +330,9 @@ impl<K: Ord> Ord for SmallestHolder<K> {
 /// Struct returned by [`dijkstra_reach`].
 pub struct DijkstraReachable<N, C, FN> {
     to_see: BinaryHeap<SmallestHolder<C>>,
-    seen: FxHashSet<usize>,
+    seen: AHashSet<usize>,
     parents: FxIndexMap<N, (usize, C)>,
-    total_costs: FxHashMap<N, C>,
+    total_costs: AHashMap<N, C>,
     successors: FN,
 }
 
@@ -422,10 +426,10 @@ where
     let mut parents: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
     parents.insert(start.clone(), (usize::MAX, Zero::zero()));
 
-    let mut total_costs = FxHashMap::default();
+    let mut total_costs = AHashMap::default();
     total_costs.insert(start.clone(), Zero::zero());
 
-    let seen = FxHashSet::default();
+    let seen = AHashSet::default();
 
     DijkstraReachable {
         to_see,

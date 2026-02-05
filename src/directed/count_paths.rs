@@ -1,14 +1,17 @@
 //! Count the total number of possible paths to reach a destination.
 
-use std::hash::Hash;
+use std::collections::HashMap;
+use std::hash::{BuildHasherDefault, Hash};
 
-use rustc_hash::FxHashMap;
+use ahash::AHasher;
+
+type AHashMap<K, V> = HashMap<K, V, BuildHasherDefault<AHasher>>;
 
 fn cached_count_paths<T, FN, IN, FS>(
     start: T,
     successors: &mut FN,
     success: &mut FS,
-    cache: &mut FxHashMap<T, usize>,
+    cache: &mut AHashMap<T, usize>,
 ) -> usize
 where
     T: Eq + Hash,
@@ -66,6 +69,6 @@ where
         start,
         &mut successors,
         &mut success,
-        &mut FxHashMap::default(),
+        &mut AHashMap::default(),
     )
 }
