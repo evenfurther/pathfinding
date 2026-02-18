@@ -5,6 +5,7 @@ use std::cmp::Ordering;
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 use std::collections::HashSet;
+use std::convert::Infallible;
 use std::hash::Hash;
 
 use super::dijkstra::dijkstra_internal;
@@ -42,6 +43,7 @@ where
         }
     }
 }
+
 /// Compute the k-shortest paths using the [Yen's search
 /// algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).
 ///
@@ -108,8 +110,37 @@ where
     IN: IntoIterator<Item = (N, C)>,
     FS: FnMut(&N) -> bool,
 {
-    let Some((n, c)) = dijkstra_internal(start, &mut successors, &mut success) else {
-        return vec![];
+    match try_yen::<_, _, _, _, _, Infallible>(
+        start,
+        |node| Ok(successors(node)),
+        |node| Ok(success(node)),
+        k,
+    ) {
+        Ok(v) => v,
+    }
+}
+
+/// Compute the k-shortest paths using the [Yen's search
+/// algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).
+///
+/// # Errors
+/// This is the fallible version of [`yen`].
+/// `Err(err)` is returned immediately if and only if `successors` or `success` returns `Err(err)`.
+pub fn try_yen<N, C, FN, IN, FS, E>(
+    start: &N,
+    mut successors: FN,
+    mut success: FS,
+    k: usize,
+) -> Result<Vec<(Vec<N>, C)>, E>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: FnMut(&N) -> Result<IN, E>,
+    IN: IntoIterator<Item = (N, C)>,
+    FS: FnMut(&N) -> Result<bool, E>,
+{
+    let Some((n, c)) = dijkstra_internal(start, &mut successors, &mut success)? else {
+        return Ok(vec![]);
     };
 
     let mut visited = HashSet::new();
@@ -142,23 +173,24 @@ where
             // We are creating a new successor function that will not return the
             // filtered edges and nodes that routes already used.
             let mut filtered_successor = |n: &N| {
-                successors(n)
-                    .into_iter()
-                    .filter(|(n2, _)| {
-                        !filtered_nodes.contains(&n2) && !filtered_edges.contains(&(n, n2))
-                    })
-                    .collect::<Vec<_>>()
+                successors(n).map(|list| {
+                    list.into_iter()
+                        .filter(|(n2, _)| {
+                            !filtered_nodes.contains(&n2) && !filtered_edges.contains(&(n, n2))
+                        })
+                        .collect::<Vec<_>>()
+                })
             };
 
             // Let us find the spur path from the spur node to the sink using.
             if let Some((spur_path, _)) =
-                dijkstra_internal(spur_node, &mut filtered_successor, &mut success)
+                dijkstra_internal(spur_node, &mut filtered_successor, &mut success)?
             {
                 let nodes: Vec<N> = root_path.iter().cloned().chain(spur_path).collect();
                 // If we have found the same path before, we will not add it.
                 if !visited.contains(&nodes) {
                     // Since we don't know the root_path cost, we need to recalculate.
-                    let cost = make_cost(&nodes, &mut successors);
+                    let cost = make_cost(&nodes, &mut successors)?;
                     let path = Path { nodes, cost };
                     // Mark as visited
                     visited.insert(path.nodes.clone());
@@ -190,26 +222,26 @@ where
     }
 
     routes.sort_unstable();
-    routes
+    Ok(routes
         .into_iter()
         .map(|Path { nodes, cost }| (nodes, cost))
-        .collect()
+        .collect())
 }
 
-fn make_cost<N, FN, IN, C>(nodes: &[N], successors: &mut FN) -> C
+fn make_cost<N, FN, IN, C, E>(nodes: &[N], successors: &mut FN) -> Result<C, E>
 where
     N: Eq,
     C: Zero,
-    FN: FnMut(&N) -> IN,
+    FN: FnMut(&N) -> Result<IN, E>,
     IN: IntoIterator<Item = (N, C)>,
 {
     let mut cost = C::zero();
     for edge in nodes.windows(2) {
-        for (n, c) in successors(&edge[0]) {
+        for (n, c) in successors(&edge[0])? {
             if n == edge[1] {
                 cost = cost + c;
             }
         }
     }
-    cost
+    Ok(cost)
 }
