@@ -40,6 +40,7 @@ iai = []
 num-traits = "0.2.19"
 indexmap = "2.11.4"
 rustc-hash = "2.1.1"
+ahash = "0.8.11"
 integer-sqrt = "0.1.5"
 thiserror = "2.0.17"
 deprecate-until = "1.0.0"
