@@ -1,4 +1,4 @@
-use codspeed_criterion_compat::{Criterion, criterion_group, criterion_main};
+use criterion::{Criterion, criterion_group, criterion_main};
 use itertools::Itertools;
 use pathfinding::prelude::separate_components;
 use rand::{Rng as _, RngCore as _, SeedableRng as _, prelude::SliceRandom};

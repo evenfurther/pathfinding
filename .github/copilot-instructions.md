@@ -77,6 +77,19 @@
  # Run checks
  cargo deny check
  ```
+
+ **8. Test with Minimal Versions:**
+ ```bash
+ # Set dependencies to their minimum allowed versions (requires nightly)
+ cargo +nightly update -Zminimal-versions
+
+ # Run tests with stable compiler under minimal versions
+ cargo +stable test --tests --benches
+
+ # Restore normal (latest) versions afterwards
+ cargo update
+ ```
+ This catches cases where minimum version bounds in Cargo.toml are set too low.
  ### Release Build
  ```bash
  cargo build --release
@@ -163,8 +176,6 @@
  2. **pre-commit.yaml** (Runs on PRs and merge groups):
     - Runs pre-commit hooks (trailing whitespace, TOML/YAML validation, codespell, conventional commits)
 
- 3. **codspeed.yml** (Runs on main branch pushes and PRs):
-    - Runs performance benchmarks
 
  ## MSRV (Minimum Supported Rust Version)
 
@@ -187,10 +198,11 @@
  2. **ALWAYS run formatting:** `cargo +stable fmt --all -- --check` (auto-fix with `cargo +stable fmt --all`)
  3. **ALWAYS run clippy with nightly:** `cargo +nightly clippy --all-targets -- -D warnings`
  4. **Check MSRV consistency:** `sh tests/check-msrv-consistency.sh` if you modify Cargo.toml or src/lib.rs
- 5. **Remove trailing spaces:** All files must have trailing whitespace removed (pre-commit checks enforce this)
- 6. **Unix line terminators:** Unix regular \n terminators must be used
- 7. **DO NOT modify CHANGELOG.md:** The changelog is updated automatically during the release process and should not be modified in pull requests
- 8. When you add new tests while fixing a bug, ensure that those tests fail with the current code version and pass with your proposed changes.
+ 5. **ALWAYS test with minimal versions** when modifying `Cargo.toml` dependencies: `cargo +nightly update -Zminimal-versions && cargo +stable test --tests --benches` (restore with `cargo update`)
+ 6. **Remove trailing spaces:** All files must have trailing whitespace removed (pre-commit checks enforce this)
+ 7. **Unix line terminators:** Unix regular \n terminators must be used
+ 8. **DO NOT modify CHANGELOG.md:** The changelog is updated automatically during the release process and should not be modified in pull requests
+ 9. When you add new tests while fixing a bug, ensure that those tests fail with the current code version and pass with your proposed changes.
 
  ### Commit Message Format
  This repository uses **conventional commits**. Every commit message must follow this format:
@@ -211,7 +223,8 @@
  4. **Tests must pass in both debug and release modes** on multiple toolchains (stable, beta, nightly, MSRV).
  5. **Documentation tests are separate** from regular tests. Always run both `cargo test --tests` and `cargo test --doc`.
  6. **Benchmarks are tests too**. Use `--benches` flag when running tests to include benchmark tests.
- 7. **DO NOT modify CHANGELOG.md** in pull requests. The changelog is updated automatically by the release script (`release.sh`) which generates it from git commit messages.
+ 7. **Minimal versions must compile**. When changing dependencies in Cargo.toml, always verify with `cargo +nightly update -Zminimal-versions && cargo +stable test --tests --benches`. Some transitive dependencies require a minimum floor entry in `[dev-dependencies]` (e.g. `regex`) to prevent `-Zminimal-versions` from selecting versions too old to compile with current Rust.
+ 8. **DO NOT modify CHANGELOG.md** in pull requests. The changelog is updated automatically by the release script (`release.sh`) which generates it from git commit messages.
 
  ## Development Workflow
 
