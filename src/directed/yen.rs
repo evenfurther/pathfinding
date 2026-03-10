@@ -108,6 +108,9 @@ where
     IN: IntoIterator<Item = (N, C)>,
     FS: FnMut(&N) -> bool,
 {
+    if k == 0 {
+        return vec![];
+    }
     let Some((n, c)) = dijkstra_internal(start, &mut successors, &mut success) else {
         return vec![];
     };

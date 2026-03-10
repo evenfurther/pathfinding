@@ -163,19 +163,21 @@ where
     type Item = N;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let n = self.to_see.pop()?;
-        if self.visited.contains(&n) {
-            return self.next();
-        }
-        self.visited.insert(n.clone());
-        let mut to_insert = Vec::new();
-        for s in (self.successors)(&n) {
-            if !self.visited.contains(&s) {
-                to_insert.push(s.clone());
+        loop {
+            let n = self.to_see.pop()?;
+            if self.visited.contains(&n) {
+                continue;
             }
+            self.visited.insert(n.clone());
+            let mut to_insert = Vec::new();
+            for s in (self.successors)(&n) {
+                if !self.visited.contains(&s) {
+                    to_insert.push(s.clone());
+                }
+            }
+            self.to_see.extend(to_insert.into_iter().rev());
+            return Some(n);
         }
-        self.to_see.extend(to_insert.into_iter().rev());
-        Some(n)
     }
 }
 
