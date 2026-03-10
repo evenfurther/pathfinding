@@ -190,6 +190,7 @@
  5. **Remove trailing spaces:** All files must have trailing whitespace removed (pre-commit checks enforce this)
  6. **Unix line terminators:** Unix regular \n terminators must be used
  7. **DO NOT modify CHANGELOG.md:** The changelog is updated automatically during the release process and should not be modified in pull requests
+ 8. When you add new tests while fixing a bug, ensure that those tests fail with the current code version and pass with your proposed changes.
 
  ### Commit Message Format
  This repository uses **conventional commits**. Every commit message must follow this format:
