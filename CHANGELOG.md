@@ -1,5 +1,5 @@
 
-n.n.n / 2026-03-10
+v4.15.0 / 2026-03-10
 ==================
 
   * chore!: increase MSRV to 1.87.0 and switch to edition 2024
