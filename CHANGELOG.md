@@ -1,4 +1,21 @@
 
+n.n.n / 2026-03-10
+==================
+
+  * chore!: increase MSRV to 1.87.0 and switch to edition 2024
+  * fix: yen k=0 panic, and DfsReachable stack overflow
+  * fix: add missing link in documentation
+  * feat: add kuhn_munkres_complexity example to experimentally measure algorithm complexity
+  * feat: add `floyd_partial` and `brent_partial` cycle-finding functions
+  * feat: adapt BFS to accept multiple starts
+  * feat: add NodeRefs
+  * perf(idastar): use set for nodes encountered in path
+  * perf: pre-allocate some hash maps
+  * docs: add comprehensive graph documentation with examples
+  * docs(kruskal): use correct return type in function documentation
+  * chore: make some functions `const`
+  * chore(deps): update rust crate criterion to 0.8
+
 v4.14.0 / 2025-01-25
 ==================
 
