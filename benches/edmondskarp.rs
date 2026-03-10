@@ -1,4 +1,4 @@
-use codspeed_criterion_compat::{Criterion, criterion_group, criterion_main};
+use criterion::{Criterion, criterion_group, criterion_main};
 use pathfinding::directed::edmonds_karp::{
     DenseCapacity, EKFlows, EdmondsKarp, SparseCapacity, edmonds_karp,
 };
