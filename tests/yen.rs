@@ -177,3 +177,19 @@ fn multiple_equal_cost_paths() {
     assert_eq!(paths[0], (vec!['A', 'B', 'D'], 2));
     assert_eq!(paths[1], (vec!['A', 'C', 'D'], 2));
 }
+
+/// Test that k=0 returns an empty result without panicking.
+#[test]
+fn k_zero() {
+    let result = yen(
+        &'c',
+        |c| match c {
+            'c' => vec![('d', 3)],
+            'd' => vec![],
+            _ => panic!(""),
+        },
+        |c| *c == 'd',
+        0,
+    );
+    assert!(result.is_empty());
+}
