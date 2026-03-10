@@ -50,8 +50,8 @@ iai-callgrind = "0.16.1"
 itertools = "0.14.0"
 movingai = "2.1.0"
 noisy_float = "0.2.0"
-rand = "0.9.2"
-rand_xorshift = "0.4.0"
+rand = "0.10.0"
+rand_xorshift = "0.5.0"
 # Not a real dependency, but needed since criterion 0.5 pulls in regex
 # and older versions of regex do not compile with recent Rust.
 regex = "1.11.3"

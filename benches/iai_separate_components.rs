@@ -1,7 +1,7 @@
 use iai_callgrind::{library_benchmark, library_benchmark_group, main};
 use itertools::Itertools;
 use pathfinding::prelude::separate_components;
-use rand::{Rng as _, RngCore as _, SeedableRng as _, prelude::SliceRandom};
+use rand::{Rng as _, RngExt as _, SeedableRng as _, prelude::SliceRandom};
 use rand_xorshift::XorShiftRng;
 use std::collections::HashSet;
 

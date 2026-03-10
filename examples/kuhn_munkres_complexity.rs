@@ -6,7 +6,7 @@
 //! verify this complexity.
 
 use pathfinding::prelude::{Matrix, kuhn_munkres};
-use rand::{Rng, SeedableRng};
+use rand::{RngExt, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use std::time::Instant;
 
