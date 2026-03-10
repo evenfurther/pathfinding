@@ -1,6 +1,6 @@
 use iai_callgrind::{library_benchmark, library_benchmark_group, main};
 use pathfinding::prelude::{Matrix, kuhn_munkres};
-use rand::{Rng as _, SeedableRng as _};
+use rand::{RngExt as _, SeedableRng as _};
 use rand_xorshift::XorShiftRng;
 
 const RNG_SEED: [u8; 16] = [

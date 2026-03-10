@@ -1,6 +1,6 @@
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use pathfinding::prelude::{Matrix, kuhn_munkres};
-use rand::{Rng as _, SeedableRng as _};
+use rand::{RngExt as _, SeedableRng as _};
 use rand_xorshift::XorShiftRng;
 
 fn compare_size(c: &mut Criterion) {
