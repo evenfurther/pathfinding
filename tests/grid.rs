@@ -614,3 +614,55 @@ fn equality() {
     g2.add_vertex((0, 0));
     assert_eq!(g, g2);
 }
+
+/// Test that `iter()` and `into_iter()` on a sparse grid yield exactly the
+/// added vertices (regardless of order).
+#[test]
+fn iter_sparse_grid_yields_exact_vertices() {
+    let mut g = Grid::new(5, 5);
+    g.add_vertex((3, 1));
+    g.add_vertex((0, 4));
+    g.add_vertex((2, 2));
+    let mut expected = vec![(3, 1), (0, 4), (2, 2)];
+    expected.sort_unstable();
+    let mut via_iter = g.iter().collect::<Vec<_>>();
+    via_iter.sort_unstable();
+    assert_eq!(via_iter, expected);
+    let mut via_into_iter = g.into_iter().collect::<Vec<_>>();
+    via_into_iter.sort_unstable();
+    assert_eq!(via_into_iter, expected);
+}
+
+/// Test that `iter()` and `into_iter()` on a dense grid yield exactly the
+/// expected vertices (all positions minus removed ones, regardless of order).
+#[test]
+fn iter_dense_grid_yields_exact_vertices() {
+    let mut g = Grid::new(3, 3);
+    g.fill();
+    g.remove_vertex((1, 0));
+    g.remove_vertex((0, 2));
+    let mut expected = vec![(0, 0), (2, 0), (0, 1), (1, 1), (2, 1), (1, 2), (2, 2)];
+    expected.sort_unstable();
+    let mut via_iter = g.iter().collect::<Vec<_>>();
+    via_iter.sort_unstable();
+    assert_eq!(via_iter, expected);
+    let mut via_into_iter = g.into_iter().collect::<Vec<_>>();
+    via_into_iter.sort_unstable();
+    assert_eq!(via_into_iter, expected);
+}
+
+/// Test that `iter()` and `into_iter()` on a fully filled grid yield all
+/// vertices (regardless of order).
+#[test]
+fn iter_full_grid_yields_all_vertices() {
+    let mut g = Grid::new(3, 2);
+    g.fill();
+    let mut expected = vec![(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1)];
+    expected.sort_unstable();
+    let mut via_iter = g.iter().collect::<Vec<_>>();
+    via_iter.sort_unstable();
+    assert_eq!(via_iter, expected);
+    let mut via_into_iter = g.into_iter().collect::<Vec<_>>();
+    via_into_iter.sort_unstable();
+    assert_eq!(via_into_iter, expected);
+}
