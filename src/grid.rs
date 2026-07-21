@@ -578,9 +578,8 @@ impl Iterator for GridIntoIterator {
                     return r;
                 }
             }
-        } else {
-            self.grid.exclusions.pop()
         }
+        self.grid.exclusions.pop()
     }
 }
 
@@ -625,15 +624,14 @@ impl Iterator for GridIterator<'_> {
                     return r;
                 }
             }
-        } else {
-            self.grid
-                .exclusions
-                .get_index(self.x)
-                .inspect(|_| {
-                    self.x += 1;
-                })
-                .copied()
         }
+        self.grid
+            .exclusions
+            .get_index(self.x)
+            .inspect(|_| {
+                self.x += 1;
+            })
+            .copied()
     }
 }
 
