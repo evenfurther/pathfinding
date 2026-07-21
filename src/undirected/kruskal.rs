@@ -6,7 +6,7 @@ use std::hash::Hash;
 use std::mem;
 
 // Find parent and compress path by path halving.
-fn find(parents: &mut [usize], mut node: usize) -> usize {
+const fn find(parents: &mut [usize], mut node: usize) -> usize {
     while parents[node] != node {
         parents[node] = parents[parents[node]];
         node = parents[node];
@@ -14,7 +14,7 @@ fn find(parents: &mut [usize], mut node: usize) -> usize {
     node
 }
 
-fn union(parents: &mut [usize], ranks: &mut [usize], mut a: usize, mut b: usize) {
+const fn union(parents: &mut [usize], ranks: &mut [usize], mut a: usize, mut b: usize) {
     if ranks[a] < ranks[b] {
         mem::swap(&mut a, &mut b);
     }
