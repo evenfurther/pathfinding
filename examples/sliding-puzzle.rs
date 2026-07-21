@@ -158,7 +158,7 @@ fn main() {
             || {
                 let result = idastar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
                 println!("idastar: {} moves in {:.3?}", result.1, start.elapsed());
-                assert!(result.0.last().unwrap().weight == 0);
+                assert_eq!(result.0.last().unwrap().weight, 0);
                 result.1
             }
         });
@@ -166,7 +166,7 @@ fn main() {
             {
                 let result = astar(&b, Game::successors, |b| b.weight, Game::solved).unwrap();
                 println!("astar: {} moves in {:.3?}", result.1, start.elapsed());
-                assert!(result.0.last().unwrap().weight == 0);
+                assert_eq!(result.0.last().unwrap().weight, 0);
                 result.1
             },
             idastar_handle.join().unwrap(),

@@ -35,24 +35,24 @@ fn dijkstra_reach_graph() {
     let reach = dijkstra_reach(&"A", |prev| graph[prev].clone()).collect_vec();
 
     // need to make sure that a node won't be returned twice when a better path is found after the first candidate
-    assert!(
-        reach
-            == vec![
-                DijkstraReachableItem {
-                    node: "A",
-                    parent: None,
-                    total_cost: 0,
-                },
-                DijkstraReachableItem {
-                    node: "B",
-                    parent: Some("A"),
-                    total_cost: 2,
-                },
-                DijkstraReachableItem {
-                    node: "C",
-                    parent: Some("B"),
-                    total_cost: 4,
-                },
-            ]
+    assert_eq!(
+        reach,
+        vec![
+            DijkstraReachableItem {
+                node: "A",
+                parent: None,
+                total_cost: 0,
+            },
+            DijkstraReachableItem {
+                node: "B",
+                parent: Some("A"),
+                total_cost: 2,
+            },
+            DijkstraReachableItem {
+                node: "C",
+                parent: Some("B"),
+                total_cost: 4,
+            },
+        ]
     );
 }
