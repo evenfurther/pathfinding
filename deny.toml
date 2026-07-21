@@ -68,6 +68,7 @@ yanked = "warn"
 # output a note when they are encountered.
 ignore = [
   "RUSTSEC-2025-0141",  # bincode is no longer maintained, and is used by iai-callgrind
+  "RUSTSEC-2026-0173",  # proc-macro-error2 is no longer maintained, and is used by iai-callgrind
 ]
 # Threshold for security vulnerabilities, any vulnerability with a CVSS score
 # lower than the range specified will be ignored. Note that ignored advisories
