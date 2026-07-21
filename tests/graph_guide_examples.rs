@@ -365,7 +365,7 @@ fn test_spatial_graph_example() {
     // Verify a path was found - the exact path may vary based on the algorithm
     // Just ensure we got a valid result
     assert!(!path.is_empty());
-    assert!(path[0] == 1);
-    assert!(path[path.len() - 1] == 3);
+    assert_eq!(path[0], 1);
+    assert_eq!(path[path.len() - 1], 3);
     assert!(cost > 0);
 }

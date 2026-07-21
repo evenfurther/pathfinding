@@ -10,11 +10,11 @@ fn basic_separate_components() {
     let (h, g) = separate_components(&groups);
     assert!([1, 2, 3, 4].iter().map(|n| h[n]).all_equal());
     assert_eq!(h[&5], h[&6]);
-    assert!(h[&1] != h[&5]);
+    assert_ne!(h[&1], h[&5]);
     assert_eq!(h.len(), 6);
     assert_eq!(g[0], g[1]);
     assert_eq!(g[0], g[3]);
-    assert!(g[0] != g[2]);
+    assert_ne!(g[0], g[2]);
     assert_eq!(g.len(), 4);
 }
 
@@ -26,7 +26,7 @@ fn empty_separate_components() {
     assert_eq!(h.len(), 4);
     assert_eq!(g[0], g[1]);
     assert_eq!(g[0], g[3]);
-    assert!(g[0] != g[2]);
+    assert_ne!(g[0], g[2]);
     assert_eq!(g[2], usize::MAX);
     assert_eq!(g.len(), 4);
 }
