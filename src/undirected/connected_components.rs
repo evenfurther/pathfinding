@@ -163,7 +163,7 @@ where
     }
 }
 
-fn find(table: &mut [usize], mut x: usize) -> usize {
+const fn find(table: &mut [usize], mut x: usize) -> usize {
     while table[x] != x {
         let t = table[x];
         table[x] = table[table[x]];
