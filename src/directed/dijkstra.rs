@@ -5,7 +5,7 @@ use super::reverse_path;
 use crate::FxIndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
-use rustc_hash::{FxHashMap, FxHashSet};
+use rustc_hash::FxHashSet;
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 use std::hash::Hash;
@@ -328,7 +328,6 @@ pub struct DijkstraReachable<N, C, FN> {
     to_see: BinaryHeap<SmallestHolder<C>>,
     seen: FxHashSet<usize>,
     parents: FxIndexMap<N, (usize, C)>,
-    total_costs: FxHashMap<N, C>,
     successors: FN,
 }
 
@@ -347,7 +346,7 @@ pub struct DijkstraReachableItem<N, C> {
 impl<N, C, FN, IN> Iterator for DijkstraReachable<N, C, FN>
 where
     N: Eq + Hash + Clone,
-    C: Zero + Ord + Copy + Hash,
+    C: Zero + Ord + Copy,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
 {
@@ -360,11 +359,10 @@ where
             }
             let item;
             let successors = {
-                let (node, (parent_index, _)) = self.parents.get_index(index).unwrap();
-                let total_cost = self.total_costs[node];
+                let (node, &(parent_index, total_cost)) = self.parents.get_index(index).unwrap();
                 item = Some(DijkstraReachableItem {
                     node: node.clone(),
-                    parent: self.parents.get_index(*parent_index).map(|x| x.0.clone()),
+                    parent: self.parents.get_index(parent_index).map(|x| x.0.clone()),
                     total_cost,
                 });
                 (self.successors)(node)
@@ -372,17 +370,15 @@ where
             for (successor, move_cost) in successors {
                 let new_cost = cost + move_cost;
                 let n;
-                match self.parents.entry(successor.clone()) {
+                match self.parents.entry(successor) {
                     Vacant(e) => {
                         n = e.index();
                         e.insert((index, new_cost));
-                        self.total_costs.insert(successor, new_cost);
                     }
                     Occupied(mut e) => {
                         if e.get().1 > new_cost {
                             n = e.index();
                             e.insert((index, new_cost));
-                            self.total_costs.insert(successor, new_cost);
                         } else {
                             continue;
                         }
@@ -422,16 +418,12 @@ where
     let mut parents: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
     parents.insert(start.clone(), (usize::MAX, Zero::zero()));
 
-    let mut total_costs = FxHashMap::default();
-    total_costs.insert(start.clone(), Zero::zero());
-
     let seen = FxHashSet::default();
 
     DijkstraReachable {
         to_see,
         seen,
         parents,
-        total_costs,
         successors,
     }
 }

@@ -1,11 +1,13 @@
 //! Compute a path using the [depth-first search
 //! algorithm](https://en.wikipedia.org/wiki/Depth-first_search).
 
-use std::collections::HashSet;
+use indexmap::map::Entry::{Occupied, Vacant};
 use std::hash::Hash;
 use std::iter::FusedIterator;
 
-use rustc_hash::{FxHashMap, FxHashSet};
+use super::reverse_path;
+use crate::FxIndexMap;
+use rustc_hash::FxHashSet;
 
 /// Compute a path using the [depth-first search
 /// algorithm](https://en.wikipedia.org/wiki/Depth-first_search).
@@ -46,6 +48,7 @@ use rustc_hash::{FxHashMap, FxHashSet};
 /// assert_eq!(dfs(1, |&n| vec![n*n, n+1].into_iter().filter(|&x| x <= 17), |&n| n == 17),
 ///            Some(vec![1, 2, 4, 16, 17]));
 /// ```
+#[expect(clippy::missing_panics_doc)]
 pub fn dfs<N, FN, IN, FS>(start: N, mut successors: FN, mut success: FS) -> Option<Vec<N>>
 where
     N: Clone + Eq + Hash,
@@ -53,40 +56,41 @@ where
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
 {
-    let mut to_visit = vec![start];
-    let mut visited = FxHashSet::default();
-    let mut parents = FxHashMap::default();
-    while let Some(node) = to_visit.pop() {
-        if visited.insert(node.clone()) {
-            if success(&node) {
-                return Some(build_path(node, &parents));
+    let mut parents: FxIndexMap<N, usize> = FxIndexMap::default();
+    parents.insert(start, usize::MAX);
+    let mut stack = vec![0];
+    let mut expanded = vec![false];
+    while let Some(index) = stack.pop() {
+        if expanded[index] {
+            continue;
+        }
+        expanded[index] = true;
+        let neighbs = {
+            let (node, _) = parents.get_index(index).unwrap();
+            if success(node) {
+                return Some(reverse_path(&parents, |&p| p, index));
             }
-            for next in successors(&node)
-                .into_iter()
-                .collect::<Vec<_>>()
-                .into_iter()
-                .rev()
-            {
-                if !visited.contains(&next) {
-                    parents.insert(next.clone(), node.clone());
-                    to_visit.push(next);
+            successors(node).into_iter().collect::<Vec<_>>()
+        };
+        for next in neighbs.into_iter().rev() {
+            match parents.entry(next) {
+                Vacant(e) => {
+                    let n = e.index();
+                    e.insert(index);
+                    expanded.push(false);
+                    stack.push(n);
+                }
+                Occupied(mut e) => {
+                    let n = e.index();
+                    if !expanded[n] {
+                        e.insert(index);
+                        stack.push(n);
+                    }
                 }
             }
         }
     }
     None
-}
-
-fn build_path<N>(mut node: N, parents: &FxHashMap<N, N>) -> Vec<N>
-where
-    N: Clone + Eq + Hash,
-{
-    let mut path = vec![node.clone()];
-    while let Some(parent) = parents.get(&node).cloned() {
-        path.push(parent.clone());
-        node = parent;
-    }
-    path.into_iter().rev().collect()
 }
 
 /// Visit all nodes that are reachable from a start node. The node will be visited
@@ -130,7 +134,7 @@ where
 {
     DfsReachable {
         to_see: vec![start],
-        visited: HashSet::new(),
+        visited: FxHashSet::default(),
         successors,
     }
 }
@@ -138,7 +142,7 @@ where
 /// Struct returned by [`dfs_reach`].
 pub struct DfsReachable<N, FN> {
     to_see: Vec<N>,
-    visited: HashSet<N>,
+    visited: FxHashSet<N>,
     successors: FN,
 }
 
@@ -150,7 +154,7 @@ where
     /// nodes. Not all nodes are necessarily known in advance, and
     /// new reachable nodes may be discovered while using the iterator.
     pub fn remaining_nodes_low_bound(&self) -> usize {
-        self.to_see.iter().collect::<HashSet<_>>().len()
+        self.to_see.iter().collect::<FxHashSet<_>>().len()
     }
 }
 
@@ -165,10 +169,9 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             let n = self.to_see.pop()?;
-            if self.visited.contains(&n) {
+            if !self.visited.insert(n.clone()) {
                 continue;
             }
-            self.visited.insert(n.clone());
             let mut to_insert = Vec::new();
             for s in (self.successors)(&n) {
                 if !self.visited.contains(&s) {

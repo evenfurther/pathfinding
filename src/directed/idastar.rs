@@ -1,7 +1,7 @@
 //! Compute a shortest path using the [IDA* search
 //! algorithm](https://en.wikipedia.org/wiki/Iterative_deepening_A*).
 
-use indexmap::IndexSet;
+use crate::FxIndexSet;
 use num_traits::Zero;
 use std::{hash::Hash, ops::ControlFlow};
 
@@ -85,7 +85,8 @@ where
     FH: FnMut(&N) -> C,
     FS: FnMut(&N) -> bool,
 {
-    let mut path = IndexSet::from([start.clone()]);
+    let mut path = FxIndexSet::default();
+    path.insert(start.clone());
 
     std::iter::repeat(())
         .try_fold(heuristic(start), |bound, ()| {
@@ -106,7 +107,7 @@ where
 }
 
 fn search<N, C, FN, IN, FH, FS>(
-    path: &mut IndexSet<N>,
+    path: &mut FxIndexSet<N>,
     cost: C,
     bound: C,
     successors: &mut FN,

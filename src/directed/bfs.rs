@@ -190,62 +190,69 @@ where
     let start = start.into();
     let end = end.into();
 
-    let mut predecessors: FxIndexMap<N, Option<usize>> = FxIndexMap::default();
-    predecessors.extend(start.into_iter().cloned().map(|n| (n, None)));
-    let mut successors: FxIndexMap<N, Option<usize>> = FxIndexMap::default();
-    successors.extend(end.into_iter().cloned().map(|n| (n, None)));
+    for start_node in &start {
+        if end.contains(start_node) {
+            return Some(vec![start_node.clone()]);
+        }
+    }
+
+    let mut predecessors: FxIndexMap<N, usize> = FxIndexMap::default();
+    predecessors.extend(start.into_iter().cloned().map(|n| (n, usize::MAX)));
+    let mut successors: FxIndexMap<N, usize> = FxIndexMap::default();
+    successors.extend(end.into_iter().cloned().map(|n| (n, usize::MAX)));
 
     let mut i_forwards = 0;
     let mut i_backwards = 0;
     let middle = 'l: loop {
-        for _ in 0..(predecessors.len() - i_forwards) {
-            let node = predecessors.get_index(i_forwards).unwrap().0;
-            for successor_node in successors_fn(node) {
-                if !predecessors.contains_key(&successor_node) {
-                    predecessors.insert(successor_node.clone(), Some(i_forwards));
-                }
-                if successors.contains_key(&successor_node) {
-                    break 'l Some(successor_node);
-                }
-            }
-            i_forwards += 1;
-        }
-
-        for _ in 0..(successors.len() - i_backwards) {
-            let node = successors.get_index(i_backwards).unwrap().0;
-            for predecessor_node in predecessors_fn(node) {
-                if !successors.contains_key(&predecessor_node) {
-                    successors.insert(predecessor_node.clone(), Some(i_backwards));
-                }
-                if predecessors.contains_key(&predecessor_node) {
-                    break 'l Some(predecessor_node);
-                }
-            }
-            i_backwards += 1;
-        }
-
-        if i_forwards == predecessors.len() && i_backwards == successors.len() {
+        let forward_layer = predecessors.len() - i_forwards;
+        let backward_layer = successors.len() - i_backwards;
+        if forward_layer == 0 && backward_layer == 0 {
             break 'l None;
+        }
+
+        // Always expand the smaller frontier so the searches meet sooner.
+        if backward_layer == 0 || (forward_layer > 0 && forward_layer <= backward_layer) {
+            let layer_end = predecessors.len();
+            while i_forwards < layer_end {
+                let node = predecessors.get_index(i_forwards).unwrap().0;
+                for successor_node in successors_fn(node) {
+                    if let Vacant(e) = predecessors.entry(successor_node) {
+                        if successors.contains_key(e.key()) {
+                            let mid = e.key().clone();
+                            e.insert(i_forwards);
+                            break 'l Some(mid);
+                        }
+                        e.insert(i_forwards);
+                    }
+                }
+                i_forwards += 1;
+            }
+        } else {
+            let layer_end = successors.len();
+            while i_backwards < layer_end {
+                let node = successors.get_index(i_backwards).unwrap().0;
+                for predecessor_node in predecessors_fn(node) {
+                    if let Vacant(e) = successors.entry(predecessor_node) {
+                        if predecessors.contains_key(e.key()) {
+                            let mid = e.key().clone();
+                            e.insert(i_backwards);
+                            break 'l Some(mid);
+                        }
+                        e.insert(i_backwards);
+                    }
+                }
+                i_backwards += 1;
+            }
         }
     };
 
     middle.map(|middle| {
-        // Path found!
-        // Build the path.
-        let mut path = vec![];
-        // From middle to the start.
-        let mut node = Some(middle.clone());
-        while let Some(n) = node {
-            path.push(n.clone());
-            node = predecessors[&n].map(|i| predecessors.get_index(i).unwrap().0.clone());
-        }
-        // Reverse, to put start at the front.
-        path.reverse();
-        // And from middle to the end.
-        let mut node = successors[&middle].map(|i| successors.get_index(i).unwrap().0.clone());
-        while let Some(n) = node {
-            path.push(n.clone());
-            node = successors[&n].map(|i| successors.get_index(i).unwrap().0.clone());
+        let mid_idx = predecessors.get_index_of(&middle).unwrap();
+        let mut path = reverse_path(&predecessors, |&p| p, mid_idx);
+        let mut i = successors[&middle];
+        while let Some((node, &parent)) = successors.get_index(i) {
+            path.push(node.clone());
+            i = parent;
         }
         path
     })

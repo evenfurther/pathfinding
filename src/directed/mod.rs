@@ -22,15 +22,12 @@ where
     N: Eq + Hash + Clone,
     F: FnMut(&V) -> usize,
 {
+    let mut path = Vec::new();
     let mut i = start;
-    let path = std::iter::from_fn(|| {
-        parents.get_index(i).map(|(node, value)| {
-            i = parent(value);
-            node
-        })
-    })
-    .collect::<Vec<&N>>();
-    // Collecting the going through the vector is needed to revert the path because the
-    // unfold iterator is not double-ended due to its iterative nature.
-    path.into_iter().rev().cloned().collect()
+    while let Some((node, value)) = parents.get_index(i) {
+        path.push(node.clone());
+        i = parent(value);
+    }
+    path.reverse();
+    path
 }

@@ -1,10 +1,10 @@
 //! Compute k-shortest paths using [Yen's search
 //! algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).
 use num_traits::Zero;
+use rustc_hash::FxHashSet;
 use std::cmp::Ordering;
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
-use std::collections::HashSet;
 use std::hash::Hash;
 
 use super::dijkstra::dijkstra_internal;
@@ -115,7 +115,7 @@ where
         return vec![];
     };
 
-    let mut visited = HashSet::new();
+    let mut visited = FxHashSet::default();
     // A vector containing our paths.
     let mut routes = vec![Path { nodes: n, cost: c }];
     // A min-heap to store our lowest-cost route candidate
@@ -132,7 +132,7 @@ where
             let spur_node = &previous[i];
             let root_path = &previous[0..i];
 
-            let mut filtered_edges = HashSet::new();
+            let mut filtered_edges = FxHashSet::default();
             for path in &routes {
                 if path.nodes.len() > i + 1
                     && &path.nodes[0..i] == root_path
@@ -141,7 +141,7 @@ where
                     filtered_edges.insert((&path.nodes[i], &path.nodes[i + 1]));
                 }
             }
-            let filtered_nodes: HashSet<&N> = HashSet::from_iter(root_path);
+            let filtered_nodes: FxHashSet<&N> = FxHashSet::from_iter(root_path);
             // We are creating a new successor function that will not return the
             // filtered edges and nodes that routes already used.
             let mut filtered_successor = |n: &N| {
