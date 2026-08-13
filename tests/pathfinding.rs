@@ -347,6 +347,17 @@ mod ex2 {
     }
 
     #[test]
+    fn bfs_bidirectional_same_start_and_end() {
+        #[expect(clippy::type_complexity)]
+        static SUCCESSORS: fn(&(usize, usize)) -> Vec<(usize, usize)> =
+            |n| successors(n).into_iter().map(|(n, _)| n).collect();
+
+        let path =
+            bfs_bidirectional(&(2, 3), &(2, 3), SUCCESSORS, SUCCESSORS).expect("path not found");
+        assert_eq!(path, vec![(2, 3)]);
+    }
+
+    #[test]
     fn dfs_path_ok() {
         const GOAL: (usize, usize) = (6, 3);
         let path = dfs(
