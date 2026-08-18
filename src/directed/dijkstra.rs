@@ -104,6 +104,215 @@ where
     })
 }
 
+/// Compute a shortest path using a bidirectional variant of the [Dijkstra search
+/// algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
+///
+/// Two searches are run simultaneously: one forward from `start` following `successors`, and one
+/// backward from `end` following `predecessors`. They progress in order of increasing cost until
+/// they meet in the middle. On large graphs this often settles far fewer nodes than a single
+/// unidirectional search, since two small frontiers are usually cheaper to grow than one large
+/// one.
+///
+/// The shortest path from `start` to `end` is computed and returned along with its total cost, in
+/// a `Some`. If no path can be found, `None` is returned instead.
+///
+/// - `start` is the starting node.
+/// - `end` is the destination node.
+/// - `successors` returns a list of successors for a given node, along with the cost for moving
+///   from the node to the successor. This cost must be non-negative.
+/// - `predecessors` returns a list of predecessors for a given node, along with the cost for
+///   moving from the predecessor to the node. This cost must be non-negative, and for a given edge
+///   it must match the cost reported by `successors`. For an undirected graph, where every edge can
+///   be traversed in both directions at the same cost, the same closure can be used for both
+///   `successors` and `predecessors`.
+///
+/// A node will never be included twice in the path as determined by the `Eq` relationship.
+///
+/// The returned path comprises both the start and end node.
+///
+/// # Example
+///
+/// We search the shortest path on a chess board to go from (1, 1) to (4, 6) doing only knight
+/// moves. Knight moves are symmetrical, so the same closure describes both the successors and the
+/// predecessors of a square.
+///
+/// ```
+/// use pathfinding::prelude::dijkstra_bidirectional;
+///
+/// fn neighbours(&(x, y): &(i32, i32)) -> Vec<((i32, i32), usize)> {
+///     vec![(x+1,y+2), (x+1,y-2), (x-1,y+2), (x-1,y-2),
+///          (x+2,y+1), (x+2,y-1), (x-2,y+1), (x-2,y-1)]
+///         .into_iter().map(|p| (p, 1)).collect()
+/// }
+///
+/// let result = dijkstra_bidirectional(&(1, 1), &(4, 6), neighbours, neighbours);
+/// assert_eq!(result.expect("no path found").1, 4);
+/// ```
+#[expect(clippy::missing_panics_doc)]
+pub fn dijkstra_bidirectional<N, C, FS, IS, FP, IP>(
+    start: &N,
+    end: &N,
+    mut successors: FS,
+    mut predecessors: FP,
+) -> Option<(Vec<N>, C)>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FS: FnMut(&N) -> IS,
+    IS: IntoIterator<Item = (N, C)>,
+    FP: FnMut(&N) -> IP,
+    IP: IntoIterator<Item = (N, C)>,
+{
+    if start == end {
+        return Some((vec![start.clone()], Zero::zero()));
+    }
+
+    let mut forward: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
+    forward.insert(start.clone(), (usize::MAX, Zero::zero()));
+    let mut forward_queue = BinaryHeap::new();
+    forward_queue.push(SmallestHolder {
+        cost: Zero::zero(),
+        index: 0,
+    });
+    let mut forward_settled: FxHashSet<N> = FxHashSet::default();
+
+    let mut backward: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
+    backward.insert(end.clone(), (usize::MAX, Zero::zero()));
+    let mut backward_queue = BinaryHeap::new();
+    backward_queue.push(SmallestHolder {
+        cost: Zero::zero(),
+        index: 0,
+    });
+    let mut backward_settled: FxHashSet<N> = FxHashSet::default();
+
+    // Best complete path found so far, as (total cost, meeting node). The meeting node is present
+    // in both the `forward` and `backward` parent maps, so the full path can be rebuilt from it.
+    let mut best: Option<(C, N)> = None;
+
+    while !forward_queue.is_empty() && !backward_queue.is_empty() {
+        if expand_bidirectional(
+            &mut forward_queue,
+            &mut forward,
+            &mut forward_settled,
+            &backward,
+            &backward_settled,
+            &mut successors,
+            &mut best,
+        ) {
+            break;
+        }
+        if backward_queue.is_empty() {
+            break;
+        }
+        if expand_bidirectional(
+            &mut backward_queue,
+            &mut backward,
+            &mut backward_settled,
+            &forward,
+            &forward_settled,
+            &mut predecessors,
+            &mut best,
+        ) {
+            break;
+        }
+    }
+
+    best.map(|(cost, meeting)| {
+        // The forward half runs from `start` up to the meeting node.
+        let meeting_index = forward.get_index_of(&meeting).unwrap();
+        let mut path = reverse_path(&forward, |&(p, _)| p, meeting_index);
+        // The backward half runs from the meeting node towards `end`, following backward parents.
+        let mut parent = backward.get(&meeting).unwrap().0;
+        while parent != usize::MAX {
+            let (node, &(next, _)) = backward.get_index(parent).unwrap();
+            path.push(node.clone());
+            parent = next;
+        }
+        (path, cost)
+    })
+}
+
+/// Perform a single expansion step of one side of a bidirectional Dijkstra search.
+///
+/// The next unsettled node with the smallest tentative cost is popped from `queue` and settled.
+/// Its neighbours (given by `neighbours`) are relaxed into `parents`, and whenever a neighbour has
+/// already been reached by the opposite search a complete path is available and recorded in `best`
+/// if it improves on the current one.
+///
+/// Returns `true` when the popped node has already been settled by the opposite search, which means
+/// the two frontiers have met and the best recorded path is optimal.
+fn expand_bidirectional<N, C, FN, IN>(
+    queue: &mut BinaryHeap<SmallestHolder<C>>,
+    parents: &mut FxIndexMap<N, (usize, C)>,
+    settled: &mut FxHashSet<N>,
+    opposite: &FxIndexMap<N, (usize, C)>,
+    opposite_settled: &FxHashSet<N>,
+    neighbours: &mut FN,
+    best: &mut Option<(C, N)>,
+) -> bool
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+{
+    let Some(SmallestHolder { cost, index }) = queue.pop() else {
+        return false;
+    };
+    let node = {
+        let (node, &(_, c)) = parents.get_index(index).unwrap();
+        // A cheaper path to this node was found after this entry was queued: discard it.
+        if cost > c {
+            return false;
+        }
+        node.clone()
+    };
+    if !settled.insert(node.clone()) {
+        // Already settled through an equal-cost entry.
+        return false;
+    }
+    if opposite_settled.contains(&node) {
+        // Both searches have settled this node: the best recorded path is optimal.
+        return true;
+    }
+    for (neighbour, move_cost) in neighbours(&node) {
+        let new_cost = cost + move_cost;
+        let n;
+        match parents.entry(neighbour) {
+            Vacant(e) => {
+                n = e.index();
+                e.insert((index, new_cost));
+            }
+            Occupied(mut e) => {
+                if e.get().1 > new_cost {
+                    n = e.index();
+                    e.insert((index, new_cost));
+                } else {
+                    continue;
+                }
+            }
+        }
+        queue.push(SmallestHolder {
+            cost: new_cost,
+            index: n,
+        });
+        // If the opposite search has already reached this neighbour, the two halves form a
+        // complete path; keep it if it is the cheapest one seen so far.
+        let neighbour = parents.get_index(n).unwrap().0;
+        if let Some(&(_, opposite_cost)) = opposite.get(neighbour) {
+            let total = new_cost + opposite_cost;
+            let improved = match best {
+                Some((current, _)) => total < *current,
+                None => true,
+            };
+            if improved {
+                *best = Some((total, neighbour.clone()));
+            }
+        }
+    }
+    false
+}
+
 /// Determine all reachable nodes from a starting point as well as the
 /// minimum cost to reach them and a possible optimal parent node
 /// using the [Dijkstra search
