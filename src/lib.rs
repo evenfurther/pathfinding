@@ -18,7 +18,7 @@
 //! - [Bidirectional search](directed/bfs/fn.bfs_bidirectional.html): simultaneously explore paths forwards from the start and backwards from the goal ([=> Wikipedia][Bidirectional search])
 //! - [Brent](directed/cycle_detection/index.html): find a cycle in an infinite sequence ([⇒ Wikipedia][Brent])
 //! - [DFS](directed/dfs/index.html): explore a graph by going as far as possible, then backtrack ([⇒ Wikipedia][DFS])
-//! - [Dijkstra](directed/dijkstra/index.html): find the shortest path in a weighted graph ([⇒ Wikipedia][Dijkstra])
+//! - [Dijkstra](directed/dijkstra/index.html): find the shortest path in a weighted graph ([⇒ Wikipedia][Dijkstra]), optionally [searching from both ends](directed/dijkstra/fn.dijkstra_bidirectional.html) at once
 //! - [Edmonds Karp](directed/edmonds_karp/index.html): find the maximum flow in a weighted graph ([⇒ Wikipedia][Edmonds Karp])
 //! - [Floyd](directed/cycle_detection/index.html): find a cycle in an infinite sequence ([⇒ Wikipedia][Floyd])
 //! - [Fringe](directed/fringe/index.html): find the shortest path in a weighted graph using an heuristic to guide the process ([⇒ Wikipedia][Fringe])

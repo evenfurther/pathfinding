@@ -42,6 +42,36 @@ mod ex1 {
         }
     }
 
+    #[expect(clippy::trivially_copy_pass_by_ref)]
+    fn predecessors(node: &u8) -> Vec<(u8, usize)> {
+        // Reverse the (directed) successor relation.
+        (0..9u8)
+            .flat_map(|n| successors(&n).filter_map(move |(s, c)| (s == *node).then_some((n, c))))
+            .collect()
+    }
+
+    #[test]
+    fn dijkstra_bidirectional_ok() {
+        for target in 0..9 {
+            let result = dijkstra_bidirectional(&1, &target, successors, predecessors);
+            // Same reachability and same optimal cost as the unidirectional search.
+            let expected_cost = expected(target).map(|(_, c)| c);
+            assert_eq!(result.as_ref().map(|(_, c)| *c), expected_cost);
+            if let Some((path, cost)) = result {
+                // The returned path is a genuine walk from 1 to `target` whose edges sum to `cost`.
+                assert_eq!(path.first(), Some(&1));
+                assert_eq!(path.last(), Some(&target));
+                let walked = path.windows(2).map(|w| {
+                    successors(&w[0])
+                        .find(|(s, _)| *s == w[1])
+                        .expect("path traverses a non-existent edge")
+                        .1
+                });
+                assert_eq!(walked.sum::<usize>(), cost);
+            }
+        }
+    }
+
     #[test]
     fn fringe_ok() {
         for target in 0..9 {
@@ -358,6 +388,21 @@ mod ex2 {
     }
 
     #[test]
+    fn dijkstra_bidirectional_path_ok() {
+        const GOAL: (usize, usize) = (6, 3);
+        // The maze is undirected, so successors and predecessors coincide.
+        let (path, cost) =
+            dijkstra_bidirectional(&(2, 3), &GOAL, successors, successors).expect("path not found");
+        assert_eq!(cost, 8);
+        assert_eq!(path.first(), Some(&(2, 3)));
+        assert_eq!(path.last(), Some(&GOAL));
+        assert!(path.iter().all(|&(nx, ny)| OPEN[ny][nx]));
+        // The result must match the unidirectional Dijkstra shortest path cost.
+        let (_, reference) = dijkstra(&(2, 3), successors, |n| n == &GOAL).unwrap();
+        assert_eq!(cost, reference);
+    }
+
+    #[test]
     fn dfs_path_ok() {
         const GOAL: (usize, usize) = (6, 3);
         let path = dfs(
@@ -437,6 +482,15 @@ mod ex2 {
 
         assert_eq!(
             bfs_bidirectional(&(2, 3), &(1, 1), SUCCESSORS, SUCCESSORS),
+            None
+        );
+    }
+
+    #[test]
+    fn dijkstra_bidirectional_no_path() {
+        const GOAL: (usize, usize) = (1, 1);
+        assert_eq!(
+            dijkstra_bidirectional(&(2, 3), &GOAL, successors, successors),
             None
         );
     }
