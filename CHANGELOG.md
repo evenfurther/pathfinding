@@ -1,4 +1,12 @@
 
+n.n.n / 2026-09-07
+==================
+
+  * feat: implement bidirectional Dijkstra
+  * perf: reduce hashing and allocations in search algorithms
+  * chore!: bump MSRV to 1.88.0
+  * chore: make some functions const
+
 v4.15.0 / 2026-03-10
 ==================
 
