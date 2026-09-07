@@ -9,7 +9,6 @@ documentation = "https://docs.rs/pathfinding/"
 version = "4.15.0"
 authors = ["Samuel Tardieu <sam@rfc1149.net>"]
 categories = ["algorithms"]
-readme = "README.md"
 edition = "2024"
 rust-version = "1.88.0"
 include = [

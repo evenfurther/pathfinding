@@ -69,7 +69,7 @@ fn no_path() {
         2,
     );
 
-    assert!(result.is_empty());
+    assert_eq!(result, Vec::new());
 }
 
 /// Test that we support loops
@@ -191,5 +191,5 @@ fn k_zero() {
         |c| *c == 'd',
         0,
     );
-    assert!(result.is_empty());
+    assert_eq!(result, Vec::new());
 }
