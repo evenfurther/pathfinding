@@ -1,5 +1,5 @@
 
-n.n.n / 2026-09-07
+v4.16.0 / 2026-09-07
 ==================
 
   * feat: implement bidirectional Dijkstra
