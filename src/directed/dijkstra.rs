@@ -376,13 +376,13 @@ where
                     Vacant(e) => {
                         n = e.index();
                         e.insert((index, new_cost));
-                        self.total_costs.insert(successor.clone(), new_cost);
+                        self.total_costs.insert(successor, new_cost);
                     }
                     Occupied(mut e) => {
                         if e.get().1 > new_cost {
                             n = e.index();
                             e.insert((index, new_cost));
-                            self.total_costs.insert(successor.clone(), new_cost);
+                            self.total_costs.insert(successor, new_cost);
                         } else {
                             continue;
                         }

@@ -172,7 +172,7 @@ where
             let mut to_insert = Vec::new();
             for s in (self.successors)(&n) {
                 if !self.visited.contains(&s) {
-                    to_insert.push(s.clone());
+                    to_insert.push(s);
                 }
             }
             self.to_see.extend(to_insert.into_iter().rev());

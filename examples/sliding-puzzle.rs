@@ -93,8 +93,7 @@ impl Game {
         for i in 0..LIMIT {
             let c = self.positions[i];
             if c != 0 {
-                for j in i + 1..LIMIT {
-                    let d = self.positions[j];
+                for &d in self.positions.iter().skip(i + 1) {
                     if d != 0 && d < c {
                         inversions ^= 1;
                     }

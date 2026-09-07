@@ -72,8 +72,8 @@ where
         .collect::<Vec<_>>();
     kruskal_indices(nodes.len(), edges).filter_map(move |(ia, ib, w)| {
         Some((
-            <&N>::clone(nodes.get_index(ia)?), // Cannot fail
-            <&N>::clone(nodes.get_index(ib)?), // Cannot fail
+            *nodes.get_index(ia)?, // Cannot fail
+            *nodes.get_index(ib)?, // Cannot fail
             w,
         ))
     })
