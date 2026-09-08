@@ -3,7 +3,7 @@
 //! [Kuhn-Munkres algorithm](https://en.wikipedia.org/wiki/Hungarian_algorithm)
 //! (also known as Hungarian algorithm).
 
-use crate::{FxIndexSet, matrix::Matrix};
+use crate::matrix::Matrix;
 use num_traits::{Bounded, Signed, Zero};
 use std::iter::Sum;
 
@@ -138,7 +138,9 @@ where
     let mut ly: Vec<C> = vec![Zero::zero(); ny];
     // s, augmenting, and slack will be reset every time they are reused. augmenting
     // contains Some(prev) when the corresponding node belongs to the augmenting path.
-    let mut s = FxIndexSet::<usize>::default();
+    // Every x node enters the alternating path at most once per root, and the set is only ever
+    // appended to and walked, so a plain vector does the job without hashing.
+    let mut s = Vec::<usize>::new();
     let mut alternating = Vec::with_capacity(ny);
     let mut slack = vec![Zero::zero(); ny];
     let mut slackx = Vec::with_capacity(ny);
@@ -149,7 +151,7 @@ where
         // loop below. Above the loop is some code to initialize the search.
         let mut y = {
             s.clear();
-            s.insert(root);
+            s.push(root);
             // Slack for a vertex y is, initially, the margin between the
             // sum of the labels of root and y, and the weight between root and y.
             // As we add x nodes to the alternating path, we update the slack to
@@ -197,7 +199,7 @@ where
                 // This y node had a predecessor, add it to the set of x nodes
                 // in the augmenting path.
                 let x = yx[y].unwrap();
-                s.insert(x);
+                s.push(x);
                 // Update slack because of the added vertex in s might contain a
                 // greater slack than with previously inserted x nodes in the augmenting
                 // path.
