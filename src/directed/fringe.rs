@@ -95,8 +95,14 @@ where
     let mut now = VecDeque::new();
     let mut later = VecDeque::new();
     let mut parents: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
+    // Reaching a node through a cheaper path must move it back to the front of `now`. Rather than
+    // scanning the two queues for the entry to move, which costs a pass over the whole fringe for
+    // every relaxed edge, each queue entry carries the value `stamps[node]` had when it was
+    // queued. Bumping `stamps[node]` on a relaxation therefore invalidates the older entries,
+    // which are then skipped when they come up.
+    let mut stamps: Vec<u64> = vec![0];
     let mut flimit = heuristic(start);
-    now.push_back(0);
+    now.push_back((0, 0));
     parents.insert(start.clone(), (usize::MAX, Zero::zero()));
 
     loop {
@@ -104,7 +110,11 @@ where
             return None;
         }
         let mut fmin = C::max_value();
-        while let Some(i) = now.pop_front() {
+        while let Some((i, stamp)) = now.pop_front() {
+            if stamps[i] != stamp {
+                // Superseded by a cheaper entry queued later on.
+                continue;
+            }
             let (g, successors) = {
                 let (node, &(_, g)) = parents.get_index(i).unwrap(); // Cannot fail
                 let f = g + heuristic(node);
@@ -112,7 +122,7 @@ where
                     if f < fmin {
                         fmin = f;
                     }
-                    later.push_back(i);
+                    later.push_back((i, stamp));
                     continue;
                 }
                 if success(node) {
@@ -128,6 +138,7 @@ where
                     Vacant(e) => {
                         n = e.index();
                         e.insert((i, g_successor));
+                        stamps.push(0);
                     }
                     Occupied(mut e) => {
                         if e.get().1 > g_successor {
@@ -138,20 +149,11 @@ where
                         }
                     }
                 }
-                if !remove(&mut later, &n) {
-                    remove(&mut now, &n);
-                }
-                now.push_front(n);
+                stamps[n] += 1;
+                now.push_front((n, stamps[n]));
             }
         }
         mem::swap(&mut now, &mut later);
         flimit = fmin;
     }
-}
-
-fn remove<T: Eq>(v: &mut VecDeque<T>, e: &T) -> bool {
-    v.iter().position(|x| x == e).is_some_and(|index| {
-        v.remove(index);
-        true
-    })
 }
