@@ -115,8 +115,8 @@ where
             .filter(|&(_, n)| n != usize::MAX)
         {
             let set = gb.entry(n).or_default();
-            for e in groups[i].clone() {
-                set.insert(e);
+            for e in &groups[i] {
+                set.insert(e.clone());
             }
         }
         gb.into_values().map(|v| v.into_iter().collect()).collect()
