@@ -1,0 +1,4 @@
+# These fixtures are parsed byte for byte by tests/codejam-2017-a.rs, and the expected
+# output is compared verbatim, so their line endings must survive checkout untouched.
+tests/A-small-practice.in -text
+tests/A-small-practice.out -text
