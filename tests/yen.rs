@@ -193,3 +193,22 @@ fn k_zero() {
     );
     assert_eq!(result, Vec::new());
 }
+
+#[test]
+// The cost of a spur candidate was recomputed by adding up *every* edge between two
+// consecutive nodes, so parallel edges were all charged instead of just the one taken.
+fn parallel_edges_are_not_charged_twice() {
+    let successors = |&n: &char| -> Vec<(char, u32)> {
+        match n {
+            '0' => vec![('a', 1), ('b', 1)],
+            'a' => vec![('c', 1)],
+            'b' => vec![('c', 5)],
+            'c' => vec![('d', 1), ('d', 9)],
+            _ => vec![],
+        }
+    };
+    assert_eq!(
+        yen(&'0', successors, |&n| n == 'd', 2),
+        vec![(vec!['0', 'a', 'c', 'd'], 3), (vec!['0', 'b', 'c', 'd'], 7)]
+    );
+}

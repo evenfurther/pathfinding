@@ -202,17 +202,21 @@ where
 fn make_cost<N, FN, IN, C>(nodes: &[N], successors: &mut FN) -> C
 where
     N: Eq,
-    C: Zero,
+    C: Zero + Ord + Copy,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
 {
     let mut cost = C::zero();
     for edge in nodes.windows(2) {
-        for (n, c) in successors(&edge[0]) {
-            if n == edge[1] {
-                cost = cost + c;
-            }
-        }
+        // Several edges may join the same two nodes; a shortest path takes the cheapest of
+        // them, so charging the path for all of them would overstate its cost.
+        let step = successors(&edge[0])
+            .into_iter()
+            .filter(|(n, _)| *n == edge[1])
+            .map(|(_, c)| c)
+            .min()
+            .unwrap_or_else(C::zero);
+        cost = cost + step;
     }
     cost
 }
