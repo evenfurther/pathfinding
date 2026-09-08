@@ -81,3 +81,12 @@ fn another_test() {
         ]
     );
 }
+
+#[test]
+// An edge incident to the starting node was ignored unless the starting node happened to be
+// written as its first endpoint, which could leave the cheapest way into the tree unusable.
+fn start_node_reached_from_either_side() {
+    let edges = vec![(1, 0, 10), (2, 1, 1), (2, 0, 1)];
+    let weight: i32 = prim(&edges).iter().map(|&(_, _, c)| c).sum();
+    assert_eq!(weight, 2);
+}
