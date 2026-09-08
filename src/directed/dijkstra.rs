@@ -5,7 +5,6 @@ use super::reverse_path;
 use crate::FxIndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
-use rustc_hash::FxHashSet;
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 use std::hash::Hash;
@@ -174,7 +173,6 @@ where
         cost: Zero::zero(),
         index: 0,
     });
-    let mut forward_settled: FxHashSet<N> = FxHashSet::default();
 
     let mut backward: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
     backward.insert(end.clone(), (usize::MAX, Zero::zero()));
@@ -183,46 +181,51 @@ where
         cost: Zero::zero(),
         index: 0,
     });
-    let mut backward_settled: FxHashSet<N> = FxHashSet::default();
 
-    // Best complete path found so far, as (total cost, meeting node). The meeting node is present
-    // in both the `forward` and `backward` parent maps, so the full path can be rebuilt from it.
-    let mut best: Option<(C, N)> = None;
+    // Best complete path found so far, as (total cost, index of the meeting node in `forward`,
+    // index of the same node in `backward`). Keeping both indices means the path can be rebuilt
+    // without looking the meeting node up again.
+    let mut best: Option<(C, usize, usize)> = None;
 
-    while !forward_queue.is_empty() && !backward_queue.is_empty() {
-        if expand_bidirectional(
+    loop {
+        // Drop stale entries so that the front of each queue is the smallest tentative cost
+        // that is still relevant on that side.
+        drop_stale(&mut forward_queue, &forward);
+        drop_stale(&mut backward_queue, &backward);
+        let (Some(forward_min), Some(backward_min)) = (forward_queue.peek(), backward_queue.peek())
+        else {
+            // One side has settled everything it can reach, so it has already scanned every
+            // edge of every remaining candidate path.
+            break;
+        };
+        // Any path the two searches have not joined up yet costs at least as much as the sum of
+        // the two frontier costs, so once that reaches the best known path nothing better is left.
+        if best.is_some_and(|(cost, ..)| forward_min.cost + backward_min.cost >= cost) {
+            break;
+        }
+        expand_bidirectional(
             &mut forward_queue,
             &mut forward,
-            &mut forward_settled,
             &backward,
-            &backward_settled,
             &mut successors,
             &mut best,
-        ) {
-            break;
-        }
-        if backward_queue.is_empty() {
-            break;
-        }
-        if expand_bidirectional(
+            true,
+        );
+        expand_bidirectional(
             &mut backward_queue,
             &mut backward,
-            &mut backward_settled,
             &forward,
-            &forward_settled,
             &mut predecessors,
             &mut best,
-        ) {
-            break;
-        }
+            false,
+        );
     }
 
-    best.map(|(cost, meeting)| {
+    best.map(|(cost, forward_index, backward_index)| {
         // The forward half runs from `start` up to the meeting node.
-        let meeting_index = forward.get_index_of(&meeting).unwrap();
-        let mut path = reverse_path(&forward, |&(p, _)| p, meeting_index);
+        let mut path = reverse_path(&forward, |&(p, _)| p, forward_index);
         // The backward half runs from the meeting node towards `end`, following backward parents.
-        let mut parent = backward.get(&meeting).unwrap().0;
+        let mut parent = backward.get_index(backward_index).unwrap().1.0;
         while parent != usize::MAX {
             let (node, &(next, _)) = backward.get_index(parent).unwrap();
             path.push(node.clone());
@@ -232,50 +235,54 @@ where
     })
 }
 
+/// Pop the entries at the front of `queue` that a later, cheaper path has superseded, so that
+/// the remaining front entry is the smallest tentative cost still to be settled.
+fn drop_stale<N, C>(queue: &mut BinaryHeap<SmallestHolder<C>>, parents: &FxIndexMap<N, (usize, C)>)
+where
+    N: Eq + Hash,
+    C: Ord + Copy,
+{
+    while let Some(&SmallestHolder { cost, index }) = queue.peek() {
+        if cost > parents[index].1 {
+            queue.pop();
+        } else {
+            break;
+        }
+    }
+}
+
 /// Perform a single expansion step of one side of a bidirectional Dijkstra search.
 ///
-/// The next unsettled node with the smallest tentative cost is popped from `queue` and settled.
-/// Its neighbours (given by `neighbours`) are relaxed into `parents`, and whenever a neighbour has
+/// The next node with the smallest tentative cost is popped from `queue` and settled. Its
+/// neighbours (given by `neighbours`) are relaxed into `parents`, and whenever a neighbour has
 /// already been reached by the opposite search a complete path is available and recorded in `best`
-/// if it improves on the current one.
-///
-/// Returns `true` when the popped node has already been settled by the opposite search, which means
-/// the two frontiers have met and the best recorded path is optimal.
+/// if it improves on the current one. `is_forward` tells the two halves apart, so that the meeting
+/// node is recorded as (forward index, backward index) either way round.
 fn expand_bidirectional<N, C, FN, IN>(
     queue: &mut BinaryHeap<SmallestHolder<C>>,
     parents: &mut FxIndexMap<N, (usize, C)>,
-    settled: &mut FxHashSet<N>,
     opposite: &FxIndexMap<N, (usize, C)>,
-    opposite_settled: &FxHashSet<N>,
     neighbours: &mut FN,
-    best: &mut Option<(C, N)>,
-) -> bool
-where
+    best: &mut Option<(C, usize, usize)>,
+    is_forward: bool,
+) where
     N: Eq + Hash + Clone,
     C: Zero + Ord + Copy,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
 {
     let Some(SmallestHolder { cost, index }) = queue.pop() else {
-        return false;
+        return;
     };
-    let node = {
+    let neighbours = {
         let (node, &(_, c)) = parents.get_index(index).unwrap();
         // A cheaper path to this node was found after this entry was queued: discard it.
         if cost > c {
-            return false;
+            return;
         }
-        node.clone()
+        neighbours(node)
     };
-    if !settled.insert(node.clone()) {
-        // Already settled through an equal-cost entry.
-        return false;
-    }
-    if opposite_settled.contains(&node) {
-        // Both searches have settled this node: the best recorded path is optimal.
-        return true;
-    }
-    for (neighbour, move_cost) in neighbours(&node) {
+    for (neighbour, move_cost) in neighbours {
         let new_cost = cost + move_cost;
         let n;
         match parents.entry(neighbour) {
@@ -299,18 +306,17 @@ where
         // If the opposite search has already reached this neighbour, the two halves form a
         // complete path; keep it if it is the cheapest one seen so far.
         let neighbour = parents.get_index(n).unwrap().0;
-        if let Some(&(_, opposite_cost)) = opposite.get(neighbour) {
+        if let Some((opposite_index, _, &(_, opposite_cost))) = opposite.get_full(neighbour) {
             let total = new_cost + opposite_cost;
-            let improved = match best {
-                Some((current, _)) => total < *current,
-                None => true,
-            };
-            if improved {
-                *best = Some((total, neighbour.clone()));
+            if best.is_none_or(|(current, ..)| total < current) {
+                *best = Some(if is_forward {
+                    (total, n, opposite_index)
+                } else {
+                    (total, opposite_index, n)
+                });
             }
         }
     }
-    false
 }
 
 /// Determine all reachable nodes from a starting point as well as the
@@ -535,7 +541,9 @@ impl<K: Ord> Ord for SmallestHolder<K> {
 /// Struct returned by [`dijkstra_reach`].
 pub struct DijkstraReachable<N, C, FN> {
     to_see: BinaryHeap<SmallestHolder<C>>,
-    seen: FxHashSet<usize>,
+    /// Whether the node at a given index in `parents` has already been yielded. Nodes are
+    /// numbered by `parents`, so this is indexed directly rather than hashed.
+    seen: Vec<bool>,
     parents: FxIndexMap<N, (usize, C)>,
     successors: FN,
 }
@@ -563,7 +571,7 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(SmallestHolder { cost, index }) = self.to_see.pop() {
-            if !self.seen.insert(index) {
+            if std::mem::replace(&mut self.seen[index], true) {
                 continue;
             }
             let item;
@@ -583,6 +591,7 @@ where
                     Vacant(e) => {
                         n = e.index();
                         e.insert((index, new_cost));
+                        self.seen.push(false);
                     }
                     Occupied(mut e) => {
                         if e.get().1 > new_cost {
@@ -627,7 +636,7 @@ where
     let mut parents: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
     parents.insert(start.clone(), (usize::MAX, Zero::zero()));
 
-    let seen = FxHashSet::default();
+    let seen = vec![false];
 
     DijkstraReachable {
         to_see,

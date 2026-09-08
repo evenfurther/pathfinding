@@ -4,7 +4,7 @@
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashSet};
+use std::collections::BinaryHeap;
 use std::hash::Hash;
 use std::iter::FusedIterator;
 
@@ -186,14 +186,16 @@ where
 {
     let mut to_see = BinaryHeap::new();
     let mut min_cost = None;
-    let mut sinks = HashSet::new();
+    // A node has only as many optimal parents as it has incoming edges, and a goal is reached
+    // only once, so plain vectors are both cheaper to fill and cheaper to walk than hash sets.
+    let mut sinks: Vec<usize> = Vec::new();
     to_see.push(SmallestCostHolder {
         estimated_cost: Zero::zero(),
         cost: Zero::zero(),
         index: 0,
     });
-    let mut parents: FxIndexMap<N, (HashSet<usize>, C)> = FxIndexMap::default();
-    parents.insert(start.clone(), (HashSet::new(), Zero::zero()));
+    let mut parents: FxIndexMap<N, (Vec<usize>, C)> = FxIndexMap::default();
+    parents.insert(start.clone(), (Vec::new(), Zero::zero()));
     while let Some(SmallestCostHolder {
         cost,
         index,
@@ -208,7 +210,9 @@ where
             let (node, &(_, c)) = parents.get_index(index).unwrap(); // Cannot fail
             if success(node) {
                 min_cost = Some(cost);
-                sinks.insert(index);
+                if !sinks.contains(&index) {
+                    sinks.push(index);
+                }
             }
             // We may have inserted a node several time into the binary heap if we found
             // a better way to access it. Ensure that we are currently dealing with the
@@ -226,9 +230,7 @@ where
                 Vacant(e) => {
                     h = heuristic(e.key());
                     n = e.index();
-                    let mut p = HashSet::new();
-                    p.insert(index);
-                    e.insert((p, new_cost));
+                    e.insert((vec![index], new_cost));
                 }
                 Occupied(mut e) => {
                     if e.get().1 > new_cost {
@@ -236,13 +238,16 @@ where
                         n = e.index();
                         let s = e.get_mut();
                         s.0.clear();
-                        s.0.insert(index);
+                        s.0.push(index);
                         s.1 = new_cost;
                     } else {
                         if e.get().1 == new_cost {
                             // New parent with an identical cost, this is not
                             // considered as an insertion.
-                            e.get_mut().0.insert(index);
+                            let s = e.get_mut();
+                            if !s.0.contains(&index) {
+                                s.0.push(index);
+                            }
                         }
                         continue;
                     }
@@ -258,13 +263,10 @@ where
     }
 
     min_cost.map(|cost| {
-        let parents = parents
-            .into_iter()
-            .map(|(k, (ps, _))| (k, ps.into_iter().collect()))
-            .collect();
+        let parents = parents.into_iter().map(|(k, (ps, _))| (k, ps)).collect();
         (
             AstarSolution {
-                sinks: sinks.into_iter().collect(),
+                sinks,
                 parents,
                 current: vec![],
                 terminated: false,

@@ -172,13 +172,15 @@ where
             if !self.visited.insert(n.clone()) {
                 continue;
             }
-            let mut to_insert = Vec::new();
+            // Successors are pushed straight onto the stack and then reversed in place, so
+            // that they are still visited in order without a temporary vector per node.
+            let first = self.to_see.len();
             for s in (self.successors)(&n) {
                 if !self.visited.contains(&s) {
-                    to_insert.push(s);
+                    self.to_see.push(s);
                 }
             }
-            self.to_see.extend(to_insert.into_iter().rev());
+            self.to_see[first..].reverse();
             return Some(n);
         }
     }
