@@ -16,9 +16,20 @@ where
         return vec![];
     };
 
+    // Edges are undirected, so an edge touching the starting node may name it either first
+    // or second. Both forms have to be offered here: once the loop below has marked the
+    // starting node as visited, neither of its checks can reach back to it.
     let mut priority_queue = edges
         .iter()
-        .filter_map(|(n, n1, c)| (n == start).then_some(Reverse((c, n, n1))))
+        .filter_map(|(n, n1, c)| {
+            if n == start {
+                Some(Reverse((c, n, n1)))
+            } else if n1 == start {
+                Some(Reverse((c, n1, n)))
+            } else {
+                None
+            }
+        })
         .collect::<BinaryHeap<_>>();
 
     let (mut mst, mut visited) = (Vec::new(), HashSet::new());
