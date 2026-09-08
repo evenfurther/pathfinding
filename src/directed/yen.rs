@@ -16,6 +16,9 @@ struct Path<N: Eq + Hash + Clone, C: Zero + Ord + Copy> {
     nodes: Vec<N>,
     /// The total cost of the path
     cost: C,
+    /// Index of the node at which this path leaves the path it was derived from. Every
+    /// deviation before that point belongs to an ancestor and has already been considered.
+    spur_index: usize,
 }
 
 impl<N, C> PartialOrd for Path<N, C>
@@ -117,7 +120,11 @@ where
 
     let mut visited = FxHashSet::default();
     // A vector containing our paths.
-    let mut routes = vec![Path { nodes: n, cost: c }];
+    let mut routes = vec![Path {
+        nodes: n,
+        cost: c,
+        spur_index: 0,
+    }];
     // A min-heap to store our lowest-cost route candidate
     let mut k_routes = BinaryHeap::new();
     for ki in 0..(k - 1) {
@@ -125,10 +132,16 @@ where
             // We have no more routes to explore, or we have found enough.
             break;
         }
+        // Cost of each prefix of the route being explored, so that the cost of a spur path can
+        // be added to the cost of its root path rather than recomputed from the graph.
+        let root_costs = prefix_costs(&routes[ki].nodes, &mut successors);
+        // Deviating before the point where this route left its own parent would rebuild a
+        // candidate that was already produced while exploring that parent.
+        let first_spur = routes[ki].spur_index;
         // Take the most recent route to explore new spurs.
         let previous = &routes[ki].nodes;
         // Iterate over every node except the sink node.
-        for i in 0..(previous.len() - 1) {
+        for i in first_spur..(previous.len() - 1) {
             let spur_node = &previous[i];
             let root_path = &previous[0..i];
 
@@ -154,19 +167,20 @@ where
             };
 
             // Let us find the spur path from the spur node to the sink using.
-            if let Some((spur_path, _)) =
+            if let Some((spur_path, spur_cost)) =
                 dijkstra_internal(spur_node, &mut filtered_successor, &mut success)
             {
                 let nodes: Vec<N> = root_path.iter().cloned().chain(spur_path).collect();
                 // If we have found the same path before, we will not add it.
                 if !visited.contains(&nodes) {
-                    // Since we don't know the root_path cost, we need to recalculate.
-                    let cost = make_cost(&nodes, &mut successors);
-                    let path = Path { nodes, cost };
                     // Mark as visited
-                    visited.insert(path.nodes.clone());
+                    visited.insert(nodes.clone());
                     // Build a min-heap
-                    k_routes.push(Reverse(path));
+                    k_routes.push(Reverse(Path {
+                        nodes,
+                        cost: root_costs[i] + spur_cost,
+                        spur_index: i,
+                    }));
                 }
             }
         }
@@ -195,28 +209,33 @@ where
     routes.sort_unstable();
     routes
         .into_iter()
-        .map(|Path { nodes, cost }| (nodes, cost))
+        .map(|Path { nodes, cost, .. }| (nodes, cost))
         .collect()
 }
 
-fn make_cost<N, FN, IN, C>(nodes: &[N], successors: &mut FN) -> C
+/// Compute the cost of every prefix of `nodes`: entry `i` is the cost of walking `nodes[..=i]`,
+/// so entry `0` is zero and the last entry is the cost of the whole path.
+///
+/// Where several edges join the same two nodes, a shortest path uses the cheapest of them.
+fn prefix_costs<N, FN, IN, C>(nodes: &[N], successors: &mut FN) -> Vec<C>
 where
     N: Eq,
     C: Zero + Ord + Copy,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = (N, C)>,
 {
-    let mut cost = C::zero();
+    let mut costs = Vec::with_capacity(nodes.len());
+    let mut total = C::zero();
+    costs.push(total);
     for edge in nodes.windows(2) {
-        // Several edges may join the same two nodes; a shortest path takes the cheapest of
-        // them, so charging the path for all of them would overstate its cost.
         let step = successors(&edge[0])
             .into_iter()
             .filter(|(n, _)| *n == edge[1])
             .map(|(_, c)| c)
             .min()
             .unwrap_or_else(C::zero);
-        cost = cost + step;
+        total = total + step;
+        costs.push(total);
     }
-    cost
+    costs
 }
