@@ -10,7 +10,7 @@
 use super::bfs::bfs;
 use crate::{FxIndexSet, matrix::Matrix};
 use num_traits::{Bounded, Signed, Zero};
-use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use std::collections::{BTreeMap, VecDeque};
 use std::hash::Hash;
 
 /// Type alias for Edmonds-Karp maximum flow result.
@@ -234,13 +234,15 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
     fn augment(&mut self) -> EKFlows<usize, C> {
         let source_nodes = self.update_flows();
         if self.has_details() {
-            let cuts = self
-                .flows()
+            // Building the flow list is proportional to the size of the graph, so the cut is
+            // read off the list rather than rebuilding it.
+            let flows = self.flows();
+            let cuts = flows
                 .iter()
-                .filter(|((from, to), _)| source_nodes.contains(from) && !source_nodes.contains(to))
+                .filter(|((from, to), _)| source_nodes[*from] && !source_nodes[*to])
                 .copied()
                 .collect::<Vec<_>>();
-            (self.flows(), self.total_capacity(), cuts)
+            (flows, self.total_capacity(), cuts)
         } else {
             (Vec::new(), self.total_capacity(), Vec::new())
         }
@@ -248,7 +250,9 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
 }
 
 trait EdmondsKarpInternal<C> {
-    fn update_flows(&mut self) -> BTreeSet<usize>;
+    /// Saturate the flow, and report which nodes the source can still reach afterwards, indexed
+    /// by node number.
+    fn update_flows(&mut self) -> Vec<bool>;
     fn cancel_flow(&mut self, from: usize, to: usize, capacity: C);
 }
 
@@ -258,20 +262,21 @@ where
     T: EdmondsKarp<C> + ?Sized,
 {
     /// Internal: update flows until maximum-flow / minimum-cut is reached.
-    fn update_flows(&mut self) -> BTreeSet<usize> {
+    fn update_flows(&mut self) -> Vec<bool> {
         let size = self.size();
         let source = self.source();
         let sink = self.sink();
         let mut parents = vec![None; size];
         let mut path_capacity = vec![C::max_value(); size];
         let mut to_see = VecDeque::new();
-        let mut seen = BTreeSet::new();
+        // Nodes are numbered from 0, so reachability is recorded by index rather than in a set.
+        let mut seen = vec![false; size];
         'augment: loop {
             to_see.clear();
             to_see.push_back(source);
-            seen.clear();
+            seen.fill(false);
             while let Some(node) = to_see.pop_front() {
-                seen.insert(node);
+                seen[node] = true;
                 let capacity_so_far = path_capacity[node];
                 for (successor, residual) in self.residual_successors(node).iter().copied() {
                     if successor == source || parents[successor].is_some() {
@@ -313,21 +318,16 @@ where
             let Some(path) = bfs(&from, |&n| self.flows_from(n).into_iter(), |&n| n == to) else {
                 unreachable!("no flow to cancel");
             };
-            let path = path
-                .clone()
-                .into_iter()
-                .zip(path.into_iter().skip(1))
-                .collect::<Vec<_>>();
             let mut max_cancelable = path
-                .iter()
-                .map(|&(src, dst)| self.flow(src, dst))
+                .windows(2)
+                .map(|edge| self.flow(edge[0], edge[1]))
                 .min()
                 .unwrap();
             if max_cancelable > capacity {
                 max_cancelable = capacity;
             }
-            for (src, dst) in path {
-                self.add_flow(dst, src, max_cancelable);
+            for edge in path.windows(2) {
+                self.add_flow(edge[1], edge[0], max_cancelable);
             }
             capacity = capacity - max_cancelable;
         }
@@ -440,11 +440,10 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
 
     fn flows(&self) -> Vec<((usize, usize), C)> {
         self.flows
-            .clone()
-            .into_iter()
-            .flat_map(|(k, vs)| {
-                vs.into_iter()
-                    .filter_map(move |(v, c)| (c > Zero::zero()).then_some(((k, v), c)))
+            .iter()
+            .flat_map(|(&k, vs)| {
+                vs.iter()
+                    .filter_map(move |(&v, &c)| (c > Zero::zero()).then_some(((k, v), c)))
             })
             .collect()
     }
