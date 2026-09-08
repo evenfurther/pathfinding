@@ -1,5 +1,6 @@
 //! Find cliques in an undirected graph.
 
+use rustc_hash::FxHashSet;
 use std::collections::HashSet;
 use std::hash::Hash;
 
@@ -22,14 +23,7 @@ where
 {
     let mut result = Vec::new();
     let mut consumer = |n: &HashSet<N>| result.push(n.to_owned());
-    let mut remaining_nodes: HashSet<N> = vertices.into_iter().collect::<HashSet<_>>();
-    bron_kerbosch(
-        connected,
-        &HashSet::new(),
-        &mut remaining_nodes,
-        &mut HashSet::new(),
-        &mut consumer,
-    );
+    maximal_cliques(vertices, connected, &mut consumer);
     result
 }
 
@@ -52,59 +46,108 @@ where
     IN: IntoIterator<Item = N>,
     CO: FnMut(&HashSet<N>),
 {
-    let mut remaining_nodes: HashSet<N> = vertices.into_iter().collect();
+    // A vertex must not appear twice in a clique, so the list is deduplicated; keeping the
+    // order it was given in keeps the output stable from one run to the next.
+    let mut seen = FxHashSet::default();
+    let mut candidates = Vec::new();
+    for vertex in vertices {
+        if seen.insert(vertex.clone()) {
+            candidates.push(vertex);
+        }
+    }
     bron_kerbosch(
         connected,
-        &HashSet::new(),
-        &mut remaining_nodes,
-        &mut HashSet::new(),
+        &mut Vec::new(),
+        &mut candidates,
+        &mut Vec::new(),
         consumer,
     );
 }
 
+/// One step of the Bron-Kerbosch enumeration.
+///
+/// `clique` is the clique built so far, `candidates` the vertices that could still extend it, and
+/// `excluded` those that could but have already been explored in another branch: a clique is
+/// maximal exactly when both of the latter are empty.
+///
+/// The three sets are vectors rather than hash sets. They are only ever filtered and scanned,
+/// never looked up by key, and they shrink quickly with depth, so hashing every vertex at every
+/// level costs more than the linear scans it saves.
 fn bron_kerbosch<N, FN, CO>(
     connected: &mut FN,
-    potential_clique: &HashSet<N>,
-    remaining_nodes: &mut HashSet<N>,
-    skip_nodes: &mut HashSet<N>,
+    clique: &mut Vec<N>,
+    candidates: &mut Vec<N>,
+    excluded: &mut Vec<N>,
     consumer: &mut CO,
 ) where
     N: Eq + Hash + Clone,
     FN: FnMut(&N, &N) -> bool,
     CO: FnMut(&HashSet<N>),
 {
-    if remaining_nodes.is_empty() && skip_nodes.is_empty() {
-        consumer(potential_clique);
+    if candidates.is_empty() {
+        if excluded.is_empty() {
+            consumer(&clique.iter().cloned().collect());
+        }
         return;
     }
-    let nodes_to_check = remaining_nodes.clone();
-    for node in &nodes_to_check {
-        let mut new_potential_clique = potential_clique.clone();
-        new_potential_clique.insert(node.to_owned());
 
-        let mut new_remaining_nodes: HashSet<N> = remaining_nodes
-            .iter()
-            .filter(|n| *n != node && connected(node, n))
-            .cloned()
-            .collect();
+    // Take as pivot a vertex of `candidates ∪ excluded` connected to as many candidates as
+    // possible. Every maximal clique extending this one either leaves the pivot out or contains
+    // one of its neighbours, so the candidates the pivot is connected to need not be branched on
+    // here: they are reached through a deeper call instead. Without this the enumeration
+    // re-derives the same cliques through every permutation of their vertices.
+    //
+    // `connected` is free to report a vertex as connected to itself, but a vertex is never its
+    // own neighbour here: were the pivot allowed to exclude itself from the branch set, a
+    // candidate could be dropped without ever being branched on.
+    let branch = {
+        let mut pivot = None;
+        for vertex in candidates.iter().chain(excluded.iter()) {
+            let reach = candidates
+                .iter()
+                .filter(|n| *n != vertex && connected(vertex, n))
+                .count();
+            if pivot.is_none_or(|(most, _)| reach > most) {
+                pivot = Some((reach, vertex));
+            }
+        }
+        // `candidates` is not empty, so a pivot was always found.
+        match pivot {
+            Some((_, pivot)) => candidates
+                .iter()
+                .filter(|n| *n == pivot || !connected(pivot, n))
+                .cloned()
+                .collect::<Vec<_>>(),
+            None => Vec::new(),
+        }
+    };
 
-        let mut new_skip_list: HashSet<N> = skip_nodes
+    for vertex in branch {
+        let mut next_candidates = candidates
             .iter()
-            .filter(|n| *n != node && connected(node, n))
+            .filter(|n| **n != vertex && connected(&vertex, n))
             .cloned()
-            .collect();
+            .collect::<Vec<_>>();
+        let mut next_excluded = excluded
+            .iter()
+            .filter(|n| **n != vertex && connected(&vertex, n))
+            .cloned()
+            .collect::<Vec<_>>();
+        clique.push(vertex.clone());
         bron_kerbosch(
             connected,
-            &new_potential_clique,
-            &mut new_remaining_nodes,
-            &mut new_skip_list,
+            clique,
+            &mut next_candidates,
+            &mut next_excluded,
             consumer,
         );
+        clique.pop();
 
-        // We're done considering this node. If there was a way to form a clique with it, we
-        // already discovered its maximal clique in the recursive call above.  So, go ahead
-        // and remove it from the list of remaining nodes and add it to the skip list.
-        remaining_nodes.remove(node);
-        skip_nodes.insert(node.to_owned());
+        // This vertex has yielded every clique it can, so any clique found later that could have
+        // included it is not maximal.
+        if let Some(position) = candidates.iter().position(|n| *n == vertex) {
+            candidates.swap_remove(position);
+        }
+        excluded.push(vertex);
     }
 }
