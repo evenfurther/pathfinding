@@ -119,3 +119,21 @@ fn loops() {
     c.sort();
     assert_eq!(c, vec![vec![0], vec![42]]);
 }
+
+#[test]
+fn deep_graph_does_not_exhaust_the_stack() {
+    // A long chain used to need one stack frame per node. The thread is given a deliberately
+    // small stack so that a return to a recursive traversal fails here rather than silently.
+    const N: usize = 200_000;
+    std::thread::Builder::new()
+        .stack_size(1 << 20)
+        .spawn(|| {
+            let nodes = (0..N).collect::<Vec<_>>();
+            let components =
+                strongly_connected_components(&nodes, |&i| (i + 1 < N).then_some(i + 1));
+            assert_eq!(components.len(), N);
+        })
+        .expect("cannot spawn thread")
+        .join()
+        .expect("traversal exhausted the stack");
+}
