@@ -1,6 +1,7 @@
 //! Find a topological order in a directed graph if one exists.
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use rustc_hash::{FxHashMap, FxHashSet};
+use std::collections::VecDeque;
 use std::hash::Hash;
 use std::mem;
 
@@ -79,30 +80,27 @@ where
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
-    let mut marked = HashSet::with_capacity(roots.len());
-    let mut temp = HashSet::new();
+    let mut visited = FxHashMap::default();
     let mut sorted = VecDeque::with_capacity(roots.len());
-    let mut roots: HashSet<N> = roots.iter().cloned().collect::<HashSet<_>>();
-    while let Some(node) = roots.iter().next().cloned() {
-        temp.clear();
-        visit(
-            &node,
-            &mut successors,
-            &mut roots,
-            &mut marked,
-            &mut temp,
-            &mut sorted,
-        )?;
+    for root in roots {
+        visit(root, &mut successors, &mut visited, &mut sorted)?;
     }
     Ok(sorted.into_iter().collect())
 }
 
+/// Explore the graph below `node` in depth-first order, prepending each node to `sorted` once
+/// everything reachable from it has been placed.
+///
+/// `visited` maps every node reached so far to whether it is finished. A node that has been
+/// reached but is not finished is still on the path being explored, so meeting it again closes
+/// a cycle.
+///
+/// The traversal keeps its own stack rather than recursing, since the depth of a graph is easily
+/// enough to exhaust the call stack.
 fn visit<N, FN, IN>(
-    node: &N,
+    start: &N,
     successors: &mut FN,
-    unmarked: &mut HashSet<N>,
-    marked: &mut HashSet<N>,
-    temp: &mut HashSet<N>,
+    visited: &mut FxHashMap<N, bool>,
     sorted: &mut VecDeque<N>,
 ) -> Result<(), N>
 where
@@ -110,19 +108,37 @@ where
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
-    unmarked.remove(node);
-    if marked.contains(node) {
-        return Ok(());
+    match visited.get(start) {
+        Some(true) => return Ok(()),
+        Some(false) => return Err(start.clone()),
+        None => (),
     }
-    if temp.contains(node) {
-        return Err(node.clone());
+    visited.insert(start.clone(), false);
+    let mut stack: Vec<(N, IN::IntoIter)> = vec![(start.clone(), successors(start).into_iter())];
+    while let Some(top) = stack.last_mut() {
+        // The borrow of `stack` ends here, so that the body below is free to push onto it.
+        let successor = top.1.next();
+        if let Some(node) = successor {
+            match visited.get(&node) {
+                // Finished: everything below it is already in place.
+                Some(true) => (),
+                // Reached but not finished, so it is still on the path being explored.
+                Some(false) => return Err(node),
+                None => {
+                    visited.insert(node.clone(), false);
+                    let successors = successors(&node).into_iter();
+                    stack.push((node, successors));
+                }
+            }
+        } else {
+            // Everything reachable from this node has been placed, so it comes before all of it.
+            let (node, _) = stack.pop().unwrap();
+            if let Some(finished) = visited.get_mut(&node) {
+                *finished = true;
+            }
+            sorted.push_front(node);
+        }
     }
-    temp.insert(node.clone());
-    for n in successors(node) {
-        visit(&n, successors, unmarked, marked, temp, sorted)?;
-    }
-    marked.insert(node.clone());
-    sorted.push_front(node.clone());
     Ok(())
 }
 
@@ -166,8 +182,8 @@ where
     if nodes.is_empty() {
         return Ok(Vec::new());
     }
-    let mut succs_map = HashMap::<N, HashSet<N>>::with_capacity(nodes.len());
-    let mut preds_map = HashMap::<N, usize>::with_capacity(nodes.len());
+    let mut succs_map = FxHashMap::<N, FxHashSet<N>>::default();
+    let mut preds_map = FxHashMap::<N, usize>::default();
     for node in nodes {
         succs_map.insert(node.clone(), successors(node).into_iter().collect());
         preds_map.insert(node.clone(), 0);
