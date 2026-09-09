@@ -9,6 +9,8 @@ jobs:
     name: Run iai-callgrind benchmarks
     runs-on: ubuntu-latest
     permissions:
+      contents: read
+      issues: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v7
@@ -182,7 +184,10 @@ jobs:
           EOF
 
       - name: Post comment to PR
-        if: github.event_name == 'pull_request'
+        # Forked pull_request workflows intentionally receive a read-only token, so
+        # keep benchmark results in the job summary there instead of failing CI.
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
         uses: actions/github-script@v9
         with:
           script: |
