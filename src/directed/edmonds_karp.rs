@@ -352,8 +352,6 @@ pub struct SparseCapacity<C> {
     residuals: BTreeMap<usize, BTreeMap<usize, C>>,
 }
 
-unsafe impl<C: Send> Send for SparseCapacity<C> {}
-
 impl<C: Copy + Eq + Zero + Signed + Bounded + Ord> SparseCapacity<C> {
     fn set_value(data: &mut BTreeMap<usize, BTreeMap<usize, C>>, from: usize, to: usize, value: C) {
         let to_remove = {
@@ -478,8 +476,6 @@ pub struct DenseCapacity<C> {
     residuals: Matrix<C>,
     flows: Matrix<C>,
 }
-
-unsafe impl<C: Send> Send for DenseCapacity<C> {}
 
 impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C> {
     fn new(size: usize, source: usize, sink: usize) -> Self {
