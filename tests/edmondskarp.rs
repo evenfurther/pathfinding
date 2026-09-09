@@ -273,3 +273,12 @@ fn set_capacity_test() {
     ek.augment();
     residual_capacities_non_negative(&ek);
 }
+
+#[test]
+fn capacities_are_send_without_an_unsafe_impl() {
+    // Every field of both types is `Send` when `C` is, so the compiler derives this on its
+    // own; the assertion is here so that a field which is not can never be added silently.
+    const fn assert_send<T: Send>() {}
+    assert_send::<DenseCapacity<i32>>();
+    assert_send::<SparseCapacity<i32>>();
+}
