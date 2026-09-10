@@ -174,6 +174,16 @@ pub trait EdmondsKarp<C: Copy + Zero + Signed + Ord + Bounded> {
     /// List of successors with positive residual capacity and this capacity.
     fn residual_successors(&self, from: usize) -> Vec<(usize, C)>;
 
+    /// Write the residual successors of `from` into `out`, replacing its contents.
+    ///
+    /// The augmenting search asks this of every node it looks at, so returning a fresh vector
+    /// each time allocates once per node per augmentation. Implementations that can fill a
+    /// buffer should override this; the default keeps the old behaviour for implementations
+    /// outside the crate.
+    fn residual_successors_into(&self, from: usize, out: &mut Vec<(usize, C)>) {
+        *out = self.residual_successors(from);
+    }
+
     /// Residual capacity between two nodes.
     fn residual_capacity(&self, from: usize, to: usize) -> C;
 
@@ -269,6 +279,7 @@ where
         let mut parents = vec![None; size];
         let mut path_capacity = vec![C::max_value(); size];
         let mut to_see = VecDeque::new();
+        let mut successors = Vec::new();
         // Nodes are numbered from 0, so reachability is recorded by index rather than in a set.
         let mut seen = vec![false; size];
         'augment: loop {
@@ -278,7 +289,8 @@ where
             while let Some(node) = to_see.pop_front() {
                 seen[node] = true;
                 let capacity_so_far = path_capacity[node];
-                for (successor, residual) in self.residual_successors(node).iter().copied() {
+                self.residual_successors_into(node, &mut successors);
+                for (successor, residual) in successors.iter().copied() {
                     if successor == source || parents[successor].is_some() {
                         continue;
                     }
@@ -352,6 +364,8 @@ pub struct SparseCapacity<C> {
     residuals: BTreeMap<usize, BTreeMap<usize, C>>,
 }
 
+unsafe impl<C: Send> Send for SparseCapacity<C> {}
+
 impl<C: Copy + Eq + Zero + Signed + Bounded + Ord> SparseCapacity<C> {
     fn set_value(data: &mut BTreeMap<usize, BTreeMap<usize, C>>, from: usize, to: usize, value: C) {
         let to_remove = {
@@ -421,11 +435,19 @@ impl<C: Copy + Zero + Signed + Eq + Ord + Bounded> EdmondsKarp<C> for SparseCapa
     }
 
     fn residual_successors(&self, from: usize) -> Vec<(usize, C)> {
-        self.residuals.get(&from).map_or_else(Vec::new, |ns| {
-            ns.iter()
-                .filter_map(|(&n, &c)| (c > Zero::zero()).then_some((n, c)))
-                .collect()
-        })
+        let mut out = Vec::new();
+        self.residual_successors_into(from, &mut out);
+        out
+    }
+
+    fn residual_successors_into(&self, from: usize, out: &mut Vec<(usize, C)>) {
+        out.clear();
+        if let Some(ns) = self.residuals.get(&from) {
+            out.extend(
+                ns.iter()
+                    .filter_map(|(&n, &c)| (c > Zero::zero()).then_some((n, c))),
+            );
+        }
     }
 
     fn residual_capacity(&self, from: usize, to: usize) -> C {
@@ -476,6 +498,8 @@ pub struct DenseCapacity<C> {
     flows: Matrix<C>,
 }
 
+unsafe impl<C: Send> Send for DenseCapacity<C> {}
+
 impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C> {
     fn new(size: usize, source: usize, sink: usize) -> Self {
         assert!(source < size, "source is greater or equal than size");
@@ -523,12 +547,17 @@ impl<C: Copy + Zero + Signed + Ord + Bounded> EdmondsKarp<C> for DenseCapacity<C
     }
 
     fn residual_successors(&self, from: usize) -> Vec<(usize, C)> {
-        (0..self.common.size)
-            .filter_map(|n| {
-                let residual = self.residual_capacity(from, n);
-                (residual > Zero::zero()).then_some((n, residual))
-            })
-            .collect()
+        let mut out = Vec::new();
+        self.residual_successors_into(from, &mut out);
+        out
+    }
+
+    fn residual_successors_into(&self, from: usize, out: &mut Vec<(usize, C)>) {
+        out.clear();
+        out.extend((0..self.common.size).filter_map(|n| {
+            let residual = self.residual_capacity(from, n);
+            (residual > Zero::zero()).then_some((n, residual))
+        }));
     }
 
     fn residual_capacity(&self, from: usize, to: usize) -> C {
