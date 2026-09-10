@@ -681,9 +681,17 @@ impl<C> Matrix<C> {
         P: FnMut((usize, usize)) -> bool,
     {
         bfs_reach(start, |&n| {
-            self.neighbours(n, diagonals)
-                .filter(|&n| predicate(n))
-                .collect::<Vec<_>>()
+            // A cell has at most eight neighbours, so they fit in a fixed buffer and the
+            // traversal need not allocate a vector for every cell it visits.
+            let mut buffer = [(0, 0); 8];
+            let mut len = 0;
+            for neighbour in self.neighbours(n, diagonals) {
+                if predicate(neighbour) {
+                    buffer[len] = neighbour;
+                    len += 1;
+                }
+            }
+            buffer.into_iter().take(len)
         })
         .collect()
     }
@@ -709,9 +717,17 @@ impl<C> Matrix<C> {
         P: FnMut((usize, usize)) -> bool,
     {
         dfs_reach(start, |&n| {
-            self.neighbours(n, diagonals)
-                .filter(|&n| predicate(n))
-                .collect::<Vec<_>>()
+            // A cell has at most eight neighbours, so they fit in a fixed buffer and the
+            // traversal need not allocate a vector for every cell it visits.
+            let mut buffer = [(0, 0); 8];
+            let mut len = 0;
+            for neighbour in self.neighbours(n, diagonals) {
+                if predicate(neighbour) {
+                    buffer[len] = neighbour;
+                    len += 1;
+                }
+            }
+            buffer.into_iter().take(len)
         })
         .collect()
     }
