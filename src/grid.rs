@@ -345,43 +345,66 @@ impl Grid {
     /// Return the list of neighbours of a given vertex. If `vertex` is absent
     /// from the grid, an empty list is returned. Only existing vertices will
     /// be returned.
-    #[must_use]
-    pub fn neighbours(&self, vertex: (usize, usize)) -> Vec<(usize, usize)> {
+    /// Write the neighbours of `vertex` into `buffer`, returning how many there are.
+    ///
+    /// A vertex has at most eight neighbours, so they fit in a fixed buffer. Callers that walk
+    /// the whole grid use this to avoid allocating a vector for every vertex they visit.
+    fn neighbours_into(&self, vertex: (usize, usize), buffer: &mut [(usize, usize); 8]) -> usize {
         if !self.has_vertex(vertex) {
-            return vec![];
+            return 0;
         }
         let (x, y) = vertex;
-        let mut candidates = Vec::with_capacity(8);
+        let mut len = 0;
+        let mut push = |v, len: &mut usize| {
+            buffer[*len] = v;
+            *len += 1;
+        };
         if x > 0 {
-            candidates.push((x - 1, y));
+            push((x - 1, y), &mut len);
             if self.diagonal_mode {
                 if y > 0 {
-                    candidates.push((x - 1, y - 1));
+                    push((x - 1, y - 1), &mut len);
                 }
                 if y + 1 < self.height {
-                    candidates.push((x - 1, y + 1));
+                    push((x - 1, y + 1), &mut len);
                 }
             }
         }
         if x + 1 < self.width {
-            candidates.push((x + 1, y));
+            push((x + 1, y), &mut len);
             if self.diagonal_mode {
                 if y > 0 {
-                    candidates.push((x + 1, y - 1));
+                    push((x + 1, y - 1), &mut len);
                 }
                 if y + 1 < self.height {
-                    candidates.push((x + 1, y + 1));
+                    push((x + 1, y + 1), &mut len);
                 }
             }
         }
         if y > 0 {
-            candidates.push((x, y - 1));
+            push((x, y - 1), &mut len);
         }
         if y + 1 < self.height {
-            candidates.push((x, y + 1));
+            push((x, y + 1), &mut len);
         }
-        candidates.retain(|&v| self.has_vertex(v));
-        candidates
+        let mut kept = 0;
+        for i in 0..len {
+            if self.has_vertex(buffer[i]) {
+                buffer[kept] = buffer[i];
+                kept += 1;
+            }
+        }
+        kept
+    }
+
+    /// Return the list of neighbours of a given vertex. If `vertex` is absent
+    /// from the grid, an empty list is returned. Only existing vertices will
+    /// be returned.
+    #[must_use]
+    pub fn neighbours(&self, vertex: (usize, usize)) -> Vec<(usize, usize)> {
+        let mut buffer = [(0, 0); 8];
+        let len = self.neighbours_into(vertex, &mut buffer);
+        buffer[..len].to_vec()
     }
 
     /// Return a set of the indices reachable from a candidate starting point
@@ -404,10 +427,16 @@ impl Grid {
         P: FnMut((usize, usize)) -> bool,
     {
         bfs_reach(start, |&n| {
-            self.neighbours(n)
-                .into_iter()
-                .filter(|&n| predicate(n))
-                .collect::<Vec<_>>()
+            let mut buffer = [(0, 0); 8];
+            let len = self.neighbours_into(n, &mut buffer);
+            let mut kept = 0;
+            for i in 0..len {
+                if predicate(buffer[i]) {
+                    buffer[kept] = buffer[i];
+                    kept += 1;
+                }
+            }
+            buffer.into_iter().take(kept)
         })
         .collect()
     }
@@ -432,10 +461,16 @@ impl Grid {
         P: FnMut((usize, usize)) -> bool,
     {
         dfs_reach(start, |&n| {
-            self.neighbours(n)
-                .into_iter()
-                .filter(|&n| predicate(n))
-                .collect::<Vec<_>>()
+            let mut buffer = [(0, 0); 8];
+            let len = self.neighbours_into(n, &mut buffer);
+            let mut kept = 0;
+            for i in 0..len {
+                if predicate(buffer[i]) {
+                    buffer[kept] = buffer[i];
+                    kept += 1;
+                }
+            }
+            buffer.into_iter().take(kept)
         })
         .collect()
     }
