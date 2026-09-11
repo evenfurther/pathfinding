@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use pathfinding::prelude::{astar, astar_reach, dijkstra_reach, AstarReachableItem};
+use pathfinding::prelude::{AstarReachableItem, astar, astar_reach, dijkstra_reach};
 
 #[test]
 fn astar_reach_graph() {
@@ -152,4 +152,91 @@ fn parent_chain_reaches_start() {
     assert_eq!(path.last(), Some(&GOAL));
     let (_, cost) = astar(&(0, 0), successors, heuristic, |n| *n == GOAL).unwrap();
     assert_eq!(by_node[&GOAL].total_cost, cost);
+}
+
+/// An admissible heuristic need not be consistent, and when it is not, A* finds a cheaper route
+/// to a node it has already expanded and expands it again. The iterator has to do the same, or
+/// it reports costs that are simply wrong.
+///
+/// Taken from the review of this pull request: `h(A) = 0` while `h(B) = 2`, so `h` drops by 2
+/// across the single edge `B -> A`, which costs 1. Reaching `A` looks best at cost 3 until `B`
+/// is expanded and offers it at cost 2.
+#[test]
+fn inconsistent_heuristic_reopens_like_astar() {
+    const START: char = 'S';
+    let successors = |&n: &char| match n {
+        'S' => vec![('A', 3), ('B', 1)],
+        'B' => vec![('A', 1)],
+        'A' => vec![('G', 1)],
+        _ => vec![],
+    };
+    let heuristic = |&n: &char| match n {
+        'B' => 2,
+        _ => 0,
+    };
+
+    let by_astar = astar(&START, successors, heuristic, |&n| n == 'G').expect("no path");
+    assert_eq!(by_astar.1, 3, "the cheapest route is S -> B -> A -> G");
+
+    // The iterator must agree with `astar` about the goal's cost.
+    let reached = astar_reach(&START, successors, heuristic)
+        .find(|item| item.node == 'G')
+        .expect("goal never reached");
+    assert_eq!(
+        reached.total_cost, by_astar.1,
+        "iterator reported {} for the goal, astar says {}",
+        reached.total_cost, by_astar.1
+    );
+
+    // `A` is expanded twice: once at 3, then again at 2 once `B` has been seen.
+    let costs_for_a = astar_reach(&START, successors, heuristic)
+        .filter(|item| item.node == 'A')
+        .map(|item| item.total_cost)
+        .collect::<Vec<_>>();
+    assert_eq!(costs_for_a, vec![3, 2]);
+}
+
+/// `estimated_cost` must be the priority that actually selected the node, not a fresh call to
+/// the heuristic when the node is expanded.
+///
+/// The heuristic is an `FnMut`, so it is allowed to be stateful — instrumented to count calls,
+/// or memoising something expensive. Calling it a second time for a node already queued both
+/// reports a value that never took part in the search and perturbs the search being observed.
+/// The heuristic here answers differently on a second call for the same node, which makes the
+/// difference visible: the reported `f` must be the one computed when the node was queued.
+#[test]
+fn the_heuristic_is_not_called_again_for_expanded_nodes() {
+    // Only right and down, so every route to a cell is the same length and no cell is ever
+    // requeued more cheaply. Each is therefore queued exactly once.
+    let successors = |&(x, y): &(i32, i32)| {
+        [(1, 0), (0, 1)]
+            .into_iter()
+            .map(move |(dx, dy)| ((x + dx, y + dy), 1_u32))
+            .filter(|&((nx, ny), _)| (0..4).contains(&nx) && (0..4).contains(&ny))
+    };
+    let goal = (3, 3);
+    #[expect(clippy::cast_sign_loss)]
+    let plain = move |&(x, y): &(i32, i32)| ((goal.0 - x) + (goal.1 - y)) as u32;
+
+    let mut asked = std::collections::HashSet::new();
+    let once_only = |n: &(i32, i32)| {
+        if asked.insert(*n) {
+            plain(n)
+        } else {
+            0 // a second question about the same node gets a different answer
+        }
+    };
+    let items = astar_reach(&(0, 0), successors, once_only).collect::<Vec<_>>();
+
+    for item in &items {
+        assert_eq!(
+            item.estimated_cost,
+            item.total_cost + plain(&item.node),
+            "f for {:?} did not come from the queue",
+            item.node
+        );
+    }
+    // The start node included: it used to be queued with an estimate of zero.
+    assert_eq!(items[0].node, (0, 0));
+    assert_eq!(items[0].estimated_cost, plain(&(0, 0)));
 }

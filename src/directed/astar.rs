@@ -3,7 +3,6 @@
 
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
-use rustc_hash::FxHashSet;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::hash::Hash;
@@ -406,7 +405,6 @@ impl<N: Clone + Eq + Hash> FusedIterator for AstarSolution<N> {}
 /// Struct returned by [`astar_reach`].
 pub struct AstarReachable<N, C, FN, FH> {
     to_see: BinaryHeap<SmallestCostHolder<C>>,
-    seen: FxHashSet<usize>,
     parents: FxIndexMap<N, (usize, C)>,
     successors: FN,
     heuristic: FH,
@@ -437,21 +435,22 @@ where
     type Item = AstarReachableItem<N, C>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(SmallestCostHolder { cost, index, .. }) = self.to_see.pop() {
-            let total_cost = self.parents.get_index(index).unwrap().1 .1;
+        while let Some(SmallestCostHolder {
+            estimated_cost,
+            cost,
+            index,
+        }) = self.to_see.pop()
+        {
+            let total_cost = self.parents.get_index(index).unwrap().1.1;
             // A node may have been inserted several times if a cheaper path
             // was found later. Skip heap entries that are no longer best
             // before recording the node as expanded.
             if cost > total_cost {
                 continue;
             }
-            if !self.seen.insert(index) {
-                continue;
-            }
             let item;
             let successors = {
                 let (node, &(parent_index, _)) = self.parents.get_index(index).unwrap();
-                let estimated_cost = total_cost + (self.heuristic)(node);
                 item = Some(AstarReachableItem {
                     node: node.clone(),
                     parent: self.parents.get_index(parent_index).map(|x| x.0.clone()),
@@ -505,9 +504,16 @@ where
 /// Visit all nodes reachable from `start` in A* expansion order.
 ///
 /// Nodes are yielded when they are expanded, in increasing `f = g + h`
-/// order (with the same tie-break as [`astar`]: higher `g` first). Each
-/// node is yielded at most once. Drop the iterator, or stop iterating,
-/// to interrupt the search.
+/// order (with the same tie-break as [`astar`]: higher `g` first). Drop the
+/// iterator, or stop iterating, to interrupt the search.
+///
+/// A node is yielded again if a cheaper path to it turns up after it was
+/// expanded, exactly as [`astar`] expands it again. That cannot happen when the
+/// heuristic is consistent — when it never drops by more than the cost of the
+/// edge travelled — so with the heuristics most callers write, every node comes
+/// out once. It can happen for a heuristic that is admissible but not
+/// consistent, and suppressing it would report costs that are simply wrong: the
+/// second expansion is how the cheaper route becomes visible.
 ///
 /// - `start` is the starting node.
 /// - `successors` returns a list of successors for a given node, along with the
@@ -543,9 +549,10 @@ where
     IN: IntoIterator<Item = (N, C)>,
     FH: FnMut(&N) -> C,
 {
+    let mut heuristic = heuristic;
     let mut to_see = BinaryHeap::new();
     to_see.push(SmallestCostHolder {
-        estimated_cost: Zero::zero(),
+        estimated_cost: heuristic(start),
         cost: Zero::zero(),
         index: 0,
     });
@@ -553,7 +560,6 @@ where
     parents.insert(start.clone(), (usize::MAX, Zero::zero()));
     AstarReachable {
         to_see,
-        seen: FxHashSet::default(),
         parents,
         successors,
         heuristic,
