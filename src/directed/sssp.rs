@@ -5,8 +5,11 @@
 //! and [`dijkstra`](super::dijkstra::dijkstra). Distances are exact. The internal
 //! frontier queue is a balanced tree rather than the block structure of the
 //! paper, so this implementation does not claim the \(O(m\log^{2/3}n)\) bound.
-//! A linear repair pass fixes nodes left stale when many paths share a length
-//! (the paper assumes unique path lengths).
+//! A final repair pass fixes nodes left stale when many paths share a length
+//! (the paper assumes unique path lengths). That pass is label-correcting and
+//! re-enqueues a node whenever its distance improves, so it is not a single
+//! sweep: in the worst case it behaves like Bellman-Ford, and no linear bound
+//! is claimed for it either.
 
 use crate::FxIndexMap;
 use indexmap::map::Entry::{Occupied, Vacant};
@@ -203,6 +206,13 @@ where
     C: Zero + Ord + Copy,
 {
     fn relax(&mut self, u: usize, v: usize, weight: C) -> Option<C> {
+        if u == v {
+            // A self-loop is never part of a shortest path when weights are non-negative, and
+            // accepting one at zero weight would make a node its own parent: the tie-break
+            // below takes the lower-numbered parent, so a node whose parent is numbered above
+            // it would adopt itself, and walking the parents back from it never terminates.
+            return None;
+        }
         let du = self.dist[u]?;
         let cand = du + weight;
         let valid = self.dist[v].is_none_or(|old| cand <= old);
@@ -268,6 +278,13 @@ where
                     if !less_than(&cand, bound) {
                         continue;
                     }
+                    // A vertex already completed at this level has a settled distance. Offering
+                    // it that same distance again only puts it back in the queue to be pulled
+                    // and completed once more, which a zero-weight self-loop does for ever: the
+                    // pull removed it from the queue, so nothing rejects the re-insertion.
+                    if completed.contains(&v) {
+                        continue;
+                    }
                     if less_than(&cand, bi) {
                         batch.push((v, cand));
                     } else {
@@ -276,6 +293,11 @@ where
                 }
             }
             for &x in &si {
+                // Likewise for the sources: one the recursion has already finished must not be
+                // handed back to the queue, or the same call repeats unchanged.
+                if completed.contains(&x) {
+                    continue;
+                }
                 if let Some(dx) =
                     self.dist[x].filter(|dx| !less_than(dx, bi_prime) && less_than(dx, bi))
                 {
@@ -297,15 +319,34 @@ where
         (b_prime, completed.into_iter().collect())
     }
 
+    /// Settle vertices out of `source` in order of distance and report the boundary reached,
+    /// together with the vertices now known to be final below it.
+    ///
+    /// The paper assumes every shortest path length is distinct, which lets the base case stop
+    /// once `k + 1` vertices are settled and take the largest of their distances as the new
+    /// boundary. Ties break that: when the settled vertices all lie at the same distance,
+    /// nothing is strictly below the boundary, the caller receives an empty set, its
+    /// `completed` set never grows, and it re-queues the same sources forever. A zero-cost
+    /// edge reaches that state immediately, but any tie at the cutoff will do it.
+    ///
+    /// Settling therefore continues until the next vertex is strictly further away than
+    /// everything already settled. Every vertex nearer than that one has been settled, so it
+    /// is a sound boundary, everything returned lies strictly below it, and the set is never
+    /// empty.
     fn base_case(&mut self, bound: Option<C>, source: usize) -> (Option<C>, Vec<usize>) {
-        let mut seen = FxHashSet::default();
-        seen.insert(source);
+        let mut settled = Vec::new();
+        let mut done = FxHashSet::default();
         let mut heap = BinaryHeap::new();
         if let Some(ds) = self.dist[source] {
             heap.push(Reverse((ds, source)));
         }
+        // The largest distance among the vertices settled so far.
+        let mut largest: Option<C> = None;
 
-        while seen.len() < self.k + 1 {
+        while let Some(&Reverse((next, _))) = heap.peek() {
+            if settled.len() > self.k && largest.is_some_and(|l| next > l) {
+                return (Some(next), settled);
+            }
             let Some(Reverse((cost, u))) = heap.pop() else {
                 break;
             };
@@ -315,7 +356,11 @@ where
             if cost > du || !less_than(&du, bound) {
                 continue;
             }
-            seen.insert(u);
+            if !done.insert(u) {
+                continue;
+            }
+            settled.push(u);
+            largest = Some(largest.map_or(du, |l: C| if du > l { du } else { l }));
             for &(v, weight) in &self.adj[u] {
                 let Some(cand) = self.relax(u, v, weight) else {
                     continue;
@@ -326,21 +371,24 @@ where
             }
         }
 
-        if seen.len() <= self.k {
-            (bound, seen.into_iter().collect())
-        } else {
-            let b_prime = seen.iter().filter_map(|&v| self.dist[v]).max();
-            let u: Vec<usize> = seen
-                .into_iter()
-                .filter(|&v| self.dist[v].is_some_and(|dv| less_than(&dv, b_prime)))
-                .collect();
-            (b_prime, u)
+        // Everything reachable below `bound` has been settled, so `bound` is itself the
+        // boundary. The source stands in when it was not reachable at all, so that the caller
+        // is never handed an empty set.
+        if settled.is_empty() {
+            settled.push(source);
         }
+        (bound, settled)
     }
 
     /// Propagate leftover improvements. BMSSP can leave a child stale when a
     /// parent is later corrected; that happens on graphs with many equal-cost
     /// paths, which the paper excludes by assuming unique path lengths.
+    ///
+    /// This is a label-correcting pass, not a single sweep: a node goes back on
+    /// the queue every time its distance improves, so a node and its edges can
+    /// be processed more than once and the worst case is that of Bellman-Ford.
+    /// In practice it settles quickly, because it starts from distances BMSSP
+    /// has already very nearly finished.
     fn repair(&mut self) {
         let n = self.adj.len();
         let mut queue = VecDeque::new();

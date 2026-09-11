@@ -1,5 +1,5 @@
 use pathfinding::prelude::{build_path, dijkstra, dijkstra_all, sssp, sssp_all};
-use rand::{rngs, RngExt as _};
+use rand::{RngExt as _, rngs};
 use std::collections::HashMap;
 
 #[expect(clippy::trivially_copy_pass_by_ref)]
@@ -102,4 +102,97 @@ fn grid_matches_dijkstra() {
     assert_eq!(cost, 16);
     assert_eq!(path.first(), Some(&(0, 0)));
     assert_eq!(path.last(), Some(&(8, 8)));
+}
+
+/// Zero is a valid non-negative cost, and the shapes below used to hang rather than answer.
+///
+/// A tie at the base case's cutoff left it with nothing strictly below the boundary, so the
+/// caller was handed an empty set, made no progress and re-queued the same source for ever. A
+/// zero-weight self-loop did the same through a different route: it offered a node the distance
+/// it already had, and the tie-break on equal costs then made the node its own parent, so
+/// walking the parents back from it never terminated.
+#[test]
+fn zero_cost_edges_terminate() {
+    // The graph from the review: a single zero-cost edge.
+    assert_eq!(
+        costs_only(&sssp_all(&0u32, |&n| if n == 0 {
+            vec![(1u32, 0u32)]
+        } else {
+            vec![]
+        })),
+        costs_only(&dijkstra_all(&0u32, |&n| if n == 0 {
+            vec![(1u32, 0u32)]
+        } else {
+            vec![]
+        }))
+    );
+
+    // A zero-cost self-loop, alone and alongside a real edge.
+    let with_loop = |&n: &u32| match n {
+        0 => vec![(0u32, 0u32), (1, 0)],
+        1 => vec![(1, 0), (2, 3)],
+        _ => vec![],
+    };
+    assert_eq!(
+        costs_only(&sssp_all(&0u32, with_loop)),
+        costs_only(&dijkstra_all(&0u32, with_loop))
+    );
+    // A self-loop on a node reached from a higher-numbered one, which is the ordering that
+    // used to let the node adopt itself as its parent.
+    let loop_high = |&n: &u32| match n {
+        0 => vec![(9u32, 1u32)],
+        9 => vec![(5, 0)],
+        5 => vec![(5, 0), (2, 1)],
+        _ => vec![],
+    };
+    assert_eq!(
+        costs_only(&sssp_all(&0u32, loop_high)),
+        costs_only(&dijkstra_all(&0u32, loop_high))
+    );
+    // Paths, not just costs: `sssp` walks the parents back and must terminate.
+    assert_eq!(
+        sssp(&0u32, loop_high, |&n| n == 2).map(|(_, c)| c),
+        dijkstra(&0u32, loop_high, |&n| n == 2).map(|(_, c)| c)
+    );
+
+    // A whole graph of zero-cost edges: every path ties, which is the case the paper excludes.
+    let all_zero = |&n: &u32| {
+        if n < 8 {
+            vec![(n + 1, 0u32), (n + 2, 0u32)]
+        } else {
+            vec![]
+        }
+    };
+    assert_eq!(
+        costs_only(&sssp_all(&0u32, all_zero)),
+        costs_only(&dijkstra_all(&0u32, all_zero))
+    );
+}
+
+/// Random multigraphs including zero costs, self-loops and parallel edges, against `dijkstra`.
+#[test]
+fn random_zero_cost_graphs_match_dijkstra() {
+    let mut rng = rngs::ThreadRng::default();
+    for _ in 0..200 {
+        let order = rng.random_range(2..24usize);
+        let edges = rng.random_range(0..4 * order);
+        let mut adjacency = vec![Vec::new(); order];
+        for _ in 0..edges {
+            let from = rng.random_range(0..order);
+            let to = rng.random_range(0..order);
+            adjacency[from].push((to, rng.random_range(0..6u32)));
+        }
+        let successors = |i: &usize| adjacency[*i].clone();
+        assert_eq!(
+            costs_only(&sssp_all(&0usize, successors)),
+            costs_only(&dijkstra_all(&0usize, successors)),
+            "disagreed on {adjacency:?}"
+        );
+        let goal = rng.random_range(0..order);
+        assert_eq!(
+            sssp(&0usize, successors, |&n| n == goal).map(|(_, c)| c),
+            dijkstra(&0usize, successors, |&n| n == goal).map(|(_, c)| c),
+            "path cost disagreed on {adjacency:?}"
+        );
+    }
 }
