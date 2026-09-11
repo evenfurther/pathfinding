@@ -313,10 +313,11 @@ where
 /// `estimated_cost`, the highest `cost` will be favored, as it may
 /// indicate that the goal is nearer, thereby requiring fewer
 /// exploration steps.
-struct SmallestCostHolder<K> {
-    estimated_cost: K,
-    cost: K,
-    index: usize,
+/// Shared with [`theta_star`](super::theta_star), which orders its queue the same way.
+pub(super) struct SmallestCostHolder<K> {
+    pub(super) estimated_cost: K,
+    pub(super) cost: K,
+    pub(super) index: usize,
 }
 
 impl<K: PartialEq> PartialEq for SmallestCostHolder<K> {
