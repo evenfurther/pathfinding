@@ -212,3 +212,49 @@ fn parallel_edges_are_not_charged_twice() {
         vec![(vec!['0', 'a', 'c', 'd'], 3), (vec!['0', 'b', 'c', 'd'], 7)]
     );
 }
+
+/// The graph from issue #516. A path is a sequence of nodes, so the two edges from `A` to `B`
+/// describe one path and not two, and `yen` reports the cheaper of them.
+#[test]
+fn parallel_edges_describe_one_path() {
+    let two_roads = |c: &char| match c {
+        'A' => vec![('B', 3), ('B', 2)],
+        _ => vec![],
+    };
+    assert_eq!(
+        yen(&'A', two_roads, |c| *c == 'B', 2),
+        vec![(vec!['A', 'B'], 2)]
+    );
+
+    // The same holds in the middle of a longer graph: the cheaper edge is the one costed, and
+    // the dearer one does not become a second path through the same towns.
+    let longer = |c: &char| match c {
+        'A' => vec![('B', 1), ('C', 1)],
+        'B' => vec![('D', 5), ('D', 1)],
+        'C' => vec![('D', 4)],
+        _ => vec![],
+    };
+    assert_eq!(
+        yen(&'A', longer, |c| *c == 'D', 3),
+        vec![(vec!['A', 'B', 'D'], 2), (vec!['A', 'C', 'D'], 5)]
+    );
+}
+
+/// Carrying the edge a node was reached by makes routes over parallel edges distinct, which is
+/// the modelling the documentation recommends when the individual edges matter.
+#[test]
+fn edges_in_the_node_make_parallel_routes_distinct() {
+    let roads = [('A', 'B', 3), ('A', 'B', 2)];
+    let successors = |&(town, _): &(char, Option<usize>)| {
+        roads
+            .iter()
+            .enumerate()
+            .filter(move |(_, (from, _, _))| *from == town)
+            .map(|(road, &(_, to, cost))| ((to, Some(road)), cost))
+            .collect::<Vec<_>>()
+    };
+    let routes = yen(&('A', None), successors, |&(town, _)| town == 'B', 2);
+    assert_eq!(routes.len(), 2, "both roads should be found");
+    assert_eq!(routes[0], (vec![('A', None), ('B', Some(1))], 2));
+    assert_eq!(routes[1], (vec![('A', None), ('B', Some(0))], 3));
+}
