@@ -98,6 +98,48 @@ where
 ///     2);
 /// assert!(empty.is_empty());
 /// ```
+///
+/// # Parallel edges
+///
+/// A path is a sequence of nodes, so two routes differing only in which of several edges
+/// between the same pair of nodes they take are the same path. Where more than one edge joins
+/// two nodes, the cheaper one is the one taken, and the others are never reported: on the graph
+/// below there is one path from `A` to `B`, not two, and asking for `k = 2` returns one.
+///
+/// ```
+/// use pathfinding::prelude::yen;
+///
+/// let two_roads = |c: &char| match c {
+///     'A' => vec![('B', 3), ('B', 2)],
+///     _ => vec![],
+/// };
+/// let routes = yen(&'A', two_roads, |c| *c == 'B', 2);
+/// assert_eq!(routes, vec![(vec!['A', 'B'], 2)]);
+/// ```
+///
+/// When the edges themselves matter, put enough into the node to tell them apart. Carrying the
+/// edge a node was reached by makes the two routes different paths, and both are then found:
+///
+/// ```
+/// use pathfinding::prelude::yen;
+///
+/// // Two roads from A to B, costing 3 and 2. A node is a town plus the road reached it by,
+/// // which the starting town has none of.
+/// let roads = [('A', 'B', 3), ('A', 'B', 2)];
+/// let successors = |&(town, _): &(char, Option<usize>)| {
+///     roads
+///         .iter()
+///         .enumerate()
+///         .filter(move |(_, (from, _, _))| *from == town)
+///         .map(|(road, &(_, to, cost))| ((to, Some(road)), cost))
+///         .collect::<Vec<_>>()
+/// };
+///
+/// let routes = yen(&('A', None), successors, |&(town, _)| town == 'B', 2);
+/// assert_eq!(routes.len(), 2);
+/// assert_eq!(routes[0], (vec![('A', None), ('B', Some(1))], 2));
+/// assert_eq!(routes[1], (vec![('A', None), ('B', Some(0))], 3));
+/// ```
 pub fn yen<N, C, FN, IN, FS>(
     start: &N,
     mut successors: FN,
