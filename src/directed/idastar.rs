@@ -71,6 +71,11 @@ use std::{hash::Hash, ops::ControlFlow};
 ///                    |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
+/// # Tie-breaking
+///
+/// Successors whose estimated total cost is equal are explored in the order `successors`
+/// returned them, so the choice belongs to the caller: yield the preferred one first.
+///
 pub fn idastar<N, C, FN, IN, FH, FS>(
     start: &N,
     mut successors: FN,
@@ -140,7 +145,9 @@ where
                 })
             })
             .collect::<Vec<_>>();
-        neighbs.sort_unstable_by_key(|(_, _, c1)| *c1);
+        // A stable sort, so that successors of equal estimated cost stay in the order the
+        // caller produced them: that order is the caller's way of breaking the tie.
+        neighbs.sort_by_key(|(_, _, c1)| *c1);
         neighbs
     };
     let mut min = None;

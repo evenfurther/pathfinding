@@ -77,6 +77,45 @@ use crate::FxIndexMap;
 ///                    |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
+/// # Tie-breaking
+///
+/// Nodes whose estimated total cost is equal are taken in order of decreasing cost from the
+/// start. That is the usual recommendation, because it drives the search towards the goal
+/// rather than spreading it evenly: on an open 120x120 grid with an exact heuristic it is the
+/// difference between expanding 238 nodes and 14399, for the same path.
+///
+/// A different preference can be expressed through `heuristic`, with no change here. Give costs
+/// enough room beneath a single step and put the tie-break in that room: it reorders the queue
+/// without altering which path is cheapest, since any real difference in cost is a whole step
+/// or more.
+///
+/// ```
+/// use pathfinding::prelude::astar;
+///
+/// const STEP: u64 = 1024; // one move, leaving 1023 units of room beneath it
+///
+/// let successors = |&(x, y): &(u64, u64)| {
+///     [(1, 0), (0, 1)]
+///         .into_iter()
+///         .map(move |(dx, dy)| ((x + dx, y + dy), STEP))
+///         .filter(|&((nx, ny), _)| nx <= 2 && ny <= 2)
+///         .collect::<Vec<_>>()
+/// };
+/// let distance = |&(x, y): &(u64, u64)| STEP * ((2 - x) + (2 - y));
+///
+/// // Every way across this grid costs the same, so the tie decides which one comes back.
+/// let (over_the_top, cost) = astar(&(0, 0), successors, distance, |&n| n == (2, 2))
+///     .expect("no path found");
+/// assert_eq!(over_the_top, vec![(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)]);
+///
+/// // Preferring a smaller column costs a fraction of a step, so it can only break ties.
+/// let keep_left = |n: &(u64, u64)| distance(n) + n.0;
+/// let (down_the_side, same_cost) = astar(&(0, 0), successors, keep_left, |&n| n == (2, 2))
+///     .expect("no path found");
+/// assert_eq!(down_the_side, vec![(0, 0), (0, 1), (0, 2), (1, 2), (2, 2)]);
+/// assert_eq!(cost, same_cost);
+/// ```
+///
 #[expect(clippy::missing_panics_doc)]
 pub fn astar<N, C, FN, IN, FH, FS>(
     start: &N,
