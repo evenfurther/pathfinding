@@ -401,3 +401,167 @@ impl<N: Clone + Eq + Hash> Iterator for AstarSolution<N> {
 }
 
 impl<N: Clone + Eq + Hash> FusedIterator for AstarSolution<N> {}
+
+/// Struct returned by [`astar_reach`].
+pub struct AstarReachable<N, C, FN, FH> {
+    to_see: BinaryHeap<SmallestCostHolder<C>>,
+    parents: FxIndexMap<N, (usize, C)>,
+    successors: FN,
+    heuristic: FH,
+}
+
+/// Information about a node reached by [`astar_reach`].
+#[derive(Debug, Hash, PartialEq, Eq, Clone)]
+pub struct AstarReachableItem<N, C> {
+    /// The node that was reached by [`astar_reach`].
+    pub node: N,
+    /// The previous node that the current node came from.
+    /// If the node is the first node, there will be no parent.
+    pub parent: Option<N>,
+    /// The total cost from the starting node (`g`).
+    pub total_cost: C,
+    /// The estimated cost of a path through this node (`f = g + h`).
+    pub estimated_cost: C,
+}
+
+impl<N, C, FN, IN, FH> Iterator for AstarReachable<N, C, FN, FH>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+    FH: FnMut(&N) -> C,
+{
+    type Item = AstarReachableItem<N, C>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        while let Some(SmallestCostHolder {
+            estimated_cost,
+            cost,
+            index,
+        }) = self.to_see.pop()
+        {
+            let total_cost = self.parents.get_index(index).unwrap().1.1;
+            // A node may have been inserted several times if a cheaper path
+            // was found later. Skip heap entries that are no longer best
+            // before recording the node as expanded.
+            if cost > total_cost {
+                continue;
+            }
+            let item;
+            let successors = {
+                let (node, &(parent_index, _)) = self.parents.get_index(index).unwrap();
+                item = Some(AstarReachableItem {
+                    node: node.clone(),
+                    parent: self.parents.get_index(parent_index).map(|x| x.0.clone()),
+                    total_cost,
+                    estimated_cost,
+                });
+                (self.successors)(node)
+            };
+            for (successor, move_cost) in successors {
+                let new_cost = cost + move_cost;
+                let h;
+                let n;
+                match self.parents.entry(successor) {
+                    Vacant(e) => {
+                        h = (self.heuristic)(e.key());
+                        n = e.index();
+                        e.insert((index, new_cost));
+                    }
+                    Occupied(mut e) => {
+                        if e.get().1 > new_cost {
+                            h = (self.heuristic)(e.key());
+                            n = e.index();
+                            e.insert((index, new_cost));
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+                self.to_see.push(SmallestCostHolder {
+                    estimated_cost: new_cost + h,
+                    cost: new_cost,
+                    index: n,
+                });
+            }
+            return item;
+        }
+        None
+    }
+}
+
+impl<N, C, FN, IN, FH> FusedIterator for AstarReachable<N, C, FN, FH>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+    FH: FnMut(&N) -> C,
+{
+}
+
+/// Visit all nodes reachable from `start` in A* expansion order.
+///
+/// Nodes are yielded when they are expanded, in increasing `f = g + h`
+/// order (with the same tie-break as [`astar`]: higher `g` first). Drop the
+/// iterator, or stop iterating, to interrupt the search.
+///
+/// A node is yielded again if a cheaper path to it turns up after it was
+/// expanded, exactly as [`astar`] expands it again. That cannot happen when the
+/// heuristic is consistent — when it never drops by more than the cost of the
+/// edge travelled — so with the heuristics most callers write, every node comes
+/// out once. It can happen for a heuristic that is admissible but not
+/// consistent, and suppressing it would report costs that are simply wrong: the
+/// second expansion is how the cheaper route becomes visible.
+///
+/// - `start` is the starting node.
+/// - `successors` returns a list of successors for a given node, along with the
+///   cost for moving from the node to the successor. This cost must be non-negative.
+/// - `heuristic` returns an approximation of the cost from a given node to the
+///   goal. The approximation must not be greater than the real cost, or a wrong
+///   shortest path may be returned.
+///
+/// The start node is always yielded first. There is no built-in goal test:
+/// stop from the outside with [`Iterator::find`], [`Iterator::take_while`],
+/// or by dropping the iterator.
+///
+/// # Example
+///
+/// ```
+/// use pathfinding::prelude::astar_reach;
+///
+/// let goal = 6_u32;
+/// let reached = astar_reach(&0, |&n| vec![(n + 1, 1), (n + 2, 1)], |&n| goal.abs_diff(n))
+///     .find(|r| r.node == goal)
+///     .expect("unreachable");
+/// assert_eq!(reached.total_cost, 3);
+/// ```
+pub fn astar_reach<N, C, FN, IN, FH>(
+    start: &N,
+    successors: FN,
+    heuristic: FH,
+) -> AstarReachable<N, C, FN, FH>
+where
+    N: Eq + Hash + Clone,
+    C: Zero + Ord + Copy,
+    FN: FnMut(&N) -> IN,
+    IN: IntoIterator<Item = (N, C)>,
+    FH: FnMut(&N) -> C,
+{
+    let mut heuristic = heuristic;
+    let mut to_see = BinaryHeap::new();
+    to_see.push(SmallestCostHolder {
+        estimated_cost: heuristic(start),
+        cost: Zero::zero(),
+        index: 0,
+    });
+    let mut parents: FxIndexMap<N, (usize, C)> = FxIndexMap::default();
+    parents.insert(start.clone(), (usize::MAX, Zero::zero()));
+    AstarReachable {
+        to_see,
+        parents,
+        successors,
+        heuristic,
+    }
+}
