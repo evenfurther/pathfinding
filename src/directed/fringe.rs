@@ -3,6 +3,7 @@
 
 use super::reverse_path;
 use crate::FxIndexMap;
+use crate::add_costs;
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::{Bounded, Zero};
 use std::collections::VecDeque;
@@ -27,6 +28,13 @@ use std::mem;
 /// A node will never be included twice in the path as determined by the `Eq` relationship.
 ///
 /// The returned path comprises both the start and end node.
+///
+/// # Panics
+///
+/// This function panics if the cost of a path, or the sum of a path cost and a heuristic
+/// estimate, does not fit into `C`. Silently returning a wrapped, and therefore wrong, cost
+/// would be worse than failing loudly. If your costs can come close to the limits of the
+/// type, use a wider type, or a wrapper type whose addition saturates.
 ///
 /// # Example
 ///
@@ -77,7 +85,6 @@ use std::mem;
 ///                     |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
-#[expect(clippy::missing_panics_doc)]
 pub fn fringe<N, C, FN, IN, FH, FS>(
     start: &N,
     mut successors: FN,
@@ -117,7 +124,7 @@ where
             }
             let (g, successors) = {
                 let (node, &(_, g)) = parents.get_index(i).unwrap(); // Cannot fail
-                let f = g + heuristic(node);
+                let f = add_costs(g, heuristic(node));
                 if f > flimit {
                     if f < fmin {
                         fmin = f;
@@ -132,7 +139,7 @@ where
                 (g, successors(node))
             };
             for (successor, cost) in successors {
-                let g_successor = g + cost;
+                let g_successor = add_costs(g, cost);
                 let n; // index for successor
                 match parents.entry(successor) {
                     Vacant(e) => {
