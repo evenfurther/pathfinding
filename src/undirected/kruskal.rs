@@ -56,6 +56,11 @@ where
 /// Find a minimum-spanning-tree. From a collection of
 /// weighted edges, return an iterator of edges forming
 /// a minimum-spanning-tree.
+///
+/// # Disconnected graphs
+///
+/// Every component is spanned, so the result is a spanning forest rather than a single tree.
+/// [`prim`](super::prim::prim) differs here, and spans only the component it starts from.
 pub fn kruskal<N, C>(edges: &[(N, N, C)]) -> impl Iterator<Item = (&N, &N, C)>
 where
     N: Hash + Eq,
