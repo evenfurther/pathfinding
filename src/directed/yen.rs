@@ -1,5 +1,6 @@
 //! Compute k-shortest paths using [Yen's search
 //! algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).
+use crate::add_costs;
 use num_traits::Zero;
 use rustc_hash::FxHashSet;
 use std::cmp::Ordering;
@@ -60,6 +61,13 @@ where
 /// The returned paths include both the start and the end node and are ordered by their costs
 /// starting with the lowest cost. If there exist less paths than requested, only the existing
 /// ones (if any) are returned.
+///
+/// # Panics
+///
+/// This function panics if the cost of a path does not fit into `C`. Silently returning a
+/// wrapped, and therefore wrong, cost would be worse than failing loudly. If your costs can
+/// come close to the limits of the type, use a wider type, or a wrapper type whose addition
+/// saturates.
 ///
 /// # Example
 /// We will search the 3 shortest paths from node C to node H. See
@@ -178,7 +186,7 @@ where
                     // Build a min-heap
                     k_routes.push(Reverse(Path {
                         nodes,
-                        cost: root_costs[i] + spur_cost,
+                        cost: add_costs(root_costs[i], spur_cost),
                         spur_index: i,
                     }));
                 }
