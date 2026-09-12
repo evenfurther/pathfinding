@@ -150,6 +150,7 @@ pub mod prelude {
     pub use crate::undirected::cliques::*;
     pub use crate::undirected::connected_components::*;
     pub use crate::undirected::kruskal::*;
+    pub use crate::undirected::prim::*;
     pub use crate::utils::*;
 }
 
