@@ -1,5 +1,16 @@
+//! Instruction-count benchmarks for the search algorithms.
+//!
+//! Each search runs inside an `#[inline(never)]` helper whose result is returned from the
+//! benchmark. Both halves matter. Callgrind only counts instructions while collection is
+//! toggled on around the benchmark function, so a search that gets inlined into the harness
+//! and folded away is reported as a few hundred instructions rather than a few million; and
+//! because that depends on inlining, it changes with unrelated edits and turns into a
+//! spurious regression in the CI comparison. Keeping the work behind a call the optimiser
+//! cannot see through, and consuming the result, keeps the measurement honest.
+
 use iai_callgrind::{library_benchmark, library_benchmark_group, main};
 use pathfinding::prelude::{astar, bfs, bfs_bidirectional, dfs, dijkstra, fringe, idastar, iddfs};
+use std::hint::black_box;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 struct Pt {
@@ -36,148 +47,174 @@ fn successors(pt: &Pt) -> Vec<Pt> {
     ret
 }
 
+#[inline]
+fn weighted(pt: &Pt) -> impl Iterator<Item = (Pt, usize)> + use<> {
+    successors(pt).into_iter().map(|n| (n, 1))
+}
+
+const fn at_corner(n: &Pt) -> bool {
+    n.x == 64 && n.y == 64
+}
+
+const fn never(_: &Pt) -> bool {
+    false
+}
+
+const fn at_five(n: &Pt) -> bool {
+    n.x == 5 && n.y == 5
+}
+
+const fn one(_: &Pt) -> usize {
+    1
+}
+
+type Path = Option<(Vec<Pt>, usize)>;
+
+#[inline(never)]
+fn run_astar(start: &Pt, success: fn(&Pt) -> bool, heuristic: fn(&Pt) -> usize) -> Path {
+    astar(start, weighted, heuristic, success)
+}
+
+#[inline(never)]
+fn run_dijkstra(start: &Pt, success: fn(&Pt) -> bool) -> Path {
+    dijkstra(start, weighted, success)
+}
+
+#[inline(never)]
+fn run_fringe(start: &Pt, success: fn(&Pt) -> bool, heuristic: fn(&Pt) -> usize) -> Path {
+    fringe(start, weighted, heuristic, success)
+}
+
+#[inline(never)]
+fn run_idastar(start: &Pt, success: fn(&Pt) -> bool) -> Path {
+    idastar(start, weighted, Pt::heuristic, success)
+}
+
+#[inline(never)]
+fn run_bfs(start: &Pt, success: fn(&Pt) -> bool) -> Option<Vec<Pt>> {
+    bfs(start, successors, success)
+}
+
+#[inline(never)]
+fn run_dfs(start: Pt, success: fn(&Pt) -> bool) -> Option<Vec<Pt>> {
+    dfs(start, successors, success)
+}
+
+#[inline(never)]
+fn run_iddfs(start: Pt, success: fn(&Pt) -> bool) -> Option<Vec<Pt>> {
+    iddfs(start, successors, success)
+}
+
+#[inline(never)]
+fn run_bfs_bidirectional(start: &Pt, end: &Pt) -> Option<Vec<Pt>> {
+    bfs_bidirectional(start, end, successors, successors)
+}
+
+/// The no-path case searches backwards from an unreachable node that has no successors.
+#[inline(never)]
+fn run_bfs_bidirectional_no_path(start: &Pt, end: &Pt) -> Option<Vec<Pt>> {
+    bfs_bidirectional(start, end, successors, |_| vec![])
+}
+
 #[library_benchmark]
-fn corner_to_corner_astar() {
-    assert_ne!(
-        astar(
-            &Pt::new(0, 0),
-            |n| successors(n).into_iter().map(|n| (n, 1)),
-            Pt::heuristic,
-            |n| n.x == 64 && n.y == 64,
-        ),
-        None
+fn corner_to_corner_astar() -> Path {
+    let path = run_astar(&black_box(Pt::new(0, 0)), at_corner, Pt::heuristic);
+    assert!(path.is_some());
+    path
+}
+
+#[library_benchmark]
+fn corner_to_corner_bfs() -> Option<Vec<Pt>> {
+    let path = run_bfs(&black_box(Pt::new(0, 0)), at_corner);
+    assert!(path.is_some());
+    path
+}
+
+#[library_benchmark]
+fn corner_to_corner_bfs_bidirectional() -> Option<Vec<Pt>> {
+    let path = run_bfs_bidirectional(&black_box(Pt::new(0, 0)), &black_box(Pt::new(64, 64)));
+    assert!(path.is_some());
+    path
+}
+
+#[library_benchmark]
+fn corner_to_corner_dfs() -> Option<Vec<Pt>> {
+    let path = run_dfs(black_box(Pt::new(0, 0)), at_corner);
+    assert!(path.is_some());
+    path
+}
+
+#[library_benchmark]
+fn corner_to_corner_dijkstra() -> Path {
+    let path = run_dijkstra(&black_box(Pt::new(0, 0)), at_corner);
+    assert!(path.is_some());
+    path
+}
+
+#[library_benchmark]
+fn corner_to_corner_fringe() -> Path {
+    let path = run_fringe(&black_box(Pt::new(0, 0)), at_corner, Pt::heuristic);
+    assert!(path.is_some());
+    path
+}
+
+#[library_benchmark]
+fn corner_to_corner_idastar() -> Path {
+    let path = run_idastar(&black_box(Pt::new(0, 0)), at_corner);
+    assert!(path.is_some());
+    path
+}
+
+#[library_benchmark]
+fn corner_to_corner_iddfs() -> Option<Vec<Pt>> {
+    let path = run_iddfs(black_box(Pt::new(0, 0)), at_five);
+    assert!(path.is_some());
+    path
+}
+
+#[library_benchmark]
+fn no_path_astar() -> Path {
+    let path = run_astar(&black_box(Pt::new(2, 3)), never, one);
+    assert!(path.is_none());
+    path
+}
+
+#[library_benchmark]
+fn no_path_bfs() -> Option<Vec<Pt>> {
+    let path = run_bfs(&black_box(Pt::new(2, 3)), never);
+    assert!(path.is_none());
+    path
+}
+
+#[library_benchmark]
+fn no_path_bfs_bidirectional() -> Option<Vec<Pt>> {
+    let path = run_bfs_bidirectional_no_path(
+        &black_box(Pt::new(2, 3)),
+        &black_box(Pt::new(u16::MAX, u16::MAX)),
     );
+    assert!(path.is_none());
+    path
 }
 
 #[library_benchmark]
-fn corner_to_corner_bfs() {
-    assert_ne!(
-        bfs(&Pt::new(0, 0), successors, |n| n.x == 64 && n.y == 64),
-        None
-    );
+fn no_path_dfs() -> Option<Vec<Pt>> {
+    let path = run_dfs(black_box(Pt::new(2, 3)), never);
+    assert!(path.is_none());
+    path
 }
 
 #[library_benchmark]
-fn corner_to_corner_bfs_bidirectional() {
-    assert_ne!(
-        bfs_bidirectional(&Pt::new(0, 0), &Pt::new(64, 64), successors, successors),
-        None
-    );
+fn no_path_dijkstra() -> Path {
+    let path = run_dijkstra(&black_box(Pt::new(2, 3)), never);
+    assert!(path.is_none());
+    path
 }
 
 #[library_benchmark]
-fn corner_to_corner_dfs() {
-    assert_ne!(
-        dfs(Pt::new(0, 0), successors, |n| n.x == 64 && n.y == 64),
-        None
-    );
-}
-
-#[library_benchmark]
-fn corner_to_corner_dijkstra() {
-    assert_ne!(
-        dijkstra(
-            &Pt::new(0, 0),
-            |n| successors(n).into_iter().map(|n| (n, 1)),
-            |n| n.x == 64 && n.y == 64,
-        ),
-        None
-    );
-}
-
-#[library_benchmark]
-fn corner_to_corner_fringe() {
-    assert_ne!(
-        fringe(
-            &Pt::new(0, 0),
-            |n| successors(n).into_iter().map(|n| (n, 1)),
-            Pt::heuristic,
-            |n| n.x == 64 && n.y == 64,
-        ),
-        None
-    );
-}
-
-#[library_benchmark]
-fn corner_to_corner_idastar() {
-    assert_ne!(
-        idastar(
-            &Pt::new(0, 0),
-            |n| successors(n).into_iter().map(|n| (n, 1)),
-            Pt::heuristic,
-            |n| n.x == 64 && n.y == 64,
-        ),
-        None
-    );
-}
-
-#[library_benchmark]
-fn corner_to_corner_iddfs() {
-    assert_ne!(
-        iddfs(Pt::new(0, 0), successors, |n| n.x == 5 && n.y == 5),
-        None
-    );
-}
-
-#[library_benchmark]
-fn no_path_astar() {
-    assert_eq!(
-        astar(
-            &Pt::new(2, 3),
-            |n| successors(n).into_iter().map(|n| (n, 1)),
-            |_| 1,
-            |_| false,
-        ),
-        None
-    );
-}
-
-#[library_benchmark]
-fn no_path_bfs() {
-    assert_eq!(bfs(&Pt::new(2, 3), successors, |_| false), None);
-}
-
-#[library_benchmark]
-fn no_path_bfs_bidirectional() {
-    assert_eq!(
-        bfs_bidirectional(
-            &Pt::new(2, 3),
-            &Pt::new(u16::MAX, u16::MAX),
-            successors,
-            |_| vec![]
-        ),
-        None
-    );
-}
-
-#[library_benchmark]
-fn no_path_dfs() {
-    assert_eq!(dfs(Pt::new(2, 3), successors, |_| false), None);
-}
-
-#[library_benchmark]
-fn no_path_dijkstra() {
-    assert_eq!(
-        dijkstra(
-            &Pt::new(2, 3),
-            |n| successors(n).into_iter().map(|n| (n, 1)),
-            |_| false,
-        ),
-        None
-    );
-}
-
-#[library_benchmark]
-fn no_path_fringe() {
-    assert_eq!(
-        fringe(
-            &Pt::new(2, 3),
-            |n| successors(n).into_iter().map(|n| (n, 1)),
-            |_| 1,
-            |_| false,
-        ),
-        None
-    );
+fn no_path_fringe() -> Path {
+    let path = run_fringe(&black_box(Pt::new(2, 3)), never, one);
+    assert!(path.is_none());
+    path
 }
 
 library_benchmark_group!(
