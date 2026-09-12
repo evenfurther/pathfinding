@@ -11,6 +11,25 @@ use std::hash::Hash;
 ///
 /// Edges are undirected: `(a, b, c)` and `(b, a, c)` describe the same edge, and either form
 /// may be used. The tree is grown from the first endpoint of the first edge.
+///
+/// # Disconnected graphs
+///
+/// The tree is grown outwards from one node, so only the component containing that node is
+/// spanned; edges in any other component are not returned. [`kruskal`](super::kruskal::kruskal)
+/// differs here, and returns a spanning forest covering every component.
+///
+/// ```
+/// use pathfinding::prelude::{kruskal, prim};
+///
+/// // Two components: 1-2 and 3-4.
+/// let edges = vec![(1, 2, 1), (3, 4, 1)];
+///
+/// // prim spans the component holding node 1, the first endpoint of the first edge.
+/// assert_eq!(prim(&edges), vec![(&1, &2, 1)]);
+///
+/// // kruskal spans both.
+/// assert_eq!(kruskal(&edges).count(), 2);
+/// ```
 pub fn prim<N, C>(edges: &[(N, N, C)]) -> Vec<(&N, &N, C)>
 where
     N: Hash + Eq + Ord,
