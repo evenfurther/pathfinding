@@ -189,6 +189,10 @@ where
     // A node has only as many optimal parents as it has incoming edges, and a goal is reached
     // only once, so plain vectors are both cheaper to fill and cheaper to walk than hash sets.
     let mut sinks: Vec<usize> = Vec::new();
+    // Costs are non-negative, so a cycle among optimal parents needs every edge on it to cost
+    // nothing. If no such edge is ever seen, the solution walk cannot loop and does not need to
+    // guard against it.
+    let mut zero_cost_edge = false;
     to_see.push(SmallestCostHolder {
         estimated_cost: Zero::zero(),
         cost: Zero::zero(),
@@ -223,6 +227,7 @@ where
             successors(node)
         };
         for (successor, move_cost) in successors {
+            zero_cost_edge |= move_cost.is_zero();
             let new_cost = cost + move_cost;
             let h; // heuristic(&successor)
             let n; // index for successor
@@ -267,6 +272,9 @@ where
         (
             AstarSolution {
                 sinks,
+                // The start is inserted into `parents` before anything else.
+                start: 0,
+                may_loop: zero_cost_edge,
                 parents,
                 current: vec![],
                 terminated: false,
@@ -346,23 +354,97 @@ impl<K: Ord> Ord for SmallestCostHolder<K> {
 #[derive(Clone)]
 pub struct AstarSolution<N> {
     sinks: Vec<usize>,
+    /// Index of the start vertex, which is where every path ends when walked backwards.
+    start: usize,
+    /// Whether any edge costing nothing was relaxed, which is what makes a vertex able to be
+    /// its own optimal parent. Without one, the walk back cannot loop.
+    may_loop: bool,
     parents: Vec<(N, Vec<usize>)>,
     current: Vec<Vec<usize>>,
     terminated: bool,
 }
 
 impl<N: Clone + Eq + Hash> AstarSolution<N> {
-    fn complete(&mut self) {
+    /// Extend the partial path backwards until it reaches the start.
+    ///
+    /// Returns `false` if the choices made so far cannot be extended to the start, in which case
+    /// the caller has to backtrack and try the next alternative.
+    ///
+    /// Two things make this more than a walk up the parent links. A parent already on the path
+    /// being built is skipped, because an edge costing nothing makes a vertex an optimal parent
+    /// of itself, or of a vertex it forms a zero-cost cycle with, and following those never
+    /// ends. And the walk stops at the start vertex rather than at a vertex without parents,
+    /// because a zero-cost cycle through the start gives the start parents of its own.
+    /// Extend the partial path backwards until it reaches the start.
+    ///
+    /// Returns `false` if the choices made so far cannot be extended to the start, in which case
+    /// the caller has to backtrack and try the next alternative.
+    fn complete(&mut self) -> bool {
+        if self.may_loop {
+            self.complete_without_looping()
+        } else {
+            self.complete_directly();
+            true
+        }
+    }
+
+    /// The common case, where no edge costs nothing.
+    ///
+    /// A cycle among optimal parents needs every edge on it to cost nothing, so here the walk
+    /// back cannot loop and every vertex can simply follow its parents to the start.
+    fn complete_directly(&mut self) {
         loop {
             let ps = match self.current.last() {
                 None => self.sinks.clone(),
-                Some(last) => self.parents(*last.last().unwrap()).clone(),
+                Some(last) => {
+                    let tail = *last.last().unwrap();
+                    if tail == self.start {
+                        break;
+                    }
+                    self.parents(tail).clone()
+                }
             };
             if ps.is_empty() {
                 break;
             }
             self.current.push(ps);
         }
+    }
+
+    /// The case where some edge costs nothing.
+    ///
+    /// Such an edge makes a vertex an optimal parent of itself, or of a vertex it forms a
+    /// zero-cost cycle with, so parents already on the path being built have to be skipped or
+    /// the walk never ends. Doing that can leave a vertex with nowhere to go, which is a dead
+    /// end for this combination of choices rather than a result.
+    fn complete_without_looping(&mut self) -> bool {
+        loop {
+            let ps = match self.current.last() {
+                None => self.sinks.clone(),
+                Some(last) => {
+                    let tail = *last.last().unwrap();
+                    if tail == self.start {
+                        return true;
+                    }
+                    self.parents(tail)
+                        .iter()
+                        .copied()
+                        .filter(|p| !self.chosen().any(|c| c == *p))
+                        .collect::<Vec<_>>()
+                }
+            };
+            if ps.is_empty() {
+                return false;
+            }
+            self.current.push(ps);
+        }
+    }
+
+    /// The vertices picked so far, one per level, from the goal backwards.
+    fn chosen(&self) -> impl Iterator<Item = usize> + '_ {
+        self.current
+            .iter()
+            .filter_map(|level| level.last().copied())
     }
 
     fn next_vec(&mut self) {
@@ -383,20 +465,28 @@ impl<N: Clone + Eq + Hash> Iterator for AstarSolution<N> {
     type Item = Vec<N>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.terminated {
-            return None;
+        loop {
+            if self.terminated {
+                return None;
+            }
+            if !self.complete() {
+                // This combination of choices cannot reach the start. Step to the next one and
+                // try again, rather than reporting a path that stops short.
+                self.next_vec();
+                self.terminated = self.current.is_empty();
+                continue;
+            }
+            let path = self
+                .current
+                .iter()
+                .rev()
+                .map(|v| v.last().copied().unwrap())
+                .map(|i| self.node(i).clone())
+                .collect::<Vec<_>>();
+            self.next_vec();
+            self.terminated = self.current.is_empty();
+            return Some(path);
         }
-        self.complete();
-        let path = self
-            .current
-            .iter()
-            .rev()
-            .map(|v| v.last().copied().unwrap())
-            .map(|i| self.node(i).clone())
-            .collect::<Vec<_>>();
-        self.next_vec();
-        self.terminated = self.current.is_empty();
-        Some(path)
     }
 }
 
