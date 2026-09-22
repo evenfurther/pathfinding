@@ -129,6 +129,42 @@ use std::hash::BuildHasherDefault;
 type FxIndexMap<K, V> = IndexMap<K, V, BuildHasherDefault<FxHasher>>;
 type FxIndexSet<K> = IndexSet<K, BuildHasherDefault<FxHasher>>;
 
+/// Report a cost addition that wrapped.
+///
+/// Kept out of line and marked cold so that [`add_costs`] stays small enough to inline: the
+/// check sits in the innermost loop of every cost-based search, and a panic formatted inline
+/// there would cost more than the check itself.
+#[cold]
+#[inline(never)]
+fn cost_overflow() -> ! {
+    panic!("cost overflow: the total path cost does not fit in the cost type");
+}
+
+/// Add two costs, panicking if the sum wrapped around instead of growing.
+///
+/// Cost types are only required to be `Zero + Ord + Copy`, so `checked_add` is not available
+/// here and requiring `num_traits::CheckedAdd` would be a breaking change. Costs are however
+/// required to be non-negative, and that is enough: adding a non-negative value can never
+/// produce a smaller one, so a sum that compares less than the value it was added to must
+/// have wrapped.
+///
+/// This makes release builds agree with debug builds, which already panic on overflow, rather
+/// than silently returning a wrapped and therefore wrong cost. Cost types that saturate, and
+/// floating point costs which reach infinity rather than wrapping, compare greater and are
+/// left untouched. Negative addends are left alone as well, since they are outside what these
+/// algorithms support and this check cannot say anything useful about them.
+#[inline]
+pub(crate) fn add_costs<C>(a: C, b: C) -> C
+where
+    C: num_traits::Zero + Ord + Copy,
+{
+    let sum = a + b;
+    if sum < a && b >= C::zero() {
+        cost_overflow();
+    }
+    sum
+}
+
 /// Export all public functions and structures for an easy access.
 pub mod prelude {
     pub use crate::directed::astar::*;

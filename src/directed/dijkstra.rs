@@ -3,6 +3,7 @@
 
 use super::reverse_path;
 use crate::FxIndexMap;
+use crate::add_costs;
 use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
 use std::cmp::Ordering;
@@ -25,6 +26,13 @@ use std::hash::Hash;
 /// A node will never be included twice in the path as determined by the `Eq` relationship.
 ///
 /// The returned path comprises both the start and end node.
+///
+/// # Panics
+///
+/// This function panics if the cost of a path does not fit into `C`. Silently returning a
+/// wrapped, and therefore wrong, cost would be worse than failing loudly. If your costs can
+/// come close to the limits of the type, use a wider type, or a wrapper type whose addition
+/// saturates.
 ///
 /// # Example
 ///
@@ -129,6 +137,13 @@ where
 ///
 /// The returned path comprises both the start and end node.
 ///
+/// # Panics
+///
+/// This function panics if the cost of a path does not fit into `C`. Silently returning a
+/// wrapped, and therefore wrong, cost would be worse than failing loudly. If your costs can
+/// come close to the limits of the type, use a wider type, or a wrapper type whose addition
+/// saturates.
+///
 /// # Example
 ///
 /// We search the shortest path on a chess board to go from (1, 1) to (4, 6) doing only knight
@@ -147,7 +162,6 @@ where
 /// let result = dijkstra_bidirectional(&(1, 1), &(4, 6), neighbours, neighbours);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
-#[expect(clippy::missing_panics_doc)]
 pub fn dijkstra_bidirectional<N, C, FS, IS, FP, IP>(
     start: &N,
     end: &N,
@@ -200,7 +214,7 @@ where
         };
         // Any path the two searches have not joined up yet costs at least as much as the sum of
         // the two frontier costs, so once that reaches the best known path nothing better is left.
-        if best.is_some_and(|(cost, ..)| forward_min.cost + backward_min.cost >= cost) {
+        if best.is_some_and(|(cost, ..)| add_costs(forward_min.cost, backward_min.cost) >= cost) {
             break;
         }
         expand_bidirectional(
@@ -283,7 +297,7 @@ fn expand_bidirectional<N, C, FN, IN>(
         neighbours(node)
     };
     for (neighbour, move_cost) in neighbours {
-        let new_cost = cost + move_cost;
+        let new_cost = add_costs(cost, move_cost);
         let n;
         match parents.entry(neighbour) {
             Vacant(e) => {
@@ -307,7 +321,7 @@ fn expand_bidirectional<N, C, FN, IN>(
         // complete path; keep it if it is the cheapest one seen so far.
         let neighbour = parents.get_index(n).unwrap().0;
         if let Some((opposite_index, _, &(_, opposite_cost))) = opposite.get_full(neighbour) {
-            let total = new_cost + opposite_cost;
+            let total = add_costs(new_cost, opposite_cost);
             if best.is_none_or(|(current, ..)| total < current) {
                 *best = Some(if is_forward {
                     (total, n, opposite_index)
@@ -333,6 +347,13 @@ fn expand_bidirectional<N, C, FN, IN>(
 ///
 /// The [`build_path`] function can be used to build a full path from the starting point to one
 /// of the reachable targets.
+///
+/// # Panics
+///
+/// This function panics if the cost of a path does not fit into `C`. Silently returning a
+/// wrapped, and therefore wrong, cost would be worse than failing loudly. If your costs can
+/// come close to the limits of the type, use a wider type, or a wrapper type whose addition
+/// saturates.
 ///
 /// # Example
 ///
@@ -383,7 +404,13 @@ where
 ///
 /// The [`build_path`] function can be used to build a full path from the starting point to one
 /// of the reachable targets.
-#[expect(clippy::missing_panics_doc)]
+///
+/// # Panics
+///
+/// This function panics if the cost of a path does not fit into `C`. Silently returning a
+/// wrapped, and therefore wrong, cost would be worse than failing loudly. If your costs can
+/// come close to the limits of the type, use a wider type, or a wrapper type whose addition
+/// saturates.
 pub fn dijkstra_partial<N, C, FN, IN, FS>(
     start: &N,
     mut successors: FN,
@@ -443,7 +470,7 @@ where
             successors(node)
         };
         for (successor, move_cost) in successors {
-            let new_cost = cost + move_cost;
+            let new_cost = add_costs(cost, move_cost);
             let n;
             match parents.entry(successor) {
                 Vacant(e) => {
@@ -585,7 +612,7 @@ where
                 (self.successors)(node)
             };
             for (successor, move_cost) in successors {
-                let new_cost = cost + move_cost;
+                let new_cost = add_costs(cost, move_cost);
                 let n;
                 match self.parents.entry(successor) {
                     Vacant(e) => {
@@ -620,6 +647,13 @@ where
 ///
 /// The `successors` function receives the current node, and returns
 /// an iterator of successors associated with their move cost.
+///
+/// # Panics
+///
+/// This function panics if the cost of a path does not fit into `C`. Silently returning a
+/// wrapped, and therefore wrong, cost would be worse than failing loudly. If your costs can
+/// come close to the limits of the type, use a wider type, or a wrapper type whose addition
+/// saturates.
 pub fn dijkstra_reach<N, C, FN, IN>(start: &N, successors: FN) -> DijkstraReachable<N, C, FN>
 where
     N: Eq + Hash + Clone,

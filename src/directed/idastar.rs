@@ -2,6 +2,7 @@
 //! algorithm](https://en.wikipedia.org/wiki/Iterative_deepening_A*).
 
 use crate::FxIndexSet;
+use crate::add_costs;
 use num_traits::Zero;
 use std::{hash::Hash, ops::ControlFlow};
 
@@ -23,6 +24,13 @@ use std::{hash::Hash, ops::ControlFlow};
 /// A node will never be included twice in the path as determined by the `Eq` relationship.
 ///
 /// The returned path comprises both the start and end node.
+///
+/// # Panics
+///
+/// This function panics if the cost of a path, or the sum of a path cost and a heuristic
+/// estimate, does not fit into `C`. Silently returning a wrapped, and therefore wrong, cost
+/// would be worse than failing loudly. If your costs can come close to the limits of the
+/// type, use a wider type, or a wrapper type whose addition saturates.
 ///
 /// # Example
 ///
@@ -124,7 +132,7 @@ where
 {
     let neighbs = {
         let start = &path[path.len() - 1];
-        let f = cost + heuristic(start);
+        let f = add_costs(cost, heuristic(start));
         if f > bound {
             return ControlFlow::Continue(Some(f));
         }
@@ -136,7 +144,7 @@ where
             .filter_map(|(n, c)| {
                 (!path.contains(&n)).then(|| {
                     let h = heuristic(&n);
-                    (n, c, c + h)
+                    (n, c, add_costs(c, h))
                 })
             })
             .collect::<Vec<_>>();
@@ -146,7 +154,14 @@ where
     let mut min = None;
     for (node, extra, _) in neighbs {
         let (idx, _) = path.insert_full(node);
-        match search(path, cost + extra, bound, successors, heuristic, success)? {
+        match search(
+            path,
+            add_costs(cost, extra),
+            bound,
+            successors,
+            heuristic,
+            success,
+        )? {
             Some(m) if min.is_none_or(|n| n >= m) => min = Some(m),
             _ => (),
         }
