@@ -55,7 +55,7 @@ fn empty_components() {
 }
 
 #[test]
-fn basic_connected_components() {
+fn connected_components_only_queries_candidate_vertices() {
     let mut counter = 0;
     let mut c = connected_components(&[1, 4], |&n| {
         counter += 1;
@@ -75,6 +75,7 @@ fn basic_connected_components() {
         c[1].clone().into_iter().sorted().collect_vec(),
         vec![2, 4, 6, 8]
     );
+    // Only the candidate vertices are queried for neighbours.
     assert_eq!(counter, 2);
 }
 

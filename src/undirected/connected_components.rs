@@ -124,18 +124,24 @@ where
 
     /// Extract connected components from a graph.
     ///
-    /// - `starts` is a collection of vertices to be considered as start points.
+    /// - `candidates` is the collection of candidate vertices whose neighbour
+    ///   groups should be merged into connected components.
     /// - `neighbours` is a function returning the neighbours of a given node.
+    ///
+    /// Only the candidate vertices are queried with `neighbours`. Vertices
+    /// returned by `neighbours` are added to their candidate vertex group, but
+    /// their own neighbours are not explored unless they also appear in
+    /// `candidates`.
     ///
     /// This function returns a list of sets of nodes forming disjoint connected
     /// sets.
-    pub fn connected_components<FN, IN>(starts: &[N], mut neighbours: FN) -> C2
+    pub fn connected_components<FN, IN>(candidates: &[N], mut neighbours: FN) -> C2
     where
         FN: FnMut(&N) -> IN,
         IN: IntoIterator<Item = N>,
     {
         ConnectedComponents::<N, Vec<N>, It2, C1, C2, C3>::components(
-            &starts
+            &candidates
                 .iter()
                 .map(|s| {
                     neighbours(s)
@@ -216,18 +222,24 @@ where
 
 /// Extract connected components from a graph.
 ///
-/// - `starts` is a collection of vertices to be considered as start points.
+/// - `candidates` is the collection of candidate vertices whose neighbour
+///   groups should be merged into connected components.
 /// - `neighbours` is a function returning the neighbours of a given node.
+///
+/// Only the candidate vertices are queried with `neighbours`. Vertices
+/// returned by `neighbours` are added to their candidate vertex group, but
+/// their own neighbours are not explored unless they also appear in
+/// `candidates`.
 ///
 /// This function returns a list of sets of nodes forming disjoint connected
 /// sets.
-pub fn connected_components<N, FN, IN>(starts: &[N], neighbours: FN) -> Vec<HashSet<N>>
+pub fn connected_components<N, FN, IN>(candidates: &[N], neighbours: FN) -> Vec<HashSet<N>>
 where
     N: Clone + Hash + Eq,
     FN: FnMut(&N) -> IN,
     IN: IntoIterator<Item = N>,
 {
-    ConnectedComponents::<N>::connected_components(starts, neighbours)
+    ConnectedComponents::<N>::connected_components(candidates, neighbours)
 }
 
 /// Locate vertices amongst disjoint sets.
