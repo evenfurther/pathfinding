@@ -95,6 +95,7 @@ pub const fn constrain(value: isize, upper: usize) -> usize {
     if value > 0 {
         value as usize % upper
     } else {
-        (upper - (-value) as usize % upper) % upper
+        // `unsigned_abs` rather than negation: `-isize::MIN` does not fit in an `isize`.
+        (upper - value.unsigned_abs() % upper) % upper
     }
 }

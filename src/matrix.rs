@@ -85,13 +85,17 @@ impl<C: Clone> Matrix<C> {
     /// # Errors
     ///
     /// [`MatrixFormatError::WrongIndex`] if the ranges
-    /// are outside the original matrix.
+    /// are outside the original matrix, or if a range ends before it starts.
     pub fn slice(
         &self,
         rows: Range<usize>,
         columns: Range<usize>,
     ) -> Result<Self, MatrixFormatError> {
-        if rows.end > self.rows || columns.end > self.columns {
+        if rows.end > self.rows
+            || columns.end > self.columns
+            || rows.start > rows.end
+            || columns.start > columns.end
+        {
             return Err(MatrixFormatError::WrongIndex);
         }
         let height = rows.end - rows.start;
@@ -244,8 +248,12 @@ impl<C: Copy> Matrix<C> {
     /// original matrix.
     pub fn set_slice(&mut self, pos: (usize, usize), slice: &Self) {
         let (row, column) = pos;
-        let height = (self.rows - row).min(slice.rows);
-        let width = (self.columns - column).min(slice.columns);
+        // A position at or beyond the edge leaves nothing to copy, rather than underflowing.
+        let height = self.rows.saturating_sub(row).min(slice.rows);
+        let width = self.columns.saturating_sub(column).min(slice.columns);
+        if height == 0 || width == 0 {
+            return;
+        }
         for r in 0..height {
             self.data[(row + r) * self.columns + column..(row + r) * self.columns + column + width]
                 .copy_from_slice(&slice.data[r * slice.columns..r * slice.columns + width]);
@@ -778,7 +786,16 @@ impl<C> Matrix<C> {
     ///
     /// For more information refer to
     /// [In-place matrix transposition](https://en.wikipedia.org/wiki/In-place_matrix_transposition).
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if the transposed matrix would end
+    /// up with empty rows, like [`Matrix::transposed`].
     pub fn transpose(&mut self) {
+        assert!(
+            self.rows != 0 || self.columns == 0,
+            "this operation would create a matrix with empty rows"
+        );
         // Transposing square matrices in place is significantly more efficient than non-
         // square matrices, so we handle that special case separately.
         if self.rows == self.columns {

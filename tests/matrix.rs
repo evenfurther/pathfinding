@@ -841,3 +841,42 @@ fn is_empty() {
     let m: Matrix<i32> = matrix![];
     assert!(m.is_empty());
 }
+
+#[test]
+fn set_slice_outside_the_matrix_changes_nothing() {
+    let mut m = Matrix::new(3, 3, 0u32);
+    let patch = Matrix::new(2, 2, 1u32);
+    // Documented as clipping to the matrix; a position past the edge leaves nothing to copy.
+    m.set_slice((5, 5), &patch);
+    m.set_slice((0, 5), &patch);
+    m.set_slice((5, 0), &patch);
+    m.set_slice((3, 3), &patch);
+    assert!(m.values().all(|&v| v == 0));
+    // Partially outside still copies the part that fits.
+    m.set_slice((2, 2), &patch);
+    assert_eq!(m.values().filter(|&&v| v == 1).count(), 1);
+}
+
+#[test]
+#[expect(
+    clippy::reversed_empty_ranges,
+    reason = "a reversed range is exactly the input under test"
+)]
+fn slice_with_a_reversed_range_is_an_error() {
+    let m = Matrix::new(3, 3, 0u8);
+    assert!(matches!(
+        m.slice(2..1, 0..2),
+        Err(MatrixFormatError::WrongIndex)
+    ));
+    assert!(matches!(
+        m.slice(0..2, 2..1),
+        Err(MatrixFormatError::WrongIndex)
+    ));
+}
+
+#[test]
+#[should_panic(expected = "this operation would create a matrix with empty rows")]
+fn transpose_in_place_refuses_what_transposed_refuses() {
+    let mut m = Matrix::<u8>::new_empty(3);
+    m.transpose();
+}
