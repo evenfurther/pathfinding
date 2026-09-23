@@ -29,3 +29,16 @@ fn in_direction_valid() {
         vec![(2, 4), (3, 7)]
     );
 }
+
+#[test]
+fn constrain_the_most_negative_value() {
+    // -isize::MIN does not fit in an isize, so this cannot go through negation.
+    assert_eq!(
+        constrain(isize::MIN, 3),
+        usize::try_from(isize::MIN.rem_euclid(3)).unwrap()
+    );
+    assert_eq!(
+        constrain(isize::MIN, 7),
+        usize::try_from(isize::MIN.rem_euclid(7)).unwrap()
+    );
+}
