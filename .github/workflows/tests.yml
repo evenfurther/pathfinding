@@ -4,46 +4,62 @@ on:
 
 name: Continuous integration
 
+permissions: {}
+
 jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - run: sh tests/check-msrv-consistency.sh
       - run: |
           rustup install --profile minimal nightly
           rustup default nightly
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - run: cargo check --all-targets
 
   cargo-deny:
     name: cargo deny
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v7
-      - uses: embarkStudios/cargo-deny-action@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: embarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
 
   test:
     name: Test suite
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: check
     strategy:
       matrix:
         toolchain: [stable, beta, nightly, msrv]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         name: Checkout
+        with:
+          persist-credentials: false
       - name: Install Rust toolchain
+        env:
+          TOOLCHAIN: ${{ matrix.toolchain }}
         run: |
-          if [ ${{ matrix.toolchain }} = msrv ]; then
+          if [ "$TOOLCHAIN" = msrv ]; then
             toolchain=$(awk -F '"' '/^rust-version =/ {print $2}' Cargo.toml)
           else
-            toolchain=${{ matrix.toolchain }}
+            toolchain=$TOOLCHAIN
           fi
           rustup install --profile minimal $toolchain
           rustup default $toolchain
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - name: Test documentation in debug mode
         run: cargo test --doc
       - name: Test in debug mode
@@ -52,15 +68,19 @@ jobs:
   test-release:
     name: Extra tests in release mode
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: check
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         name: Checkout
+        with:
+          persist-credentials: false
       - run: |
           rustup install --profile minimal nightly
           rustup default nightly
         name: Install Rust toolchain
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - name: Test documentation in release mode
         run: cargo test --doc --release
       - name: Test in release mode
@@ -69,10 +89,14 @@ jobs:
   test-minimal-versions:
     name: Test with minimal versions
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: check
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         name: Checkout
+        with:
+          persist-credentials: false
       - name: Install nightly (for -Z) and stable Rust toolchains
         run: |
           rustup install --profile minimal nightly
@@ -80,27 +104,35 @@ jobs:
           rustup default stable
       - name: Set dependencies to the minimal version allowed
         run: cargo +nightly update -Zminimal-versions
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - name: Test with minimal version dependencies and stable compiler
         run: cargo +stable test --tests --benches
 
   fmt:
     name: Rustfmt
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: check
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - run: rustup install --profile default stable
       - run: cargo +stable fmt --all -- --check
 
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: check
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - run: |
           rustup install --profile default nightly
           rustup default nightly
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - run: cargo clippy --all-targets -- -D warnings
