@@ -4,6 +4,8 @@ on:
   pull_request:
   merge_group:
 
+permissions: {}
+
 jobs:
   benchmarks:
     name: Run iai-callgrind benchmarks
@@ -13,10 +15,11 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         name: Checkout PR branch
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install Rust toolchain
         run: |
@@ -27,32 +30,38 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y valgrind
 
       - name: Install iai-callgrind-runner
-        uses: baptiste0928/cargo-install@v3
+        uses: baptiste0928/cargo-install@8195d4f734a149db85385bb4102b42efcd373759 # v3.5.0
         with:
           crate: iai-callgrind-runner
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           key: iai-callgrind
 
       - name: Get base branch name
         id: base_branch
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "name=${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+            echo "name=$BASE_REF" >> "$GITHUB_OUTPUT"
           else
             echo "name=main" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Checkout base branch
+        env:
+          BASE_BRANCH: ${{ steps.base_branch.outputs.name }}
         run: |
-          git fetch origin ${{ steps.base_branch.outputs.name }}
-          git checkout origin/${{ steps.base_branch.outputs.name }}
+          git fetch origin "$BASE_BRANCH"
+          git checkout "origin/$BASE_BRANCH"
 
       - name: Run benchmarks on base branch
         continue-on-error: true
+        env:
+          BASE_BRANCH: ${{ steps.base_branch.outputs.name }}
         run: |
-          echo "Running benchmarks on base branch: ${{ steps.base_branch.outputs.name }}"
+          echo "Running benchmarks on base branch: $BASE_BRANCH"
           cargo bench --features iai --bench iai_algos --bench iai_edmondskarp --bench iai_kuhn_munkres --bench iai_separate_components 2>&1 | tee baseline-output.txt
 
       - name: Checkout PR branch
@@ -188,7 +197,7 @@ jobs:
         # keep benchmark results in the job summary there instead of failing CI.
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs');
