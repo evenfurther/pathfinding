@@ -27,6 +27,7 @@
 //! - [paths counting](directed/count_paths/index.html): count the paths to the destination in an acyclic graph
 //! - [strongly connected components](directed/strongly_connected_components/index.html): find strongly connected components in a directed graph ([⇒ Wikipedia][Strongly connected components])
 //! - [topological sorting](directed/topological_sort/index.html): find an acceptable topological order in a directed graph ([⇒ Wikipedia][Topological sorting])
+//! - [SSSP](directed/sssp/index.html): single-source shortest paths via BMSSP ([⇒ arXiv:2504.17033][BMSSP])
 //! - [Yen](directed/yen/index.html): find k-shortest paths using Dijkstra ([⇒ Wikipedia][Yen])
 //!
 //! ### Undirected graphs
@@ -108,6 +109,7 @@
 //! [Strongly connected components]: https://en.wikipedia.org/wiki/Strongly_connected_component
 //! [Topological sorting]: https://en.wikipedia.org/wiki/Topological_sorting
 //! [Yen]: https://en.wikipedia.org/wiki/Yen's_algorithm
+//! [BMSSP]: https://arxiv.org/abs/2504.17033
 
 use deprecate_until::deprecate_until;
 pub use num_traits;
@@ -141,6 +143,7 @@ pub mod prelude {
     pub use crate::directed::fringe::*;
     pub use crate::directed::idastar::*;
     pub use crate::directed::iddfs::*;
+    pub use crate::directed::sssp::*;
     pub use crate::directed::strongly_connected_components::*;
     pub use crate::directed::topological_sort::*;
     pub use crate::directed::yen::*;
