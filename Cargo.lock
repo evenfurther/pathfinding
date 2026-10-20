@@ -463,9 +463,9 @@ checksum = "f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79"
 
 [[package]]
 name = "movingai"
-version = "3.0.0"
+version = "3.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fdccdfcd0799f33ccc16d583684c565903d2a3d5ddffe842cfbdc38fd021dbf7"
+checksum = "3736ba9a3d29ce622b9db21d4cf19a4e233a87b0e3ec4eae91a5dea1379a76a1"
 dependencies = [
  "arrayvec",
 ]
