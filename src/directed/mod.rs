@@ -13,6 +13,7 @@ pub mod edmonds_karp;
 pub mod fringe;
 pub mod idastar;
 pub mod iddfs;
+pub mod sssp;
 pub mod strongly_connected_components;
 pub mod topological_sort;
 pub mod yen;
