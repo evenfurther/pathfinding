@@ -666,3 +666,24 @@ fn iter_full_grid_yields_all_vertices() {
     via_into_iter.sort_unstable();
     assert_eq!(via_into_iter, expected);
 }
+
+/// A grid without columns has no vertices. Walking it used to step `x` until it came back to
+/// `width`, which with a width of zero never happens, so these loops never ended.
+#[test]
+fn a_grid_without_columns_iterates_to_nothing() {
+    let mut g = Grid::new(0, 5);
+    assert_eq!(g.edges().count(), 0);
+    g.fill();
+    assert_eq!(g.iter().count(), 0);
+    assert_eq!(g.edges().count(), 0);
+    assert_eq!(g.into_iter().count(), 0);
+
+    // The same state reached by shrinking a full grid.
+    let mut g = Grid::new(3, 3);
+    g.fill();
+    assert!(g.resize(0, 3));
+    assert_eq!(g.iter().count(), 0);
+    assert_eq!(g.edges().count(), 0);
+    assert_eq!(g.vertices_len(), 0);
+    assert_eq!(g.into_iter().count(), 0);
+}

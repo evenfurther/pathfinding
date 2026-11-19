@@ -600,7 +600,9 @@ impl Iterator for GridIntoIterator {
     fn next(&mut self) -> Option<Self::Item> {
         if self.grid.dense {
             loop {
-                if self.y == self.grid.height {
+                // With no columns, `x` would never come back to `width` and the walk would
+                // never move on to the next row.
+                if self.y == self.grid.height || self.grid.width == 0 {
                     return None;
                 }
                 let r = (self.grid.has_vertex((self.x, self.y))).then_some((self.x, self.y));
@@ -646,7 +648,9 @@ impl Iterator for GridIterator<'_> {
     fn next(&mut self) -> Option<Self::Item> {
         if self.grid.dense {
             loop {
-                if self.y == self.grid.height {
+                // With no columns, `x` would never come back to `width` and the walk would
+                // never move on to the next row.
+                if self.y == self.grid.height || self.grid.width == 0 {
                     return None;
                 }
                 let r = (self.grid.has_vertex((self.x, self.y))).then_some((self.x, self.y));
@@ -698,7 +702,9 @@ impl Iterator for EdgesIterator<'_> {
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            if self.y == self.grid.height {
+            // With no columns, `x` would never come back to `width` and the walk would never
+            // move on to the next row.
+            if self.y == self.grid.height || self.grid.width == 0 {
                 return None;
             }
             let x = self.x;
