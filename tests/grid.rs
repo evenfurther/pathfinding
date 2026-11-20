@@ -731,3 +731,9 @@ fn debug_without_rows() {
     assert_eq!(format!("{g:#?}"), "");
     assert_eq!(format!("{g:-?}"), "");
 }
+
+#[test]
+#[should_panic(expected = "cannot constrain a value into an empty range")]
+fn constrain_without_columns() {
+    let _ = Grid::new(0, 3).constrain((1, 1));
+}

@@ -424,6 +424,10 @@ impl<C> Matrix<C> {
     /// assert_eq!(matrix.constrain((1, 2)), (1, 2));
     /// assert_eq!(matrix.constrain((10, -53)), (1, 2));
     /// ```
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the matrix has no rows or no columns.
     #[must_use]
     pub const fn constrain(&self, (row, column): (isize, isize)) -> (usize, usize) {
         (constrain(row, self.rows), constrain(column, self.columns))

@@ -925,3 +925,9 @@ fn index_out_of_bounds_column() {
     let m = matrix![[1, 2], [3, 4]];
     let _ = m[(1, 2)];
 }
+
+#[test]
+#[should_panic(expected = "cannot constrain a value into an empty range")]
+fn constrain_empty_matrix() {
+    let _ = Matrix::<u8>::new_empty(0).constrain((1, 1));
+}
