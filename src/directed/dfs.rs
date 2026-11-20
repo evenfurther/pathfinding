@@ -142,10 +142,20 @@ where
 
 /// Struct returned by [`dfs_reach`].
 #[must_use = "iterators are lazy and do nothing unless consumed"]
+#[derive(Clone)]
 pub struct DfsReachable<N, FN> {
     to_see: Vec<N>,
     visited: FxHashSet<N>,
     successors: FN,
+}
+
+impl<N: std::fmt::Debug, FN> std::fmt::Debug for DfsReachable<N, FN> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DfsReachable")
+            .field("to_see", &self.to_see)
+            .field("visited", &self.visited)
+            .finish_non_exhaustive()
+    }
 }
 
 impl<N, FN> DfsReachable<N, FN>

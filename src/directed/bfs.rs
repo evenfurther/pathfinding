@@ -310,10 +310,19 @@ where
 
 /// Struct returned by [`bfs_reach`].
 #[must_use = "iterators are lazy and do nothing unless consumed"]
+#[derive(Clone)]
 pub struct BfsReachable<N, FN> {
     i: usize,
     seen: FxIndexSet<N>,
     successors: FN,
+}
+
+impl<N: std::fmt::Debug, FN> std::fmt::Debug for BfsReachable<N, FN> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BfsReachable")
+            .field("to_see", &&self.seen.as_slice()[self.i..])
+            .finish_non_exhaustive()
+    }
 }
 
 impl<N, FN> BfsReachable<N, FN> {
