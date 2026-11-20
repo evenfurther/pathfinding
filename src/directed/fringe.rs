@@ -1,9 +1,8 @@
 //! Compute a shortest path using the [Fringe search
 //! algorithm](https://en.wikipedia.org/wiki/Fringe_search).
 
-use super::reverse_path;
+use super::{Relaxed, relax, reverse_path};
 use crate::FxIndexMap;
-use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::{Bounded, Zero};
 use std::collections::VecDeque;
 use std::hash::Hash;
@@ -134,22 +133,13 @@ where
             };
             for (successor, cost) in successors {
                 let g_successor = g + cost;
-                let n; // index for successor
-                match parents.entry(successor) {
-                    Vacant(e) => {
-                        n = e.index();
-                        e.insert((i, g_successor));
-                        stamps.push(0);
-                    }
-                    Occupied(mut e) => {
-                        if e.get().1 > g_successor {
-                            n = e.index();
-                            e.insert((i, g_successor));
-                        } else {
-                            continue;
-                        }
-                    }
+                let Some(relaxed) = relax(&mut parents, successor, i, g_successor) else {
+                    continue;
+                };
+                if let Relaxed::New(_) = relaxed {
+                    stamps.push(0);
                 }
+                let n = relaxed.index();
                 stamps[n] += 1;
                 now.push_front((n, stamps[n]));
             }

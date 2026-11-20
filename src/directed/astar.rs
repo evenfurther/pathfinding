@@ -8,7 +8,7 @@ use std::collections::BinaryHeap;
 use std::hash::Hash;
 use std::iter::FusedIterator;
 
-use super::reverse_path;
+use super::{relax, reverse_path};
 use crate::FxIndexMap;
 
 /// Compute a shortest path using the [A* search
@@ -157,25 +157,11 @@ where
         };
         for (successor, move_cost) in successors {
             let new_cost = cost + move_cost;
-            let h; // heuristic(&successor)
-            let n; // index for successor
-            match parents.entry(successor) {
-                Vacant(e) => {
-                    h = heuristic(e.key());
-                    n = e.index();
-                    e.insert((index, new_cost));
-                }
-                Occupied(mut e) => {
-                    if e.get().1 > new_cost {
-                        h = heuristic(e.key());
-                        n = e.index();
-                        e.insert((index, new_cost));
-                    } else {
-                        continue;
-                    }
-                }
-            }
-
+            let Some(relaxed) = relax(&mut parents, successor, index, new_cost) else {
+                continue;
+            };
+            let n = relaxed.index();
+            let h = heuristic(parents.get_index(n).unwrap().0); // Cannot fail
             to_see.push(SmallestCostHolder {
                 estimated_cost: new_cost + h,
                 cost: new_cost,
