@@ -49,7 +49,8 @@ pub type Edge<N, C> = ((N, N), C);
 ///
 /// # Panics
 ///
-/// This function panics if `source` or `sink` is not found in `vertices`.
+/// This function panics if `source` or `sink` is not found in `vertices`, or if an edge of
+/// `caps` has an endpoint which is not found in `vertices`.
 pub fn edmonds_karp<N, C, IC, EK>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
 where
     N: Eq + Hash + Copy,
@@ -69,12 +70,13 @@ where
             .get_index_of(sink)
             .unwrap_or_else(|| panic!("sink not found in vertices")),
     );
+    let index = |n: &N| {
+        reverse
+            .get_index_of(n)
+            .unwrap_or_else(|| panic!("edge endpoint not found in vertices"))
+    };
     for ((from, to), capacity) in caps {
-        capacities.set_capacity(
-            reverse.get_index_of(&from).unwrap(),
-            reverse.get_index_of(&to).unwrap(),
-            capacity,
-        );
+        capacities.set_capacity(index(&from), index(&to), capacity);
     }
     let (paths, max, cut) = capacities.augment();
     (
@@ -90,6 +92,10 @@ where
 }
 
 /// Helper for the `edmonds_karp` function using an adjacency matrix for dense graphs.
+///
+/// # Panics
+///
+/// This function panics in the same cases as [`edmonds_karp`].
 pub fn edmonds_karp_dense<N, C, IC>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
 where
     N: Eq + Hash + Copy,
@@ -100,6 +106,10 @@ where
 }
 
 /// Helper for the `edmonds_karp` function using adjacency maps for sparse graphs.
+///
+/// # Panics
+///
+/// This function panics in the same cases as [`edmonds_karp`].
 pub fn edmonds_karp_sparse<N, C, IC>(
     vertices: &[N],
     source: &N,
