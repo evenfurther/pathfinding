@@ -559,6 +559,10 @@ impl Grid {
     /// assert_eq!(grid.constrain((1, 2)), (1, 2));
     /// assert_eq!(grid.constrain((10, -53)), (1, 2));
     /// ```
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the grid has no rows or no columns.
     #[must_use]
     pub const fn constrain(&self, vertex: (isize, isize)) -> (usize, usize) {
         (

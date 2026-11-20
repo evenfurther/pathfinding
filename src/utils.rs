@@ -115,9 +115,14 @@ pub fn in_direction(
 /// assert_eq!(constrain(30, 7), 2);
 /// assert_eq!(constrain(-30, 7), 5);
 /// ```
+///
+/// # Panics
+///
+/// This function panics if `upper` is 0, as no value lies in `0..0`.
 #[must_use]
 #[expect(clippy::cast_sign_loss)]
 pub const fn constrain(value: isize, upper: usize) -> usize {
+    assert!(upper > 0, "cannot constrain a value into an empty range");
     if value > 0 {
         value as usize % upper
     } else {

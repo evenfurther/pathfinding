@@ -42,3 +42,9 @@ fn constrain_the_most_negative_value() {
         usize::try_from(isize::MIN.rem_euclid(7)).unwrap()
     );
 }
+
+#[test]
+#[should_panic(expected = "cannot constrain a value into an empty range")]
+fn constrain_into_an_empty_range() {
+    let _ = constrain(1, 0);
+}
