@@ -183,30 +183,36 @@ where
         let first_spur = routes[ki].spur_index;
         // Take the most recent route to explore new spurs.
         let previous = &routes[ki].nodes;
+        // Nodes of the root path, which a spur path must not go through again. The root path
+        // grows by one node at each step, so the set is extended rather than rebuilt.
+        let mut filtered_nodes: FxHashSet<&N> = previous[..first_spur].iter().collect();
         // Iterate over every node except the sink node.
         for i in first_spur..(previous.len() - 1) {
             let spur_node = &previous[i];
             let root_path = &previous[0..i];
+            if i > first_spur {
+                filtered_nodes.insert(&previous[i - 1]);
+            }
 
-            let mut filtered_edges = FxHashSet::default();
+            // Every edge to filter out leaves the spur node, so only the nodes it leads to are
+            // recorded, and only the successors of the spur node need checking against them.
+            let mut filtered_targets = FxHashSet::default();
             for path in &routes {
                 if path.nodes.len() > i + 1
                     && &path.nodes[0..i] == root_path
                     && &path.nodes[i] == spur_node
                 {
-                    filtered_edges.insert((&path.nodes[i], &path.nodes[i + 1]));
+                    filtered_targets.insert(&path.nodes[i + 1]);
                 }
             }
-            let filtered_nodes: FxHashSet<&N> = FxHashSet::from_iter(root_path);
             // We are creating a new successor function that will not return the
             // filtered edges and nodes that routes already used.
+            let (filtered_nodes, filtered_targets) = (&filtered_nodes, &filtered_targets);
             let mut filtered_successor = |n: &N| {
-                successors(n)
-                    .into_iter()
-                    .filter(|(n2, _)| {
-                        !filtered_nodes.contains(&n2) && !filtered_edges.contains(&(n, n2))
-                    })
-                    .collect::<Vec<_>>()
+                let from_spur = n == spur_node;
+                successors(n).into_iter().filter(move |(n2, _)| {
+                    !(filtered_nodes.contains(n2) || from_spur && filtered_targets.contains(n2))
+                })
             };
 
             // Let us find the spur path from the spur node to the sink using.
@@ -215,9 +221,7 @@ where
             {
                 let nodes: Vec<N> = root_path.iter().cloned().chain(spur_path).collect();
                 // If we have found the same path before, we will not add it.
-                if !visited.contains(&nodes) {
-                    // Mark as visited
-                    visited.insert(nodes.clone());
+                if visited.insert(nodes.clone()) {
                     // Build a min-heap
                     k_routes.push(Reverse(Path {
                         nodes,
