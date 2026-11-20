@@ -185,6 +185,18 @@ fn unknown_sink_2() {
     edmonds_karp_sparse(&[1, 2, 3], &1, &4, Vec::<((i32, i32), i32)>::new());
 }
 
+#[test]
+#[should_panic(expected = "edge endpoint not found in vertices")]
+fn unknown_edge_target() {
+    edmonds_karp_dense(&[0, 1], &0, &1, [((0, 2), 5)]);
+}
+
+#[test]
+#[should_panic(expected = "edge endpoint not found in vertices")]
+fn unknown_edge_source() {
+    edmonds_karp_sparse(&[0, 1], &0, &1, [((2, 1), 5)]);
+}
+
 fn str_to_graph(desc: &str) -> (Vec<usize>, Vec<Edge<usize, isize>>) {
     let vertices = (0..desc.lines().count() - 1).collect();
     let edges = desc
