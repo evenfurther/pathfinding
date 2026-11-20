@@ -84,6 +84,12 @@ enum Path {
     NoneAtThisDepth,
 }
 
+/// Explore every path of at most `depth` nodes starting with `path`, which holds a single
+/// node, extending `path` up to the goal if one is found.
+///
+/// This is a depth-first search, written with an explicit stack rather than recursively so that
+/// a long path cannot overflow the call stack. `path` and `stack` are kept in step: `stack[i]`
+/// holds the successors of `path[i]` left to explore, and the result found below it so far.
 fn step<N, FN, IN, FS>(
     path: &mut Vec<N>,
     successors: &mut FN,
@@ -96,27 +102,49 @@ where
     IN: IntoIterator<Item = N>,
     FS: FnMut(&N) -> bool,
 {
-    if depth == 0 {
-        Path::NoneAtThisDepth
-    } else if success(path.last().unwrap()) {
-        Path::FoundOptimum
-    } else {
-        let successors_it = successors(path.last().unwrap());
-
-        let mut best_result = Path::Impossible;
-
-        for n in successors_it {
-            if !path.contains(&n) {
-                path.push(n);
-                match step(path, successors, success, depth - 1) {
-                    Path::FoundOptimum => return Path::FoundOptimum,
-                    Path::NoneAtThisDepth => best_result = Path::NoneAtThisDepth,
-                    Path::Impossible => (),
+    let mut stack: Vec<(IN::IntoIter, Path)> = Vec::new();
+    loop {
+        // Enter the last node of `path`, the `path.len()`-th node of the path. Its result is
+        // known straight away unless it has successors to explore.
+        let mut result = if path.len() > depth {
+            Path::NoneAtThisDepth
+        } else if success(path.last().unwrap()) {
+            return Path::FoundOptimum;
+        } else {
+            let successors = successors(path.last().unwrap()).into_iter();
+            stack.push((successors, Path::Impossible));
+            match next_node(path, &mut stack) {
+                Some(n) => {
+                    path.push(n);
+                    continue;
                 }
-                path.pop();
+                None => stack.pop().unwrap().1, // Cannot fail: a frame was just pushed
             }
+        };
+        // Leave every node whose successors are exhausted, until one has a successor to enter.
+        loop {
+            let Some((_, parent_result)) = stack.last_mut() else {
+                return result;
+            };
+            path.pop();
+            if matches!(result, Path::NoneAtThisDepth) {
+                *parent_result = Path::NoneAtThisDepth;
+            }
+            if let Some(n) = next_node(path, &mut stack) {
+                path.push(n);
+                break;
+            }
+            result = stack.pop().unwrap().1; // Cannot fail: the stack was just checked
         }
-
-        best_result
     }
+}
+
+/// Next successor of the node on top of `stack` not already on `path`, if any.
+fn next_node<N, I>(path: &[N], stack: &mut [(I, Path)]) -> Option<N>
+where
+    N: Eq,
+    I: Iterator<Item = N>,
+{
+    // Cannot fail: callers always have a frame on the stack.
+    stack.last_mut().unwrap().0.find(|n| !path.contains(n))
 }
