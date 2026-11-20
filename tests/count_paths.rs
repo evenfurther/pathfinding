@@ -57,3 +57,18 @@ fn counts_are_shared_between_paths() {
 fn a_loop_is_reported() {
     count_paths(0u32, |&n| [(n + 1) % 4], |_| false);
 }
+
+#[test]
+#[should_panic(expected = "does not fit in a usize")]
+fn an_overflow_is_reported() {
+    // C(160, 80) paths, which does not fit in 128 bits, let alone in a usize.
+    count_paths(
+        (0, 0),
+        |&(x, y)| {
+            [(x + 1, y), (x, y + 1)]
+                .into_iter()
+                .filter(|&(x, y)| x <= 80 && y <= 80)
+        },
+        |&p| p == (80, 80),
+    );
+}
