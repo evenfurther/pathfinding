@@ -666,3 +666,11 @@ fn iter_full_grid_yields_all_vertices() {
     via_into_iter.sort_unstable();
     assert_eq!(via_into_iter, expected);
 }
+
+#[test]
+fn debug_without_rows() {
+    let g = Grid::new(3, 0);
+    assert_eq!(format!("{g:?}"), "");
+    assert_eq!(format!("{g:#?}"), "");
+    assert_eq!(format!("{g:-?}"), "");
+}
