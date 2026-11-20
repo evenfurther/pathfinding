@@ -614,7 +614,11 @@ impl Iterator for GridIntoIterator {
                 }
             }
         }
-        self.grid.exclusions.pop()
+        // Walk the vertices forwards, as `GridIterator` does, so that a grid yields its
+        // vertices in the same order whether it is borrowed or consumed.
+        let vertex = self.grid.exclusions.get_index(self.x).copied();
+        self.x += usize::from(vertex.is_some());
+        vertex
     }
 }
 

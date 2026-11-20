@@ -675,6 +675,21 @@ fn iter_sparse_grid_yields_exact_vertices() {
     assert_eq!(via_into_iter, expected);
 }
 
+#[test]
+fn iter_and_into_iter_agree() {
+    let mut sparse = Grid::new(10, 10);
+    sparse.add_vertex((1, 1));
+    sparse.add_vertex((3, 3));
+    sparse.add_vertex((2, 2));
+    let mut dense = Grid::new(3, 3);
+    dense.fill();
+    dense.remove_vertex((1, 1));
+    for g in [sparse, dense] {
+        let borrowed = g.iter().collect::<Vec<_>>();
+        assert_eq!(g.into_iter().collect::<Vec<_>>(), borrowed);
+    }
+}
+
 /// Test that `iter()` and `into_iter()` on a dense grid yield exactly the
 /// expected vertices (all positions minus removed ones, regardless of order).
 #[test]
