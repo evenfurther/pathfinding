@@ -258,8 +258,17 @@ impl Grid {
         count
     }
 
+    /// Switch to the other representation when it is much smaller than the current one.
+    ///
+    /// Switching as soon as the stored set holds more than half the cells would leave the new
+    /// set just under half of them, so that the next change in the opposite direction would
+    /// switch back, rebuilding the whole set every time. Switching only when the stored set holds
+    /// more than two thirds of the cells leaves the new one with less than a third of them: a
+    /// number of changes proportional to the grid size is needed before the next switch, which
+    /// amortises the rebuild.
     fn rebalance(&mut self) {
-        if self.exclusions.len() > self.width * self.height / 2 {
+        // The stored set holds more than twice as many cells as the other representation would.
+        if self.size() - self.exclusions.len() < self.exclusions.len() / 2 {
             self.exclusions = (0..self.width)
                 .flat_map(|c| (0..self.height).map(move |r| (c, r)))
                 .filter(|v| !self.exclusions.contains(v))
@@ -800,3 +809,27 @@ impl PartialEq for Grid {
 }
 
 impl Eq for Grid {}
+
+#[cfg(test)]
+mod tests {
+    use super::Grid;
+
+    #[test]
+    fn no_representation_switch_on_every_change() {
+        let mut g = Grid::new(20, 20);
+        let mut switches = 0;
+        let mut dense = g.dense;
+        // Add and remove vertices back and forth across half of the cells.
+        for _ in 0..10 {
+            for i in 0..220 {
+                g.add_vertex((i % 20, i / 20));
+                switches += usize::from(std::mem::replace(&mut dense, g.dense) != g.dense);
+            }
+            for i in (180..220).rev() {
+                g.remove_vertex((i % 20, i / 20));
+                switches += usize::from(std::mem::replace(&mut dense, g.dense) != g.dense);
+            }
+        }
+        assert!(switches <= 2, "{switches} representation switches");
+    }
+}
