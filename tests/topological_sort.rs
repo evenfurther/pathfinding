@@ -131,3 +131,9 @@ fn deep_graph_does_not_exhaust_the_stack() {
         .join()
         .expect("traversal exhausted the stack");
 }
+
+#[test]
+#[should_panic(expected = "successors returned a node which is not in nodes")]
+fn tsig_unlisted_successor() {
+    let _ = topological_sort_into_groups(&[1, 2], |&n| if n == 1 { vec![3] } else { vec![] });
+}

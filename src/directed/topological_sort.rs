@@ -168,8 +168,11 @@ where
 /// In this case, the strongly connected set(s) can then be found using the
 /// [`strongly_connected_components`](super::strongly_connected_components::strongly_connected_components)
 /// function on the list of remaining nodes.
+///
+/// # Panics
+///
+/// This function panics if `successors` returns a node which is not in `nodes`.
 #[expect(clippy::type_complexity)]
-#[expect(clippy::missing_panics_doc)]
 pub fn topological_sort_into_groups<N, FN, IN>(
     nodes: &[N],
     mut successors: FN,
@@ -190,7 +193,9 @@ where
     }
     for succs in succs_map.values() {
         for succ in succs {
-            *preds_map.get_mut(succ).unwrap() += 1; // Cannot fail
+            *preds_map
+                .get_mut(succ)
+                .expect("successors returned a node which is not in nodes") += 1;
         }
     }
     let mut groups = Vec::<Vec<N>>::new();
