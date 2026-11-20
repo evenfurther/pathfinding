@@ -1,7 +1,7 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use itertools::Itertools;
 use pathfinding::prelude::{
-    astar, bfs, bfs_bidirectional, dfs, dijkstra, fringe, idastar, iddfs, separate_components,
+    astar, bfs, bfs_bidirectional, dfs, dijkstra, fringe, idastar, iddfs, separate_components, yen,
 };
 use rand::seq::SliceRandom;
 use rand::{Rng as _, RngExt as _, SeedableRng as _};
@@ -277,6 +277,29 @@ fn bench_separate_components(c: &mut Criterion) {
 // We do not test IDA* and IDDFS with the no_path variant
 // as the successive increasing full explorations of the
 // maze will take too much time.
+fn corner_to_corner_yen(c: &mut Criterion) {
+    // Varied costs, so that the shortest paths differ by more than their tie-breaking. Yen runs
+    // Dijkstra once per deviation point, hence the smaller grid.
+    let successors = |pt: &Pt| {
+        successors(pt)
+            .into_iter()
+            .filter(|n| n.x <= 24 && n.y <= 24)
+            .map(|n| {
+                let cost = 1 + usize::from((n.x * 7 + n.y * 3) % 5);
+                (n, cost)
+            })
+            .collect::<Vec<_>>()
+    };
+    c.bench_function("corner_to_corner_yen_k20", |b| {
+        b.iter(|| {
+            assert_eq!(
+                yen(&Pt::new(0, 0), successors, |n| n.x == 24 && n.y == 24, 20).len(),
+                20
+            );
+        });
+    });
+}
+
 criterion_group!(
     benches,
     corner_to_corner_astar,
@@ -294,5 +317,6 @@ criterion_group!(
     no_path_dijkstra,
     no_path_fringe,
     bench_separate_components,
+    corner_to_corner_yen,
 );
 criterion_main!(benches);
