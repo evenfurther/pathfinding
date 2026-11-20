@@ -1,9 +1,8 @@
 //! Compute a shortest path using the [Dijkstra search
 //! algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm).
 
-use super::reverse_path;
+use super::{Relaxed, relax, reverse_path};
 use crate::FxIndexMap;
-use indexmap::map::Entry::{Occupied, Vacant};
 use num_traits::Zero;
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
@@ -284,21 +283,10 @@ fn expand_bidirectional<N, C, FN, IN>(
     };
     for (neighbour, move_cost) in neighbours {
         let new_cost = cost + move_cost;
-        let n;
-        match parents.entry(neighbour) {
-            Vacant(e) => {
-                n = e.index();
-                e.insert((index, new_cost));
-            }
-            Occupied(mut e) => {
-                if e.get().1 > new_cost {
-                    n = e.index();
-                    e.insert((index, new_cost));
-                } else {
-                    continue;
-                }
-            }
-        }
+        let Some(relaxed) = relax(parents, neighbour, index, new_cost) else {
+            continue;
+        };
+        let n = relaxed.index();
         queue.push(SmallestHolder {
             cost: new_cost,
             index: n,
@@ -444,26 +432,12 @@ where
         };
         for (successor, move_cost) in successors {
             let new_cost = cost + move_cost;
-            let n;
-            match parents.entry(successor) {
-                Vacant(e) => {
-                    n = e.index();
-                    e.insert((index, new_cost));
-                }
-                Occupied(mut e) => {
-                    if e.get().1 > new_cost {
-                        n = e.index();
-                        e.insert((index, new_cost));
-                    } else {
-                        continue;
-                    }
-                }
+            if let Some(relaxed) = relax(&mut parents, successor, index, new_cost) {
+                to_see.push(SmallestHolder {
+                    cost: new_cost,
+                    index: relaxed.index(),
+                });
             }
-
-            to_see.push(SmallestHolder {
-                cost: new_cost,
-                index: n,
-            });
         }
     }
     (parents, target_reached)
@@ -586,26 +560,15 @@ where
             };
             for (successor, move_cost) in successors {
                 let new_cost = cost + move_cost;
-                let n;
-                match self.parents.entry(successor) {
-                    Vacant(e) => {
-                        n = e.index();
-                        e.insert((index, new_cost));
-                        self.seen.push(false);
-                    }
-                    Occupied(mut e) => {
-                        if e.get().1 > new_cost {
-                            n = e.index();
-                            e.insert((index, new_cost));
-                        } else {
-                            continue;
-                        }
-                    }
+                let Some(relaxed) = relax(&mut self.parents, successor, index, new_cost) else {
+                    continue;
+                };
+                if let Relaxed::New(_) = relaxed {
+                    self.seen.push(false);
                 }
-
                 self.to_see.push(SmallestHolder {
                     cost: new_cost,
-                    index: n,
+                    index: relaxed.index(),
                 });
             }
             return item;
