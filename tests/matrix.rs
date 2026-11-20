@@ -706,6 +706,30 @@ fn column_iter_back() {
 }
 
 #[test]
+fn iter_both_ends() {
+    let m = matrix![[0], [1], [2], [3]];
+    let mut i = m.iter();
+    assert_eq!(i.next(), Some(&[0][..]));
+    assert_eq!(i.next_back(), Some(&[3][..]));
+    assert_eq!(i.next_back(), Some(&[2][..]));
+    assert_eq!(i.next(), Some(&[1][..]));
+    assert_eq!(i.next(), None);
+    assert_eq!(i.next_back(), None);
+}
+
+#[test]
+fn column_iter_both_ends() {
+    let m = matrix![[0, 1, 2, 3], [10, 11, 12, 13]];
+    let mut i = m.column_iter();
+    assert_eq!(i.next(), Some(vec![&0, &10]));
+    assert_eq!(i.next_back(), Some(vec![&3, &13]));
+    assert_eq!(i.next_back(), Some(vec![&2, &12]));
+    assert_eq!(i.next(), Some(vec![&1, &11]));
+    assert_eq!(i.next(), None);
+    assert_eq!(i.next_back(), None);
+}
+
+#[test]
 fn into_iter_is_fused() {
     let m = matrix![[0, 1, 2], [2, 1, 0], [1, 0, 2]];
     let mut it = m.iter();
