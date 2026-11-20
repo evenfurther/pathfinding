@@ -743,7 +743,10 @@ impl fmt::Debug for Grid {
         } else {
             (0..self.height).collect()
         };
-        let last = *lines.last().unwrap();
+        // A grid without rows is printed as an empty string.
+        let Some(&last) = lines.last() else {
+            return Ok(());
+        };
         for y in lines {
             for x in 0..self.width {
                 write!(
