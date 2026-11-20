@@ -615,6 +615,48 @@ fn equality() {
     assert_eq!(g, g2);
 }
 
+#[test]
+fn equality_ignores_insertion_order() {
+    let mut g1 = Grid::new(10, 10);
+    g1.add_vertex((1, 1));
+    g1.add_vertex((2, 2));
+    let mut g2 = Grid::new(10, 10);
+    g2.add_vertex((2, 2));
+    g2.add_vertex((1, 1));
+    assert_eq!(g1, g2);
+}
+
+#[test]
+fn equality_across_representations() {
+    // In a 2×2 grid holding two vertices, both representations hold two cells, so the
+    // grid keeps the one it starts with. `sparse` stores its vertices, not in row order.
+    let mut sparse = Grid::new(2, 2);
+    sparse.add_vertex((1, 1));
+    sparse.add_vertex((0, 0));
+    // `dense` starts full and stores its absent cells.
+    let mut dense = Grid::new(2, 2);
+    dense.fill();
+    dense.remove_vertex((1, 0));
+    dense.remove_vertex((0, 1));
+    assert_eq!(sparse, dense);
+    assert_eq!(dense, sparse);
+    let mut other = Grid::new(2, 2);
+    other.fill();
+    other.remove_vertex((1, 0));
+    other.remove_vertex((0, 0));
+    assert_ne!(sparse, other);
+    assert_ne!(other, sparse);
+}
+
+#[test]
+fn equality_compares_dimensions() {
+    let mut small = Grid::new(2, 2);
+    small.add_vertex((1, 1));
+    let mut large = Grid::new(50, 50);
+    large.add_vertex((1, 1));
+    assert_ne!(small, large);
+}
+
 /// Test that `iter()` and `into_iter()` on a sparse grid yield exactly the
 /// added vertices (regardless of order).
 #[test]

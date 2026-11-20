@@ -780,8 +780,22 @@ impl From<Matrix<bool>> for Grid {
 
 impl PartialEq for Grid {
     fn eq(&self, other: &Self) -> bool {
-        self.vertices_len() == other.vertices_len()
-            && self.iter().zip(other.iter()).all(|(a, b)| a == b)
+        if self.width != other.width
+            || self.height != other.height
+            || self.vertices_len() != other.vertices_len()
+        {
+            return false;
+        }
+        if self.dense == other.dense {
+            // Both sets hold the same kind of cells, and set equality ignores the order in
+            // which they were inserted.
+            self.exclusions == other.exclusions
+        } else {
+            // One set holds the vertices and the other one the absent cells. With the same
+            // dimensions and vertex count, both sets cover every cell exactly once if and only
+            // if they do not overlap.
+            self.exclusions.is_disjoint(&other.exclusions)
+        }
     }
 }
 
