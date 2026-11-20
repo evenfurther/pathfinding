@@ -880,3 +880,24 @@ fn transpose_in_place_refuses_what_transposed_refuses() {
     let mut m = Matrix::<u8>::new_empty(3);
     m.transpose();
 }
+
+#[test]
+#[should_panic(expected = "trying to access row 0 (no row in matrix)")]
+fn index_empty_matrix() {
+    let m = Matrix::<u8>::new_empty(0);
+    let _ = m[(0, 0)];
+}
+
+#[test]
+#[should_panic(expected = "trying to access row 3 (max 1)")]
+fn index_out_of_bounds_row() {
+    let m = matrix![[1, 2], [3, 4]];
+    let _ = m[(3, 0)];
+}
+
+#[test]
+#[should_panic(expected = "trying to access column 2 (max 1)")]
+fn index_out_of_bounds_column() {
+    let m = matrix![[1, 2], [3, 4]];
+    let _ = m[(1, 2)];
+}

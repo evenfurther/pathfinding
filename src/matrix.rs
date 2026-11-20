@@ -403,17 +403,11 @@ impl<C> Matrix<C> {
     /// This function panics if the coordinates do not designate a cell.
     #[must_use]
     pub fn idx(&self, i: (usize, usize)) -> usize {
-        assert!(
-            i.0 < self.rows,
-            "trying to access row {} (max {})",
-            i.0,
-            self.rows - 1
-        );
+        assert!(i.0 < self.rows, "{}", out_of_bounds("row", i.0, self.rows));
         assert!(
             i.1 < self.columns,
-            "trying to access column {} (max {})",
-            i.1,
-            self.columns - 1
+            "{}",
+            out_of_bounds("column", i.1, self.columns)
         );
         unsafe { self.idx_unchecked(i) }
     }
@@ -807,6 +801,16 @@ impl<C> Matrix<C> {
         } else {
             self.transpose_in_place_non_square();
         }
+    }
+}
+
+/// Message for an access to `index` along a dimension of `size` elements.
+#[cold]
+fn out_of_bounds(dimension: &str, index: usize, size: usize) -> String {
+    // `size - 1` would underflow for an empty dimension.
+    match size.checked_sub(1) {
+        Some(max) => format!("trying to access {dimension} {index} (max {max})"),
+        None => format!("trying to access {dimension} {index} (no {dimension} in matrix)"),
     }
 }
 
