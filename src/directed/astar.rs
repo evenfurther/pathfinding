@@ -116,6 +116,7 @@ use crate::FxIndexMap;
 /// assert_eq!(cost, same_cost);
 /// ```
 ///
+#[must_use]
 #[expect(clippy::missing_panics_doc)]
 pub fn astar<N, C, FN, IN, FH, FS>(
     start: &N,
@@ -208,6 +209,7 @@ where
 ///
 /// Each path comprises both the start and an end node. Note that while every path shares the same
 /// start node, different paths may have different end nodes.
+#[must_use]
 #[expect(clippy::missing_panics_doc)]
 pub fn astar_bag<N, C, FN, IN, FH, FS>(
     start: &N,
@@ -336,6 +338,7 @@ where
 /// ### Warning
 ///
 /// The number of results with the same value might be very large in some graphs. Use with caution.
+#[must_use]
 pub fn astar_bag_collect<N, C, FN, IN, FH, FS>(
     start: &N,
     successors: FN,
@@ -390,6 +393,7 @@ impl<K: Ord> Ord for SmallestCostHolder<K> {
 }
 
 /// Iterator structure created by the `astar_bag` function.
+#[must_use = "iterators are lazy and do nothing unless consumed"]
 #[derive(Clone)]
 pub struct AstarSolution<N> {
     sinks: Vec<usize>,

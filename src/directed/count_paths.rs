@@ -124,6 +124,7 @@ where
 /// If the number of paths does not fit in a `usize`. It can grow exponentially with the size of
 /// the graph: there are already about 10²³ paths across a 40×40 grid when moving only right or
 /// down.
+#[must_use]
 pub fn count_paths<T, FN, IN, FS>(start: T, mut successors: FN, mut success: FS) -> usize
 where
     T: Eq + Hash,

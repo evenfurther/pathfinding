@@ -25,6 +25,7 @@
 /// # Warning
 ///
 /// If no cycle exist, this function loops forever.
+#[must_use]
 #[expect(clippy::needless_pass_by_value)]
 pub fn floyd_partial<T, FS>(start: T, successor: FS) -> (usize, T, usize)
 where
@@ -57,6 +58,7 @@ where
 /// # Warning
 ///
 /// If no cycle exist, this function loops forever.
+#[must_use]
 pub fn floyd<T, FS>(start: T, successor: FS) -> (usize, T, usize)
 where
     T: Clone + PartialEq,
@@ -98,6 +100,7 @@ where
 /// # Warning
 ///
 /// If no cycle exist, this function loops forever.
+#[must_use]
 pub fn brent_partial<T, FS>(start: T, successor: FS) -> (usize, T, usize)
 where
     T: Clone + PartialEq,
@@ -125,6 +128,7 @@ where
 /// # Warning
 ///
 /// If no cycle exist, this function loops forever.
+#[must_use]
 pub fn brent<T, FS>(start: T, successor: FS) -> (usize, T, usize)
 where
     T: Clone + PartialEq,

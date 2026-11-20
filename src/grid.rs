@@ -341,7 +341,6 @@ impl Grid {
     }
 
     /// Iterate over edges.
-    #[must_use]
     pub const fn edges(&self) -> EdgesIterator<'_> {
         EdgesIterator {
             grid: self,
@@ -427,6 +426,7 @@ impl Grid {
     /// # See also
     ///
     /// The [`dfs_reachable()`](`Self::dfs_reachable`) method performs a DFS search instead.
+    #[must_use]
     pub fn bfs_reachable<P>(
         &self,
         start: (usize, usize),
@@ -461,6 +461,7 @@ impl Grid {
     /// # See also
     ///
     /// The [`bfs_reachable()`](`Self::bfs_reachable`) method performs a BFS search instead.
+    #[must_use]
     pub fn dfs_reachable<P>(
         &self,
         start: (usize, usize),
@@ -485,7 +486,6 @@ impl Grid {
     }
 
     /// Iterate over vertices.
-    #[must_use]
     pub fn iter(&self) -> GridIterator<'_> {
         self.into_iter()
     }
@@ -523,6 +523,7 @@ impl Grid {
     /// let grid = Grid::from_coordinates(&[(2, 2), (3, 4)]).unwrap();
     /// assert_eq!(vec![(0, 0), (1, 2)], grid.iter().collect::<Vec<_>>());
     /// ```
+    #[must_use]
     pub fn from_coordinates<T>(points: &[(T, T)]) -> Option<Self>
     where
         T: Ord + Sub<Output = T> + Copy + Default + ToPrimitive,
@@ -601,6 +602,7 @@ impl FromIterator<(usize, usize)> for Grid {
 }
 
 /// Iterator returned by calling `.into_iter()` on a grid.
+#[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct GridIntoIterator {
     grid: Grid,
     x: usize,
@@ -651,6 +653,7 @@ impl IntoIterator for Grid {
 }
 
 /// Iterator returned by calling `.iter()` on a grid.
+#[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct GridIterator<'a> {
     grid: &'a Grid,
     x: usize,
@@ -703,6 +706,7 @@ impl<'a> IntoIterator for &'a Grid {
 }
 
 /// Iterator returned by calling `.edges()` on a grid.
+#[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct EdgesIterator<'a> {
     grid: &'a Grid,
     x: usize,

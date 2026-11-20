@@ -62,6 +62,7 @@ use std::iter::FusedIterator;
 ///                  |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").len(), 5);
 /// ```
+#[must_use]
 pub fn bfs<'a, N, S, FN, IN, FS>(start: S, successors: FN, success: FS) -> Option<Vec<N>>
 where
     N: Eq + Hash + Clone + 'a,
@@ -121,6 +122,7 @@ where
 /// Except the start node which will be included both at the beginning and the end of
 /// the path, a node will never be included twice in the path as determined
 /// by the `Eq` relationship.
+#[must_use]
 pub fn bfs_loop<'a, N, S, FN, IN>(start: S, successors: FN) -> Option<Vec<N>>
 where
     N: Eq + Hash + Clone + 'a,
@@ -172,6 +174,7 @@ where
 ///
 /// Find also a more interesting example, comparing regular
 /// and bidirectional BFS [here](https://github.com/evenfurther/pathfinding/blob/main/examples/bfs_bidirectional.rs).
+#[must_use]
 #[expect(clippy::missing_panics_doc)]
 pub fn bfs_bidirectional<'a, N, S, E, FNS, FNP, IN>(
     start: S,
@@ -306,6 +309,7 @@ where
 }
 
 /// Struct returned by [`bfs_reach`].
+#[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct BfsReachable<N, FN> {
     i: usize,
     seen: FxIndexSet<N>,
@@ -316,6 +320,7 @@ impl<N, FN> BfsReachable<N, FN> {
     /// Return a lower bound on the number of remaining reachable
     /// nodes. Not all nodes are necessarily known in advance, and
     /// new reachable nodes may be discovered while using the iterator.
+    #[must_use]
     pub fn remaining_nodes_low_bound(&self) -> usize {
         self.seen.len() - self.i
     }

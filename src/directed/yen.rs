@@ -140,6 +140,7 @@ where
 /// assert_eq!(routes[0], (vec![('A', None), ('B', Some(1))], 2));
 /// assert_eq!(routes[1], (vec![('A', None), ('B', Some(0))], 3));
 /// ```
+#[must_use]
 pub fn yen<N, C, FN, IN, FS>(
     start: &N,
     mut successors: FN,

@@ -2,6 +2,7 @@ use iai_callgrind::{library_benchmark, library_benchmark_group, main};
 use pathfinding::prelude::{Matrix, kuhn_munkres};
 use rand::{RngExt as _, SeedableRng as _};
 use rand_xorshift::XorShiftRng;
+use std::hint::black_box;
 
 const RNG_SEED: [u8; 16] = [
     3, 42, 93, 129, 1, 85, 72, 42, 84, 23, 95, 212, 253, 10, 4, 2,
@@ -17,7 +18,7 @@ fn kuhn_munkres_size_32() {
             .collect::<Vec<_>>(),
     )
     .unwrap();
-    kuhn_munkres(&weights);
+    black_box(kuhn_munkres(&weights));
 }
 
 #[library_benchmark]
@@ -30,7 +31,7 @@ fn kuhn_munkres_size_64() {
             .collect::<Vec<_>>(),
     )
     .unwrap();
-    kuhn_munkres(&weights);
+    black_box(kuhn_munkres(&weights));
 }
 
 #[library_benchmark]
@@ -43,7 +44,7 @@ fn kuhn_munkres_size_128() {
             .collect::<Vec<_>>(),
     )
     .unwrap();
-    kuhn_munkres(&weights);
+    black_box(kuhn_munkres(&weights));
 }
 
 library_benchmark_group!(

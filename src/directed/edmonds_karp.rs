@@ -51,6 +51,7 @@ pub type Edge<N, C> = ((N, N), C);
 ///
 /// This function panics if `source` or `sink` is not found in `vertices`, or if an edge of
 /// `caps` has an endpoint which is not found in `vertices`.
+#[must_use]
 pub fn edmonds_karp<N, C, IC, EK>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
 where
     N: Eq + Hash + Copy,
@@ -96,6 +97,7 @@ where
 /// # Panics
 ///
 /// This function panics in the same cases as [`edmonds_karp`].
+#[must_use]
 pub fn edmonds_karp_dense<N, C, IC>(vertices: &[N], source: &N, sink: &N, caps: IC) -> EKFlows<N, C>
 where
     N: Eq + Hash + Copy,
@@ -110,6 +112,7 @@ where
 /// # Panics
 ///
 /// This function panics in the same cases as [`edmonds_karp`].
+#[must_use]
 pub fn edmonds_karp_sparse<N, C, IC>(
     vertices: &[N],
     source: &N,

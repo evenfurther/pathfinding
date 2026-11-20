@@ -34,6 +34,7 @@ impl<C: Clone> Matrix<C> {
     /// and the number of columns is 0. If you need to build a matrix
     /// column by column, build it row by row and call transposition
     /// or rotation functions on it.
+    #[must_use]
     pub fn new(rows: usize, columns: usize, value: C) -> Self {
         assert!(
             rows == 0 || columns > 0,
@@ -55,6 +56,7 @@ impl<C: Clone> Matrix<C> {
     /// and the number of columns is 0. If you need to build a matrix
     /// column by column, build it row by row and call transposition
     /// or rotation functions on it.
+    #[must_use]
     pub fn from_fn(rows: usize, columns: usize, cb: impl FnMut((usize, usize)) -> C) -> Self {
         assert!(
             rows == 0 || columns > 0,
@@ -71,6 +73,7 @@ impl<C: Clone> Matrix<C> {
     }
 
     /// Create new square matrix with initial value.
+    #[must_use]
     pub fn new_square(size: usize, value: C) -> Self {
         Self::new(size, size, value)
     }
@@ -230,6 +233,7 @@ impl<C: Clone> Matrix<C> {
 
     /// Transform the matrix into another matrix with the same shape
     /// after applying a transforming function to every elements.
+    #[must_use]
     pub fn map<O, F>(self, transform: F) -> Matrix<O>
     where
         F: FnMut(C) -> O,
@@ -607,7 +611,6 @@ impl<C> Matrix<C> {
     }
 
     /// Return an iterator on rows of the matrix.
-    #[must_use]
     pub fn iter(&self) -> RowIterator<'_, C> {
         self.into_iter()
     }
@@ -617,7 +620,6 @@ impl<C> Matrix<C> {
     /// This operation is more costly than using a row iterator, as it
     /// requires building vectors of column data which are not stored
     /// consecutively in memory.
-    #[must_use]
     pub const fn column_iter(&self) -> ColumnIterator<'_, C> {
         ColumnIterator {
             matrix: self,
@@ -678,6 +680,7 @@ impl<C> Matrix<C> {
     /// # See also
     ///
     /// The [`dfs_reachable()`](`Self::dfs_reachable`) method performs a DFS search instead.
+    #[must_use]
     pub fn bfs_reachable<P>(
         &self,
         start: (usize, usize),
@@ -714,6 +717,7 @@ impl<C> Matrix<C> {
     /// # See also
     ///
     /// The [`bfs_reachable()`](`Self::bfs_reachable`) method performs a BFS search instead.
+    #[must_use]
     pub fn dfs_reachable<P>(
         &self,
         start: (usize, usize),
@@ -934,6 +938,7 @@ pub enum MatrixFormatError {
 }
 
 /// Row iterator returned by `iter()` on a matrix.
+#[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct RowIterator<'a, C> {
     matrix: &'a Matrix<C>,
     // Rows still to be returned are `front..back`, so that both ends can be consumed
@@ -984,6 +989,7 @@ impl<'a, C> IntoIterator for &'a Matrix<C> {
 }
 
 /// Column iterator returned by `column_iter()` on a matrix.
+#[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct ColumnIterator<'a, C> {
     matrix: &'a Matrix<C>,
     // Columns still to be returned are `front..back`, so that both ends can be consumed

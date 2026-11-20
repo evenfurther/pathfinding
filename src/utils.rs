@@ -12,6 +12,7 @@ use num_traits::{PrimInt, Unsigned};
 /// assert_eq!(uint_sqrt(100usize), Some(10));
 /// assert_eq!(uint_sqrt(10usize), None);
 /// ```
+#[must_use]
 pub fn uint_sqrt<T>(n: T) -> Option<T>
 where
     T: PrimInt + Unsigned,

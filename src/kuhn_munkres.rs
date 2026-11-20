@@ -114,6 +114,7 @@ impl<C: Copy> Weights<C> for Matrix<C> {
 ///
 /// Also, using indefinite values such as positive or negative infinity or
 /// NaN can cause this function to loop endlessly.
+#[must_use]
 pub fn kuhn_munkres<C, W>(weights: &W) -> (C, Vec<usize>)
 where
     C: Bounded + Sum<C> + Signed + Zero + Ord + Copy,
@@ -256,6 +257,7 @@ where
 ///
 /// Also, using indefinite values such as positive or negative infinity or
 /// NaN can cause this function to loop endlessly.
+#[must_use]
 pub fn kuhn_munkres_min<C, W>(weights: &W) -> (C, Vec<usize>)
 where
     C: Bounded + Sum<C> + Zero + Signed + Ord + Copy,
