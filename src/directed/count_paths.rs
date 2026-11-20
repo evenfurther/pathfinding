@@ -47,6 +47,14 @@ where
     }
 }
 
+/// Add `count` paths to `total`, which must not wrap: the number of paths can grow
+/// exponentially with the size of the graph.
+const fn add_paths(total: &mut usize, count: usize) {
+    *total = total
+        .checked_add(count)
+        .expect("the number of paths given to count_paths does not fit in a usize");
+}
+
 fn count_paths_from<T, FN, IN, FS>(start: T, successors: &mut FN, success: &mut FS) -> usize
 where
     T: Eq + Hash,
@@ -72,14 +80,14 @@ where
         if let Some(successor) = successor {
             if let Some(count) = enter(successor, &mut counts, &mut stack, successors, success) {
                 // Nothing was pushed, so the frame on top is still the one being counted.
-                stack.last_mut().unwrap().2 += count;
+                add_paths(&mut stack.last_mut().unwrap().2, count);
             }
         } else {
             // Every successor is accounted for, so this node's own count is settled.
             let (index, _, count) = stack.pop().unwrap();
             *counts.get_index_mut(index).unwrap().1 = Some(count);
             match stack.last_mut() {
-                Some(parent) => parent.2 += count,
+                Some(parent) => add_paths(&mut parent.2, count),
                 // The starting node, which is the last frame to be popped.
                 None => total = count,
             }
@@ -112,6 +120,10 @@ where
 /// # Panics
 ///
 /// If the graph contains a loop, since the number of paths through it is then unbounded.
+///
+/// If the number of paths does not fit in a `usize`. It can grow exponentially with the size of
+/// the graph: there are already about 10²³ paths across a 40×40 grid when moving only right or
+/// down.
 pub fn count_paths<T, FN, IN, FS>(start: T, mut successors: FN, mut success: FS) -> usize
 where
     T: Eq + Hash,
