@@ -1,6 +1,5 @@
 //! Miscellaneous utilities
 
-use integer_sqrt::IntegerSquareRoot;
 use num_traits::{PrimInt, Unsigned};
 
 /// Return the square root of `n` if `n` is square, `None` otherwise.
@@ -17,8 +16,35 @@ pub fn uint_sqrt<T>(n: T) -> Option<T>
 where
     T: PrimInt + Unsigned,
 {
-    let root = n.integer_sqrt();
+    let root = isqrt(n);
     (n == root * root).then_some(root)
+}
+
+/// Integer square root of `n`, rounded down, computed digit by digit in base 4 so that it is
+/// exact for unsigned integers of any width.
+fn isqrt<T>(n: T) -> T
+where
+    T: PrimInt + Unsigned,
+{
+    // Largest power of 4 not greater than `n`, starting from the largest one `T` can hold.
+    let mut bit = T::one() << ((T::zero().count_zeros() as usize - 2) & !1);
+    while bit > n {
+        bit = bit >> 2;
+    }
+    // `root` holds the root found so far, shifted left by the number of base-4 digits left to
+    // compute, and `rem` what is left of `n` once that root is squared and subtracted.
+    let mut rem = n;
+    let mut root = T::zero();
+    while !bit.is_zero() {
+        if rem >= root + bit {
+            rem = rem - (root + bit);
+            root = (root >> 1) + bit;
+        } else {
+            root = root >> 1;
+        }
+        bit = bit >> 2;
+    }
+    root
 }
 
 /// Move a two-dimensional coordinate into a given direction provided that:
@@ -97,5 +123,42 @@ pub const fn constrain(value: isize, upper: usize) -> usize {
     } else {
         // `unsigned_abs` rather than negation: `-isize::MIN` does not fit in an `isize`.
         (upper - value.unsigned_abs() % upper) % upper
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::isqrt;
+
+    #[test]
+    fn isqrt_u8_exhaustive() {
+        for n in 0..=u8::MAX {
+            assert_eq!(isqrt(n), n.isqrt(), "{n}");
+        }
+    }
+
+    #[test]
+    fn isqrt_u16_exhaustive() {
+        for n in 0..=u16::MAX {
+            assert_eq!(isqrt(n), n.isqrt(), "{n}");
+        }
+    }
+
+    #[test]
+    fn isqrt_near_squares() {
+        for r in (0..=u64::from(u32::MAX))
+            .step_by(65_537)
+            .chain([u64::from(u32::MAX)])
+        {
+            let square = r * r;
+            assert_eq!(isqrt(square), r);
+            if square > 0 {
+                assert_eq!(isqrt(square - 1), r - 1);
+            }
+            assert_eq!(isqrt(square + 2 * r), r);
+        }
+        assert_eq!(isqrt(u64::MAX), u64::from(u32::MAX));
+        assert_eq!(isqrt(u128::MAX), u128::from(u64::MAX));
+        assert_eq!(isqrt(usize::MAX), usize::MAX.isqrt());
     }
 }

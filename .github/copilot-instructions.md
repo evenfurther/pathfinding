@@ -9,7 +9,7 @@
  - **MSRV:** 1.87.0 (Minimum Supported Rust Version)
  - **Size:** ~6,000 lines of source code, ~4,400 lines of tests
  - **Type:** Library crate (no binary)
- - **Dependencies:** Minimal (num-traits, indexmap, rustc-hash, integer-sqrt, thiserror, deprecate-until)
+ - **Dependencies:** Minimal (num-traits, indexmap, rustc-hash, thiserror, deprecate-until)
  - **Repository:** https://github.com/evenfurther/pathfinding
 
  ## Build and Validation Commands

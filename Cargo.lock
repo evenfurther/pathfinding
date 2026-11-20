@@ -395,15 +395,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "integer-sqrt"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "276ec31bcb4a9ee45f58bec6f9ec700ae4cf4f4f8f2fa7e06cb406bd5ffdd770"
-dependencies = [
- "num-traits",
-]
-
-[[package]]
 name = "itertools"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -518,7 +509,6 @@ dependencies = [
  "deprecate-until",
  "iai-callgrind",
  "indexmap",
- "integer-sqrt",
  "itertools 0.15.0",
  "movingai",
  "noisy_float",
