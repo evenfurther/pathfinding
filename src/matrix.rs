@@ -924,7 +924,7 @@ macro_rules! matrix {
 }
 
 /// Format error encountered while attempting to build a Matrix.
-#[derive(Debug, Error)]
+#[derive(Clone, Copy, Debug, Error, PartialEq, Eq)]
 pub enum MatrixFormatError {
     /// Attempt to build a matrix containing an empty row
     #[error("matrix rows cannot be empty")]
@@ -953,8 +953,34 @@ impl<'a, C> RowIterator<'a, C> {
     }
 }
 
+// Not derived, as deriving would require `C: Clone` / `C: Debug`, although only a reference
+// to the matrix is held.
+impl<C> Clone for RowIterator<'_, C> {
+    fn clone(&self) -> Self {
+        Self {
+            matrix: self.matrix,
+            front: self.front,
+            back: self.back,
+        }
+    }
+}
+
+impl<C> std::fmt::Debug for RowIterator<'_, C> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("RowIterator")
+            .field("front", &self.front)
+            .field("back", &self.back)
+            .finish_non_exhaustive()
+    }
+}
+
 impl<'a, C> Iterator for RowIterator<'a, C> {
     type Item = &'a [C];
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.back - self.front;
+        (len, Some(len))
+    }
 
     fn next(&mut self) -> Option<Self::Item> {
         (self.front < self.back).then(|| {
@@ -974,6 +1000,8 @@ impl<C> DoubleEndedIterator for RowIterator<'_, C> {
 }
 
 impl<C> FusedIterator for RowIterator<'_, C> {}
+
+impl<C> ExactSizeIterator for RowIterator<'_, C> {}
 
 impl<'a, C> IntoIterator for &'a Matrix<C> {
     type IntoIter = RowIterator<'a, C>;
@@ -1006,8 +1034,34 @@ impl<'a, C> ColumnIterator<'a, C> {
     }
 }
 
+// Not derived, as deriving would require `C: Clone` / `C: Debug`, although only a reference
+// to the matrix is held.
+impl<C> Clone for ColumnIterator<'_, C> {
+    fn clone(&self) -> Self {
+        Self {
+            matrix: self.matrix,
+            front: self.front,
+            back: self.back,
+        }
+    }
+}
+
+impl<C> std::fmt::Debug for ColumnIterator<'_, C> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ColumnIterator")
+            .field("front", &self.front)
+            .field("back", &self.back)
+            .finish_non_exhaustive()
+    }
+}
+
 impl<'a, C> Iterator for ColumnIterator<'a, C> {
     type Item = Vec<&'a C>;
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.back - self.front;
+        (len, Some(len))
+    }
 
     fn next(&mut self) -> Option<Self::Item> {
         (self.front < self.back).then(|| {
@@ -1027,6 +1081,8 @@ impl<C> DoubleEndedIterator for ColumnIterator<'_, C> {
 }
 
 impl<C> FusedIterator for ColumnIterator<'_, C> {}
+
+impl<C> ExactSizeIterator for ColumnIterator<'_, C> {}
 
 /// Directions usable for [`Matrix::in_direction()`] second argument.
 pub mod directions {

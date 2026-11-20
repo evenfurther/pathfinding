@@ -573,6 +573,13 @@ impl Grid {
     }
 }
 
+/// An empty grid without rows or columns, as returned by `Grid::new(0, 0)`.
+impl Default for Grid {
+    fn default() -> Self {
+        Self::new(0, 0)
+    }
+}
+
 impl FromIterator<(usize, usize)> for Grid {
     fn from_iter<T>(iter: T) -> Self
     where
@@ -603,6 +610,7 @@ impl FromIterator<(usize, usize)> for Grid {
 
 /// Iterator returned by calling `.into_iter()` on a grid.
 #[must_use = "iterators are lazy and do nothing unless consumed"]
+#[derive(Clone, Debug)]
 pub struct GridIntoIterator {
     grid: Grid,
     x: usize,
@@ -654,6 +662,7 @@ impl IntoIterator for Grid {
 
 /// Iterator returned by calling `.iter()` on a grid.
 #[must_use = "iterators are lazy and do nothing unless consumed"]
+#[derive(Clone, Debug)]
 pub struct GridIterator<'a> {
     grid: &'a Grid,
     x: usize,
@@ -707,6 +716,7 @@ impl<'a> IntoIterator for &'a Grid {
 
 /// Iterator returned by calling `.edges()` on a grid.
 #[must_use = "iterators are lazy and do nothing unless consumed"]
+#[derive(Clone, Debug)]
 pub struct EdgesIterator<'a> {
     grid: &'a Grid,
     x: usize,

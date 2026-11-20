@@ -380,7 +380,7 @@ impl<K: Ord> Ord for SmallestCostHolder<K> {
 
 /// Iterator structure created by the `astar_bag` function.
 #[must_use = "iterators are lazy and do nothing unless consumed"]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AstarSolution<N> {
     sinks: Vec<usize>,
     /// Index of the start vertex, which is where every path ends when walked backwards.

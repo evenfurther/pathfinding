@@ -492,6 +492,7 @@ where
     rev
 }
 
+#[derive(Clone)]
 struct SmallestHolder<K> {
     cost: K,
     index: usize,
@@ -519,6 +520,7 @@ impl<K: Ord> Ord for SmallestHolder<K> {
 
 /// Struct returned by [`dijkstra_reach`].
 #[must_use = "iterators are lazy and do nothing unless consumed"]
+#[derive(Clone)]
 pub struct DijkstraReachable<N, C, FN> {
     to_see: BinaryHeap<SmallestHolder<C>>,
     /// Whether the node at a given index in `parents` has already been yielded. Nodes are
@@ -526,6 +528,14 @@ pub struct DijkstraReachable<N, C, FN> {
     seen: Vec<bool>,
     parents: FxIndexMap<N, (usize, C)>,
     successors: FN,
+}
+
+impl<N: std::fmt::Debug, C, FN> std::fmt::Debug for DijkstraReachable<N, C, FN> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DijkstraReachable")
+            .field("reached", &self.parents.keys().collect::<Vec<_>>())
+            .finish_non_exhaustive()
+    }
 }
 
 /// Information about a node reached by [`dijkstra_reach`].
