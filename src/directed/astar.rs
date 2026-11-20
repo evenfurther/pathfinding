@@ -10,6 +10,7 @@ use std::iter::FusedIterator;
 
 use super::{relax, reverse_path};
 use crate::FxIndexMap;
+use crate::add_costs;
 
 /// Compute a shortest path using the [A* search
 /// algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
@@ -29,6 +30,13 @@ use crate::FxIndexMap;
 /// A node will never be included twice in the path as determined by the `Eq` relationship.
 ///
 /// The returned path comprises both the start and end node.
+///
+/// # Panics
+///
+/// This function panics if the cost of a path, or the sum of a path cost and a heuristic
+/// estimate, does not fit into `C`. Silently returning a wrapped, and therefore wrong, cost
+/// would be worse than failing loudly. If your costs can come close to the limits of the
+/// type, use a wider type, or a wrapper type whose addition saturates.
 ///
 /// # Example
 ///
@@ -117,7 +125,6 @@ use crate::FxIndexMap;
 /// ```
 ///
 #[must_use]
-#[expect(clippy::missing_panics_doc)]
 pub fn astar<N, C, FN, IN, FH, FS>(
     start: &N,
     mut successors: FN,
@@ -156,14 +163,14 @@ where
             successors(node)
         };
         for (successor, move_cost) in successors {
-            let new_cost = cost + move_cost;
+            let new_cost = add_costs(cost, move_cost);
             let Some(relaxed) = relax(&mut parents, successor, index, new_cost) else {
                 continue;
             };
             let n = relaxed.index();
             let h = heuristic(parents.get_index(n).unwrap().0); // Cannot fail
             to_see.push(SmallestCostHolder {
-                estimated_cost: new_cost + h,
+                estimated_cost: add_costs(new_cost, h),
                 cost: new_cost,
                 index: n,
             });
@@ -195,8 +202,14 @@ where
 ///
 /// Each path comprises both the start and an end node. Note that while every path shares the same
 /// start node, different paths may have different end nodes.
+///
+/// # Panics
+///
+/// This function panics if the cost of a path, or the sum of a path cost and a heuristic
+/// estimate, does not fit into `C`. Silently returning a wrapped, and therefore wrong, cost
+/// would be worse than failing loudly. If your costs can come close to the limits of the
+/// type, use a wider type, or a wrapper type whose addition saturates.
 #[must_use]
-#[expect(clippy::missing_panics_doc)]
 pub fn astar_bag<N, C, FN, IN, FH, FS>(
     start: &N,
     mut successors: FN,
@@ -255,7 +268,7 @@ where
         };
         for (successor, move_cost) in successors {
             zero_cost_edge |= move_cost.is_zero();
-            let new_cost = cost + move_cost;
+            let new_cost = add_costs(cost, move_cost);
             let h; // heuristic(&successor)
             let n; // index for successor
             match parents.entry(successor) {
@@ -287,7 +300,7 @@ where
             }
 
             to_see.push(SmallestCostHolder {
-                estimated_cost: new_cost + h,
+                estimated_cost: add_costs(new_cost, h),
                 cost: new_cost,
                 index: n,
             });
@@ -324,6 +337,13 @@ where
 /// ### Warning
 ///
 /// The number of results with the same value might be very large in some graphs. Use with caution.
+///
+/// # Panics
+///
+/// This function panics if the cost of a path, or the sum of a path cost and a heuristic
+/// estimate, does not fit into `C`. Silently returning a wrapped, and therefore wrong, cost
+/// would be worse than failing loudly. If your costs can come close to the limits of the
+/// type, use a wider type, or a wrapper type whose addition saturates.
 #[must_use]
 pub fn astar_bag_collect<N, C, FN, IN, FH, FS>(
     start: &N,
