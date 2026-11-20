@@ -897,10 +897,10 @@ where
 #[macro_export]
 macro_rules! matrix {
     () => {
-        pathfinding::matrix::Matrix::new_empty(0)
+        $crate::matrix::Matrix::new_empty(0)
     };
     ($a:expr $(, $b: expr)*$(,)?) => {{
-        let mut m = pathfinding::matrix::Matrix::new_empty($a.len());
+        let mut m = $crate::matrix::Matrix::new_empty($a.len());
         m.extend(&$a).unwrap();
         $(
             match m.extend(&$b) {
