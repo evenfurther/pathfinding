@@ -623,7 +623,8 @@ impl<C> Matrix<C> {
     pub const fn column_iter(&self) -> ColumnIterator<'_, C> {
         ColumnIterator {
             matrix: self,
-            column: 0,
+            front: 0,
+            back: self.columns,
         }
     }
 
@@ -927,26 +928,34 @@ pub enum MatrixFormatError {
 /// Row iterator returned by `iter()` on a matrix.
 pub struct RowIterator<'a, C> {
     matrix: &'a Matrix<C>,
-    row: usize,
+    // Rows still to be returned are `front..back`, so that both ends can be consumed
+    // independently.
+    front: usize,
+    back: usize,
+}
+
+impl<'a, C> RowIterator<'a, C> {
+    fn row(&self, row: usize) -> &'a [C] {
+        &self.matrix.data[row * self.matrix.columns..(row + 1) * self.matrix.columns]
+    }
 }
 
 impl<'a, C> Iterator for RowIterator<'a, C> {
     type Item = &'a [C];
 
     fn next(&mut self) -> Option<Self::Item> {
-        (self.row < self.matrix.rows).then(|| {
-            self.row += 1;
-            &self.matrix.data[(self.row - 1) * self.matrix.columns..self.row * self.matrix.columns]
+        (self.front < self.back).then(|| {
+            self.front += 1;
+            self.row(self.front - 1)
         })
     }
 }
 
 impl<C> DoubleEndedIterator for RowIterator<'_, C> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        (self.row < self.matrix.rows).then(|| {
-            let row = self.matrix.rows - self.row;
-            self.row += 1;
-            &self.matrix.data[(row - 1) * self.matrix.columns..row * self.matrix.columns]
+        (self.front < self.back).then(|| {
+            self.back -= 1;
+            self.row(self.back)
         })
     }
 }
@@ -960,7 +969,8 @@ impl<'a, C> IntoIterator for &'a Matrix<C> {
     fn into_iter(self) -> RowIterator<'a, C> {
         RowIterator {
             matrix: self,
-            row: 0,
+            front: 0,
+            back: self.rows,
         }
     }
 }
@@ -968,30 +978,36 @@ impl<'a, C> IntoIterator for &'a Matrix<C> {
 /// Column iterator returned by `column_iter()` on a matrix.
 pub struct ColumnIterator<'a, C> {
     matrix: &'a Matrix<C>,
-    column: usize,
+    // Columns still to be returned are `front..back`, so that both ends can be consumed
+    // independently.
+    front: usize,
+    back: usize,
+}
+
+impl<'a, C> ColumnIterator<'a, C> {
+    fn column(&self, column: usize) -> Vec<&'a C> {
+        (0..self.matrix.rows)
+            .map(|r| &self.matrix[(r, column)])
+            .collect()
+    }
 }
 
 impl<'a, C> Iterator for ColumnIterator<'a, C> {
     type Item = Vec<&'a C>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        (self.column < self.matrix.columns).then(|| {
-            self.column += 1;
-            (0..self.matrix.rows)
-                .map(|r| &self.matrix[(r, self.column - 1)])
-                .collect()
+        (self.front < self.back).then(|| {
+            self.front += 1;
+            self.column(self.front - 1)
         })
     }
 }
 
 impl<C> DoubleEndedIterator for ColumnIterator<'_, C> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        (self.column < self.matrix.columns).then(|| {
-            self.column += 1;
-            let column = self.matrix.columns - self.column;
-            (0..self.matrix.rows)
-                .map(|r| &self.matrix[(r, column)])
-                .collect()
+        (self.front < self.back).then(|| {
+            self.back -= 1;
+            self.column(self.back)
         })
     }
 }
