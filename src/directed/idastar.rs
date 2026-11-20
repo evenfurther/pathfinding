@@ -97,7 +97,6 @@ where
         .try_fold(heuristic(start), |bound, ()| {
             search(
                 &mut path,
-                Zero::zero(),
                 bound,
                 &mut successors,
                 &mut heuristic,
@@ -111,9 +110,24 @@ where
         .unwrap_or_default() // To avoid a missing panics section, as this always break
 }
 
+/// A node of the current path whose successors are being explored.
+struct Frame<N, C> {
+    /// Successors left to explore, along with the cost of the edge leading to them and their
+    /// estimated cost from this node.
+    successors: std::vec::IntoIter<(N, C, C)>,
+    /// Cost of the path up to this node.
+    cost: C,
+    /// Smallest estimated cost found beyond the bound below this node so far.
+    min: Option<C>,
+}
+
+/// Explore every path from the last node of `path` whose estimated cost stays within `bound`.
+///
+/// This is a depth-first search, written with an explicit stack rather than recursively so that
+/// a long path cannot overflow the call stack. It breaks with the path found and its cost, or
+/// continues with the smallest estimated cost which exceeded `bound`, if any.
 fn search<N, C, FN, IN, FH, FS>(
     path: &mut FxIndexSet<N>,
-    cost: C,
     bound: C,
     successors: &mut FN,
     heuristic: &mut FH,
@@ -127,37 +141,61 @@ where
     FH: FnMut(&N) -> C,
     FS: FnMut(&N) -> bool,
 {
-    let neighbs = {
-        let start = &path[path.len() - 1];
-        let f = cost + heuristic(start);
-        if f > bound {
-            return ControlFlow::Continue(Some(f));
-        }
-        if success(start) {
+    // One frame for every node of `path` being explored. The last node of `path` has no frame
+    // while it is being entered.
+    let mut stack: Vec<Frame<N, C>> = Vec::new();
+    // Cost of the path up to the node being entered.
+    let mut cost = Zero::zero();
+    loop {
+        // Enter the last node of `path`.
+        let node = &path[path.len() - 1];
+        let f = cost + heuristic(node);
+        // Smallest estimated cost beyond the bound, once the last node of `path` is done with.
+        let mut done = if f > bound {
+            Some(Some(f))
+        } else if success(node) {
             return ControlFlow::Break((path.iter().cloned().collect(), f));
-        }
-        let mut neighbs: Vec<(N, C, C)> = successors(start)
-            .into_iter()
-            .filter_map(|(n, c)| {
-                (!path.contains(&n)).then(|| {
-                    let h = heuristic(&n);
-                    (n, c, c + h)
+        } else {
+            let mut neighbs: Vec<(N, C, C)> = successors(node)
+                .into_iter()
+                .filter_map(|(n, c)| {
+                    (!path.contains(&n)).then(|| {
+                        let h = heuristic(&n);
+                        (n, c, c + h)
+                    })
                 })
-            })
-            .collect::<Vec<_>>();
-        // A stable sort, so that successors of equal estimated cost stay in the order the
-        // caller produced them: that order is the caller's way of breaking the tie.
-        neighbs.sort_by_key(|(_, _, c1)| *c1);
-        neighbs
-    };
-    let mut min = None;
-    for (node, extra, _) in neighbs {
-        let (idx, _) = path.insert_full(node);
-        match search(path, cost + extra, bound, successors, heuristic, success)? {
-            Some(m) if min.is_none_or(|n| n >= m) => min = Some(m),
-            _ => (),
+                .collect::<Vec<_>>();
+            // A stable sort, so that successors of equal estimated cost stay in the order the
+            // caller produced them: that order is the caller's way of breaking the tie.
+            neighbs.sort_by_key(|(_, _, c1)| *c1);
+            stack.push(Frame {
+                successors: neighbs.into_iter(),
+                cost,
+                min: None,
+            });
+            None
+        };
+        // Find the next node to enter, leaving every node whose successors are exhausted.
+        loop {
+            if let Some(min) = done.take() {
+                let Some(parent) = stack.last_mut() else {
+                    // The start node is done with: every path within the bound was explored.
+                    return ControlFlow::Continue(min);
+                };
+                path.pop();
+                match min {
+                    Some(m) if parent.min.is_none_or(|n| n >= m) => parent.min = Some(m),
+                    _ => (),
+                }
+            }
+            // Cannot fail: a frame was pushed or a parent frame was found above.
+            let frame = stack.last_mut().unwrap();
+            if let Some((node, extra, _)) = frame.successors.next() {
+                cost = frame.cost + extra;
+                path.insert(node);
+                break;
+            }
+            done = stack.pop().map(|frame| frame.min);
         }
-        path.swap_remove_index(idx);
     }
-    ControlFlow::Continue(min)
 }
