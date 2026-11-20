@@ -67,6 +67,7 @@ use std::hash::Hash;
 ///                       |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
+#[must_use]
 pub fn dijkstra<N, C, FN, IN, FS>(
     start: &N,
     mut successors: FN,
@@ -147,6 +148,7 @@ where
 /// let result = dijkstra_bidirectional(&(1, 1), &(4, 6), neighbours, neighbours);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
+#[must_use]
 #[expect(clippy::missing_panics_doc)]
 pub fn dijkstra_bidirectional<N, C, FS, IS, FP, IP>(
     start: &N,
@@ -357,6 +359,7 @@ fn expand_bidirectional<N, C, FN, IN>(
 /// assert_eq!(reachables[&8], (4, 30));  // 1 -> 2 -> 4 -> 8
 /// assert_eq!(reachables[&9], (4, 30));  // 1 -> 2 -> 4 -> 9
 /// ```
+#[must_use]
 pub fn dijkstra_all<N, C, FN, IN>(start: &N, successors: FN) -> HashMap<N, (N, C)>
 where
     N: Eq + Hash + Clone,
@@ -383,6 +386,7 @@ where
 ///
 /// The [`build_path`] function can be used to build a full path from the starting point to one
 /// of the reachable targets.
+#[must_use]
 #[expect(clippy::missing_panics_doc)]
 pub fn dijkstra_partial<N, C, FN, IN, FS>(
     start: &N,
@@ -498,6 +502,7 @@ where
 /// assert_eq!(vec![1], build_path(&1, &parents));
 /// assert_eq!(vec![101], build_path(&101, &parents));
 /// ```
+#[must_use]
 #[expect(clippy::implicit_hasher)]
 pub fn build_path<N, C>(target: &N, parents: &HashMap<N, (N, C)>) -> Vec<N>
 where
@@ -539,6 +544,7 @@ impl<K: Ord> Ord for SmallestHolder<K> {
 }
 
 /// Struct returned by [`dijkstra_reach`].
+#[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct DijkstraReachable<N, C, FN> {
     to_see: BinaryHeap<SmallestHolder<C>>,
     /// Whether the node at a given index in `parents` has already been yielded. Nodes are

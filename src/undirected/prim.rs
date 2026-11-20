@@ -30,6 +30,7 @@ use std::hash::Hash;
 /// // kruskal spans both.
 /// assert_eq!(kruskal(&edges).count(), 2);
 /// ```
+#[must_use]
 pub fn prim<N, C>(edges: &[(N, N, C)]) -> Vec<(&N, &N, C)>
 where
     N: Hash + Eq + Ord,

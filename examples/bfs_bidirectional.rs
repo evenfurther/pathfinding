@@ -2,6 +2,7 @@
 //! and compares it with the regular BFS algorithm.
 
 use pathfinding::prelude::{bfs, bfs_bidirectional};
+use std::hint::black_box;
 use std::ops::Add;
 use std::time::Instant;
 
@@ -77,11 +78,16 @@ fn main() {
 /// $---------$         $---------$         $---------$         $---------$               $---------$         $---------$
 fn run_corner_to_corner() {
     let instant = Instant::now();
-    bfs(&BOTTOM_LEFT, &successors, |p| *p == TOP_RIGHT);
+    black_box(bfs(&BOTTOM_LEFT, &successors, |p| *p == TOP_RIGHT));
     let duration_bfs = instant.elapsed();
 
     let instant = Instant::now();
-    bfs_bidirectional(&BOTTOM_LEFT, &TOP_RIGHT, successors, successors);
+    black_box(bfs_bidirectional(
+        &BOTTOM_LEFT,
+        &TOP_RIGHT,
+        successors,
+        successors,
+    ));
     let duration_bfs_bidirectional = instant.elapsed();
 
     print!(
@@ -137,11 +143,13 @@ Bidirectional BFS took {duration_bfs_bidirectional:?}
 /// $---------$         $---------$         $---------$         $---------$         $---------$
 fn run_center_to_corner() {
     let instant = Instant::now();
-    bfs(&CENTER, &successors, |p| *p == TOP_RIGHT);
+    black_box(bfs(&CENTER, &successors, |p| *p == TOP_RIGHT));
     let duration_bfs = instant.elapsed();
 
     let instant = Instant::now();
-    bfs_bidirectional(&CENTER, &TOP_RIGHT, successors, successors);
+    black_box(bfs_bidirectional(
+        &CENTER, &TOP_RIGHT, successors, successors,
+    ));
     let duration_bfs_bidirectional = instant.elapsed();
 
     print!(

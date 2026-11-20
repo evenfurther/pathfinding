@@ -15,6 +15,7 @@ use std::hash::Hash;
 /// - `vertices` is the list of all nodes.
 /// - `connected` returns true if the two given node is connected.
 /// - return a list of cliques.
+#[must_use]
 pub fn maximal_cliques_collect<N, FN, IN>(vertices: IN, connected: &mut FN) -> Vec<HashSet<N>>
 where
     N: Eq + Hash + Clone,

@@ -77,6 +77,7 @@ use std::mem;
 ///                     |&p| p == GOAL);
 /// assert_eq!(result.expect("no path found").1, 4);
 /// ```
+#[must_use]
 #[expect(clippy::missing_panics_doc)]
 pub fn fringe<N, C, FN, IN, FH, FS>(
     start: &N,

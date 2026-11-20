@@ -129,6 +129,7 @@ where
 ///
 /// The function returns a list of strongly connected components sets. It will contain
 /// at least one component (the one containing the `start` node).
+#[must_use]
 pub fn strongly_connected_components_from<N, FN, IN>(start: &N, successors: FN) -> Vec<Vec<N>>
 where
     N: Clone + Hash + Eq,
@@ -147,6 +148,7 @@ where
 ///
 /// The function returns the strongly connected component containing the node,
 /// which is guaranteed to contain at least `node`.
+#[must_use]
 #[expect(clippy::missing_panics_doc)]
 pub fn strongly_connected_component<N, FN, IN>(node: &N, successors: FN) -> Vec<N>
 where
@@ -166,6 +168,7 @@ where
 /// - `successors` returns a list of successors for a given node.
 ///
 /// The function returns a list of strongly connected components sets.
+#[must_use]
 pub fn strongly_connected_components<N, FN, IN>(nodes: &[N], successors: FN) -> Vec<Vec<N>>
 where
     N: Clone + Hash + Eq,

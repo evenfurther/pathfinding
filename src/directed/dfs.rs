@@ -48,6 +48,7 @@ use rustc_hash::FxHashSet;
 /// assert_eq!(dfs(1, |&n| vec![n*n, n+1].into_iter().filter(|&x| x <= 17), |&n| n == 17),
 ///            Some(vec![1, 2, 4, 16, 17]));
 /// ```
+#[must_use]
 #[expect(clippy::missing_panics_doc)]
 pub fn dfs<N, FN, IN, FS>(start: N, mut successors: FN, mut success: FS) -> Option<Vec<N>>
 where
@@ -140,6 +141,7 @@ where
 }
 
 /// Struct returned by [`dfs_reach`].
+#[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct DfsReachable<N, FN> {
     to_see: Vec<N>,
     visited: FxHashSet<N>,
@@ -153,6 +155,7 @@ where
     /// Return a lower bound on the number of remaining reachable
     /// nodes. Not all nodes are necessarily known in advance, and
     /// new reachable nodes may be discovered while using the iterator.
+    #[must_use]
     pub fn remaining_nodes_low_bound(&self) -> usize {
         self.to_see.iter().collect::<FxHashSet<_>>().len()
     }

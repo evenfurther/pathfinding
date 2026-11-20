@@ -93,5 +93,5 @@ fn empty() {
 #[test]
 #[should_panic(expected = "number of rows must not be larger than number of columns")]
 fn unbalanced() {
-    kuhn_munkres(&Matrix::new(3, 2, 0));
+    let _ = kuhn_munkres(&Matrix::new(3, 2, 0));
 }

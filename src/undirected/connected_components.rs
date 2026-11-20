@@ -135,6 +135,7 @@ where
     ///
     /// This function returns a list of sets of nodes forming disjoint connected
     /// sets.
+    #[must_use]
     pub fn connected_components<FN, IN>(candidates: &[N], mut neighbours: FN) -> C2
     where
         FN: FnMut(&N) -> IN,
@@ -233,6 +234,7 @@ where
 ///
 /// This function returns a list of sets of nodes forming disjoint connected
 /// sets.
+#[must_use]
 pub fn connected_components<N, FN, IN>(candidates: &[N], neighbours: FN) -> Vec<HashSet<N>>
 where
     N: Clone + Hash + Eq,

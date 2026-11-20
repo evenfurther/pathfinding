@@ -76,6 +76,7 @@ use std::{hash::Hash, ops::ControlFlow};
 /// Successors whose estimated total cost is equal are explored in the order `successors`
 /// returned them, so the choice belongs to the caller: yield the preferred one first.
 ///
+#[must_use]
 pub fn idastar<N, C, FN, IN, FH, FS>(
     start: &N,
     mut successors: FN,
